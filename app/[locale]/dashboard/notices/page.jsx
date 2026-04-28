@@ -60,7 +60,7 @@ export default function NoticesPage() {
 		}).length;
 
 		// Notices with images
-		const withImages = notices.filter(n => n.noticeimage && n.noticeimage !== "/ghanti.png").length;
+		const withImages = notices.filter(n => n.noticeimage && n.noticeimage !== "/pashupatinath.png").length;
 
 		return {
 			total: totalNotices,
@@ -126,7 +126,7 @@ export default function NoticesPage() {
 				n.noticetitle,
 				n.notice,
 				n.noticedate,
-				n.noticeimage && n.noticeimage !== "/ghanti.png" ? "Yes" : "No"
+				n.noticeimage && n.noticeimage !== "/pashupatinath.png" ? "Yes" : "No"
 			])
 		].map(row => row.map(cell => `"${cell}"`).join(",")).join("\n");
 
@@ -364,7 +364,7 @@ export default function NoticesPage() {
 															Upcoming
 														</Badge>
 													)}
-													{notice.noticeimage && notice.noticeimage !== "/ghanti.png" && (
+													{notice.noticeimage && notice.noticeimage !== "/pashupatinath.png" && (
 														<Badge variant="outline" className="flex items-center gap-1">
 															<ImageIcon className="w-3 h-3" />
 															Has Image
@@ -380,7 +380,7 @@ export default function NoticesPage() {
 												</div>
 											</div>
 											<div className="flex items-center gap-2 ml-4">
-												{notice.noticeimage && notice.noticeimage !== "/ghanti.png" && (
+												{notice.noticeimage && notice.noticeimage !== "/pashupatinath.png" && (
 													<Image 
 														src={notice.noticeimage} 
 														width={80} 

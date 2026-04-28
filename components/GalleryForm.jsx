@@ -122,7 +122,7 @@ export default function GalleryForm({ handleCloseGalleryModal, galleryToEdit }) 
 			</div>
 
 			<div className="grid grid-cols-2 gap-2">
-				<button type="submit" disabled={submitting} className={`w-full p-1.5 rounded ${submitting ? "bg-neutral-400 cursor-not-allowed" : "bg-red-600 hover:bg-brand"} text-neutral-200 font-bold`}>
+				<button type="submit" disabled={submitting} className={`w-full p-1.5 rounded ${submitting ? "bg-neutral-400 cursor-not-allowed" : "bg-red-600 hover:bg-brand_primary"} text-neutral-200 font-bold`}>
 					{submitting ? `${galleryToEdit ? "Updating" : "Creating"} Gallery Item...` : `${galleryToEdit ? "Update" : "Create"} Gallery Item`}
 				</button>
 				<Button variant="outline" onClick={handleCloseGalleryModal}>

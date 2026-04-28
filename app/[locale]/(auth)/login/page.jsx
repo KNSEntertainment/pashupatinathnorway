@@ -1,18 +1,18 @@
 import AuthFormClient from './AuthFormClient';
 
 export const metadata = {
-  title: 'Login | PNSB-Norway',
-  description: 'Sign in to your PNSB-Norway account to access member dashboard, profiles, and exclusive content.',
-  keywords: ['login', 'sign in', 'PNSB-Norway', 'member account', 'dashboard'],
+  title: 'Login | Pashupatinath Norway Temple',
+  description: 'Sign in to your Pashupatinath Norway Temple account to access member dashboard, profiles, and exclusive content.',
+  keywords: ['login', 'sign in', 'Pashupatinath Norway Temple', 'member account', 'dashboard'],
   openGraph: {
-    title: 'Login | PNSB-Norway',
-    description: 'Sign in to your PNSB-Norway account to access member dashboard and exclusive content.',
+    title: 'Login | Pashupatinath Norway Temple',
+    description: 'Sign in to your Pashupatinath Norway Temple account to access member dashboard and exclusive content.',
     type: 'website',
   },
   twitter: {
     card: 'summary',
-    title: 'Login | PNSB-Norway',
-    description: 'Sign in to your PNSB-Norway account',
+    title: 'Login | Pashupatinath Norway Temple',
+    description: 'Sign in to your Pashupatinath Norway Temple account',
   },
 };
 

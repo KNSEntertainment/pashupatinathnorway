@@ -71,9 +71,9 @@ const UnifiedGallery = () => {
 
 	const getLocalizedCreator = (video: VideoData) => {
 		if (locale === "ne") {
-			return video.creator_ne || video.creator_en || video.creator || "PNSB-Norway";
+			return video.creator_ne || video.creator_en || video.creator || "Pashupatinath Norway Temple";
 		}
-		return video.creator_en || video.creator || "PNSB-Norway";
+		return video.creator_en || video.creator || "Pashupatinath Norway Temple";
 	};
 
 	// Helper function to get YouTube thumbnail
@@ -101,7 +101,7 @@ const UnifiedGallery = () => {
 						url: url,
 						title: item.alt || `${item.category} Photo`,
 						category: item.category,
-						photographer: "PNSB-Norway",
+						photographer: "Pashupatinath Norway Temple",
 					})),
 				);
 
@@ -246,7 +246,7 @@ const UnifiedGallery = () => {
 					{/* View Controls */}
 					<div className="mt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
 						{selectedAlbum && (
-							<button onClick={handleBackToAlbums} className="flex items-center gap-2 px-4 py-2 text-brand hover:text-blue-700 font-medium transition-colors">
+							<button onClick={handleBackToAlbums} className="flex items-center gap-2 px-4 py-2 text-brand_primary hover:text-blue-700 font-medium transition-colors">
 								<ChevronLeft className="w-5 h-5" />
 								Back to Albums
 							</button>
@@ -254,19 +254,19 @@ const UnifiedGallery = () => {
 
 						{!selectedAlbum && (
 							<div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-1 shadow-sm">
-								<button onClick={() => setViewMode("albums")} className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${viewMode === "albums" ? "bg-brand text-white shadow-sm" : "text-gray-600 hover:text-gray-900"}`}>
+								<button onClick={() => setViewMode("albums")} className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${viewMode === "albums" ? "bg-brand_primary text-white shadow-sm" : "text-gray-600 hover:text-gray-900"}`}>
 									<Folder className="w-4 h-4" />
 									<span className="text-sm font-medium">{t("Albums")} ({albums.length})</span>
 								</button>
-								<button onClick={() => setViewMode("photos")} className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${viewMode === "photos" ? "bg-brand text-white shadow-sm" : "text-gray-600 hover:text-gray-900"}`}>
+								<button onClick={() => setViewMode("photos")} className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${viewMode === "photos" ? "bg-brand_primary text-white shadow-sm" : "text-gray-600 hover:text-gray-900"}`}>
 									<ImageIcon className="w-4 h-4" />
 									<span className="text-sm font-medium">Photos ({photos.length})</span>
 								</button>
-								<button onClick={() => setViewMode("videos")} className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${viewMode === "videos" ? "bg-brand text-white shadow-sm" : "text-gray-600 hover:text-gray-900"}`}>
+								<button onClick={() => setViewMode("videos")} className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${viewMode === "videos" ? "bg-brand_primary text-white shadow-sm" : "text-gray-600 hover:text-gray-900"}`}>
 									<Video className="w-4 h-4" />
 									<span className="text-sm font-medium">Videos ({videos.length})</span>
 								</button>
-								<button onClick={() => setViewMode("all")} className={`hidden sm:flex items-center gap-2 px-4 py-2 rounded-md transition-all ${viewMode === "all" ? "bg-brand text-white shadow-sm" : "text-gray-600 hover:text-gray-900"}`}>
+								<button onClick={() => setViewMode("all")} className={`hidden sm:flex items-center gap-2 px-4 py-2 rounded-md transition-all ${viewMode === "all" ? "bg-brand_primary text-white shadow-sm" : "text-gray-600 hover:text-gray-900"}`}>
 									<LayoutGrid className="w-4 h-4" />
 									<span className="text-sm font-medium">All ({photos.length + videos.length})</span>
 								</button>
@@ -289,14 +289,14 @@ const UnifiedGallery = () => {
 
 									{/* Photo Count Badge */}
 									<div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-1.5 shadow-lg">
-										<ImageIcon className="w-4 h-4 text-brand" />
+										<ImageIcon className="w-4 h-4 text-brand_primary" />
 										<span className="text-sm font-semibold text-gray-900">{album.count}</span>
 									</div>
 								</div>
 
 								{/* Album Info */}
 								<div className="p-5">
-									<h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-brand transition-colors">{album.name}</h3>
+									<h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-brand_primary transition-colors">{album.name}</h3>
 									<p className="text-gray-600 text-sm">
 										{album.count} {album.count === 1 ? "photo" : "photos"}
 									</p>
@@ -396,7 +396,7 @@ const UnifiedGallery = () => {
 
 										{/* Play Button */}
 										<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center transform group-hover:scale-110 transition-all duration-300 shadow-2xl cursor-pointer border border-white/20">
-											<Play className="w-8 h-8 text-brand ml-1" fill="currentColor" />
+											<Play className="w-8 h-8 text-brand_primary ml-1" fill="currentColor" />
 										</div>
 
 										{/* Duration Badge */}
@@ -450,7 +450,7 @@ const UnifiedGallery = () => {
 
 												{/* Play Button */}
 												<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center transform group-hover:scale-110 transition-all duration-300 shadow-2xl cursor-pointer border border-white/20">
-													<Play className="w-8 h-8 text-brand ml-1" fill="currentColor" />
+													<Play className="w-8 h-8 text-brand_primary ml-1" fill="currentColor" />
 												</div>
 
 												{/* Duration Badge */}

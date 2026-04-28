@@ -1,17 +1,17 @@
 import MembersClient from './MembersClient';
 
 export const metadata = {
-  title: 'Members | PNSB-Norway',
-  description: 'Meet the members of PNSB-Norway. Browse our executive members, active members, and general members. Connect with our community.',
-  keywords: ['members', 'executive', 'community', 'PNSB-Norway', 'team', 'leadership'],
+  title: 'Members | Pashupatinath Norway Temple',
+  description: 'Meet the members of Pashupatinath Norway Temple. Browse our executive members, active members, and general members. Connect with our community.',
+  keywords: ['members', 'executive', 'community', 'Pashupatinath Norway Temple', 'team', 'leadership'],
   openGraph: {
-    title: 'Members | PNSB-Norway',
-    description: 'Meet the members of PNSB-Norway and connect with our community.',
+    title: 'Members | Pashupatinath Norway Temple',
+    description: 'Meet the members of Pashupatinath Norway Temple and connect with our community.',
     type: 'website',
   },
   twitter: {
     card: 'summary',
-    title: 'Members | PNSB-Norway',
+    title: 'Members | Pashupatinath Norway Temple',
     description: 'Browse our community of members and leaders.',
   },
 };

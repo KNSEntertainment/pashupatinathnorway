@@ -60,7 +60,7 @@ export default function DownloadsDashboardPage() {
 		<div className="max-w-6xl">
 			<div className="flex justify-between items-center mb-4">
 				<h1 className="text-2xl font-bold">Manage Downloads</h1>
-				<button onClick={handleCreate} className="bg-brand text-neutral-200 font-bold px-4 py-2 rounded hover:bg-red-700 transition-colors">
+				<button onClick={handleCreate} className="bg-brand_primary text-neutral-200 font-bold px-4 py-2 rounded hover:bg-red-700 transition-colors">
 					{openModal ? "Cancel" : "Create Download"}
 				</button>
 			</div>
@@ -68,7 +68,7 @@ export default function DownloadsDashboardPage() {
 			{/* Inline Form Section */}
 			{openModal && (
 				<div className="bg-white p-6 rounded-lg shadow-lg mb-6 border-2 border-brand">
-					<h2 className="text-lg font-bold text-white bg-brand p-4 mb-4 text-center rounded">{downloadToEdit ? "Edit Download" : "Create Download"}</h2>
+					<h2 className="text-lg font-bold text-white bg-brand_primary p-4 mb-4 text-center rounded">{downloadToEdit ? "Edit Download" : "Create Download"}</h2>
 					<DownloadForm handleCloseModal={handleCloseModal} downloadToEdit={downloadToEdit} />
 				</div>
 			)}
@@ -94,7 +94,7 @@ export default function DownloadsDashboardPage() {
 									<TableCell className="w-24">{doc.imageUrl ? <Image src={doc.imageUrl} width={64} height={64} alt={doc.title} className="w-16 h-16 rounded object-cover" /> : <span className="text-gray-900">No Image</span>}</TableCell>
 									<TableCell className="w-24">
 										{doc.fileUrl ? (
-											<a href={doc.fileUrl} target="_blank" rel="noopener noreferrer" className="text-brand underline">
+											<a href={doc.fileUrl} target="_blank" rel="noopener noreferrer" className="text-brand_primary underline">
 												Download
 											</a>
 										) : (
@@ -104,7 +104,7 @@ export default function DownloadsDashboardPage() {
 									<TableCell>
 										<div className="flex space-x-2">
 											<Button variant="ghost" size="icon" onClick={() => handleEdit(doc)}>
-												<Pencil className="w-6 h-6 text-brand" />
+												<Pencil className="w-6 h-6 text-brand_primary" />
 											</Button>
 											<Button variant="ghost" size="icon" onClick={() => handleDelete(doc._id)}>
 												<Trash2 className="w-6 h-6 text-red-600" />

@@ -67,14 +67,14 @@ export async function POST(request: NextRequest) {
 
 		// Send password change notification email
 		const mailOptions = {
-			from: `"PNSB-Norway" <${process.env.EMAIL_USER}>`,
+			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER}>`,
 			to: email,
-			subject: 'Password Changed - PNSB-Norway Membership',
+			subject: 'Password Changed - Pashupatinath Norway Temple Membership',
 			html: `
 				<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f8f9f9; border-radius: 8px;">
 					<h2 style="color: #333; margin-bottom: 20px;">Password Changed Successfully</h2>
 					<p>Dear ${member.fullName},</p>
-					<p>Your password for your PNSB-Norway membership account has been successfully changed.</p>
+					<p>Your password for your Pashupatinath Norway Temple membership account has been successfully changed.</p>
 					
 					<div style="background: #d4edda; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #28a745;">
 						<h3 style="color: #155724; margin-bottom: 10px;">Security Information:</h3>
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
 						<h3 style="color: #666; margin-bottom: 10px;">Login Information:</h3>
 						<p style="color: #666; font-size: 14px;">
 							You can login with your email: <strong>${email}</strong> and your new password at:<br>
-							<a href="https://www.pnsbnorway.org/en/login" style="color: #2563eb; text-decoration: none;">https://www.pnsbnorway.org/en/login</a>
+							<a href="https://http://pashupatinathnorway.vercel.app//en/login" style="color: #2563eb; text-decoration: none;">https://http://pashupatinathnorway.vercel.app//en/login</a>
 						</p>
 					</div>
 					
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
 					</p>
 					
 					<p style="color: #999; font-size: 12px; text-align: center;">
-						Best regards,<br>The PNSB-Norway Team
+						Best regards,<br>The Pashupatinath Norway Temple Team
 					</p>
 				</div>
 			`,

@@ -39,22 +39,22 @@ export async function generateMetadata({ params }) {
 
 		if (!member) {
 			return {
-				title: "Member Not Found | PNSB-Norway",
+				title: "Member Not Found | Pashupatinath Norway Temple",
 			};
 		}
 
 		return {
-			title: `${member.fullName} | PNSB-Norway Membership`,
+			title: `${member.fullName} | Pashupatinath Norway Temple Membership`,
 			description: `View the membership profile of ${member.fullName} from ${member.city}, ${member.province || "Norway"}`,
 			openGraph: {
-				title: `${member.fullName} | PNSB-Norway`,
+				title: `${member.fullName} | Pashupatinath Norway Temple`,
 				description: `Member profile: ${member.profession || member.membershipType}`,
 				images: member.profilePhoto ? [member.profilePhoto] : [],
 			},
 		};
 	} catch {
 		return {
-			title: "Member Profile | PNSB-Norway",
+			title: "Member Profile | Pashupatinath Norway Temple",
 		};
 	}
 }

@@ -34,7 +34,7 @@ export default function MemberIDCard({ memberData, locale = "en" }: MemberIDCard
 
 
 	// QR code contains the member profile URL with locale prefix
-	const baseUrl = process.env.NEXTAUTH_URL || "https://www.pnsbnorway.org";
+	const baseUrl = process.env.NEXTAUTH_URL || "https://http://pashupatinathnorway.vercel.app/";
 	const qrData = `${baseUrl}/${locale}/members/${memberData._id}`;
 
 
@@ -57,13 +57,13 @@ export default function MemberIDCard({ memberData, locale = "en" }: MemberIDCard
 					<div className="relative bg-gradient-to-r from-brand to-blue-700 text-white px-6 pt-4 pb-8">
 						<div className="flex items-center justify-between">
 							<div>
-								<h2 className="text-lg font-bold mt-0.5">PNSB-Norway</h2>
+								<h2 className="text-lg font-bold mt-0.5">Pashupatinath Norway Temple</h2>
 								<p className="text-[10px] text-white font-semibold">Oslo, Norway</p>
-								<h3 className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-white shadow-md px-2 py-1 rounded-2xl text-xs font-semibold tracking-wide text-brand">MEMBERSHIP CARD</h3>
+								<h3 className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-white shadow-md px-2 py-1 rounded-2xl text-xs font-semibold tracking-wide text-brand_primary">MEMBERSHIP CARD</h3>
 							</div>
 							{/* Logo */}
 							<div className="w-12 h-12 border border-white bg-gray-100 rounded-full flex items-center justify-center overflow-hidden">
-								<Image src="/rsp-norway-logo.png" alt="PNSB-Norway Logo" width={48} height={48} className="w-full h-full object-contain" />
+								<Image src="/pashupatinath.png" alt="Pashupatinath Norway Temple Logo" width={48} height={48} className="w-full h-full object-contain" />
 							</div>
 						</div>
 					</div>
@@ -78,7 +78,7 @@ export default function MemberIDCard({ memberData, locale = "en" }: MemberIDCard
 									<Image src={memberData.profilePhoto} alt={memberData.fullName} width={80} height={80} className="w-full h-full object-cover" />
 								) : (
 									<div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-brand/20 to-brand/10">
-										<span className="text-2xl font-bold text-brand">{memberData.fullName.charAt(0)}</span>
+										<span className="text-2xl font-bold text-brand_primary">{memberData.fullName.charAt(0)}</span>
 									</div>
 								)}
 							</div>
@@ -146,7 +146,7 @@ export default function MemberIDCard({ memberData, locale = "en" }: MemberIDCard
 					<div className="absolute bottom-0 w-full bg-gradient-to-r from-success to-emerald-600 px-6 py-4">
 								
 								<div className="flex justify-center items-center">
-									<p className="text-xs text-gray-100">www.pnsbnorway.org</p>
+									<p className="text-xs text-gray-100">http://pashupatinathnorway.vercel.app/</p>
 								</div>
 					</div>
 				</div>
@@ -187,15 +187,15 @@ export default function MemberIDCard({ memberData, locale = "en" }: MemberIDCard
 								<li>This card is non-transferable</li>
 								<li>Report lost or stolen cards immediately</li>
 								<li>Valid for active memberships only</li>
-								<li>Present this card at PNSB-Norway events</li>
+								<li>Present this card at Pashupatinath Norway Temple events</li>
 							</ul>
 						</div>
 
 						{/* Organization Info */}
 						<div className="border-t border-light pt-3">
-							<p className="text-[10px] font-bold text-brand mb-1">PNSB-Norway</p>
-							<p className="text-[9px] text-gray-600 mt-1">www.pnsbnorway.org</p>
-							<p className="text-[9px] text-gray-600">info@pnsbnorway.org</p>
+							<p className="text-[10px] font-bold text-brand_primary mb-1">Pashupatinath Norway Temple</p>
+							<p className="text-[9px] text-gray-600 mt-1">http://pashupatinathnorway.vercel.app/</p>
+							<p className="text-[9px] text-gray-600">nepalihindusamfunn@gmail.com</p>
 						</div>
 					</div>
 
@@ -203,7 +203,7 @@ export default function MemberIDCard({ memberData, locale = "en" }: MemberIDCard
 					<div className="absolute bottom-0 w-full bg-gradient-to-r from-success to-emerald-600 px-6 py-4">
 						
 							<div className="flex justify-center items-center">
-									<p className="text-xs text-gray-100">info@pnsbnorway.org</p>
+									<p className="text-xs text-gray-100">nepalihindusamfunn@gmail.com</p>
 								</div>
 							
 					</div>

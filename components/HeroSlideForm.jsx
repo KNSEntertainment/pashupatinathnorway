@@ -369,15 +369,15 @@ export default function HeroSlideForm({ slide, onClose, onSuccess }) {
 						<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 							<div>
 								<Label htmlFor="secondaryButton.en">English Text *</Label>
-								<Input id="secondaryButton.en" name="secondaryButton.en" value={formData.secondaryButton.en} onChange={handleChange} required placeholder="e.g., Explore RSP" />
+								<Input id="secondaryButton.en" name="secondaryButton.en" value={formData.secondaryButton.en} onChange={handleChange} required placeholder="e.g., Explore Pashupatinath Norway Temple" />
 							</div>
 							<div>
 								<Label htmlFor="secondaryButton.no">Norwegian Text *</Label>
-								<Input id="secondaryButton.no" name="secondaryButton.no" value={formData.secondaryButton.no} onChange={handleChange} required placeholder="e.g., Utforsk RSP" />
+								<Input id="secondaryButton.no" name="secondaryButton.no" value={formData.secondaryButton.no} onChange={handleChange} required placeholder="e.g., Utforsk Pashupatinath Norway Temple" />
 							</div>
 							<div>
 								<Label htmlFor="secondaryButton.ne">Nepali Text *</Label>
-								<Input id="secondaryButton.ne" name="secondaryButton.ne" value={formData.secondaryButton.ne} onChange={handleChange} required placeholder="e.g., RSP \u0905\u0928\u0941\u0938\u0928\u094d\u0926\u0930\u094d\u0917 \u0917\u0930\u094d\u0928\u0941\u0939\u094b\u0938\u094d" />
+								<Input id="secondaryButton.ne" name="secondaryButton.ne" value={formData.secondaryButton.ne} onChange={handleChange} required placeholder="e.g., Pashupatinath Norway Temple \u0905\u0928\u0941\u0938\u0928\u094d\u0926\u0930\u094d\u0917 \u0917\u0930\u094d\u0928\u0941\u0939\u094b\u0938\u094d" />
 							</div>
 						</div>
 						<div>

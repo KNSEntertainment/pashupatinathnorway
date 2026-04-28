@@ -1,10 +1,10 @@
-# PNSB-Norway 🇳🇵
+# Pashupatinath Norway Temple 🇳🇵
 
-A modern, multilingual web platform for PNSB-Norway (Rashtriya Swatantra Party Nepal - Norway Chapter), dedicated to fostering political engagement and community building for Nepali diaspora in Norway.
+A modern, multilingual web platform for Pashupatinath Norway Temple, dedicated to fostering political engagement and community building for Nepali diaspora in Norway.
 
 ## 🎯 About
 
-PNSB-Norway serves as the digital hub for the Norwegian chapter of Nepal's progressive political movement. The platform enables political activism, community organizing, and cultural preservation for Nepali citizens residing in Norway while maintaining strong connections with their homeland.
+Pashupatinath Norway Temple serves as the digital hub for the Norwegian chapter of Nepal's progressive political movement. The platform enables political activism, community organizing, and cultural preservation for Nepali citizens residing in Norway while maintaining strong connections with their homeland.
 
 ### Key Features
 
@@ -292,7 +292,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 For support and inquiries:
 
-- **Email**: info@pnsbnorway.org
+- **Email**: nepalihindusamfunn@gmail.com
 - **Phone**: +47 967 80 0984
 - **Website**: [https://rspnorway.org](https://rspnorway.org)
 
@@ -306,4 +306,4 @@ For support and inquiries:
 
 ---
 
-**PNSB-Norway** - Building a progressive future for Nepal, together. 🇳🇵✨
+**Pashupatinath Norway Temple** - Building a progressive future for Nepal, together. 🇳🇵✨

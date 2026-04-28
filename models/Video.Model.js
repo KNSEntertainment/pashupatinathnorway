@@ -12,7 +12,7 @@ const videoSchema = new mongoose.Schema(
 		description_en: { type: String, required: false },
 		description_ne: { type: String, required: false },
 		description_no: { type: String, required: false },
-		creator_en: { type: String, default: "PNSB-Norway" },
+		creator_en: { type: String, default: "Pashupatinath Norway Temple" },
 		creator_ne: { type: String, default: "आरएसपी नर्वे" },
 		isYouTube: { type: Boolean, default: false }, // Flag to indicate if it's a YouTube video
 		uploadedBy: { type: String, required: false }, // Admin user who uploaded

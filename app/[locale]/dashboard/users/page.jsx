@@ -105,7 +105,7 @@ export default function UsersPage() {
 						<option value="user">User</option>
 					</select>
 				</div>
-				<button onClick={() => setOpenUserModal(!openUserModal)} className="bg-brand text-neutral-200 font-bold px-4 py-2">
+				<button onClick={() => setOpenUserModal(!openUserModal)} className="bg-brand_primary text-neutral-200 font-bold px-4 py-2">
 					{openUserModal ? "Cancel" : "Register User"}
 				</button>
 			</div>
@@ -115,7 +115,7 @@ export default function UsersPage() {
 				<div className="flex gap-4 flex-1 items-center pl-2">
 					<input type="checkbox" checked={allSelectedOnPage} onChange={handleSelectAll} aria-label="Select all users on page" />
 					<span>Select All</span>
-					<button className="bg-brand text-white px-3 py-1 rounded disabled:opacity-50" onClick={handleBulkDelete} disabled={selectedUserIds.length === 0}>
+					<button className="bg-brand_primary text-white px-3 py-1 rounded disabled:opacity-50" onClick={handleBulkDelete} disabled={selectedUserIds.length === 0}>
 						Delete Selected
 					</button>
 					<select className="border rounded px-2 py-1" value={bulkRole} onChange={(e) => setBulkRole(e.target.value)} disabled={selectedUserIds.length === 0}>
@@ -123,7 +123,7 @@ export default function UsersPage() {
 						<option value="admin">Admin</option>
 						<option value="user">User</option>
 					</select>
-					<button className="bg-brand text-white px-3 py-1 rounded disabled:opacity-50" onClick={handleBulkRoleChange} disabled={selectedUserIds.length === 0 || !bulkRole}>
+					<button className="bg-brand_primary text-white px-3 py-1 rounded disabled:opacity-50" onClick={handleBulkRoleChange} disabled={selectedUserIds.length === 0 || !bulkRole}>
 						Apply Role
 					</button>
 				</div>

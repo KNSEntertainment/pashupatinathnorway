@@ -37,12 +37,12 @@ export default function DesktopNav({ navItems }: DesktopNavProps) {
 				return (
 					<div key={item.href} className="relative" onMouseEnter={() => hasDropdown && setActiveDropdown(item.href)} onMouseLeave={() => setActiveDropdown(null)}>
 						{hasDropdown ? (
-							<button className={`px-3 py-2 rounded-lg font-semibold flex items-center gap-1 ${isActive ? "bg-white text-brand" : "text-white/90 hover:bg-white hover:text-brand"}`}>
+							<button className={`px-3 py-2 rounded-lg font-semibold flex items-center gap-1 ${isActive ? "bg-white text-brand_secondary" : "text-white/90 hover:bg-white hover:text-brand_secondary"}`}>
 								{item.title}
 								<ChevronDown size={16} className={`transition-transform ${isOpen ? "rotate-180" : ""}`} />
 							</button>
 						) : (
-							<Link href={item.href} locale={locale} className={`px-3 py-2 rounded-lg font-semibold ${isActive ? "bg-white text-brand" : "text-white/90 hover:bg-white hover:text-brand"}`}>
+							<Link href={item.href} locale={locale} className={`px-3 py-2 rounded-lg font-semibold ${isActive ? "bg-white text-brand_secondary" : "text-white/90 hover:bg-white hover:text-brand_secondary"}`}>
 								{item.title}
 							</Link>
 						)}
@@ -51,7 +51,7 @@ export default function DesktopNav({ navItems }: DesktopNavProps) {
 							{hasDropdown && isOpen && (
 								<motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="absolute left-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg">
 									{item.dropdown!.map((sub: NavDropdownItem) => (
-										<Link key={sub.href} href={sub.href} locale={locale} className="block px-4 py-2 text-sm hover:bg-brand/10">
+										<Link key={sub.href} href={sub.href} locale={locale} className="block px-4 py-2 text-sm hover:bg-brand_secondary/20">
 											{sub.title}
 										</Link>
 									))}

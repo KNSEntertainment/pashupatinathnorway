@@ -2,13 +2,13 @@ import { Metadata } from "next";
 import AboutUsClient from "./AboutUsClient";
 
 export const metadata: Metadata = {
-	title: "About Us | PNSB-Norway",
-	description: "Learn more about PNSB-Norway, our mission, vision, and the community we serve. Discover our story and values.",
+	title: "About Us | Pashupatinath Norway Temple",
+	description: "Learn more about Pashupatinath Norway Temple, our mission, vision, and the community we serve. Discover our story and values.",
 	openGraph: {
-		title: "About Us | PNSB-Norway",
-		description: "Learn more about PNSB-Norway, our mission, vision, and the community we serve. Discover our story and values.",
+		title: "About Us | Pashupatinath Norway Temple",
+		description: "Learn more about Pashupatinath Norway Temple, our mission, vision, and the community we serve. Discover our story and values.",
 		url: "/about-us",
-		siteName: "PNSB-Norway",
+		siteName: "Pashupatinath Norway Temple",
 		type: "website",
 	},
 };

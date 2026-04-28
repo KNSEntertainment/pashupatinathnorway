@@ -47,7 +47,7 @@ export default function BlogPageClient({ blogData, blogsData }) {
 								<NotebookPen className="w-6 h-6 text-white" />
 							</div>
 							<div>
-								<p className="font-semibold text-gray-900">{blog.blogAuthor || "PNSB-Norway"}</p>
+								<p className="font-semibold text-gray-900">{blog.blogAuthor || "Pashupatinath Norway Temple"}</p>
 								<p className="text-sm text-gray-500">{t("author")}</p>
 							</div>
 						</div>
@@ -67,7 +67,7 @@ export default function BlogPageClient({ blogData, blogsData }) {
 					<div className="mb-10">
 						<div className="relative rounded-2xl overflow-hidden shadow-xl">
 							<Image 
-								src={blog.blogMainPicture || "/ghanti.png"} 
+								src={blog.blogMainPicture || "/pashupatinath.png"} 
 								alt={getLocalizedTitle(blog) || "Blog Image"} 
 								width={500} 
 								height={500} 

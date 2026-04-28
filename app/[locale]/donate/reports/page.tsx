@@ -45,7 +45,7 @@ interface ReportsData {
 }
 
 export const metadata = {
-	title: "Donation Reports - PNSB-Norway",
+	title: "Donation Reports - Pashupatinath Norway Temple",
 	description: "View donation reports and impact statistics",
 };
 
@@ -123,7 +123,7 @@ export default async function DonationReportsPage({ params }: { params: Promise<
 							<CardTitle className="text-sm font-medium text-gray-600">Total Raised</CardTitle>
 						</CardHeader>
 						<CardContent>
-							<div className="text-2xl font-bold text-brand">
+							<div className="text-2xl font-bold text-brand_primary">
 								{totalCurrentAmount.toLocaleString()} NOK
 							</div>
 							<p className="text-xs text-gray-500 mt-1">Across all causes</p>
@@ -295,7 +295,7 @@ export default async function DonationReportsPage({ params }: { params: Promise<
 						Every contribution, no matter the size, makes a meaningful impact.
 					</p>
 					<Link href={`/${locale}/donate`}>
-						<button className="bg-white text-brand px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+						<button className="bg-white text-brand_primary px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
 							Donate Now
 						</button>
 					</Link>

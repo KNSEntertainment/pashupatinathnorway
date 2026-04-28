@@ -1,5 +1,5 @@
 "use client";
-import { MapPin, Mail, Phone, Facebook, Instagram, ArrowUpRight} from "lucide-react";
+import { MapPin, Mail, Phone, Facebook, Instagram, ArrowUpRight, Globe, Calendar, Users } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
@@ -9,114 +9,173 @@ export default function FooterClient({ settings }) {
 	const locale = useLocale();
 	
 	return (
-		<footer className="bg-gradient-to-b from-gray-100 to-gray-50 text-gray-900 pt-12 pb-6">
-			<div className="container mx-auto px-4">
-				{/* Logo Section - Mobile First */}
-				<div className="flex flex-col items-center text-center mb-10 md:hidden">
-					<Image src={settings?.[0]?.companyLogo || "/rsp-norway-logo.png"} alt={t("logo_alt")} width={100} height={100} className="w-20 h-20 object-contain mb-4" />
-					<h2 className="text-xl font-bold text-gray-900 mb-2">{t("logo_head")}</h2>
-					<p className="text-sm text-gray-900 max-w-xs leading-relaxed mb-6">{t("tagline")}</p>
-					
+		<footer className="bg-white border-t border-gray-100 text-gray-900 py-16 relative overflow-hidden">
+			{/* Background Pattern */}
+			<div className="absolute inset-0 opacity-5">
+				<div className="absolute inset-0 bg-gradient-to-br from-brand_primary/20 via-transparent to-transparent"></div>
+			</div>
 			
-				</div>
-
-				
-				{/* Main Footer Grid */}
-				<div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 mb-8">
+			<div className="container mx-auto px-6 relative z-10">
+				{/* Main Footer Content */}
+				<div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-16">
 					{/* About Column */}
-					<div className="space-y-4">
-						<h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-							<span className="w-1 h-5 bg-brand rounded-full"></span>
-							{t("about_us")}
-						</h3>
-						<p className="text-md md:text-xl text-gray-900 leading-relaxed">{t("about_description")}</p>
-					</div>
+					<div className="lg:col-span-1 space-y-6">
+						<div className="flex flex-col items-center lg:items-start text-center lg:text-left">
+								<div className="flex items-center gap-3 mb-4">
+							<div className="w-8 h-0.5 bg-gradient-to-r from-brand_primary to-transparent"></div>
+							<h3 className="text-lg font-semibold text-gray-900">{t("about_us")}</h3>
+						</div>
 
-					{/* Logo Column - Desktop Only */}
-					<div className="hidden md:flex flex-col items-center justify-start text-center">
-						<Image src={settings?.[0]?.companyLogo || "/rsp-norway-logo.png"} alt={t("logo_alt")} width={100} height={100} className="w-24 h-24 object-contain mb-4" />
-						<h2 className="text-2xl font-bold text-gray-900 mb-2">{t("logo_head")}</h2>
-						<p className="text-md text-gray-900 max-w-md leading-relaxed mb-6">{t("tagline")}</p>
-			
-					</div>
-
-					{/* Contact Column */}
-					<div className="space-y-4">
-						<h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-							<span className="w-1 h-5 bg-brand rounded-full"></span>
-							{t("contact_details")}
-						</h3>
-						<div className="space-y-1">
-							{/* Address */}
-							<div className="flex items-start gap-3 group">
-								<MapPin className="h-4 w-4 text-brand mt-0.5 flex-shrink-0 transition-transform group-hover:scale-110" />
-								<p className="text-md md:text-xl text-gray-900 leading-relaxed">{t("address")}</p>
+							<Image 
+								src={settings?.[0]?.companyLogo || "/pashupatinath.png"} 
+								alt={t("logo_alt")} 
+								width={120} 
+								height={120} 
+								className="w-16 h-16 lg:w-20 lg:h-20 object-contain mb-4 transition-transform hover:scale-105" 
+							/>
+						<p className="text-sm text-gray-600 leading-relaxed">{t("about_description")}</p>
+	<div className="space-y-3 pt-4">
+							<div className="flex items-center gap-3 text-sm text-gray-600">
+								<Users className="h-4 w-4 text-brand_primary" />
+								<span>500+ Community Members</span>
 							</div>
-
-							{/* Email */}
-							<a href={`mailto:${settings?.[0]?.email}`} className="flex items-center gap-3 group hover:translate-x-1 transition-transform">
-								<Mail className="h-4 w-4 text-brand flex-shrink-0 transition-transform group-hover:scale-110" />
-								<span className="text-md md:text-xl text-gray-900 hover:text-brand transition-colors">{settings?.[0]?.email}</span>
-							</a>
-
-							{/* Phone */}
-							<a href={`tel:${t("phone")}`} className="flex items-center gap-3 group hover:translate-x-1 transition-transform">
-								<Phone className="h-4 w-4 text-brand flex-shrink-0 transition-transform group-hover:scale-110" />
-								<span className="text-md md:text-xl text-gray-900 hover:text-brand transition-colors">{t("phone")}</span>
-							</a>
-
-							{/* Social Media */}
-							<div className="pt-6 border-t border-light">
-								<h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-									<span className="w-1 h-5 bg-brand rounded-full"></span>
-									{t("follow_us")}
-								</h3>
-
-								<div className="flex gap-2 mt-2">
-									{settings?.[0]?.facebook && (
-										<a href={settings[0].facebook} target="_blank" rel="noopener noreferrer" className="group" aria-label="Facebook">
-											<div className="w-9 h-9 rounded-full bg-brand/10 flex items-center justify-center group-hover:bg-brand transition-colors">
-												<Facebook className="h-4 w-4 text-brand group-hover:text-white transition-colors" />
-											</div>
-										</a>
-									)}
-									{settings?.[0]?.instagram && (
-										<a href={settings[0].instagram} target="_blank" rel="noopener noreferrer" className="group" aria-label="Instagram">
-											<div className="w-9 h-9 rounded-full bg-brand/10 flex items-center justify-center group-hover:bg-purple-500 transition-colors">
-												<Instagram className="h-4 w-4 text-brand group-hover:text-white transition-colors" />
-											</div>
-										</a>
-									)}
-								</div>
+							<div className="flex items-center gap-3 text-sm text-gray-600">
+								<Calendar className="h-4 w-4 text-brand_primary" />
+								<span>Established 2025</span>
+							</div>
+							<div className="flex items-center gap-3 text-sm text-gray-600">
+								<Globe className="h-4 w-4 text-brand_primary" />
+								<span>Oslo, Norway</span>
 							</div>
 						</div>
 					</div>
+					</div>
+
+			
+
+					{/* Contact Column */}
+					<div className="space-y-6">
+						<div className="flex items-center gap-3 mb-4">
+							<div className="w-8 h-0.5 bg-gradient-to-r from-brand_primary to-transparent"></div>
+							<h3 className="text-lg font-semibold text-gray-900">{t("contact_details")}</h3>
+						</div>
+						
+						<div className="space-y-4">
+							{/* Address */}
+							<div className="flex items-start gap-3 group cursor-pointer">
+								<div className="w-8 h-8 rounded-lg bg-brand_primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-brand_primary transition-all duration-300">
+									<MapPin className="h-4 w-4 text-brand_primary group-hover:text-white transition-colors" />
+								</div>
+								<div>
+									<p className="text-sm font-medium text-gray-900">{t("address")}</p>
+								</div>
+							</div>
+
+							{/* Email */}
+							<a 
+								href={`mailto:${settings?.[0]?.email}`} 
+								className="flex items-center gap-3 group hover:translate-x-1 transition-transform duration-300"
+							>
+								<div className="w-8 h-8 rounded-lg bg-brand_primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-brand_primary transition-all duration-300">
+									<Mail className="h-4 w-4 text-brand_primary group-hover:text-white transition-colors" />
+								</div>
+								<div>
+									<p className="text-sm font-medium text-gray-900 group-hover:text-brand_primary transition-colors">{settings?.[0]?.email}</p>
+								</div>
+							</a>
+
+							{/* Phone */}
+							<a 
+								href={`tel:${t("phone")}`} 
+								className="flex items-center gap-3 group hover:translate-x-1 transition-transform duration-300"
+							>
+								<div className="w-8 h-8 rounded-lg bg-brand_primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-brand_primary transition-all duration-300">
+									<Phone className="h-4 w-4 text-brand_primary group-hover:text-white transition-colors" />
+								</div>
+								<div>
+									<p className="text-sm font-medium text-gray-900 group-hover:text-brand_primary transition-colors">{t("phone")}</p>
+								</div>
+							</a>
+						</div>
+					</div>
+
+					{/* Social Media & Newsletter */}
+					<div className="space-y-6">
+						<div className="flex items-center gap-3 mb-4">
+							<div className="w-8 h-0.5 bg-gradient-to-r from-brand_primary to-transparent"></div>
+							<h3 className="text-lg font-semibold text-gray-900">{t("follow_us")}</h3>
+						</div>
+
+						<div className="flex gap-3">
+							{settings?.[0]?.facebook && (
+								<a 
+									href={settings[0].facebook} 
+									target="_blank" 
+									rel="noopener noreferrer" 
+									className="group" 
+									aria-label="Facebook"
+								>
+									<div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center group-hover:bg-brand_primary group-hover:shadow-lg transition-all duration-300 transform group-hover:scale-105">
+										<Facebook className="h-5 w-5 text-gray-600 group-hover:text-white transition-colors" />
+									</div>
+								</a>
+							)}
+							{settings?.[0]?.instagram && (
+								<a 
+									href={settings[0].instagram} 
+									target="_blank" 
+									rel="noopener noreferrer" 
+									className="group" 
+									aria-label="Instagram"
+								>
+									<div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center group-hover:bg-gradient-to-br group-hover:from-purple-500 group-hover:to-pink-500 group-hover:shadow-lg transition-all duration-300 transform group-hover:scale-105">
+										<Instagram className="h-5 w-5 text-gray-600 group-hover:text-white transition-colors" />
+									</div>
+								</a>
+							)}
+						</div>
+
+					</div>
 				</div>
 
-				{/* Bottom Bar */}
-				<div className="border-t border-zinc-200 pt-6 mt-8">
-					{/* Links - Mobile Stacked, Desktop Row */}
-					<div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-4 mb-4">
-						<nav className="flex flex-wrap gap-4 justify-between md:justify-start">
-							<Link href={`/${locale}/terms-and-conditions`} className="text-md text-gray-900 hover:text-brand transition-colors">
+				{/* Bottom Section */}
+				<div className="border-t border-gray-100 pt-8">
+					<div className="flex flex-col lg:flex-row justify-between items-center gap-6">
+						{/* Legal Links */}
+						<nav className="flex flex-wrap items-center gap-6">
+							<Link 
+								href={`/${locale}/terms-and-conditions`} 
+								className="text-sm text-gray-600 hover:text-brand_primary transition-colors flex items-center gap-1"
+							>
 								{t("terms")}
-								<ArrowUpRight className="h-3 w-3 inline-block ml-1" />
+								<ArrowUpRight className="h-3 w-3" />
 							</Link>
-							<span className="text-neutral-300 hidden md:inline">·</span>
-							<Link href={`/${locale}/privacy-policy`} className="text-md text-gray-900 hover:text-brand transition-colors">
-								{t("privacy")} <ArrowUpRight className="h-3 w-3 inline-block ml-1" />
+							<Link 
+								href={`/${locale}/privacy-policy`} 
+								className="text-sm text-gray-600 hover:text-brand_primary transition-colors flex items-center gap-1"
+							>
+								{t("privacy")}
+								<ArrowUpRight className="h-3 w-3" />
 							</Link>
 						</nav>
 
-						<div className="text-md text-gray-900 text-center md:text-right">{t("copyright") || `© ${new Date().getFullYear()} PNSB-Norway. All rights reserved.`}</div>
-					</div>
-
-					{/* Developer Credit */}
-					<div className="text-sm text-gray-900 text-center md:text-right">
-						<span>{t("developed_by")} </span>
-						<a href="https://harisanjel.com.np" target="_blank" rel="noopener noreferrer" className="font-semibold text-brand hover:underline transition-all">
-							{t("developer")}
-						</a>
+						{/* Copyright */}
+						<div className="text-center lg:text-right">
+							{/* <p className="text-sm text-gray-600 mb-2">
+								{t("copyright") || `© ${new Date().getFullYear()} Pashupatinath Norway Temple. All rights reserved.`}
+							</p> */}
+							<p className="text-xs text-gray-500">
+								<span>{t("developed_by")} </span>
+								<a 
+									href="https://harisanjel.com.np" 
+									target="_blank" 
+									rel="noopener noreferrer" 
+									className="font-medium text-brand_primary hover:underline transition-all"
+								>
+									{t("developer")}
+								</a>
+							</p>
+						</div>
 					</div>
 				</div>
 			</div>

@@ -24,7 +24,7 @@ export default function Editor({ value, onChange, placeholder }: EditorProps) {
 			Link.configure({
 				openOnClick: false,
 				HTMLAttributes: {
-					class: "text-brand underline",
+					class: "text-brand_primary underline",
 				},
 			}),
 			Image,

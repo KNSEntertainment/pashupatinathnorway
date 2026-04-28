@@ -18,8 +18,8 @@ export default function HeroLoading() {
 					<div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-brand/10 to-purple-900/20" />
 					<div className="relative z-10">
 						<Image
-							src="/rsp-norway-logo.png"
-							alt="RSP Norway Loading"
+							src="/pashupatinath.png"
+							alt="Pashupatinath Norway Temple Norway Loading"
 							width={48}
 							height={48}
 							className="w-12 h-12 md:w-16 md:h-16 drop-shadow-2xl"
@@ -57,12 +57,12 @@ export default function HeroLoading() {
 					{/* Logo with Simple Glow */}
 					<div className="relative">
 						{/* Simple Glow Effect */}
-						<div className="absolute inset-0 blur-xl bg-brand/30 rounded-full scale-110" />
+						<div className="absolute inset-0 blur-xl bg-brand_primary/30 rounded-full scale-110" />
 						
 						{/* Logo Image */}
 						<Image
-							src="/rsp-norway-logo.png"
-							alt="RSP Norway Loading"
+							src="/pashupatinath.png"
+							alt="Pashupatinath Norway Temple Norway Loading"
 							width={48}
 							height={48}
 							className="w-12 h-12 md:w-16 md:h-16 relative z-10 drop-shadow-2xl"
@@ -85,7 +85,7 @@ export default function HeroLoading() {
 					{[0, 1, 2].map((i) => (
 						<motion.div
 							key={i}
-							className="w-3 h-3 bg-brand rounded-full"
+							className="w-3 h-3 bg-brand_primary rounded-full"
 							animate={{
 								scale: [1, 1.5, 1],
 								opacity: [0.5, 1, 0.5],

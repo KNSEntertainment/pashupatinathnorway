@@ -2,8 +2,8 @@ import DonatePageClient from "./DONATE_CLIENT";
 
 
 export const metadata = {
-	title: "Donate - PNSB-Norway",
-	description: "Support PNSB-Norway with your generous donation",
+	title: "Donate - Pashupatinath Norway Temple",
+	description: "Support Pashupatinath Norway Temple with your generous donation",
 };
 
 async function getActiveCauses(locale: string) {

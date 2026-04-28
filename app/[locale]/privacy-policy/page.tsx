@@ -6,7 +6,7 @@ export default function PrivacyPolicy() {
 			{/* Header */}
 			<header className="">
 				<div className="max-w-4xl mx-auto px-4 py-6">
-					<h1 className="text-3xl font-bold text-gray-900">RSP Web/App Privacy Policy</h1>
+					<h1 className="text-3xl font-bold text-gray-900">Pashupatinath Norway Temple Web/App Privacy Policy</h1>
 					<p className="text-sm text-gray-900 mt-2">Last Updated: December 2025</p>
 				</div>
 			</header>
@@ -22,19 +22,19 @@ export default function PrivacyPolicy() {
 					{/* Collection */}
 					<section>
 						<h2 className="text-2xl font-semibold text-gray-900 mb-4">Collection</h2>
-						<p className="text-gray-900 leading-relaxed">To provide a tailor made and personalised experience, the information you share maybe processed and analysed by third party services who are engaged by us with due confidentiality obligations and solely for the specific purpose of such services. This will help the App give you the best possible experience by showing content in your language and according to your interests. For example, based on the location data collected, you may get a push notification when RSP is doing event is in your province or district or there is an important initiative or event happening in your location. Similarly, based on your previous interactions within the App you may receive push notifications based on your interests in the future.</p>
+						<p className="text-gray-900 leading-relaxed">To provide a tailor made and personalised experience, the information you share maybe processed and analysed by third party services who are engaged by us with due confidentiality obligations and solely for the specific purpose of such services. This will help the App give you the best possible experience by showing content in your language and according to your interests. For example, based on the location data collected, you may get a push notification when Pashupatinath Norway Temple is doing event is in your province or district or there is an important initiative or event happening in your location. Similarly, based on your previous interactions within the App you may receive push notifications based on your interests in the future.</p>
 					</section>
 
 					{/* Permissions */}
 					<section>
 						<h2 className="text-2xl font-semibold text-gray-900 mb-4">Permissions</h2>
-						<p className="text-gray-900 leading-relaxed mb-4">The RSP App requests you for several permissions in order to serve you better. All these permissions are contextual and cause-specific. You are also free to grant or deny many of these permissions. Below is a list of permissions requested along with the purpose they serve:</p>
+						<p className="text-gray-900 leading-relaxed mb-4">The Pashupatinath Norway Temple App requests you for several permissions in order to serve you better. All these permissions are contextual and cause-specific. You are also free to grant or deny many of these permissions. Below is a list of permissions requested along with the purpose they serve:</p>
 
 						<div className="space-y-4">
 							<PermissionCard title="Identity and Accounts" description="Permission to use your identity and use relevant information from your device to help you use your Social Media to login to the App. You may choose to not grant this permission and enter your identity details independently or choose to browse the App in Guest mode." />
 							<PermissionCard title="Contacts" description="Permission to access your contacts is requested to help you connect with your friends to form a community on the New Connect module." />
-							<PermissionCard title="Camera and File Storage" description="Permission to access your camera and/or photos/media/files is requested to help you use features like Registration, 'Selfie With Leader', 'Likewise RSP will be conducting various other initiatives where posting a photo may be required to participate. These permissions are also required to enable you to post photos anywhere on the App." />
-							<PermissionCard title="Read SMS" description="RSP App has a donation provision whereby people who want to contribute to the party in financial terms. Since the process requires financial transaction to be carried out, permission to access your SMS is used by the Payment Gateway to read OTP sent over SMS to authenticate the transaction. User can choose not to grant this permission." />
+							<PermissionCard title="Camera and File Storage" description="Permission to access your camera and/or photos/media/files is requested to help you use features like Registration, 'Selfie With Leader', 'Likewise Pashupatinath Norway Temple will be conducting various other initiatives where posting a photo may be required to participate. These permissions are also required to enable you to post photos anywhere on the App." />
+							<PermissionCard title="Read SMS" description="Pashupatinath Norway Temple App has a donation provision whereby people who want to contribute to the party in financial terms. Since the process requires financial transaction to be carried out, permission to access your SMS is used by the Payment Gateway to read OTP sent over SMS to authenticate the transaction. User can choose not to grant this permission." />
 							<PermissionCard title="Microphone" description="Permission to access your microphone is requested only to enable you to converse in live video facilities." />
 							<PermissionCard title="Phone" description="Permission to access your phone is requested only to enable you to place phone calls to access feedback mechanism, party programmes and services." />
 							<PermissionCard title="Wi-Fi/Network Connection/Network Access" description="Permission to access Wi-Fi, Network Connection and Network Access is taken only to allow the App to connect to the internet to provide its functionality." />
@@ -56,7 +56,7 @@ export default function PrivacyPolicy() {
 							<DataUseItem type="Email ID" purpose="is used to send important communications" />
 							<DataUseItem type="Location details" purpose="are used to send notifications in your language and to serve you content relevant to your geography" />
 							<DataUseItem type="IP Address" purpose="is used as a security feature to log malicious activity, if any" />
-							<DataUseItem type="Phone Number" purpose="is used to send special communications from the RSP Team also the number is used in many cases for user authentication." />
+							<DataUseItem type="Phone Number" purpose="is used to send special communications from the Pashupatinath Norway Temple Team also the number is used in many cases for user authentication." />
 							<DataUseItem type="Device information" purpose="is used to create accounts, perform contextual actions, personalised services and provide personalised services." />
 							<DataUseItem type="Unique Application numbers, cookies and similar technologies" purpose="are used to identify your device uniquely for contextual services and push notifications." />
 						</div>
@@ -73,8 +73,8 @@ export default function PrivacyPolicy() {
 						<h2 className="text-2xl font-semibold text-gray-900 mb-4">Termination of the use of personal information collected from the user</h2>
 						<p className="text-gray-900 leading-relaxed">
 							The user may request the deletion of their data by sending an email to{" "}
-							<a href="mailto:info@pnsbnorway.org" className="text-brand hover:text-brand underline">
-								info@pnsbnorway.org
+							<a href="mailto:nepalihindusamfunn@gmail.com" className="text-brand_primary hover:text-brand_primary underline">
+								nepalihindusamfunn@gmail.com
 							</a>{" "}
 							and should get a response within 48 hours.
 						</p>
@@ -103,7 +103,7 @@ export default function PrivacyPolicy() {
 					{/* Donations */}
 					<section>
 						<h2 className="text-2xl font-semibold text-gray-900 mb-4">Donations</h2>
-						<p className="text-gray-900 leading-relaxed">RSP is a member-based party and your contributions is the bases on which the party operates. Please read the respective terms and conditions of the payment gateways app before donating.</p>
+						<p className="text-gray-900 leading-relaxed">Pashupatinath Norway Temple is a member-based party and your contributions is the bases on which the party operates. Please read the respective terms and conditions of the payment gateways app before donating.</p>
 					</section>
 
 					{/* User Safety */}
@@ -122,13 +122,13 @@ export default function PrivacyPolicy() {
 					<section className="border-t border-light pt-6">
 						<h3 className="text-lg font-semibold text-gray-900 mb-4">Related Documents</h3>
 						<div className="flex flex-wrap gap-3">
-							<Link href="/en/terms-and-conditions" className="inline-flex items-center px-4 py-2 bg-brand text-white rounded-lg hover:bg-blue-700 transition-colors">
+							<Link href="/en/terms-and-conditions" className="inline-flex items-center px-4 py-2 bg-brand_primary text-white rounded-lg hover:bg-blue-700 transition-colors">
 								<svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
 								</svg>
 								Terms and Conditions
 							</Link>
-							<Link href="mailto:info@pnsbnorway.org" className="inline-flex items-center px-4 py-2 bg-neutral-600 text-white rounded-lg hover:bg-neutral-700 transition-colors">
+							<Link href="mailto:nepalihindusamfunn@gmail.com" className="inline-flex items-center px-4 py-2 bg-neutral-600 text-white rounded-lg hover:bg-neutral-700 transition-colors">
 								<svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
 								</svg>
@@ -142,7 +142,7 @@ export default function PrivacyPolicy() {
 			{/* Footer */}
 			{/* <footer className="bg-white border-t border-light mt-12">
 				<div className="max-w-4xl mx-auto px-4 py-6 text-center text-gray-900 text-sm">
-					<p>© 2025 RSP Nepal. All rights reserved.</p>
+					<p>© 2025 Pashupatinath Norway Temple Nepal. All rights reserved.</p>
 				</div>
 			</footer> */}
 		</div>

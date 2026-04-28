@@ -60,7 +60,7 @@ const GalleryPreview = () => {
 						url: url,
 						title: item.alt || `${item.category} Photo`,
 						category: item.category,
-						photographer: "PNSB-Norway",
+						photographer: "Pashupatinath Norway Temple",
 					})),
 				);
 
@@ -119,7 +119,7 @@ const GalleryPreview = () => {
 						url: url,
 						title: item.alt || `${item.category} Photo`,
 						category: item.category,
-						photographer: "PNSB-Norway",
+						photographer: "Pashupatinath Norway Temple",
 					})),
 				);
 
@@ -241,21 +241,21 @@ const GalleryPreview = () => {
 
 										{/* Photo Count Badge */}
 										{/* <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-1.5 shadow-lg">
-											<ImageIcon className="w-4 h-4 text-brand" />
+											<ImageIcon className="w-4 h-4 text-brand_primary" />
 											<span className="text-sm font-semibold text-gray-900">{album.count}</span>
 										</div> */}
 
 										{/* Hover Icon */}
 										<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
 											<div className="w-16 h-16 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center transform group-hover:scale-110 transition-all duration-300 shadow-2xl">
-												<Folder className="w-8 h-8 text-brand" />
+												<Folder className="w-8 h-8 text-brand_primary" />
 											</div>
 										</div>
 									</div>
 
 									{/* Album Info */}
 									<div className="p-5">
-										<h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-brand transition-colors">
+										<h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-brand_primary transition-colors">
 											{album.name}
 										</h3>
 										<p className="text-gray-600 text-sm mb-4">
@@ -289,7 +289,7 @@ const GalleryPreview = () => {
 										<div className="flex gap-2">
 											<button
 												onClick={(e) => handleAlbumClick(album, e)}
-												className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-brand text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors"
+												className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-brand_primary text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors"
 											>
 												<ImageIcon className="w-4 h-4" />
 												View Photos
@@ -415,7 +415,7 @@ const GalleryPreview = () => {
 								<h2 className="text-2xl lg:text-3xl font-bold mb-3 leading-tight">
 									{allAlbumPhotos[selectedPhotoIndex]?.title || `${selectedAlbum.name} Photo`}
 								</h2>
-								<p className="text-gray-300 text-sm mb-6 italic">Photography by PNSB-Norway</p>
+								<p className="text-gray-300 text-sm mb-6 italic">Photography by Pashupatinath Norway Temple</p>
 
 								{/* Photo Counter */}
 								<div className="pt-4 border-t border-white/10">

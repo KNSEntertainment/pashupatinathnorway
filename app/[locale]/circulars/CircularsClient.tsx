@@ -124,7 +124,7 @@ export default function CircularsColumn({ circulars, translations: t, locale, in
 											</div>
 										) : (
 											<div className="flex items-center justify-center py-12 bg-gradient-to-br from-indigo-100 to-purple-100">
-												<FileText className="w-32 h-32 text-brand" />
+												<FileText className="w-32 h-32 text-brand_primary" />
 											</div>
 										)}
 									</div>

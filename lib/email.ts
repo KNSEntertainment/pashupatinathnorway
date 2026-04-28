@@ -48,10 +48,10 @@ export async function sendWelcomeEmail({ name, email, setupToken }: sendWelcomeE
 	const setupUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/en/set-password?token=${setupToken}`;
 
 	const mailOptions = {
-		from: `"PNSB-Norway" <${process.env.EMAIL_USER}>`,
+		from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER}>`,
 		to: email,
-		subject: "Welcome to PNSB-Norway - Set Your Password",
-		text: `Hello ${name},\n\nWelcome to PNSB-Norway! Your membership has been approved.\n\nPlease set your password by clicking the link below:\n${setupUrl}\n\nThis link is valid for 24 hours.\n\nBest regards,\nPNSB-Norway Team`,
+		subject: "Welcome to Pashupatinath Norway Temple - Set Your Password",
+		text: `Hello ${name},\n\nWelcome to Pashupatinath Norway Temple! Your membership has been approved.\n\nPlease set your password by clicking the link below:\n${setupUrl}\n\nThis link is valid for 24 hours.\n\nBest regards,\nPashupatinath Temple Norway Team`,
 		html: `
 			<!DOCTYPE html>
 			<html>
@@ -68,11 +68,11 @@ export async function sendWelcomeEmail({ name, email, setupToken }: sendWelcomeE
 			<body>
 				<div class="container">
 					<div class="header">
-						<h1>Welcome to PNSB-Norway!</h1>
+						<h1>Welcome to Pashupatinath Norway Temple!</h1>
 					</div>
 					<div class="content">
 						<p>Hello <strong>${name}</strong>,</p>
-						<p>Congratulations! Your membership application has been approved. We're excited to have you as part of the PNSB-Norway community.</p>
+						<p>Congratulations! Your membership application has been approved. We're excited to have you as part of the Pashupatinath Norway Temple community.</p>
 						<p>To complete your account setup, please set your password by clicking the button below:</p>
 						<center>
 							<a href="${setupUrl}" class="button">Set Your Password</a>
@@ -88,7 +88,7 @@ export async function sendWelcomeEmail({ name, email, setupToken }: sendWelcomeE
 							<li>Stay connected with the community</li>
 						</ul>
 						<p>If you have any questions, feel free to reach out to us.</p>
-						<p>Best regards,<br><strong>PNSB-Norway Team</strong></p>
+						<p>Best regards,<br><strong>Pashupatinath Norway Temple Team</strong></p>
 					</div>
 					<div class="footer">
 						<p>This is an automated email. Please do not reply to this message.</p>
@@ -120,10 +120,10 @@ type sendDonationThankYouEmail = {
 };
 export async function sendDonationThankYouEmail({ name, email, amount, currency, transactionId, date, message }: sendDonationThankYouEmail) {
 	const mailOptions = {
-		from: `"PNSB-Norway" <${process.env.EMAIL_USER}>`,
+		from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER}>`,
 		to: email,
-		subject: "Thank You for Your Generous Donation - PNSB-Norway",
-		text: `Dear ${name},\n\nThank you for your generous donation of ${amount} ${currency} to PNSB-Norway!\n\nYour support helps us make a positive impact in the Nepali community in Norway and support democratic values in Nepal.\n\nDonation Details:\nAmount: ${amount} ${currency}\nTransaction ID: ${transactionId}\nDate: ${date}\n${message ? `\nYour Message: ${message}` : ""}\n\nYour contribution will be used to support:\n- Community events and cultural programs\n- Political advocacy and awareness campaigns\n- Organizational growth and outreach\n- Member support and resources\n\nWe will send you a detailed receipt shortly for your records.\n\nWith gratitude,\nPNSB-Norway Team`,
+		subject: "Thank You for Your Generous Donation - Pashupatinath Norway Temple",
+		text: `Dear ${name},\n\nThank you for your generous donation of ${amount} ${currency} to Pashupatinath Norway Temple!\n\nYour support helps us make a positive impact in the Nepali community in Norway and support democratic values in Nepal.\n\nDonation Details:\nAmount: ${amount} ${currency}\nTransaction ID: ${transactionId}\nDate: ${date}\n${message ? `\nYour Message: ${message}` : ""}\n\nYour contribution will be used to support:\n- Community events and cultural programs\n- Political advocacy and awareness campaigns\n- Organizational growth and outreach\n- Member support and resources\n\nWe will send you a detailed receipt shortly for your records.\n\nWith gratitude,\nPashupatinath Temple Norway Team`,
 		html: `
 			<!DOCTYPE html>
 			<html>
@@ -168,12 +168,12 @@ export async function sendDonationThankYouEmail({ name, email, amount, currency,
 						<p>This email serves as your donation receipt. Please keep it for your records. If you need any additional documentation, please don't hesitate to contact us.</p>
 
 						<p>With deep appreciation and gratitude,</p>
-						<p><strong>PNSB-Norway Team</strong><br>
-						<a href="mailto:${process.env.EMAIL_USER}" style="color: #0094da;">info@pnsbnorway.org</a><br>
-						<a href="${process.env.NEXTAUTH_URL || "http://localhost:3000"}" style="color: #0094da;">www.pnsbnorway.org</a></p>
+						<p><strong>Pashupatinath Norway Temple Team</strong><br>
+						<a href="mailto:${process.env.EMAIL_USER}" style="color: #0094da;">nepalihindusamfunn@gmail.com</a><br>
+						<a href="${process.env.NEXTAUTH_URL || "http://localhost:3000"}" style="color: #0094da;">http://pashupatinathnorway.vercel.app/</a></p>
 					</div>
 					<div class="footer">
-						<p>PNSB-Norway</p>
+						<p>Pashupatinath Norway Temple</p>
 						<p>This is an automated receipt. Please keep it for your records.</p>
 						<p style="color: #999; margin-top: 10px;">Questions? Contact us at ${process.env.EMAIL_USER}</p>
 					</div>
@@ -195,10 +195,10 @@ export async function sendDonationThankYouEmail({ name, email, amount, currency,
 // Newsletter subscription thank you email
 export async function sendSubscriptionThankYouEmail(email: string) {
 	const mailOptions = {
-		from: `"PNSB-Norway" <${process.env.EMAIL_USER}>`,
+		from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER}>`,
 		to: email,
-		subject: "Thank You for Subscribing to PNSB-Norway Newsletter!",
-		text: `Thank you for subscribing to the PNSB-Norway newsletter!\n\nWe're excited to keep you updated with our latest news, events, and community activities.\n\nWhat you can expect:\n- Latest news and updates from PNSB-Norway\n- Information about upcoming events\n- Community initiatives and opportunities\n- Ways to get involved and make a difference\n\nYou can unsubscribe at any time by clicking the unsubscribe link in our emails.\n\nBest regards,\nPNSB-Norway Team`,
+		subject: "Thank You for Subscribing to Pashupatinath Norway Temple Newsletter!",
+		text: `Thank you for subscribing to the Pashupatinath Norway Temple newsletter!\n\nWe're excited to keep you updated with our latest news, events, and community activities.\n\nWhat you can expect:\n- Latest news and updates from Pashupatinath Norway Temple\n- Information about upcoming events\n- Community initiatives and opportunities\n- Ways to get involved and make a difference\n\nYou can unsubscribe at any time by clicking the unsubscribe link in our emails.\n\nBest regards,\nPashupatinath Temple Norway Team`,
 		html: `
 			<!DOCTYPE html>
 			<html>
@@ -222,14 +222,14 @@ export async function sendSubscriptionThankYouEmail(email: string) {
 				<div class="container">
 					<div class="header">
 						<h1>Thank You for Subscribing! </h1>
-						<p style="margin: 10px 0 0 0; font-size: 18px;">Welcome to the PNSB-Norway Community</p>
+						<p style="margin: 10px 0 0 0; font-size: 18px;">Welcome to the Pashupatinath Norway Temple Community</p>
 					</div>
 					<div class="content">
 						<p>Dear Subscriber,</p>
 						
 						<div class="welcome-box">
 							<h3 style="margin: 0 0 10px 0; color: #10b981;"> Welcome to Our Newsletter! </h3>
-							<p style="margin: 0;">Thank you for subscribing to the PNSB-Norway newsletter. We're thrilled to have you join our community!</p>
+							<p style="margin: 0;">Thank you for subscribing to the Pashupatinath Norway Temple newsletter. We're thrilled to have you join our community!</p>
 						</div>
 
 						<p>You're now part of a vibrant community dedicated to serving the Nepali community in Norway and supporting democratic values in Nepal. Through our newsletter, you'll stay connected with our mission and activities.</p>
@@ -240,7 +240,7 @@ export async function sendSubscriptionThankYouEmail(email: string) {
 								<div class="feature-icon"> </div>
 								<div>
 									<strong>Latest News & Updates</strong>
-									<p style="margin: 5px 0 0 0; color: #666;">Stay informed about PNSB-Norway's latest activities and achievements</p>
+									<p style="margin: 5px 0 0 0; color: #666;">Stay informed about Pashupatinath Norway Temple's latest activities and achievements</p>
 								</div>
 							</div>
 							<div class="feature-item">
@@ -274,12 +274,12 @@ export async function sendSubscriptionThankYouEmail(email: string) {
 
 						<p>We're excited to have you with us on this journey. Together, we can make a meaningful impact!</p>
 
-						<p>Best regards,<br><strong>PNSB-Norway Team</strong><br>
-						<a href="mailto:${process.env.EMAIL_USER}" style="color: #667eea;">info@pnsbnorway.org</a><br>
-						<a href="${process.env.NEXTAUTH_URL || "http://localhost:3000"}" style="color: #667eea;">www.pnsbnorway.org</a></p>
+						<p>Best regards,<br><strong>Pashupatinath Norway Temple Team</strong><br>
+						<a href="mailto:${process.env.EMAIL_USER}" style="color: #667eea;">nepalihindusamfunn@gmail.com</a><br>
+						<a href="${process.env.NEXTAUTH_URL || "http://localhost:3000"}" style="color: #667eea;">http://pashupatinathnorway.vercel.app/</a></p>
 					</div>
 					<div class="footer">
-						<p>PNSB-Norway</p>
+						<p>Pashupatinath Norway Temple</p>
 						<p>You're receiving this email because you subscribed to our newsletter.</p>
 						<p style="color: #999; margin-top: 10px;">Questions? Contact us at ${process.env.EMAIL_USER}</p>
 					</div>
@@ -307,10 +307,10 @@ type sendPasswordResetEmail = {
 };
 export async function sendPasswordResetEmail({ name, email, resetUrl, userType }: sendPasswordResetEmail) {
 	const mailOptions = {
-		from: `"PNSB-Norway" <${process.env.EMAIL_USER}>`,
+		from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER}>`,
 		to: email,
-		subject: "Reset Your Password - PNSB-Norway",
-		text: `Hello ${name},\n\nYou requested to reset your password for your PNSB-Norway ${userType} account.\n\nPlease click the link below to reset your password:\n${resetUrl}\n\nThis link is valid for 1 hour.\n\nIf you didn't request this, please ignore this email.\n\nBest regards,\nPNSB-Norway Team`,
+		subject: "Reset Your Password - Pashupatinath Norway Temple",
+		text: `Hello ${name},\n\nYou requested to reset your password for your Pashupatinath Norway Temple ${userType} account.\n\nPlease click the link below to reset your password:\n${resetUrl}\n\nThis link is valid for 1 hour.\n\nIf you didn't request this, please ignore this email.\n\nBest regards,\nPashupatinath Temple Norway Team`,
 		html: `
 			<!DOCTYPE html>
 			<html>
@@ -332,7 +332,7 @@ export async function sendPasswordResetEmail({ name, email, resetUrl, userType }
 					</div>
 					<div class="content">
 						<p>Hello <strong>${name}</strong>,</p>
-						<p>We received a request to reset the password for your PNSB-Norway ${userType} account.</p>
+						<p>We received a request to reset the password for your Pashupatinath Norway Temple ${userType} account.</p>
 						<p>To reset your password, please click the button below:</p>
 						<center>
 							<a href="${resetUrl}" class="button">Reset Password</a>
@@ -350,7 +350,7 @@ export async function sendPasswordResetEmail({ name, email, resetUrl, userType }
 						</div>
 						
 						<p>If you have any questions or didn't request this password reset, please contact our support team.</p>
-						<p>Best regards,<br><strong>PNSB-Norway Team</strong></p>
+						<p>Best regards,<br><strong>Pashupatinath Norway Temple Team</strong></p>
 					</div>
 					<div class="footer">
 						<p>This is an automated email. Please do not reply to this message.</p>

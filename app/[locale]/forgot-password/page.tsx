@@ -2,8 +2,8 @@ import ForgotPasswordClient from "./ForgotPasswordClient";
 import { getTranslations } from "next-intl/server";
 
 export const metadata = {
-	title: "Forgot Password | PNSB-Norway",
-	description: "Reset your password for PNSB-Norway account",
+	title: "Forgot Password | Pashupatinath Norway Temple",
+	description: "Reset your password for Pashupatinath Norway Temple account",
 };
 
 export default async function ForgotPasswordPage() {

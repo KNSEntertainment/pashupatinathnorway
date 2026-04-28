@@ -75,7 +75,7 @@ export default function AboutUsClient() {
 				<div className="order-2 lg:order-1 space-y-8">
 					{/* Decorative Quote Mark */}
 					<div className="hidden md:block">
-						<svg className="w-16 h-16 text-brand/20" fill="currentColor" viewBox="0 0 32 32">
+						<svg className="w-16 h-16 text-brand_primary/20" fill="currentColor" viewBox="0 0 32 32">
 							<path d="M10 8c-3.3 0-6 2.7-6 6v10h10V14H8c0-1.1.9-2 2-2V8zm14 0c-3.3 0-6 2.7-6 6v10h10V14h-6c0-1.1.9-2 2-2V8z" />
 						</svg>
 					</div>
@@ -104,8 +104,8 @@ export default function AboutUsClient() {
 					{/* Decorative Stats or Highlight (Optional) */}
 					<div className="hidden md:flex gap-8 pt-6">
 						<div className="flex items-center gap-3">
-							<div className="w-12 h-12 rounded-full bg-brand/10 flex items-center justify-center">
-								<svg className="w-6 h-6 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<div className="w-12 h-12 rounded-full bg-brand_primary/10 flex items-center justify-center">
+								<svg className="w-6 h-6 text-brand_primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
 								</svg>
 							</div>
@@ -116,7 +116,7 @@ export default function AboutUsClient() {
 						</div>
 						<div className="flex items-center gap-3">
 							<div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center">
-								<svg className="w-6 h-6 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<svg className="w-6 h-6 text-brand_primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
 								</svg>
 							</div>
@@ -148,7 +148,7 @@ export default function AboutUsClient() {
 						<div className="absolute -bottom-4 -right-4 w-32 h-32 opacity-20 pointer-events-none">
 							<div className="grid grid-cols-4 gap-2">
 								{[...Array(16)].map((_, i) => (
-									<div key={i} className="w-2 h-2 rounded-full bg-brand" />
+									<div key={i} className="w-2 h-2 rounded-full bg-brand_primary" />
 								))}
 							</div>
 						</div>
@@ -174,8 +174,8 @@ export default function AboutUsClient() {
 			{/* Mobile Stats */}
 			<div className="md:hidden flex justify-center gap-6 mt-12 order-3">
 				<div className="text-center">
-					<div className="w-16 h-16 mx-auto rounded-full bg-brand/10 flex items-center justify-center mb-2">
-						<svg className="w-8 h-8 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<div className="w-16 h-16 mx-auto rounded-full bg-brand_primary/10 flex items-center justify-center mb-2">
+						<svg className="w-8 h-8 text-brand_primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
 						</svg>
 					</div>
@@ -184,7 +184,7 @@ export default function AboutUsClient() {
 				</div>
 				<div className="text-center">
 					<div className="w-16 h-16 mx-auto rounded-full bg-blue-500/10 flex items-center justify-center mb-2">
-						<svg className="w-8 h-8 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<svg className="w-8 h-8 text-brand_primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
 						</svg>
 					</div>
@@ -195,21 +195,21 @@ export default function AboutUsClient() {
 
 			<section className="h-auto flex flex-col md:flex-row items-center rounded-lg mt-4 md:mt-12 md:p-12 py-4 md:gap-12">
 				<div className="flex text-black p-4 lg:px-8 border border-1 border-brand rounded-3xl mx-6">
-					<MessageCirclePlusIcon className="w-8 h-8 text-brand mr-4 flex-shrink-0" />
+					<MessageCirclePlusIcon className="w-8 h-8 text-brand_primary mr-4 flex-shrink-0" />
 					<div>
 						<h2 className="text-xl md:text-2xl font-bold mb-4">
-							{t("mission_title").split(" ")[0]} <span className="text-brand leading-tight">{t("mission_title").split(" ")[1]}</span>
+							{t("mission_title").split(" ")[0]} <span className="text-brand_primary leading-tight">{t("mission_title").split(" ")[1]}</span>
 						</h2>
 						{/* We envision a future where our children understand their roots, our traditions remain vibrant, and our community serves as a model of cultural preservation and successful integration. Through unity, compassion, and shared purpose, we strive to make a positive difference in the lives of Nepalese people both in Norway and in Nepal */}
 						<p className="text-lg mb-4">{t("mission_description")}</p>
 					</div>
 				</div>
-				<div className="flex text-black p-4 lg:px-16 bg-brand/10 rounded-3xl mx-6 my-6 md:my-0">
-					<MessageCirclePlusIcon className="w-8 h-8 text-brand mr-4 flex-shrink-0" />
+				<div className="flex text-black p-4 lg:px-16 bg-brand_primary/10 rounded-3xl mx-6 my-6 md:my-0">
+					<MessageCirclePlusIcon className="w-8 h-8 text-brand_primary mr-4 flex-shrink-0" />
 
 					<div>
 						<h2 className="text-xl md:text-2xl font-bold mb-4">
-							{t("vision_title").split(" ")[0]} <span className="text-brand leading-tight">{t("vision_title").split(" ")[1]}</span>
+							{t("vision_title").split(" ")[0]} <span className="text-brand_primary leading-tight">{t("vision_title").split(" ")[1]}</span>
 						</h2>
 						<p className="text-lg mb-4">{t("vision_description")}</p>
 					</div>
@@ -224,7 +224,7 @@ export default function AboutUsClient() {
 					<div className="flex gap-6" style={{ minWidth: "fit-content" }}>
 						{values.map((value, index) => (
 							<motion.div key={index} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }} className="bg-light rounded-xl p-6 hover:bg-white hover:shadow-lg transition-all duration-300 w-[85vw] sm:w-[45vw] lg:w-[calc(33.333%-16px)] flex-shrink-0">
-								<div className="w-12 h-12 mb-4 bg-brand rounded-lg flex items-center justify-center">
+								<div className="w-12 h-12 mb-4 bg-brand_primary rounded-lg flex items-center justify-center">
 									<value.icon className="w-6 h-6 text-white" />
 								</div>
 								<h4 className="text-lg font-semibold text-gray-900 mb-2">{value.title}</h4>
@@ -237,7 +237,7 @@ export default function AboutUsClient() {
 				{/* Dot indicators for mobile users */}
 				<div className="flex justify-center md:hidden mt-4 gap-2">
 					{values.map((_, index) => (
-						<div key={index} className={`w-2 h-2 rounded-full transition-colors duration-300 ${index === activeIndex ? "bg-brand" : "bg-gray-300"}`} />
+						<div key={index} className={`w-2 h-2 rounded-full transition-colors duration-300 ${index === activeIndex ? "bg-brand_primary" : "bg-gray-300"}`} />
 					))}
 				</div>
 			</motion.div>

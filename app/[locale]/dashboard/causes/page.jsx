@@ -490,7 +490,7 @@ export default function CausesManagement() {
 									type="file"
 									accept="image/*"
 									onChange={handlePosterChange}
-									className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand file:text-white hover:file:bg-brand/90"
+									className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand_primary file:text-white hover:file:bg-brand_primary/90"
 								/>
 								{posterPreview && (
 									<div className="mt-2">

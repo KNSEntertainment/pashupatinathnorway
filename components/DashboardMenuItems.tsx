@@ -9,7 +9,7 @@ export interface MenuItem {
 }
 
 export const menuItems: MenuItem[] = [
-	{ id: "dashboard", label: "Dashboard", icon: LayoutDashboard, color: "bg-brand", href: "/en/dashboard" },
+	{ id: "dashboard", label: "Dashboard", icon: LayoutDashboard, color: "bg-brand_primary", href: "/en/dashboard" },
 	{ id: "blogs", label: "Blogs", icon: Newspaper, color: "bg-orange-600", href: "/en/dashboard/blogs" },
 	{ id: "causes", label: "Causes", icon: Heart, color: "bg-blue-600", href: "/en/dashboard/causes" },
 	{ id: "contactmessages", label: "Contact Messages", icon: Book, color: "bg-blue-600", href: "/en/dashboard/contactmessages" },

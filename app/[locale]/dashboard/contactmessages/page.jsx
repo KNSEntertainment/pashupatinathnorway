@@ -41,7 +41,7 @@ export default function EventsPage() {
 							<TableHead>Message Sender</TableHead>
 							<TableHead>Email</TableHead>
 							<TableHead>Phone</TableHead>
-							<TableHead>Message to PNSBN</TableHead>
+							<TableHead>Message to Pashupatinath Norway Temple</TableHead>
 							<TableHead>Actions</TableHead>
 						</TableRow>
 					</TableHeader>
@@ -60,7 +60,7 @@ export default function EventsPage() {
 												<Trash2 className="w-6 h-6 text-red-600" />
 											</Button>
 											<Button variant="ghost" size="icon" onClick={() => handleReplyEmail(message.email)}>
-												<MessageCircleReply className="w-6 h-6 text-brand" />
+												<MessageCircleReply className="w-6 h-6 text-brand_primary" />
 											</Button>
 										</div>
 									</TableCell>

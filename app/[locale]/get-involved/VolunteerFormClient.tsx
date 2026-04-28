@@ -121,7 +121,7 @@ export default function VolunteerFormClient({ translations: tr }: Props) {
 				<div className="bg-white rounded-xl md:shadow-md overflow-hidden">
 					<div className="grid md:grid-cols-2">
 						{/* Left Side - Info */}
-						<div className="bg-brand p-8 md:py-12 text-white">
+						<div className="bg-brand_primary p-8 md:py-12 text-white">
 							<h2 className="text-xl md:text-2xl font-bold mb-2 md:mb-6">{tr.title}</h2>
 							<p className="text-blue-100 md:mb-8 text-lg">{tr.volunteerDesc}</p>
 
@@ -153,7 +153,7 @@ export default function VolunteerFormClient({ translations: tr }: Props) {
 									<label className="block text-sm font-semibold text-gray-900 mb-3">{tr.areasOfInterest}</label>
 									<div className="grid grid-cols-2 gap-2">
 										{interests.map((interest) => (
-											<label key={interest} className="flex items-center p-3 border-2 border-light rounded-lg cursor-pointer hover:border-blue-500 hover:bg-brand/10 transition-all">
+											<label key={interest} className="flex items-center p-3 border-2 border-light rounded-lg cursor-pointer hover:border-blue-500 hover:bg-brand_primary/10 transition-all">
 												<input
 													type="checkbox"
 													checked={formData.interests.includes(interest)}
@@ -164,7 +164,7 @@ export default function VolunteerFormClient({ translations: tr }: Props) {
 															setFormData({ ...formData, interests: formData.interests.filter((i) => i !== interest) });
 														}
 													}}
-													className="w-4 h-4 text-brand rounded"
+													className="w-4 h-4 text-brand_primary rounded"
 												/>
 												<span className="ml-2 text-sm font-medium text-gray-900">{interest}</span>
 											</label>
@@ -175,7 +175,7 @@ export default function VolunteerFormClient({ translations: tr }: Props) {
 								<button 
 									onClick={handleSubmit} 
 									disabled={isSubmitting}
-									className="w-full bg-brand text-white py-2 md:py-4 rounded-xl font-bold text-lg hover:bg-brand/80 transition-all transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+									className="w-full bg-brand_primary text-white py-2 md:py-4 rounded-xl font-bold text-lg hover:bg-brand_primary/80 transition-all transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
 								>
 									{isSubmitting ? "Submitting..." : tr.submitApplication}
 								</button>

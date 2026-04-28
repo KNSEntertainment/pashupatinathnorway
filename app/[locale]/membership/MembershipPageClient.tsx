@@ -413,7 +413,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 					</div>
 					<h2 className="text-3xl font-bold text-gray-900 mb-4">{t.welcome}</h2>
 					<p className="text-gray-900 mb-6">{t.welcome_msg}</p>
-					<button onClick={() => setSubmitted(false)} className="bg-brand text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+					<button onClick={() => setSubmitted(false)} className="bg-brand_primary text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
 						{t.submit_another}
 					</button>
 				</div>
@@ -576,15 +576,15 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 					<div>
 						<h3 className="text-xl font-semibold text-gray-900 mb-4">{t.membership_type}</h3>
 						<div className="space-y-3">
-							<label className="flex items-center p-4 border border-light rounded-lg cursor-pointer hover:bg-brand/10 transition-colors">
-								<input type="radio" name="membershipType" value="executive" checked={formData.membershipType === "executive"} onChange={handleChange} className="w-4 h-4 text-brand" />
+							<label className="flex items-center p-4 border border-light rounded-lg cursor-pointer hover:bg-brand_primary/10 transition-colors">
+								<input type="radio" name="membershipType" value="executive" checked={formData.membershipType === "executive"} onChange={handleChange} className="w-4 h-4 text-brand_primary" />
 								<div className="ml-3">
 									<span className="font-medium text-gray-900">{t.executive_member}</span>
 									<p className="text-sm text-gray-900">{t.executive_member_desc}</p>
 								</div>
 							</label>
-							<label className="flex items-center p-4 border border-light rounded-lg cursor-pointer hover:bg-brand/10 transition-colors">
-								<input type="radio" name="membershipType" value="general" checked={formData.membershipType === "general"} onChange={handleChange} className="w-4 h-4 text-brand" />
+							<label className="flex items-center p-4 border border-light rounded-lg cursor-pointer hover:bg-brand_primary/10 transition-colors">
+								<input type="radio" name="membershipType" value="general" checked={formData.membershipType === "general"} onChange={handleChange} className="w-4 h-4 text-brand_primary" />
 								<div className="ml-3">
 									<span className="font-medium text-gray-900">{t.general_member}</span>
 									<p className="text-sm text-gray-900">{t.general_member_desc}</p>
@@ -598,8 +598,8 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 						<h3 className="text-xl font-semibold text-gray-900 mb-4">{t.areas_of_interests}</h3>
 						<div className="grid md:grid-cols-2 gap-3">
 							{[t.interest_politics, t.interest_social, t.interest_education, t.interest_culture, t.interest_events, t.interest_fundraising].map((interest) => (
-								<label key={interest} className="flex items-center p-3 border border-light rounded-lg cursor-pointer hover:bg-brand/10 transition-colors">
-									<input type="checkbox" name="volunteerInterest" value={interest} checked={formData.volunteerInterest.includes(interest)} onChange={handleChange} className="w-4 h-4 text-brand rounded" />
+								<label key={interest} className="flex items-center p-3 border border-light rounded-lg cursor-pointer hover:bg-brand_primary/10 transition-colors">
+									<input type="checkbox" name="volunteerInterest" value={interest} checked={formData.volunteerInterest.includes(interest)} onChange={handleChange} className="w-4 h-4 text-brand_primary rounded" />
 									<span className="ml-3 text-gray-900">{interest}</span>
 								</label>
 							))}
@@ -610,16 +610,16 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 					<div>
 						<h3 className="text-xl font-semibold text-gray-900 mb-4">{t.permissions_title}</h3>
 						<div className="space-y-3">
-							<label className="flex items-start cursor-pointer p-3 border border-light rounded-lg hover:bg-brand/10 transition-colors">
-								<input type="checkbox" name="permissionPhotos" checked={formData.permissionPhotos} onChange={handleChange} className="w-5 h-5 text-brand rounded mt-1" />
+							<label className="flex items-start cursor-pointer p-3 border border-light rounded-lg hover:bg-brand_primary/10 transition-colors">
+								<input type="checkbox" name="permissionPhotos" checked={formData.permissionPhotos} onChange={handleChange} className="w-5 h-5 text-brand_primary rounded mt-1" />
 								<span className="ml-3 text-gray-900 text-sm">{t.permission_photos}</span>
 							</label>
-							<label className="flex items-start cursor-pointer p-3 border border-light rounded-lg hover:bg-brand/10 transition-colors">
-								<input type="checkbox" name="permissionPhone" checked={formData.permissionPhone} onChange={handleChange} className="w-5 h-5 text-brand rounded mt-1" />
+							<label className="flex items-start cursor-pointer p-3 border border-light rounded-lg hover:bg-brand_primary/10 transition-colors">
+								<input type="checkbox" name="permissionPhone" checked={formData.permissionPhone} onChange={handleChange} className="w-5 h-5 text-brand_primary rounded mt-1" />
 								<span className="ml-3 text-gray-900 text-sm">{t.permission_phone}</span>
 							</label>
-							<label className="flex items-start cursor-pointer p-3 border border-light rounded-lg hover:bg-brand/10 transition-colors">
-								<input type="checkbox" name="permissionEmail" checked={formData.permissionEmail} onChange={handleChange} className="w-5 h-5 text-brand rounded mt-1" />
+							<label className="flex items-start cursor-pointer p-3 border border-light rounded-lg hover:bg-brand_primary/10 transition-colors">
+								<input type="checkbox" name="permissionEmail" checked={formData.permissionEmail} onChange={handleChange} className="w-5 h-5 text-brand_primary rounded mt-1" />
 								<span className="ml-3 text-gray-900 text-sm">{t.permission_email}</span>
 							</label>
 						</div>
@@ -628,14 +628,14 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 					{/* Terms and Conditions */}
 					<div className="bg-light rounded-lg p-2 md:p-6">
 						<label className="flex items-start cursor-pointer">
-							<input type="checkbox" name="agreeTerms" checked={formData.agreeTerms} onChange={handleChange} className="w-5 h-5 text-brand rounded mt-1" />
+							<input type="checkbox" name="agreeTerms" checked={formData.agreeTerms} onChange={handleChange} className="w-5 h-5 text-brand_primary rounded mt-1" />
 							<span className="ml-2 md:ml-3 text-gray-900">
 								{t.agree_terms_prefix}{" "}
-								<Link href="/terms-and-conditions" className="text-brand hover:underline">
+								<Link href="/terms-and-conditions" className="text-brand_primary hover:underline">
 									{t.terms_and_conditions}
 								</Link>{" "}
 								{t.and}{" "}
-								<Link href="/privacy-policy" className="text-brand hover:underline">
+								<Link href="/privacy-policy" className="text-brand_primary hover:underline">
 									{t.privacy_policy}
 								</Link>
 								. <span className="text-red-500"> *</span>
@@ -645,7 +645,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 
 					{/* Submit Button */}
 					<div className="flex gap-4">
-						<button onClick={handleSubmit} className={`flex-1 bg-brand text-white py-2 md:py-4 px-6 md:px-8 rounded-lg font-semibold hover:bg-brand/90 transition-colors shadow-lg hover:shadow-xl${!formData.agreeTerms ? " opacity-50 cursor-not-allowed" : ""}`} disabled={!formData.agreeTerms}>
+						<button onClick={handleSubmit} className={`flex-1 bg-brand_primary text-white py-2 md:py-4 px-6 md:px-8 rounded-lg font-semibold hover:bg-brand_primary/90 transition-colors shadow-lg hover:shadow-xl${!formData.agreeTerms ? " opacity-50 cursor-not-allowed" : ""}`} disabled={!formData.agreeTerms}>
 							{t.submit}
 						</button>
 						<button onClick={resetForm} className="px-6 md:px-8 py-2 md:py-4 border-2 border-light text-gray-900 rounded-lg font-semibold hover:bg-light transition-colors">
@@ -660,7 +660,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 				<h3 className="text-2xl font-bold mb-4">{t.need_help}</h3>
 				<p className="mb-6 font-medium text-lg">{t.contact_us_any_questions}</p>
 				<div className="flex flex-wrap justify-center gap-4">
-					<a href="mailto:info@pnsbnorway.org" className="inline-flex items-center px-6 py-3 bg-white text-brand rounded-lg font-semibold hover:translate-y-[-2px] transition-colors">
+					<a href="mailto:nepalihindusamfunn@gmail.com" className="inline-flex items-center px-6 py-3 bg-white text-brand_primary rounded-lg font-semibold hover:translate-y-[-2px] transition-colors">
 						<svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
 						</svg>

@@ -2,7 +2,7 @@ import ProfileClient from "./ProfileClient";
 import { getTranslations } from "next-intl/server";
 
 export const metadata = {
-	title: "My Profile | PNSB-Norway",
+	title: "My Profile | Pashupatinath Norway Temple",
 	description: "View and manage your profile information",
 };
 

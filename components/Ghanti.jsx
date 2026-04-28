@@ -6,7 +6,7 @@ export default function Ghanti() {
 	return (
 		<div className="relative w-32 h-32 flex items-center justify-center">
 			<div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg animate-swing origin-top">
-				<Image src="/ghanti.png" alt="Logo" width={48} height={48} className="object-contain" />
+				<Image src="/pashupatinath.png" alt="Logo" width={48} height={48} className="object-contain" />
 			</div>
 
 			<style jsx>{`

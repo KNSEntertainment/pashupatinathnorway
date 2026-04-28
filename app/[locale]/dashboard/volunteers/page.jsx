@@ -123,7 +123,7 @@ export default function VolunteersPage() {
       {/* Volunteers List */}
       {loading ? (
         <div className="flex justify-center items-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-brand" />
+          <Loader2 className="w-8 h-8 animate-spin text-brand_primary" />
         </div>
       ) : volunteers.length === 0 ? (
         <Card>

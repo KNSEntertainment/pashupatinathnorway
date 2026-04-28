@@ -35,7 +35,7 @@ export default function VideoForm({ videoToEdit, onClose }: VideoFormProps) {
 		description_en: videoToEdit?.description_en || "",
 		description_ne: videoToEdit?.description_ne || "",
 		description_no: videoToEdit?.description_no || "",
-		creator_en: videoToEdit?.creator_en || "PNSB-Norway",
+		creator_en: videoToEdit?.creator_en || "Pashupatinath Norway Temple",
 		creator_ne: videoToEdit?.creator_ne || "आरएसपी नर्वे",
 		youtubeUrl: videoToEdit?.isYouTube ? videoToEdit?.url : "",
 	});
@@ -163,7 +163,7 @@ export default function VideoForm({ videoToEdit, onClose }: VideoFormProps) {
 						setFormData({ ...formData, youtubeUrl: "" });
 						setVideoPreview(videoToEdit?.url && !videoToEdit?.isYouTube ? videoToEdit.url : "");
 					}}
-					className={`flex-1 py-2 px-4 rounded-md font-medium transition ${uploadType === "file" ? "bg-white text-brand shadow" : "text-gray-600 hover:text-gray-900"}`}
+					className={`flex-1 py-2 px-4 rounded-md font-medium transition ${uploadType === "file" ? "bg-white text-brand_primary shadow" : "text-gray-600 hover:text-gray-900"}`}
 				>
 					<VideoIcon size={20} className="inline mr-2" />
 					Upload Video File
@@ -175,7 +175,7 @@ export default function VideoForm({ videoToEdit, onClose }: VideoFormProps) {
 						setVideoFile(null);
 						setVideoPreview(videoToEdit?.url && videoToEdit?.isYouTube ? videoToEdit.url : "");
 					}}
-					className={`flex-1 py-2 px-4 rounded-md font-medium transition ${uploadType === "youtube" ? "bg-white text-brand shadow" : "text-gray-600 hover:text-gray-900"}`}
+					className={`flex-1 py-2 px-4 rounded-md font-medium transition ${uploadType === "youtube" ? "bg-white text-brand_primary shadow" : "text-gray-600 hover:text-gray-900"}`}
 				>
 					<LinkIcon size={20} className="inline mr-2" />
 					YouTube URL
@@ -281,7 +281,7 @@ export default function VideoForm({ videoToEdit, onClose }: VideoFormProps) {
 			{/* Creator - English */}
 			<div>
 				<label className="block text-sm font-medium text-gray-900 mb-2">Creator/Author (English)</label>
-				<input type="text" name="creator_en" value={formData.creator_en} onChange={handleInputChange} className="w-full px-4 py-2 border border-light rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent" placeholder="PNSB-Norway" />
+				<input type="text" name="creator_en" value={formData.creator_en} onChange={handleInputChange} className="w-full px-4 py-2 border border-light rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent" placeholder="Pashupatinath Norway Temple" />
 			</div>
 
 			{/* Creator - Nepali */}
@@ -313,7 +313,7 @@ export default function VideoForm({ videoToEdit, onClose }: VideoFormProps) {
 				<button type="button" onClick={onClose} disabled={loading} className="px-6 py-2 border border-light rounded-lg hover:bg-light disabled:opacity-50">
 					Cancel
 				</button>
-				<button type="submit" disabled={loading || (uploadType === "file" && !videoFile && !videoToEdit) || (uploadType === "youtube" && !formData.youtubeUrl) || !formData.title_en || !formData.category} className="px-6 py-2 bg-brand text-white rounded-lg hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed">
+				<button type="submit" disabled={loading || (uploadType === "file" && !videoFile && !videoToEdit) || (uploadType === "youtube" && !formData.youtubeUrl) || !formData.title_en || !formData.category} className="px-6 py-2 bg-brand_primary text-white rounded-lg hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed">
 					{loading ? "Uploading..." : videoToEdit ? "Update Video" : "Upload Video"}
 				</button>
 			</div>

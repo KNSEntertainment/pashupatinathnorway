@@ -6,8 +6,8 @@ export default function SearchLoading() {
 			<div className="container mx-auto px-4 max-w-6xl">
 				<div className="flex flex-col items-center justify-center py-20">
 					<div className="relative mb-6">
-						<Search className="w-16 h-16 text-brand animate-pulse" />
-						<Loader2 className="w-8 h-8 text-brand animate-spin absolute -bottom-2 -right-2" />
+						<Search className="w-16 h-16 text-brand_primary animate-pulse" />
+						<Loader2 className="w-8 h-8 text-brand_primary animate-spin absolute -bottom-2 -right-2" />
 					</div>
 					<h2 className="text-2xl font-semibold text-gray-900 mb-2">Searching...</h2>
 					<p className="text-gray-900 animate-pulse">Please wait while we find the best results for you</p>

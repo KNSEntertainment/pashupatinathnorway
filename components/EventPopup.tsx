@@ -77,7 +77,7 @@ export default function EventPopup({ latestEvent }: EventPopupProps) {
 								{/* Left Column - Event Poster */}
 								<div className="w-full md:w-1/2 bg-gray-100 relative">
 									<div className="relative h-64 md:h-full overflow-hidden">
-										<Image src={latestEvent.eventposterUrl || "/ghanti.png"} alt={latestEvent.eventname} width={800} height={600} className="w-full h-full object-contain" priority />
+										<Image src={latestEvent.eventposterUrl || "/pashupatinath.png"} alt={latestEvent.eventname} width={800} height={600} className="w-full h-full object-contain" priority />
 									</div>
 								</div>
 
@@ -214,8 +214,8 @@ export default function EventPopup({ latestEvent }: EventPopupProps) {
 									<p className="mb-2">Available Monday - Friday, 10:00 AM - 6:00 PM</p>
 									<p>
 										Or email us at{" "}
-										<a href="mailto:info@pnsbnorway.org" className="text-blue-600 hover:text-blue-700 font-medium">
-											info@pnsbnorway.org
+										<a href="mailto:nepalihindusamfunn@gmail.com" className="text-blue-600 hover:text-blue-700 font-medium">
+											nepalihindusamfunn@gmail.com
 										</a>
 									</p>
 								</div>

@@ -244,23 +244,23 @@ export default function EventsColumn({ events, translations: t, initialEventId }
 
 									{/* Content Section */}
 									<div className="p-6 flex flex-col flex-1">
-										<h3 className="font-bold text-lg text-gray-900 mb-3 line-clamp-2 group-hover:text-brand transition-colors">{event.eventname}</h3>
+										<h3 className="font-bold text-lg text-gray-900 mb-3 line-clamp-2 group-hover:text-brand_primary transition-colors">{event.eventname}</h3>
 										<div className="space-y-2 text-sm text-gray-600 mb-4 flex-1">
 											{event.eventtime && (
 												<div className="flex items-start gap-2">
-													<Clock className="w-4 h-4 text-brand flex-shrink-0 mt-0.5" />
+													<Clock className="w-4 h-4 text-brand_primary flex-shrink-0 mt-0.5" />
 													<span className="line-clamp-1">{event.eventtime}</span>
 												</div>
 											)}
 											{event.eventvenue && (
 												<div className="flex items-start gap-2">
-													<MapPin className="w-4 h-4 text-brand flex-shrink-0 mt-0.5" />
+													<MapPin className="w-4 h-4 text-brand_primary flex-shrink-0 mt-0.5" />
 													<span className="line-clamp-1">{event.eventvenue}</span>
 												</div>
 											)}
 										</div>
 										<div className="pt-3 border-t border-gray-100">
-											<span className="text-brand font-semibold text-sm inline-flex items-center gap-1 group-hover:gap-2 transition-all">
+											<span className="text-brand_primary font-semibold text-sm inline-flex items-center gap-1 group-hover:gap-2 transition-all">
 												{t.view_detail}
 												<svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 													<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

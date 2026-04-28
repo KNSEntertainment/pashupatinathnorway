@@ -1,6 +1,6 @@
 
 export const metadata = {
-	title: "Messages | PNSB-Norway",
+	title: "Messages | Pashupatinath Norway Temple",
 	description: "View and manage your messages",
 };
 

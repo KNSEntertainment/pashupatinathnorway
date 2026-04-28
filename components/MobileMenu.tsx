@@ -64,7 +64,7 @@ export default function MobileMenu({ navItems }: MobileMenuProps) {
 							{/* Action Buttons */}
 							<div className="space-y-2">
 								{/* Donate Button */}
-								<Link href="/donate" locale={locale} onClick={() => setIsOpen(false)} className="w-full flex items-center justify-center gap-2 bg-white text-brand font-semibold py-2.5 rounded-lg hover:bg-opacity-90 transition-all duration-200 active:scale-95">
+								<Link href="/donate" locale={locale} onClick={() => setIsOpen(false)} className="w-full flex items-center justify-center gap-2 bg-white text-brand_primary font-semibold py-2.5 rounded-lg hover:bg-opacity-90 transition-all duration-200 active:scale-95">
 									<Heart size={18} />
 									{t("donate")}
 								</Link>
@@ -109,7 +109,7 @@ export default function MobileMenu({ navItems }: MobileMenuProps) {
 													setIsOpen(false);
 												}
 											}}
-											className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 ${isActive ? "bg-brand/10 text-brand font-semibold border-l-4 border-brand" : "text-gray-700 hover:bg-gray-100"}`}
+											className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 ${isActive ? "bg-brand_primary/10 text-brand_primary font-semibold border-l-4 border-brand" : "text-gray-700 hover:bg-gray-100"}`}
 										>
 											<span>{item.title}</span>
 
@@ -129,7 +129,7 @@ export default function MobileMenu({ navItems }: MobileMenuProps) {
 														const isDropdownActive = pathname === dropdownItem.href || pathname.endsWith(dropdownItem.href);
 
 														return (
-															<Link key={dropdownItem.href} href={dropdownItem.href} locale={locale} className={`block px-8 py-2.5 text-sm rounded transition-all duration-200 border-l-4 ${isDropdownActive ? "bg-brand/5 text-brand font-semibold border-brand" : "text-gray-700 hover:bg-gray-100/50 border-transparent"}`} onClick={() => setIsOpen(false)}>
+															<Link key={dropdownItem.href} href={dropdownItem.href} locale={locale} className={`block px-8 py-2.5 text-sm rounded transition-all duration-200 border-l-4 ${isDropdownActive ? "bg-brand_primary/5 text-brand_primary font-semibold border-brand" : "text-gray-700 hover:bg-gray-100/50 border-transparent"}`} onClick={() => setIsOpen(false)}>
 																{dropdownItem.title}
 															</Link>
 														);

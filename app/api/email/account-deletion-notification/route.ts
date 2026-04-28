@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
 
 		// Send notification email using nodemailer
 		const mailOptions = {
-			from: `"PNSB-Norway" <${process.env.EMAIL_USER}>`,
+			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER}>`,
 			to: email,
 			subject: 'Account Deletion Confirmation',
 			html: `
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
 					<p style="margin-top: 30px;">Thank you for being part of our community. We wish you all the best in your future endeavors.</p>
 					
 					<hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
-					<p style="color: #999; font-size: 14px;">Best regards,<br>The PNSB-Norway Team</p>
+					<p style="color: #999; font-size: 14px;">Best regards,<br>The Pashupatinath Norway Temple Team</p>
 				</div>
 			`,
 		};

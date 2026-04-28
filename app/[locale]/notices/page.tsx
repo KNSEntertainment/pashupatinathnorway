@@ -14,13 +14,13 @@ interface Notice {
 }
 
 export const metadata = {
-	title: "Notices | PNSB-Norway",
-	description: "Stay informed with the latest notices and announcements from PNSB-Norway. Important information and updates for our community.",
+	title: "Notices | Pashupatinath Norway Temple",
+	description: "Stay informed with the latest notices and announcements from Pashupatinath Norway Temple. Important information and updates for our community.",
 	openGraph: {
-		title: "Notices | PNSB-Norway",
-		description: "Stay informed with the latest notices and announcements from PNSB-Norway. Important information and updates for our community.",
+		title: "Notices | Pashupatinath Norway Temple",
+		description: "Stay informed with the latest notices and announcements from Pashupatinath Norway Temple. Important information and updates for our community.",
 		url: "/updates/notices",
-		siteName: "PNSB-Norway",
+		siteName: "Pashupatinath Norway Temple",
 		type: "website",
 	},
 };

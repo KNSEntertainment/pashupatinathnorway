@@ -72,3 +72,77 @@ export interface LocalizedString {
 	no?: string;
 	ne?: string;
 }
+
+// Store/E-commerce types
+export interface Product {
+	_id: string;
+	name: LocalizedString;
+	description: LocalizedString;
+	price: number;
+	currency: string;
+	category: "product" | "service";
+	type: string; // e.g., "book", "puja", "consultation"
+	imageUrl: string;
+	images?: string[];
+	inStock: boolean;
+	stockQuantity?: number;
+	isDigital: boolean;
+	downloadUrl?: string;
+	features?: LocalizedString[];
+	specifications?: Record<string, LocalizedString>;
+	createdAt: string;
+	updatedAt: string;
+	isActive: boolean;
+	tags?: string[];
+}
+
+export interface CartItem {
+	product: Product;
+	quantity: number;
+	variant?: string;
+}
+
+export interface Cart {
+	items: CartItem[];
+	total: number;
+	subtotal: number;
+	tax: number;
+	shipping: number;
+	currency: string;
+}
+
+export interface Order {
+	_id: string;
+	customerInfo: {
+		name: string;
+		email: string;
+		phone: string;
+		address?: string;
+		city?: string;
+		postalCode?: string;
+	};
+	items: CartItem[];
+	total: number;
+	subtotal: number;
+	tax: number;
+	shipping: number;
+	currency: string;
+	status: "pending" | "processing" | "shipped" | "delivered" | "cancelled" | "refunded";
+	paymentStatus: "pending" | "completed" | "failed" | "refunded";
+	paymentMethod: "stripe" | "vipps" | "other";
+	stripeSessionId?: string;
+	stripePaymentIntentId?: string;
+	createdAt: string;
+	updatedAt: string;
+	notes?: string;
+	trackingNumber?: string;
+}
+
+export interface StoreFilters {
+	category: "all" | "product" | "service";
+	type: string;
+	priceRange: [number, number];
+	sortBy: "date" | "price-asc" | "price-desc" | "name-asc" | "name-desc";
+	search: string;
+	inStockOnly: boolean;
+}

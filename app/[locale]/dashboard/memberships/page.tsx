@@ -481,7 +481,7 @@ export default function MembershipsPage() {
 							<Card className="mb-6 border-l-4 border-l-blue-500 shadow-md hover:shadow-lg transition-shadow">
 								<CardHeader className="pb-3">
 									<CardTitle className="flex items-center gap-2 text-lg">
-										<Mail className="w-5 h-5 text-brand" />
+										<Mail className="w-5 h-5 text-brand_primary" />
 										Contact Information
 									</CardTitle>
 								</CardHeader>

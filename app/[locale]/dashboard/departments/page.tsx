@@ -42,7 +42,7 @@ function SortableDepartmentCard({ department, onEdit, onDelete }: { department: 
 					</div>
 				</div>
 				<div className="flex gap-2">
-					<button onClick={() => onEdit(department)} className="p-2 text-brand hover:bg-brand/10 rounded">
+					<button onClick={() => onEdit(department)} className="p-2 text-brand_primary hover:bg-brand_primary/10 rounded">
 						<Edit className="w-4 h-4" />
 					</button>
 					<button onClick={() => onDelete(department._id)} className="p-2 text-red-600 hover:bg-red-50 rounded">
@@ -56,7 +56,7 @@ function SortableDepartmentCard({ department, onEdit, onDelete }: { department: 
 					<p className="text-sm font-medium text-gray-900 mb-2">Subdepartments:</p>
 					<div className="flex flex-wrap gap-2">
 						{department.subdepartments.map((subdept, index) => (
-							<span key={index} className="px-3 py-1 bg-brand/10 text-brand text-sm rounded-full">
+							<span key={index} className="px-3 py-1 bg-brand_primary/10 text-brand_primary text-sm rounded-full">
 								{subdept}
 							</span>
 						))}
@@ -176,7 +176,7 @@ export default function DepartmentsPage() {
 						setEditingDepartment(null);
 						setShowModal(!showModal);
 					}}
-					className="bg-brand hover:bg-brand/90"
+					className="bg-brand_primary hover:bg-brand_primary/90"
 				>
 					{showModal ? (
 						"Cancel"

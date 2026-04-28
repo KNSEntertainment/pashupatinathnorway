@@ -85,7 +85,7 @@ export default function ExecutiveMembersAdmin() {
 					<h1 className="text-3xl font-bold text-gray-900">Executive Members</h1>
 					<p className="text-gray-900 mt-1">Manage organization leadership</p>
 				</div>
-				<Button onClick={handleAddMember} className="bg-brand hover:bg-brand/90">
+				<Button onClick={handleAddMember} className="bg-brand_primary hover:bg-brand_primary/90">
 					{showModal ? (
 						"Cancel"
 					) : (
@@ -120,14 +120,14 @@ export default function ExecutiveMembersAdmin() {
 
 						<div className="p-6">
 							<h3 className="text-xl font-bold text-gray-900 mb-1">{member.name}</h3>
-							{member.position && <p className="text-sm text-brand font-medium mb-3">{member.position}</p>}
+							{member.position && <p className="text-sm text-brand_primary font-medium mb-3">{member.position}</p>}
 
 							<div className="space-y-2 mb-4">
-								<a href={`tel:${member.phone}`} className="flex items-center gap-2 text-gray-900 hover:text-brand text-sm">
+								<a href={`tel:${member.phone}`} className="flex items-center gap-2 text-gray-900 hover:text-brand_primary text-sm">
 									<Phone className="w-4 h-4" />
 									{member.phone}
 								</a>
-								<a href={`mailto:${member.email}`} className="flex items-center gap-2 text-gray-900 hover:text-brand text-sm break-all">
+								<a href={`mailto:${member.email}`} className="flex items-center gap-2 text-gray-900 hover:text-brand_primary text-sm break-all">
 									<Mail className="w-4 h-4" />
 									{member.email}
 								</a>
@@ -151,7 +151,7 @@ export default function ExecutiveMembersAdmin() {
 			{members.length === 0 && (
 				<div className="text-center py-12">
 					<p className="text-gray-900 text-lg mb-4">No executive members added yet.</p>
-					<Button onClick={handleAddMember} className="bg-brand hover:bg-brand/90">
+					<Button onClick={handleAddMember} className="bg-brand_primary hover:bg-brand_primary/90">
 						<Plus className="w-4 h-4 mr-2" />
 						Add Your First Member
 					</Button>

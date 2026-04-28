@@ -210,7 +210,7 @@ export default function ExecutiveMemberForm({ handleCloseModal, memberToEdit = n
 			</div>
 
 			<div className="flex items-center">
-				<input type="checkbox" id="isActive" name="isActive" checked={formData.isActive} onChange={handleChange} className="h-4 w-4 text-brand focus:ring-brand border-light rounded" />
+				<input type="checkbox" id="isActive" name="isActive" checked={formData.isActive} onChange={handleChange} className="h-4 w-4 text-brand_primary focus:ring-brand border-light rounded" />
 				<label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">
 					Active (Display on website)
 				</label>
@@ -220,7 +220,7 @@ export default function ExecutiveMemberForm({ handleCloseModal, memberToEdit = n
 				<Button type="button" variant="outline" onClick={handleCloseModal} disabled={submitting}>
 					Cancel
 				</Button>
-				<Button type="submit" disabled={submitting} className="bg-brand hover:bg-brand/90">
+				<Button type="submit" disabled={submitting} className="bg-brand_primary hover:bg-brand_primary/90">
 					{submitting ? (memberToEdit ? "Updating..." : "Creating...") : memberToEdit ? "Update Member" : "Add Member"}
 				</Button>
 			</div>

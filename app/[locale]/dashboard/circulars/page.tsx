@@ -153,7 +153,7 @@ export default function CircularsPage() {
 					<h1 className="text-3xl font-bold text-gray-900">Circulars Management</h1>
 					<p className="text-gray-900 mt-1">Create and manage circulars with multi-language support</p>
 				</div>
-				<Button onClick={() => setShowForm(!showForm)} className="gap-2 bg-brand hover:bg-brand/90">
+				<Button onClick={() => setShowForm(!showForm)} className="gap-2 bg-brand_primary hover:bg-brand_primary/90">
 					{showForm ? (
 						"Cancel"
 					) : (

@@ -125,8 +125,8 @@ export default function DonationsManagement() {
 								<p className="text-sm text-gray-500 font-medium">Total Donations</p>
 								<p className="text-3xl font-bold text-gray-900 mt-2">{stats.total}</p>
 							</div>
-							<div className="w-12 h-12 bg-brand/10 rounded-full flex items-center justify-center">
-								<DollarSign className="w-6 h-6 text-brand" />
+							<div className="w-12 h-12 bg-brand_primary/10 rounded-full flex items-center justify-center">
+								<DollarSign className="w-6 h-6 text-brand_primary" />
 							</div>
 						</div>
 					</CardContent>

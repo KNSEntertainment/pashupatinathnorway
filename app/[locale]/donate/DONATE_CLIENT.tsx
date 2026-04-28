@@ -141,7 +141,7 @@ export default function DonatePageClient({ causes, locale }: DonatePageClientPro
 												<div className="flex flex-col space-y-3 mt-6">
 												<button 
 													onClick={() => handleSupportCause(cause)}
-													className="w-full bg-brand hover:bg-brand/90 text-white py-3 px-6 rounded-lg transition-colors font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
+													className="w-full bg-brand_primary hover:bg-brand_primary/90 text-white py-3 px-6 rounded-lg transition-colors font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
 												>
 													{t("support_this_cause") || "Support This Cause"}
 												</button>
@@ -155,7 +155,7 @@ export default function DonatePageClient({ causes, locale }: DonatePageClientPro
 						
 						<div className="text-center mt-8">
 							<Link href={`/${locale}/donate/reports`}>
-								<button className="text-brand hover:text-brand/90 font-medium">
+								<button className="text-brand_primary hover:text-brand_primary/90 font-medium">
 									{t("view_all_reports") || "View All Donation Reports"} &rarr;
 								</button>
 							</Link>
@@ -179,8 +179,8 @@ export default function DonatePageClient({ causes, locale }: DonatePageClientPro
 								<div className="space-y-4">
 									<div className="flex gap-3">
 										<div className="flex-shrink-0">
-											<div className="w-10 h-10 rounded-full bg-brand/10 flex items-center justify-center">
-												<Users className="w-5 h-5 text-brand" />
+											<div className="w-10 h-10 rounded-full bg-brand_primary/10 flex items-center justify-center">
+												<Users className="w-5 h-5 text-brand_primary" />
 											</div>
 										</div>
 										<div>
@@ -230,7 +230,7 @@ export default function DonatePageClient({ causes, locale }: DonatePageClientPro
 {/* Why Donate */}
 						<Card className="border-0 shadow-lg bg-gradient-to-br from-brand to-blue-700 text-white">
 							<CardContent className="pt-6">
-								<h3 className="text-xl font-bold mb-3">{t("why_donate") || "Why Donate to PNSB-Norway?"}</h3>
+								<h3 className="text-xl font-bold mb-3">{t("why_donate") || "Why Donate to Pashupatinath Norway Temple?"}</h3>
 								<ul className="space-y-2 text-sm">
 									<li className="flex items-start gap-2">
 										<span className="text-white/80">👍</span>

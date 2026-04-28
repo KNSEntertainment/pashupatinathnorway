@@ -2,8 +2,8 @@ import ResetPasswordClient from "./ResetPasswordClient";
 import { getTranslations } from "next-intl/server";
 
 export const metadata = {
-	title: "Reset Password | PNSB-Norway",
-	description: "Reset your password for PNSB-Norway account",
+	title: "Reset Password | Pashupatinath Norway Temple",
+	description: "Reset your password for Pashupatinath Norway Temple account",
 };
 
 export default async function ResetPasswordPage() {

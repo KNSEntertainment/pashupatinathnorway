@@ -2,7 +2,7 @@ import SettingsClient from "./SettingsClient";
 import { getTranslations } from "next-intl/server";
 
 export const metadata = {
-	title: "Settings | PNSB-Norway",
+	title: "Settings | Pashupatinath Norway Temple",
 	description: "Manage your account settings and security",
 };
 

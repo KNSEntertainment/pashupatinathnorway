@@ -2,7 +2,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
@@ -28,15 +27,7 @@ export default function FullWidthHero() {
 			secondaryLink: "/about-us",
 			secondaryButton: t("explore_rsp"),
 		},
-		{
-			image: "/hast.jpg",
-			title: t("title_2"),
-			description: t("subtitle_2"),
-			primaryLink: "/get-involved",
-			primaryButton: t("get_involved"),
-			secondaryLink: "/contact",
-			secondaryButton: t("contact_us"),
-		},
+	
 	], [t]);
 
 	// Set fallback slides immediately for faster LCP
@@ -65,12 +56,12 @@ export default function FullWidthHero() {
 		setTimeout(() => setIsAnimating(false), 1200);
 	}, [isAnimating, slides.length, loading]);
 
-	const prevSlide = useCallback(() => {
-		if (isAnimating || loading || slides.length === 0) return;
-		setIsAnimating(true);
-		setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
-		setTimeout(() => setIsAnimating(false), 1200);
-	}, [isAnimating, slides.length, loading]);
+	// const prevSlide = useCallback(() => {
+	// 	if (isAnimating || loading || slides.length === 0) return;
+	// 	setIsAnimating(true);
+	// 	setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+	// 	setTimeout(() => setIsAnimating(false), 1200);
+	// }, [isAnimating, slides.length, loading]);
 
 	useEffect(() => {
 		if (loading || slides.length === 0) return;
@@ -89,16 +80,16 @@ export default function FullWidthHero() {
 		/* The trick for True Full Width:
            w-screen + relative left-1/2 -translate-x-1/2 
         */
-		<div className="relative w-screen left-1/2 right-1/2 -translate-x-1/2 overflow-hidden bg-neutral-900">
+		<div className="relative w-screen left-1/2 right-1/2 -translate-x-1/2 overflow-hidden bg-white">
 			<section className="relative h-[82vh] w-full flex items-center">
 				{/* Background Layer */}
 				<AnimatePresence mode="wait">
 					<motion.div key={currentSlide} className="absolute inset-0 z-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
 						<Image 
-							src={slides[currentSlide]?.image || "/ghanti.png"} 
+							src={slides[currentSlide]?.image || "/pashupatinath.png"} 
 							alt="Background" 
 							fill 
-							className="object-cover" 
+							className="object-cover object-top" 
 							priority
 							placeholder="blur"
 							blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
@@ -106,10 +97,42 @@ export default function FullWidthHero() {
 							quality={60}
 							loading="eager"
 						/>
-						{/* Overlay: Darkens and adds a blue tint for political branding */}
-						<div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/60 z-10" />
+						<div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/80 z-10" />
 					</motion.div>
 				</AnimatePresence>
+
+				{/* OM Symbol */}
+				<div className="absolute top-36 right-[34.5%] z-15 pointer-events-none">
+					<div className="text-6xl md:text-8xl font-bold text-yellow-100/20 drop-shadow-2xl animate-pulse" style={{
+						textShadow: '0 0 10px rgba(254, 240, 138, 0.3), 0 0 20px rgba(254, 240, 138, 0.1)',
+						fontFamily: 'serif',
+						animation: 'omGlow 10s ease-in-out infinite'
+					}}>
+						ॐ
+					</div>
+				</div>
+
+				{/* Mantra Light Effect */}
+				<div className="absolute top-[20%] right-[38%] flex items-center justify-center pointer-events-none z-5">
+					<div
+						className="absolute w-64 h-64 rounded-full bg-gradient-to-br from-yellow-300/60 via-orange-400/40 to-transparent blur-3xl animate-pulse"
+						style={{
+							animation: 'mantraPulse1 4s ease-in-out infinite'
+						}}
+					/>
+					<div
+						className="absolute w-48 h-48 rounded-full bg-gradient-to-tr from-white/60 via-red-200/40 to-transparent blur-2xl animate-pulse"
+						style={{
+							animation: 'mantraPulse2 6s ease-in-out infinite 2s'
+						}}
+					/>
+					<div
+						className="absolute w-36 h-36 rounded-full bg-gradient-to-bl from-yellow-200/50 via-orange-300/30 to-transparent blur-xl animate-pulse"
+						style={{
+							animation: 'mantraPulse3 8s ease-in-out infinite 4s'
+						}}
+					/>
+				</div>
 
 				{/* Content Layer */}
 				<div className="container relative z-20 mx-auto px-6 md:px-12">
@@ -121,10 +144,10 @@ export default function FullWidthHero() {
 
 								<div className="flex flex-wrap gap-2 md:gap-4">
 									<Link href={slides[currentSlide]?.primaryLink || "#"} locale={locale}>
-										<Button className="h-12 px-4 md:px-6 text-md md:text-lg font-bold rounded-full bg-brand/90 hover:bg-brand text-white shadow-2xl shadow-blue-500/20 transition-all hover:scale-105 active:scale-95">{slides[currentSlide]?.primaryButton || "Learn More"}</Button>
+										<Button className="h-12 px-4 md:px-6 text-md md:text-lg font-bold rounded-full bg-brand_primary/90 hover:bg-brand_primary text-gray-700 shadow-2xl shadow-blue-500/20 transition-all hover:scale-105 active:scale-95">{slides[currentSlide]?.primaryButton || "Learn More"}</Button>
 									</Link>
 									<Link href={slides[currentSlide]?.secondaryLink || "#"} locale={locale}>
-										<Button variant="outline" className="h-12 px-4 md:px-6 text-md md:text-lg font-bold rounded-full border-white/30 bg-white/10 backdrop-blur-md text-white hover:bg-white hover:text-brand transition-all flex items-center gap-2">
+										<Button variant="outline" className="h-12 px-4 md:px-6 text-md md:text-lg font-bold rounded-full border-white/30 bg-brand_secondary/70 backdrop-blur-md text-gray-100 hover:bg-white hover:text-brand_primary transition-all flex items-center gap-2">
 											{slides[currentSlide]?.secondaryButton || "Explore"}
 										</Button>
 									</Link>
@@ -134,23 +157,6 @@ export default function FullWidthHero() {
 					</div>
 				</div>
 
-				{/* Navigation Controls */}
-				<div className="hidden absolute bottom-12 right-12 md:right-24 z-30 md:flex items-center gap-4">
-					<button onClick={prevSlide} className="p-4 rounded-full border border-white/20 bg-white/5 backdrop-blur-lg text-white hover:bg-white hover:text-brand transition-all">
-						<ChevronLeft className="w-6 h-6" />
-					</button>
-
-					{/* Progress Indicator */}
-					<div className="flex gap-2">
-						{slides.map((_, i) => (
-							<div key={i} className={`h-1.5 transition-all duration-500 rounded-full ${currentSlide === i ? "w-12 bg-brand" : "w-4 bg-white/30"}`} />
-						))}
-					</div>
-
-					<button onClick={nextSlide} className="p-4 rounded-full border border-white/20 bg-white/5 backdrop-blur-lg text-white hover:bg-white hover:text-brand transition-all">
-						<ChevronRight className="w-6 h-6" />
-					</button>
-				</div>
 			</section>
 
 					</div>

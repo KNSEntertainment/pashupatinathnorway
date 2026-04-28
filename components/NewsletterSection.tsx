@@ -46,7 +46,7 @@ export default function NewsletterSection() {
 	};
 
 	return (
-		<section className="py-20 bg-gradient-to-br from-blue-600 to-emerald-600 relative overflow-hidden">
+		<section className="py-20 bg-gradient-to-br from-brand_secondary to-brand_primary/80 relative overflow-hidden w-screen left-1/2 right-1/2 -translate-x-1/2">
 			{/* Decorative Elements */}
 			<div className="absolute top-10 right-10 w-32 h-32 bg-white/5 rounded-full blur-xl"></div>
 			<div className="absolute bottom-10 left-10 w-48 h-48 bg-white/5 rounded-full blur-xl"></div>
@@ -118,7 +118,7 @@ export default function NewsletterSection() {
 								<button
 									type="submit"
 									disabled={isSubmitting || isSubmitted}
-									className="w-full px-8 py-4 bg-white text-brand font-semibold rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
+									className="w-full px-8 py-4 bg-white text-brand_primary font-semibold rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
 								>
 									{isSubmitting ? (
 										<>

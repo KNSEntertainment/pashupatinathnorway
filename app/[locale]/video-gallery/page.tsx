@@ -81,9 +81,9 @@ const VideoGallery: React.FC = () => {
 
 	const getLocalizedCreator = (video: Video) => {
 		if (locale === "ne") {
-			return video.creator_ne || video.creator_en || video.creator || "PNSB-Norway";
+			return video.creator_ne || video.creator_en || video.creator || "Pashupatinath Norway Temple";
 		}
-		return video.creator_en || video.creator || "PNSB-Norway";
+		return video.creator_en || video.creator || "Pashupatinath Norway Temple";
 	};
 
 	const getYouTubeAutoplayUrl = (url: string) => {
@@ -250,7 +250,7 @@ const VideoGallery: React.FC = () => {
 					<p className="text-gray-600 mb-4">{error}</p>
 					<button 
 						onClick={() => window.location.reload()} 
-						className="bg-brand text-white px-6 py-2 rounded-lg hover:bg-brand/90"
+						className="bg-brand_primary text-white px-6 py-2 rounded-lg hover:bg-brand_primary/90"
 					>
 						Retry
 					</button>
@@ -786,7 +786,7 @@ const VideoGallery: React.FC = () => {
 										marginBottom: "24px",
 									}}
 								>
-									<Video className="w-5 h-5 text-brand" /> {getLocalizedCreator(selectedVideo)}
+									<Video className="w-5 h-5 text-brand_primary" /> {getLocalizedCreator(selectedVideo)}
 								</div>
 							</div>
 

@@ -1,7 +1,7 @@
 import PrivacyClient from "./PrivacyClient";
 
 export const metadata = {
-	title: "Privacy | PNSB-Norway",
+	title: "Privacy | Pashupatinath Norway Temple",
 	description: "Manage your privacy settings",
 };
 

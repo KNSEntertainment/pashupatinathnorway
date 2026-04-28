@@ -2,7 +2,7 @@ import SetPasswordClient from "./SetPasswordClient";
 import { getTranslations } from "next-intl/server";
 
 export const metadata = {
-	title: "Set Password | PNSB-Norway",
+	title: "Set Password | Pashupatinath Norway Temple",
 	description: "Set your password to complete your account setup",
 };
 

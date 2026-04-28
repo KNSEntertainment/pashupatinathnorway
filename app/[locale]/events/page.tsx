@@ -17,13 +17,13 @@ interface Event {
 }
 
 export const metadata = {
-	title: "Events | PNSB-Norway",
-	description: "Stay updated with upcoming and past events from PNSB-Norway. Join us for community gatherings, celebrations, and important meetings.",
+	title: "Events | Pashupatinath Norway Temple",
+	description: "Stay updated with upcoming and past events from Pashupatinath Norway Temple. Join us for community gatherings, celebrations, and important meetings.",
 	openGraph: {
-		title: "Events | PNSB-Norway",
-		description: "Stay updated with upcoming and past events from PNSB-Norway. Join us for community gatherings, celebrations, and important meetings.",
+		title: "Events | Pashupatinath Norway Temple",
+		description: "Stay updated with upcoming and past events from Pashupatinath Norway Temple. Join us for community gatherings, celebrations, and important meetings.",
 		url: "/updates/events",
-		siteName: "PNSB-Norway",
+		siteName: "Pashupatinath Norway Temple",
 		type: "website",
 	},
 };

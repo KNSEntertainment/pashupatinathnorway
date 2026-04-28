@@ -170,16 +170,16 @@ export default function EmployeeForm({ settingdata }) {
 					<label className="block text-gray-900 text-sm font-bold mb-2" htmlFor="companyLogo">
 						Company Logo
 					</label>
-					{formData.companyLogo && <Image src={formData.companyLogo || "/ghanti.png"} alt="Company Logo" width={100} height={100} className="w-auto h-24 mb-2 rounded-full" />}
+					{formData.companyLogo && <Image src={formData.companyLogo || "/pashupatinath.png"} alt="Company Logo" width={100} height={100} className="w-auto h-24 mb-2 rounded-full" />}
 					<input type="file" id="companyLogo" name="companyLogo" onChange={handleImageChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-900 leading-tight focus:outline-none focus:shadow-outline" />
 				</div>
 				<div className="grid justify-items-end gap-2 mt-12">
-					<button type="submit" disabled={submitting} className={`px-4 py-2 rounded ${submitting ? "bg-neutral-400 cursor-not-allowed" : "bg-brand hover:bg-red-800"} text-neutral-200 font-bold`}>
+					<button type="submit" disabled={submitting} className={`px-4 py-2 rounded ${submitting ? "bg-neutral-400 cursor-not-allowed" : "bg-brand_primary hover:bg-red-800"} text-neutral-200 font-bold`}>
 						{submitting ? "Updating Profile..." : "Update Profile"}
 					</button>
 				</div>
 				{error && <p className="text-red-500 mt-4 text-right">{error}</p>}
-				{message && <p className="text-brand mt-4 text-right">{message}</p>}
+				{message && <p className="text-brand_primary mt-4 text-right">{message}</p>}
 			</div>
 		</form>
 	);

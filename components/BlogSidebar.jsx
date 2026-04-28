@@ -25,10 +25,10 @@ function BlogSidebar({ blogs, locale: propLocale }) {
 						blogs.map((relBlog) => (
 							<Link href={`/${locale}/blogs/${relBlog._id}`} key={relBlog._id} className="flex space-x-4 group border-b pb-4 last:border-0 last:pb-0">
 								<div className="relative w-16 h-16 flex-shrink-0 overflow-hidden rounded-md">
-									<Image src={relBlog?.blogMainPicture || "/ghanti.png"} alt={getLocalizedTitle(relBlog) || "Blog Title"} fill sizes="64px" className="object-cover" />
+									<Image src={relBlog?.blogMainPicture || "/pashupatinath.png"} alt={getLocalizedTitle(relBlog) || "Blog Title"} fill sizes="64px" className="object-cover" />
 								</div>
 								<div>
-									<h4 className="font-medium text-gray-900 group-hover:text-brand transition duration-200">{getLocalizedTitle(relBlog)}</h4>
+									<h4 className="font-medium text-gray-900 group-hover:text-brand_primary transition duration-200">{getLocalizedTitle(relBlog)}</h4>
 									<p className="text-sm text-gray-900">{relBlog?.blogDate ? new Date(relBlog.blogDate).toISOString().slice(0, 10) : ""}</p>
 								</div>
 							</Link>

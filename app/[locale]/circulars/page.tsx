@@ -18,13 +18,13 @@ interface Circular {
 }
 
 export const metadata = {
-	title: "Circulars | PNSB-Norway",
-	description: "Access official circulars and documents from PNSB-Norway. Important announcements and communications for our community.",
+	title: "Circulars | Pashupatinath Norway Temple",
+	description: "Access official circulars and documents from Pashupatinath Norway Temple. Important announcements and communications for our community.",
 	openGraph: {
-		title: "Circulars | PNSB-Norway",
-		description: "Access official circulars and documents from PNSB-Norway. Important announcements and communications for our community.",
+		title: "Circulars | Pashupatinath Norway Temple",
+		description: "Access official circulars and documents from Pashupatinath Norway Temple. Important announcements and communications for our community.",
 		url: "/updates/circulars",
-		siteName: "PNSB-Norway",
+		siteName: "Pashupatinath Norway Temple",
 		type: "website",
 	},
 };

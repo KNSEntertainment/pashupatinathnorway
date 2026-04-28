@@ -5,13 +5,13 @@ import { getTranslations } from "next-intl/server";
 import SectionHeader from "@/components/SectionHeader";
 
 export const metadata: Metadata = {
-	title: "Downloads | PNSB-Norway",
-	description: "Download important documents, forms, and resources from PNSB-Norway. All files are available for members and visitors.",
+	title: "Downloads | Pashupatinath Norway Temple",
+	description: "Download important documents, forms, and resources from Pashupatinath Norway Temple. All files are available for members and visitors.",
 	openGraph: {
-		title: "Downloads | PNSB-Norway",
-		description: "Download important documents, forms, and resources from PNSB-Norway. All files are available for members and visitors.",
+		title: "Downloads | Pashupatinath Norway Temple",
+		description: "Download important documents, forms, and resources from Pashupatinath Norway Temple. All files are available for members and visitors.",
 		url: "/downloads",
-		siteName: "PNSB-Norway",
+		siteName: "Pashupatinath Norway Temple",
 		type: "website",
 	},
 };

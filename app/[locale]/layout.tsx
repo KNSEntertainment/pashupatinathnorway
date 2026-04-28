@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import ClientLayout from "./ClientLayout";
 import { NextIntlClientProvider } from "next-intl";
 import Header from "@/components/header/Header";
+import { CartProvider } from "@/context/CartContext";
 
 const geistSans = localFont({
 	src: "./fonts/GeistVF.woff",
@@ -20,13 +21,15 @@ export default function LocaleLayout({ children }: { children: React.ReactNode }
 	return (
 		<html lang="en">
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-				<ClientLayout>
-					<NextIntlClientProvider>
-						<Header />
-						<div className="container mx-auto mt-24 md:mt-[140px] md:mb-12 min-h-screen">{children}</div>
-						<Footer />
-					</NextIntlClientProvider>
-				</ClientLayout>
+				<CartProvider>
+					<ClientLayout>
+						<NextIntlClientProvider>
+							<Header />
+							<div className="mt-24 min-h-screen">{children}</div>
+							<Footer />
+						</NextIntlClientProvider>
+					</ClientLayout>
+				</CartProvider>
 			</body>
 		</html>
 	);

@@ -322,13 +322,13 @@
 
 // 								{/* Filter Toggle */}
 // 								<div className="flex items-center gap-2">
-// 									<button onClick={() => setShowMobileFilters(!showMobileFilters)} className="inline-flex items-center gap-2 px-3 py-2 bg-brand text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+// 									<button onClick={() => setShowMobileFilters(!showMobileFilters)} className="inline-flex items-center gap-2 px-3 py-2 bg-brand_primary text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
 // 										<Filter className="h-4 w-4" />
 // 										<span>{t("filters")}</span>
-// 										{hasActiveFilters && <span className="bg-white text-brand rounded-full px-2 py-0.5 text-xs font-semibold">{[filters.department, filters.subdepartment].filter(Boolean).length}</span>}
+// 										{hasActiveFilters && <span className="bg-white text-brand_primary rounded-full px-2 py-0.5 text-xs font-semibold">{[filters.department, filters.subdepartment].filter(Boolean).length}</span>}
 // 									</button>
 // 									{hasActiveFilters && (
-// 										<button onClick={clearAllFilters} className="text-sm text-brand hover:text-blue-700 font-medium">
+// 										<button onClick={clearAllFilters} className="text-sm text-brand_primary hover:text-blue-700 font-medium">
 // 											{t("clear_all")}
 // 										</button>
 // 									)}
@@ -338,7 +338,7 @@
 // 							{/* Members Count */}
 // 						</div>
 // 						<div className="text-sm text-gray-700 sm:ml-auto m-2 text-left sm:text-right">
-// 							<span className="text-brand font-bold">{filteredExecutiveMembers.length}</span> {filteredExecutiveMembers.length === 1 ? t("executive_member") : t("executive_members")},<span className="text-brand font-bold ml-2">{filteredActiveMembers.length}</span> {filteredActiveMembers.length === 1 ? t("active_member") : t("active_members")},<span className="text-brand font-bold ml-2">{filteredGeneralMembers.length}</span> {filteredGeneralMembers.length === 1 ? t("general_member") : t("general_members")}
+// 							<span className="text-brand_primary font-bold">{filteredExecutiveMembers.length}</span> {filteredExecutiveMembers.length === 1 ? t("executive_member") : t("executive_members")},<span className="text-brand_primary font-bold ml-2">{filteredActiveMembers.length}</span> {filteredActiveMembers.length === 1 ? t("active_member") : t("active_members")},<span className="text-brand_primary font-bold ml-2">{filteredGeneralMembers.length}</span> {filteredGeneralMembers.length === 1 ? t("general_member") : t("general_members")}
 // 						</div>
 // 					</div>
 // 				</div>
@@ -347,7 +347,7 @@
 // 				<div className={`mb-3 ${showMobileFilters ? "block" : "hidden"}`}>
 // 					<div className="bg-white rounded-lg shadow-sm px-4 py-3">
 // 						<div className="flex items-center justify-between mb-3">
-// 							<h3 className="text-md font-bold text-brand">{t("filters")}</h3>
+// 							<h3 className="text-md font-bold text-brand_primary">{t("filters")}</h3>
 // 						</div>
 
 // 						{/* Departments */}
@@ -358,7 +358,7 @@
 // 							<div className="relative">
 // 								<div className="flex overflow-x-auto gap-2 sm:gap-3 pb-2 scroll-smooth hide-scrollbar snap-x snap-mandatory">
 // 									{departments.map((dept) => (
-// 										<button key={dept._id} onClick={() => selectDepartment(dept.name)} className={`px-3 py-2 rounded-lg border transition-all duration-200 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-brand whitespace-nowrap flex-shrink-0 snap-start ${activeDepartment === dept.name ? "border-brand bg-blue-50 text-brand shadow-sm" : "bg-white border-gray-200 text-gray-700 hover:border-brand hover:bg-blue-50 hover:text-brand"}`}>
+// 										<button key={dept._id} onClick={() => selectDepartment(dept.name)} className={`px-3 py-2 rounded-lg border transition-all duration-200 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-brand whitespace-nowrap flex-shrink-0 snap-start ${activeDepartment === dept.name ? "border-brand bg-blue-50 text-brand_primary shadow-sm" : "bg-white border-gray-200 text-gray-700 hover:border-brand hover:bg-blue-50 hover:text-brand_primary"}`}>
 // 											{dept.name}
 // 										</button>
 // 									))}
@@ -380,7 +380,7 @@
 // 								<div className="relative">
 // 									<div className="flex overflow-x-auto gap-2 pb-2 scroll-smooth hide-scrollbar snap-x snap-mandatory">
 // 										{getActiveDepartmentSubdepartments().map((subdept) => (
-// 											<button key={subdept} onClick={() => selectSubdepartment(subdept)} className={`px-3 py-2 rounded-lg border transition-all duration-200 text-sm font-medium whitespace-nowrap flex-shrink-0 snap-start ${activeSubdepartment === subdept ? "bg-blue-100 border-blue-400 text-brand" : "bg-gray-50 border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-brand"}`}>
+// 											<button key={subdept} onClick={() => selectSubdepartment(subdept)} className={`px-3 py-2 rounded-lg border transition-all duration-200 text-sm font-medium whitespace-nowrap flex-shrink-0 snap-start ${activeSubdepartment === subdept ? "bg-blue-100 border-blue-400 text-brand_primary" : "bg-gray-50 border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-brand_primary"}`}>
 // 												{subdept}
 // 											</button>
 // 										))}
@@ -413,7 +413,7 @@
 // 							<div className="flex flex-wrap items-center gap-2">
 // 								<span className="text-sm font-medium text-gray-700">{t("active_filters")}:</span>
 // 								{filters.department && (
-// 									<span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-brand rounded-full text-sm font-medium">
+// 									<span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-brand_primary rounded-full text-sm font-medium">
 // 										{filters.department}
 // 										<button onClick={() => removeFilter("department")} className="hover:text-blue-900 transition-colors" aria-label="Remove department filter">
 // 											<X className="w-4 h-4" />
@@ -421,7 +421,7 @@
 // 									</span>
 // 								)}
 // 								{filters.subdepartment && (
-// 									<span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-brand rounded-full text-sm font-medium">
+// 									<span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-brand_primary rounded-full text-sm font-medium">
 // 										{filters.subdepartment}
 // 										<button onClick={() => removeFilter("subdepartment")} className="hover:text-blue-900 transition-colors" aria-label="Remove subdepartment filter">
 // 											<X className="w-4 h-4" />
@@ -437,7 +437,7 @@
 
 // 				{/* Executive Members Section */}
 // 				{filteredExecutiveMembers.length > 0 && (
-// 					<div className="mb-8 md:mb-20 p-6 bg-brand/5">
+// 					<div className="mb-8 md:mb-20 p-6 bg-brand_primary/5">
 // 						<h2 className="text-2xl font-bold text-gray-900 mb-4">{t("executive_members")}</h2>
 // 						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
 // 							{filteredExecutiveMembers.map((member) => (
@@ -453,14 +453,14 @@
 // 									</div>
 // 									<div className="p-6">
 // 										<h3 className="text-xl font-bold text-gray-900 mb-1">{member.name}</h3>
-// 										{member.position && <p className="text-sm text-brand font-medium mb-3">{member.position}</p>}
+// 										{member.position && <p className="text-sm text-brand_primary font-medium mb-3">{member.position}</p>}
 // 										{session?.user && (
 // 											<div className="space-y-2 mb-4">
-// 												<a href={`tel:${member.phone}`} className="flex items-center gap-2 text-gray-900 hover:text-brand text-sm">
+// 												<a href={`tel:${member.phone}`} className="flex items-center gap-2 text-gray-900 hover:text-brand_primary text-sm">
 // 													<Phone className="w-4 h-4" />
 // 													{member.phone}
 // 												</a>
-// 												<a href={`mailto:${member.email}`} className="flex items-center gap-2 text-gray-900 hover:text-brand text-sm break-all">
+// 												<a href={`mailto:${member.email}`} className="flex items-center gap-2 text-gray-900 hover:text-brand_primary text-sm break-all">
 // 													<Mail className="w-4 h-4" />
 // 													{member.email}
 // 												</a>
@@ -494,12 +494,12 @@
 // 										<p className="text-sm text-green-600 font-medium mb-3">{t("active_member")}</p>
 // 										<div className="space-y-2 mb-4">
 // 											{member.phone && (
-// 												<a href={`tel:${member.phone}`} className="flex items-center gap-2 text-gray-900 hover:text-brand text-sm">
+// 												<a href={`tel:${member.phone}`} className="flex items-center gap-2 text-gray-900 hover:text-brand_primary text-sm">
 // 													<Phone className="w-4 h-4" />
 // 													{member.phone}
 // 												</a>
 // 											)}
-// 											<a href={`mailto:${member.email}`} className="flex items-center gap-2 text-gray-900 hover:text-brand text-sm break-all">
+// 											<a href={`mailto:${member.email}`} className="flex items-center gap-2 text-gray-900 hover:text-brand_primary text-sm break-all">
 // 												<Mail className="w-4 h-4" />
 // 												{member.email}
 // 											</a>
@@ -532,12 +532,12 @@
 // 										<p className="text-sm text-gray-600 font-medium mb-3">{t("general_member")}</p>
 // 										<div className="space-y-2 mb-4">
 // 											{member.phone && (
-// 												<a href={`tel:${member.phone}`} className="flex items-center gap-2 text-gray-900 hover:text-brand text-sm">
+// 												<a href={`tel:${member.phone}`} className="flex items-center gap-2 text-gray-900 hover:text-brand_primary text-sm">
 // 													<Phone className="w-4 h-4" />
 // 													{member.phone}
 // 												</a>
 // 											)}
-// 											<a href={`mailto:${member.email}`} className="flex items-center gap-2 text-gray-900 hover:text-brand text-sm break-all">
+// 											<a href={`mailto:${member.email}`} className="flex items-center gap-2 text-gray-900 hover:text-brand_primary text-sm break-all">
 // 												<Mail className="w-4 h-4" />
 // 												{member.email}
 // 											</a>
@@ -559,7 +559,7 @@
 // 							<h3 className="text-xl font-semibold text-gray-900 mb-2">{t("no_results")}</h3>
 // 							<p className="text-gray-600 mb-6">{t("adjust_filters")}</p>
 // 							{hasActiveFilters && (
-// 								<button onClick={clearAllFilters} className="px-6 py-2.5 bg-brand text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+// 								<button onClick={clearAllFilters} className="px-6 py-2.5 bg-brand_primary text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
 // 									{t("clear_all")}
 // 								</button>
 // 							)}
@@ -657,12 +657,12 @@ function MemberCard({ name, email, phone, imageUrl, avatarGradient, badgeLabel, 
 				{showContact && session?.user && (
 					<div className="space-y-2 mb-4">
 						{phone && (
-							<a href={`tel:${phone}`} className="flex items-center gap-2 text-gray-900 hover:text-brand text-sm">
+							<a href={`tel:${phone}`} className="flex items-center gap-2 text-gray-900 hover:text-brand_primary text-sm">
 								<Phone className="w-4 h-4" />
 								{phone}
 							</a>
 						)}
-						<a href={`mailto:${email}`} className="flex items-center gap-2 text-gray-900 hover:text-brand text-sm break-all">
+						<a href={`mailto:${email}`} className="flex items-center gap-2 text-gray-900 hover:text-brand_primary text-sm break-all">
 							<Mail className="w-4 h-4" />
 							{email}
 						</a>
@@ -911,13 +911,13 @@ export default function Members() {
 								</div>
 
 								<div className="flex items-center gap-2">
-									<button onClick={() => setShowMobileFilters(!showMobileFilters)} className="inline-flex items-center gap-2 px-3 py-2 bg-brand text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+									<button onClick={() => setShowMobileFilters(!showMobileFilters)} className="inline-flex items-center gap-2 px-3 py-2 bg-brand_primary text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
 										<Filter className="h-4 w-4" />
 										<span>{t("filters")}</span>
-										{hasActiveFilters && <span className="bg-white text-brand rounded-full px-2 py-0.5 text-xs font-semibold">{[filters.department, filters.subdepartment].filter(Boolean).length}</span>}
+										{hasActiveFilters && <span className="bg-white text-brand_primary rounded-full px-2 py-0.5 text-xs font-semibold">{[filters.department, filters.subdepartment].filter(Boolean).length}</span>}
 									</button>
 									{hasActiveFilters && (
-										<button onClick={clearAllFilters} className="text-sm text-brand hover:text-blue-700 font-medium">
+										<button onClick={clearAllFilters} className="text-sm text-brand_primary hover:text-blue-700 font-medium">
 											{t("clear_all")}
 										</button>
 									)}
@@ -926,7 +926,7 @@ export default function Members() {
 						</div>
 
 						<div className="text-sm text-gray-700 sm:ml-auto m-2 text-left sm:text-right">
-							<span className="text-brand font-bold">{filteredExecutiveMembers.length}</span> {filteredExecutiveMembers.length === 1 ? t("executive_member") : t("executive_members")},<span className="text-brand font-bold ml-2">{filteredActiveMembers.length}</span> {filteredActiveMembers.length === 1 ? t("active_member") : t("active_members")},<span className="text-brand font-bold ml-2">{filteredGeneralMembers.length}</span> {filteredGeneralMembers.length === 1 ? t("general_member") : t("general_members")}
+							<span className="text-brand_primary font-bold">{filteredExecutiveMembers.length}</span> {filteredExecutiveMembers.length === 1 ? t("executive_member") : t("executive_members")},<span className="text-brand_primary font-bold ml-2">{filteredActiveMembers.length}</span> {filteredActiveMembers.length === 1 ? t("active_member") : t("active_members")},<span className="text-brand_primary font-bold ml-2">{filteredGeneralMembers.length}</span> {filteredGeneralMembers.length === 1 ? t("general_member") : t("general_members")}
 						</div>
 					</div>
 				</div>
@@ -935,7 +935,7 @@ export default function Members() {
 				<div className={`mb-3 ${showMobileFilters ? "block" : "hidden"}`}>
 					<div className="bg-white rounded-lg shadow-sm px-4 py-3">
 						<div className="flex items-center justify-between mb-3">
-							<h3 className="text-md font-bold text-brand">{t("filters")}</h3>
+							<h3 className="text-md font-bold text-brand_primary">{t("filters")}</h3>
 						</div>
 
 						<div className="mb-4">
@@ -945,7 +945,7 @@ export default function Members() {
 							<div className="relative">
 								<div className="flex overflow-x-auto gap-2 sm:gap-3 pb-2 scroll-smooth hide-scrollbar snap-x snap-mandatory">
 									{departments.map((dept) => (
-										<button key={dept._id} onClick={() => selectDepartment(dept.name)} className={`px-3 py-2 rounded-lg border transition-all duration-200 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-brand whitespace-nowrap flex-shrink-0 snap-start ${activeDepartment === dept.name ? "border-brand bg-blue-50 text-brand shadow-sm" : "bg-white border-gray-200 text-gray-700 hover:border-brand hover:bg-blue-50 hover:text-brand"}`}>
+										<button key={dept._id} onClick={() => selectDepartment(dept.name)} className={`px-3 py-2 rounded-lg border transition-all duration-200 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-brand whitespace-nowrap flex-shrink-0 snap-start ${activeDepartment === dept.name ? "border-brand bg-blue-50 text-brand_primary shadow-sm" : "bg-white border-gray-200 text-gray-700 hover:border-brand hover:bg-blue-50 hover:text-brand_primary"}`}>
 											{dept.name}
 										</button>
 									))}
@@ -966,7 +966,7 @@ export default function Members() {
 								<div className="relative">
 									<div className="flex overflow-x-auto gap-2 pb-2 scroll-smooth hide-scrollbar snap-x snap-mandatory">
 										{getActiveDepartmentSubdepartments().map((subdept) => (
-											<button key={subdept} onClick={() => selectSubdepartment(subdept)} className={`px-3 py-2 rounded-lg border transition-all duration-200 text-sm font-medium whitespace-nowrap flex-shrink-0 snap-start ${activeSubdepartment === subdept ? "bg-blue-100 border-blue-400 text-brand" : "bg-gray-50 border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-brand"}`}>
+											<button key={subdept} onClick={() => selectSubdepartment(subdept)} className={`px-3 py-2 rounded-lg border transition-all duration-200 text-sm font-medium whitespace-nowrap flex-shrink-0 snap-start ${activeSubdepartment === subdept ? "bg-blue-100 border-blue-400 text-brand_primary" : "bg-gray-50 border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-brand_primary"}`}>
 												{subdept}
 											</button>
 										))}
@@ -999,7 +999,7 @@ export default function Members() {
 							<div className="flex flex-wrap items-center gap-2">
 								<span className="text-sm font-medium text-gray-700">{t("active_filters")}:</span>
 								{filters.department && (
-									<span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-brand rounded-full text-sm font-medium">
+									<span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-brand_primary rounded-full text-sm font-medium">
 										{filters.department}
 										<button onClick={() => removeFilter("department")} className="hover:text-blue-900 transition-colors" aria-label="Remove department filter">
 											<X className="w-4 h-4" />
@@ -1007,7 +1007,7 @@ export default function Members() {
 									</span>
 								)}
 								{filters.subdepartment && (
-									<span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-brand rounded-full text-sm font-medium">
+									<span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-brand_primary rounded-full text-sm font-medium">
 										{filters.subdepartment}
 										<button onClick={() => removeFilter("subdepartment")} className="hover:text-blue-900 transition-colors" aria-label="Remove subdepartment filter">
 											<X className="w-4 h-4" />
@@ -1021,11 +1021,11 @@ export default function Members() {
 
 				{/* Executive Members */}
 				{filteredExecutiveMembers.length > 0 && (
-					<div className="mb-8 md:mb-20 p-6 bg-brand/5">
+					<div className="mb-8 md:mb-20 p-6 bg-brand_primary/5">
 						<h2 className="text-2xl font-bold text-gray-900 mb-4">{t("executive_members")}</h2>
 						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
 							{filteredExecutiveMembers.map((member) => (
-								<MemberCard key={member._id} name={member.name} email={member.email} phone={member.phone} imageUrl={member.imageUrl} avatarGradient="from-brand to-blue-600" badgeLabel={member.position} badgeClass="text-brand" showContact={true} session={session} />
+								<MemberCard key={member._id} name={member.name} email={member.email} phone={member.phone} imageUrl={member.imageUrl} avatarGradient="from-brand to-blue-600" badgeLabel={member.position} badgeClass="text-brand_primary" showContact={true} session={session} />
 							))}
 						</div>
 					</div>
@@ -1065,7 +1065,7 @@ export default function Members() {
 							<h3 className="text-xl font-semibold text-gray-900 mb-2">{t("no_results")}</h3>
 							<p className="text-gray-600 mb-6">{t("adjust_filters")}</p>
 							{hasActiveFilters && (
-								<button onClick={clearAllFilters} className="px-6 py-2.5 bg-brand text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+								<button onClick={clearAllFilters} className="px-6 py-2.5 bg-brand_primary text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
 									{t("clear_all")}
 								</button>
 							)}

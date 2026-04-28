@@ -53,7 +53,7 @@ export default function SearchResultCard({ item, query }) {
 			<div className="p-4 flex-1 flex flex-col">
 				<h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-2">{highlight(item.title, query)}</h3>
 				{item.description && <p className="text-gray-900 text-sm line-clamp-3 mb-2">{highlight(item.description.replace(/<[^>]*>/g, ""), query)}</p>}
-				{item.url && <span className="mt-2 inline-block text-brand border w-fit py-2 px-4 rounded-lg border-1 border-brand font-semibold text-sm hover:underline">{t("viewDetails")}</span>}
+				{item.url && <span className="mt-2 inline-block text-brand_primary border w-fit py-2 px-4 rounded-lg border-1 border-brand font-semibold text-sm hover:underline">{t("viewDetails")}</span>}
 			</div>
 		</div>
 	);

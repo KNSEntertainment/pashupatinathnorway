@@ -82,7 +82,7 @@ export default function VideosPage() {
 			<div className="flex justify-between items-center mb-6">
 				<h1 className="text-2xl font-bold">Manage Videos</h1>
 				<button
-					className="bg-brand text-white px-6 py-2 rounded-lg font-semibold hover:bg-red-800 flex items-center gap-2"
+					className="bg-brand_primary text-white px-6 py-2 rounded-lg font-semibold hover:bg-red-800 flex items-center gap-2"
 					onClick={() => {
 						setVideoToEdit(null);
 						setOpenModal(!openModal);
@@ -106,7 +106,7 @@ export default function VideosPage() {
 				<div className="text-center py-12 bg-light rounded-lg">
 					<VideoIcon size={64} className="mx-auto text-gray-900 mb-4" />
 					<p className="text-gray-900 text-lg mb-4">No videos uploaded yet</p>
-					<button className="bg-brand text-white px-6 py-2 rounded-lg hover:bg-red-800" onClick={() => setOpenModal(true)}>
+					<button className="bg-brand_primary text-white px-6 py-2 rounded-lg hover:bg-red-800" onClick={() => setOpenModal(true)}>
 						Upload Your First Video
 					</button>
 				</div>
@@ -135,7 +135,7 @@ export default function VideosPage() {
 								<div className="flex justify-between items-center pt-3 border-t">
 									<span className="text-xs text-gray-900">{new Date(video.createdAt).toLocaleDateString()}</span>
 									<div className="flex gap-2">
-										<button onClick={() => handleEdit(video)} className="p-2 text-brand hover:bg-brand/10 rounded transition" title="Edit">
+										<button onClick={() => handleEdit(video)} className="p-2 text-brand_primary hover:bg-brand_primary/10 rounded transition" title="Edit">
 											<Edit size={18} />
 										</button>
 										<button onClick={() => handleDelete(video._id)} className="p-2 text-red-600 hover:bg-red-50 rounded transition" title="Delete">

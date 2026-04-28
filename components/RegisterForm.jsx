@@ -115,7 +115,7 @@ const RegisterForm = ({ handleCloseUserModal }) => {
 			</div>
 			{error && <p className="mt-2 text-red-600">{error}</p>}
 			<div className="mt-6 flex justify-between">
-				<Button type="submit" className="bg-brand hover:bg-red-800">
+				<Button type="submit" className="bg-brand_primary hover:bg-red-800">
 					Register
 				</Button>
 				<Button type="button" variant="outline" onClick={handleCancel}>

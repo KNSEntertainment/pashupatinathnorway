@@ -103,7 +103,7 @@ export async function PUT(req, { params }) {
 				await deleteFromCloudinary(existingVideo.url, "video");
 			}
 			// Upload new video
-			updateData.url = await uploadToCloudinary(videoFile, "rsp-videos");
+			updateData.url = await uploadToCloudinary(videoFile, "Pashupatinath Norway Temple-videos");
 		}
 
 		// If new thumbnail is uploaded, delete old and upload new
@@ -113,7 +113,7 @@ export async function PUT(req, { params }) {
 				await deleteFromCloudinary(existingVideo.thumbnail, "image");
 			}
 			// Upload new thumbnail
-			updateData.thumbnail = await uploadToCloudinary(thumbnailFile, "rsp-video-thumbnails");
+			updateData.thumbnail = await uploadToCloudinary(thumbnailFile, "Pashupatinath Norway Temple-video-thumbnails");
 		}
 
 		const updatedVideo = await Video.findByIdAndUpdate(id, updateData, { new: true });

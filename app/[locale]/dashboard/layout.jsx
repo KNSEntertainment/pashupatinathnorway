@@ -42,7 +42,7 @@ function DashboardLayoutContent({ children }) {
 			}}
 		>
 			{/* Sidebar */}
-			<div className="hidden py-6 md:flex w-64 bg-brand/20 flex-col shadow-lg">
+			<div className="hidden py-6 md:flex w-64 bg-brand_primary/20 flex-col shadow-lg">
 				<nav className="overflow-y-hidden no-scrollbar">
 					{menuItems.map((item) => {
 						const Icon = item.icon;
@@ -52,7 +52,7 @@ function DashboardLayoutContent({ children }) {
 								key={item.id}
 								href={item.href}
 								className={`w-full flex items-center px-4 py-2 text-sm transition-colors duration-200
-									${isActive ? "bg-brand text-white font-semibold shadow border-l-2 border-black" : "text-black hover:text-brand hover:bg-light"}
+									${isActive ? "bg-brand_primary text-white font-semibold shadow border-l-2 border-black" : "text-black hover:text-brand_primary hover:bg-light"}
 								`}
 								style={isActive ? { boxShadow: "0 2px 8px 0 rgba(0, 0, 0, 0.10)" } : {}}
 							>
@@ -65,7 +65,7 @@ function DashboardLayoutContent({ children }) {
 			</div>
 
 			{/* Content Area */}
-			<main className="bg-brand/5 flex-1 p-6">{children}</main>
+			<main className="bg-brand_primary/5 flex-1 p-6">{children}</main>
 			<Toaster />
 		</div>
 	);

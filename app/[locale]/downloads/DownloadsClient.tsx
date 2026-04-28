@@ -143,14 +143,14 @@ export default function DownloadsClient({ documents, translations }: DownloadsCl
 								{doc.imageUrl && doc.imageUrl.trim() !== "" ? (
 									<Image src={doc.imageUrl} alt={doc.title_en} width={350} height={350} className="text-white hidden lg:block object-fill w-36 lg:w-36 h-full" />
 								) : (
-									<div className="hidden lg:flex w-48 h-full items-center justify-center bg-brand">
+									<div className="hidden lg:flex w-48 h-full items-center justify-center bg-brand_primary">
 										{" "}
 										<FileText size={48} className="text-blue-100" />{" "}
 									</div>
 								)}{" "}
 								{/* Mobile fallback for both image and icon */}{" "}
 								{!(doc.imageUrl && doc.imageUrl.trim() !== "") && (
-									<div className="lg:hidden w-full max-h-48 h-[192px] flex items-center justify-center bg-brand">
+									<div className="lg:hidden w-full max-h-48 h-[192px] flex items-center justify-center bg-brand_primary">
 										{" "}
 										<FileText size={48} className="text-blue-100" />{" "}
 									</div>
@@ -158,7 +158,7 @@ export default function DownloadsClient({ documents, translations }: DownloadsCl
 								{/* Document Info */}{" "}
 								<div className="p-6 flex flex-col justify-between flex-1">
 									{" "}
-									<span className="px-3 py-1 w-fit bg-blue-100 text-brand text-xs font-semibold rounded-full mb-3">{doc.category}</span>
+									<span className="px-3 py-1 w-fit bg-blue-100 text-brand_primary text-xs font-semibold rounded-full mb-3">{doc.category}</span>
 									<Link href={`/${locale}/downloads/${doc.id}`} className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500">
 										{getLocalizedTitle(doc)}
 									</Link>
@@ -171,7 +171,7 @@ export default function DownloadsClient({ documents, translations }: DownloadsCl
 										{/* Action Buttons */}{" "}
 										<div className="flex gap-3 w-fit">
 											{" "}
-											<button onClick={() => handleDownload(doc)} className="flex-1 flex items-center justify-center gap-2 px-4 md:px-4 py-1 md:py-2 bg-brand text-white rounded-xl hover:bg-blue-700 transition-colors font-medium shadow-md">
+											<button onClick={() => handleDownload(doc)} className="flex-1 flex items-center justify-center gap-2 px-4 md:px-4 py-1 md:py-2 bg-brand_primary text-white rounded-xl hover:bg-blue-700 transition-colors font-medium shadow-md">
 												{" "}
 												<Download size={18} /> {translations.download}{" "}
 											</button>{" "}

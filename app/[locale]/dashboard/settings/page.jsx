@@ -14,7 +14,7 @@ export default function SettingsPage() {
 
 	return (
 		<div className="bg-white md:px-4 lg:px-6 rounded-lg shadow-lg max-w-6xl">
-			<h2 className="text-lg font-bold text-neutral-200 bg-brand p-4 mb-4 text-center">Update Profile</h2>
+			<h2 className="text-lg font-bold text-neutral-200 bg-brand_primary p-4 mb-4 text-center">Update Profile</h2>
 			<SettingForm fetchSettings={settings} settingdata={settings} onClose={() => router.push("/en/dashboard")} />
 		</div>
 	);

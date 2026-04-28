@@ -85,10 +85,10 @@ export default function GalleryClient({ images }) {
 			{/* Navigation Arrows - Only for horizontal scroll layouts */}
 			{albumsArray.length > 4 && (
 				<div className="hidden absolute -top-16 right-0 md:flex gap-2 z-10">
-					<button onClick={() => scroll("left")} disabled={!canScrollLeft} className={`p-2 rounded-full shadow-md transition-all duration-200 ${canScrollLeft ? "bg-white hover:bg-brand hover:text-white text-gray-900 cursor-pointer" : "bg-light text-gray-900 cursor-not-allowed"}`} aria-label="Scroll left">
+					<button onClick={() => scroll("left")} disabled={!canScrollLeft} className={`p-2 rounded-full shadow-md transition-all duration-200 ${canScrollLeft ? "bg-white hover:bg-brand_primary hover:text-white text-gray-900 cursor-pointer" : "bg-light text-gray-900 cursor-not-allowed"}`} aria-label="Scroll left">
 						<ChevronLeft className="w-5 h-5" />
 					</button>
-					<button onClick={() => scroll("right")} disabled={!canScrollRight} className={`p-2 rounded-full shadow-md transition-all duration-200 ${canScrollRight ? "bg-white hover:bg-brand hover:text-white text-gray-900 cursor-pointer" : "bg-light text-gray-900 cursor-not-allowed"}`} aria-label="Scroll right">
+					<button onClick={() => scroll("right")} disabled={!canScrollRight} className={`p-2 rounded-full shadow-md transition-all duration-200 ${canScrollRight ? "bg-white hover:bg-brand_primary hover:text-white text-gray-900 cursor-pointer" : "bg-light text-gray-900 cursor-not-allowed"}`} aria-label="Scroll right">
 						<ChevronRight className="w-5 h-5" />
 					</button>
 				</div>
@@ -106,7 +106,7 @@ export default function GalleryClient({ images }) {
 								
 								{/* Floating Badge */}
 								<div className="absolute top-6 right-6">
-									<span className="px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full text-brand font-semibold text-sm shadow-lg">
+									<span className="px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full text-brand_primary font-semibold text-sm shadow-lg">
 										Featured Collection
 									</span>
 								</div>
@@ -124,7 +124,7 @@ export default function GalleryClient({ images }) {
 										</div>
 									</div>
 									<h3 className="text-3xl lg:text-4xl font-bold mb-4 hover:text-cyan-400 transition-colors duration-300">{albumsArray[0].name}</h3>
-									<button className="inline-flex items-center px-6 py-3 bg-brand hover:bg-cyan-600 rounded-lg font-semibold transition-all duration-300 group-hover:gap-2">
+									<button className="inline-flex items-center px-6 py-3 bg-brand_primary hover:bg-cyan-600 rounded-lg font-semibold transition-all duration-300 group-hover:gap-2">
 										View Gallery
 										<ChevronRight className="w-5 h-5 ml-1 group-hover:ml-2 transition-all duration-300" />
 									</button>
@@ -144,7 +144,7 @@ export default function GalleryClient({ images }) {
 									<div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
 									
 									<div className="absolute top-6 left-6">
-										<span className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-brand font-semibold text-sm">
+										<span className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-brand_primary font-semibold text-sm">
 											{index === 0 ? "Latest" : "Popular"}
 										</span>
 									</div>
@@ -174,7 +174,7 @@ export default function GalleryClient({ images }) {
 									<div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
 									
 									<div className="absolute top-4 left-4">
-										<span className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-brand font-semibold text-sm">
+										<span className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-brand_primary font-semibold text-sm">
 											{index === 0 ? "Featured" : `Collection ${index}`}
 										</span>
 									</div>
@@ -205,7 +205,7 @@ export default function GalleryClient({ images }) {
 									
 									<div className="absolute top-4 right-4">
 										<div className="bg-white/90 backdrop-blur-sm p-2 rounded-lg">
-											<Folder className="w-5 h-5 text-brand" />
+											<Folder className="w-5 h-5 text-brand_primary" />
 										</div>
 									</div>
 									
@@ -232,7 +232,7 @@ export default function GalleryClient({ images }) {
 								{/* Folder Icon Background */}
 								<div className="absolute top-4 right-4 z-10">
 									<div className="bg-white backdrop-blur-sm p-1.5 rounded-lg">
-										<Folder className="w-5 h-5 text-brand" />
+										<Folder className="w-5 h-5 text-brand_primary" />
 									</div>
 								</div>
 
@@ -245,7 +245,7 @@ export default function GalleryClient({ images }) {
 
 								{/* Album Info */}
 								<div className="p-6">
-									<h3 className="font-bold text-gray-900 text-lg mb-2 line-clamp-1 group-hover:text-brand transition-colors">{album.name}</h3>
+									<h3 className="font-bold text-gray-900 text-lg mb-2 line-clamp-1 group-hover:text-brand_primary transition-colors">{album.name}</h3>
 									<div className="flex items-center gap-2 text-gray-600">
 										<Images className="w-4 h-4" />
 										<span className="text-sm font-medium">

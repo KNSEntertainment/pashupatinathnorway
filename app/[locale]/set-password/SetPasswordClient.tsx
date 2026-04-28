@@ -107,7 +107,7 @@ export default function SetPasswordClient({ translations: t }: Props) {
 					<h2 className="text-2xl font-bold text-gray-900 mb-2">{t.success}</h2>
 					<p className="text-gray-900 mb-4">{t.successMessage}</p>
 					<p className="text-sm text-gray-900">{t.redirecting}</p>
-					<button onClick={() => router.push("/en/login")} className="mt-4 text-brand hover:text-brand underline">
+					<button onClick={() => router.push("/en/login")} className="mt-4 text-brand_primary hover:text-brand_primary underline">
 						{t.goToLogin}
 					</button>
 				</div>

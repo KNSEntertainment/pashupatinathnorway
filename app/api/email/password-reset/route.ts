@@ -62,14 +62,14 @@ export async function POST(request: NextRequest) {
 
 		// Send password reset email
 		const mailOptions = {
-			from: `"PNSB-Norway" <${process.env.EMAIL_USER}>`,
+			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER}>`,
 			to: email,
-			subject: 'Password Reset - PNSB-Norway Membership',
+			subject: 'Password Reset - Pashupatinath Norway Temple Membership',
 			html: `
 				<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f8f9f9; border-radius: 8px;">
 					<h2 style="color: #333; margin-bottom: 20px;">Password Reset</h2>
 					<p>Dear ${name},</p>
-					<p>An administrator has reset your password for your PNSB-Norway membership account.</p>
+					<p>An administrator has reset your password for your Pashupatinath Norway Temple membership account.</p>
 					
 					<div style="background: white; padding: 15px; border-radius: 6px; margin: 20px 0;">
 						<h3 style="color: #666; margin-bottom: 10px;">Your New Password:</h3>
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
 					<div style="background: #fff3cd; padding: 15px; border-radius: 6px; margin: 20px 0;">
 						<h3 style="color: #721c24; margin-bottom: 10px;">Login Instructions:</h3>
 						<ol style="color: #721c24; font-size: 14px; line-height: 1.6;">
-							<li>Go to: <a href="https://www.pnsbnorway.org/en/login" style="color: #2563eb; text-decoration: none;">https://www.pnsbnorway.org/en/login</a></li>
+							<li>Go to: <a href="https://http://pashupatinathnorway.vercel.app//en/login" style="color: #2563eb; text-decoration: none;">https://http://pashupatinathnorway.vercel.app//en/login</a></li>
 							<li>Enter your email: <strong>${email}</strong></li>
 							<li>Use the temporary password: <strong>${newPassword}</strong></li>
 							<li>After logging in, click on "Profile" → "Change Password"</li>
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
 					</p>
 					
 					<p style="color: #999; font-size: 12px; text-align: center;">
-						Best regards,<br>The PNSB-Norway Team
+						Best regards,<br>The Pashupatinath Norway Temple Team
 					</p>
 				</div>
 			`,

@@ -56,19 +56,19 @@ export default function DonationSuccessPage() {
 						<h3 className="font-bold text-gray-900 mb-3">What Happens Next?</h3>
 						<ul className="space-y-2 text-sm text-gray-600">
 							<li className="flex items-start gap-2">
-								<span className="text-brand">✓</span>
+								<span className="text-brand_primary">✓</span>
 								<span>You&apos;ll receive a detailed receipt via email</span>
 							</li>
 							<li className="flex items-start gap-2">
-								<span className="text-brand">✓</span>
-								<span>Your donation will directly support PNSB-Norway&apos;s programs</span>
+								<span className="text-brand_primary">✓</span>
+								<span>Your donation will directly support Pashupatinath Norway Temple&apos;s programs</span>
 							</li>
 							<li className="flex items-start gap-2">
-								<span className="text-brand">✓</span>
+								<span className="text-brand_primary">✓</span>
 								<span>You can track how we use donations in our annual reports</span>
 							</li>
 							<li className="flex items-start gap-2">
-								<span className="text-brand">✓</span>
+								<span className="text-brand_primary">✓</span>
 								<span>Consider joining our membership program for more involvement</span>
 							</li>
 						</ul>
@@ -82,7 +82,7 @@ export default function DonationSuccessPage() {
 							</Button>
 						</Link>
 						<Link href="/en/membership">
-							<Button className="bg-brand hover:bg-brand/90 gap-2">
+							<Button className="bg-brand_primary hover:bg-brand_primary/90 gap-2">
 								<Receipt className="w-4 h-4" />
 								Become a Member
 							</Button>

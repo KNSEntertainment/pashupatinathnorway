@@ -10,7 +10,7 @@ export default function HeroSection() {
 					<div className="space-y-8 text-center lg:text-left">
 						{/* Eyebrow Text */}
 						<div className="inline-block">
-							<span className="inline-block px-4 py-2 bg-brand/10 text-brand rounded-full text-sm font-semibold tracking-wide uppercase">Best Destinations Around The World</span>
+							<span className="inline-block px-4 py-2 bg-brand_primary/10 text-brand_primary rounded-full text-sm font-semibold tracking-wide uppercase">Best Destinations Around The World</span>
 						</div>
 
 						{/* Main Heading */}
@@ -24,13 +24,13 @@ export default function HeroSection() {
 
 						{/* CTA Button */}
 						<div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-							<Link href="/explore" className="inline-flex items-center justify-center px-8 py-4 bg-brand text-white rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl hover:bg-brand/90 transform hover:-translate-y-1 transition-all duration-300">
+							<Link href="/explore" className="inline-flex items-center justify-center px-8 py-4 bg-brand_primary text-white rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl hover:bg-brand_primary/90 transform hover:-translate-y-1 transition-all duration-300">
 								Let us Explore
 								<svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
 								</svg>
 							</Link>
-							<Link href="/about" className="inline-flex items-center justify-center px-8 py-4 bg-white text-gray-900 rounded-xl font-semibold text-lg border-2 border-light hover:border-brand hover:text-brand transform hover:-translate-y-1 transition-all duration-300">
+							<Link href="/about" className="inline-flex items-center justify-center px-8 py-4 bg-white text-gray-900 rounded-xl font-semibold text-lg border-2 border-light hover:border-brand hover:text-brand_primary transform hover:-translate-y-1 transition-all duration-300">
 								Learn More
 							</Link>
 						</div>

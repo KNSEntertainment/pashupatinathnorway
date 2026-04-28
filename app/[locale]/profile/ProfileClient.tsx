@@ -327,7 +327,7 @@ export default function ProfileClient({ translations: t }: Props) {
 							<div className="text-xs text-gray-900 text-center space-y-1">
 								<p>Maximum file size: 300KB</p>
 								{selectedFileName && selectedFileSize && (
-									<p className="text-brand font-medium">
+									<p className="text-brand_primary font-medium">
 										Selected: {selectedFileName} ({Math.round(selectedFileSize / 1024)}KB)
 									</p>
 								)}
@@ -344,7 +344,7 @@ export default function ProfileClient({ translations: t }: Props) {
 					<Card className="md:col-span-2 shadow-lg border-0">
 						<CardHeader>
 							<CardTitle className="flex items-center text-2xl">
-								<User className="w-6 h-6 mr-2 text-brand" />
+								<User className="w-6 h-6 mr-2 text-brand_primary" />
 								{t.personalInfo}
 							</CardTitle>
 						</CardHeader>
@@ -505,9 +505,9 @@ export default function ProfileClient({ translations: t }: Props) {
 										<div>
 											Maximum allowed size is <span className="font-bold text-success">300KB</span>.
 										</div>
-										<div className="bg-brand/10 border border-brand0 rounded-lg p-3 mt-2">
+										<div className="bg-brand_primary/10 border border-brand0 rounded-lg p-3 mt-2">
 											<div className="text-sm font-semibold text-blue-900 mb-1">💡 How to reduce file size:</div>
-											<ul className="text-sm text-brand space-y-1 ml-4 list-disc">
+											<ul className="text-sm text-brand_primary space-y-1 ml-4 list-disc">
 												<li>
 													You may use free online tool{" "}
 													<strong>

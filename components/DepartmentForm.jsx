@@ -115,7 +115,7 @@ export default function DepartmentForm({ handleCloseModal, departmentToEdit = nu
 						placeholder="Enter subdepartment name"
 						className="flex-1 px-3 py-2 border border-light rounded-md focus:outline-none focus:ring-2 focus:ring-brand"
 					/>
-					<Button type="button" onClick={handleAddSubdepartment} className="bg-brand hover:bg-brand/90">
+					<Button type="button" onClick={handleAddSubdepartment} className="bg-brand_primary hover:bg-brand_primary/90">
 						<Plus className="w-4 h-4" />
 					</Button>
 				</div>
@@ -139,7 +139,7 @@ export default function DepartmentForm({ handleCloseModal, departmentToEdit = nu
 			</div>
 
 			<div className="flex items-center">
-				<input type="checkbox" id="isActive" name="isActive" checked={formData.isActive} onChange={handleChange} className="w-4 h-4 text-brand border-light rounded focus:ring-brand" />
+				<input type="checkbox" id="isActive" name="isActive" checked={formData.isActive} onChange={handleChange} className="w-4 h-4 text-brand_primary border-light rounded focus:ring-brand" />
 				<label htmlFor="isActive" className="ml-2 text-sm text-gray-900">
 					Active
 				</label>
@@ -149,7 +149,7 @@ export default function DepartmentForm({ handleCloseModal, departmentToEdit = nu
 				<Button type="button" onClick={handleCloseModal} variant="outline">
 					Cancel
 				</Button>
-				<Button type="submit" disabled={submitting} className="bg-brand hover:bg-brand/90">
+				<Button type="submit" disabled={submitting} className="bg-brand_primary hover:bg-brand_primary/90">
 					{submitting ? "Saving..." : departmentToEdit ? "Update Department" : "Create Department"}
 				</Button>
 			</div>

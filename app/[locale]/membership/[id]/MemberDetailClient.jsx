@@ -50,7 +50,7 @@ export default function MemberDetailClient({ member }) {
 			active: {
 				icon: Award,
 				label: "Executive Member",
-				className: "bg-blue-100 text-brand border-blue-300",
+				className: "bg-blue-100 text-brand_primary border-blue-300",
 			},
 			general: {
 				icon: Users,
@@ -75,7 +75,7 @@ export default function MemberDetailClient({ member }) {
 			<div className="container mx-auto max-w-5xl">
 				{/* Header Section with Profile */}
 				<Card className="mb-8 overflow-hidden shadow-lg">
-					<div className="bg-brand h-32 md:h-40"></div>
+					<div className="bg-brand_primary h-32 md:h-40"></div>
 					<CardContent className="relative px-6 pb-6">
 						<div className="flex flex-col md:flex-row items-center md:items-start gap-6 -mt-16 md:-mt-20">
 							{/* Profile Photo */}
@@ -84,7 +84,7 @@ export default function MemberDetailClient({ member }) {
 									{member.profilePhoto ? (
 										<Image src={member.profilePhoto} alt={member.fullName} width={160} height={160} className="w-full h-full object-cover" />
 									) : (
-										<div className="w-full h-full flex items-center justify-center bg-brand">
+										<div className="w-full h-full flex items-center justify-center bg-brand_primary">
 											<User size={60} className="text-white" />
 										</div>
 									)}
@@ -94,7 +94,7 @@ export default function MemberDetailClient({ member }) {
 							{/* Name and Status */}
 							<div className="flex-1 text-center md:text-left mt-4 md:mt-8">
 								<h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{member.fullName}</h1>
-								<p className="text-lg text-gray-900 mb-4">{member.profession || "PNSB-Norway Member"}</p>
+								<p className="text-lg text-gray-900 mb-4">{member.profession || "Pashupatinath Norway Temple Member"}</p>
 								<div className="flex flex-wrap gap-3 justify-center md:justify-start">
 									{getStatusBadge(member.membershipStatus)}
 									{getMembershipTypeBadge(member.membershipType)}
@@ -124,7 +124,7 @@ export default function MemberDetailClient({ member }) {
 					<Card className="shadow-md hover:shadow-lg transition-shadow">
 						<CardContent className="p-6">
 							<h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-								<Mail className="text-brand" size={24} />
+								<Mail className="text-brand_primary" size={24} />
 								Contact Information
 							</h2>
 							<div className="space-y-4">
@@ -133,7 +133,7 @@ export default function MemberDetailClient({ member }) {
 										<Mail className="text-gray-900 mt-1 flex-shrink-0" size={20} />
 										<div>
 											<p className="text-sm text-gray-900">Email</p>
-											<a href={`mailto:${member.email}`} className="text-brand hover:underline font-medium">
+											<a href={`mailto:${member.email}`} className="text-brand_primary hover:underline font-medium">
 												{member.email}
 											</a>
 										</div>
@@ -144,7 +144,7 @@ export default function MemberDetailClient({ member }) {
 										<Phone className="text-gray-900 mt-1 flex-shrink-0" size={20} />
 										<div>
 											<p className="text-sm text-gray-900">Phone</p>
-											<a href={`tel:${member.phone}`} className="text-gray-900 hover:text-brand font-medium">
+											<a href={`tel:${member.phone}`} className="text-gray-900 hover:text-brand_primary font-medium">
 												{member.phone}
 											</a>
 										</div>
@@ -191,7 +191,7 @@ export default function MemberDetailClient({ member }) {
 					<Card className="shadow-md hover:shadow-lg transition-shadow">
 						<CardContent className="p-6">
 							<h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-								<User className="text-brand" size={24} />
+								<User className="text-brand_primary" size={24} />
 								Personal Information
 							</h2>
 							<div className="space-y-4">
@@ -236,7 +236,7 @@ export default function MemberDetailClient({ member }) {
 						<Card className="shadow-md hover:shadow-lg transition-shadow">
 							<CardContent className="p-6">
 								<h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-									<IdCard className="text-brand" size={24} />
+									<IdCard className="text-brand_primary" size={24} />
 									Membership Details
 								</h2>
 								<div className="space-y-4">
@@ -268,12 +268,12 @@ export default function MemberDetailClient({ member }) {
 						<Card className="shadow-md hover:shadow-lg transition-shadow">
 							<CardContent className="p-6">
 								<h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-									<Heart className="text-brand" size={24} />
+									<Heart className="text-brand_primary" size={24} />
 									Volunteer Interests
 								</h2>
 								<div className="flex flex-wrap gap-2">
 									{member.volunteerInterest.map((interest, index) => (
-										<Badge key={index} variant="secondary" className="px-3 py-1 bg-brand/10 text-brand border-brand/20">
+										<Badge key={index} variant="secondary" className="px-3 py-1 bg-brand_primary/10 text-brand_primary border-brand/20">
 											{interest}
 										</Badge>
 									))}

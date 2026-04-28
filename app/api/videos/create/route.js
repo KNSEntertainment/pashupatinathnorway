@@ -36,7 +36,7 @@ export async function POST(req) {
 		const description_en = formData.get("description_en");
 		const description_ne = formData.get("description_ne");
 		const description_no = formData.get("description_no");
-		const creator_en = formData.get("creator_en") || "PNSB-Norway";
+		const creator_en = formData.get("creator_en") || "Pashupatinath Norway Temple";
 		const creator_ne = formData.get("creator_ne") || "आरएसपी नर्वे";
 
 		if (!title_en || !category) {
@@ -59,14 +59,14 @@ export async function POST(req) {
 			}
 		} else if (videoFile) {
 			// Upload video file to Cloudinary
-			videoUrl = await uploadToCloudinary(videoFile, "rsp-videos");
+			videoUrl = await uploadToCloudinary(videoFile, "Pashupatinath Norway Temple-videos");
 		} else {
 			return NextResponse.json({ success: false, error: "Video file or YouTube URL is required" }, { status: 400 });
 		}
 
 		// Upload custom thumbnail if provided
 		if (thumbnailFile) {
-			thumbnailUrl = await uploadToCloudinary(thumbnailFile, "rsp-video-thumbnails");
+			thumbnailUrl = await uploadToCloudinary(thumbnailFile, "Pashupatinath Norway Temple-video-thumbnails");
 		}
 
 		// Create video record in database

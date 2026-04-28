@@ -106,7 +106,7 @@ export default function IDCardPage() {
         return (
             <div className="max-w-4xl mx-auto">
                 <div className="flex items-center justify-center min-h-64">
-                    <Loader2 className="h-8 w-8 animate-spin text-brand" />
+                    <Loader2 className="h-8 w-8 animate-spin text-brand_primary" />
                 </div>
             </div>
         );
@@ -129,7 +129,7 @@ export default function IDCardPage() {
         return (
             <div className="max-w-4xl mx-auto">
                 <div className="flex items-center justify-center min-h-64">
-                    <Loader2 className="h-8 w-8 animate-spin text-brand" />
+                    <Loader2 className="h-8 w-8 animate-spin text-brand_primary" />
                 </div>
             </div>
         );
@@ -139,7 +139,7 @@ export default function IDCardPage() {
         <div className="space-y-6">
             <div className="mb-8 flex gap-4">
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">My ID Card</h1>
-                <Button onClick={handlePrint} variant="outline" className="border-brand text-brand hover:bg-brand/10">
+                <Button onClick={handlePrint} variant="outline" className="border-brand text-brand_primary hover:bg-brand_primary/10">
 					<Printer className="w-4 h-4" />
 					Print
 				</Button>

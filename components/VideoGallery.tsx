@@ -59,9 +59,9 @@ export default function VideoGallery() {
 
 	// const getLocalizedCreator = (video: Video) => {
 	// 	if (locale === "ne") {
-	// 		return video.creator_ne || video.creator_en || video.creator || "PNSB-Norway";
+	// 		return video.creator_ne || video.creator_en || video.creator || "Pashupatinath Norway Temple";
 	// 	}
-	// 	return video.creator_en || video.creator || "PNSB-Norway";
+	// 	return video.creator_en || video.creator || "Pashupatinath Norway Temple";
 	// };
 
 	const getYouTubeThumbnail = (url: string) => {
@@ -113,7 +113,7 @@ export default function VideoGallery() {
 													{/* Play Button */}
 													<div className="absolute inset-0 flex items-center justify-center" onClick={() => setActiveVideoId(videos[0]._id)}>
 														<div className="w-16 h-16 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center transform group-hover:scale-110 transition-all duration-300 shadow-2xl cursor-pointer border border-white/20">
-															<Play className="w-8 h-8 text-brand ml-1" fill="currentColor" />
+															<Play className="w-8 h-8 text-brand_primary ml-1" fill="currentColor" />
 														</div>
 													</div>
 												</>
@@ -159,7 +159,7 @@ export default function VideoGallery() {
 															{/* Play Button */}
 															<div className="absolute inset-0 flex items-center justify-center" onClick={() => setActiveVideoId(video._id)}>
 																<div className="w-14 h-14 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center transform group-hover:scale-110 transition-all duration-300 shadow-2xl cursor-pointer border border-white/20">
-																	<Play className="w-7 h-7 text-brand ml-1" fill="currentColor" />
+																	<Play className="w-7 h-7 text-brand_primary ml-1" fill="currentColor" />
 																</div>
 															</div>
 														</>
@@ -207,7 +207,7 @@ export default function VideoGallery() {
 															{/* Play Button */}
 															<div className="absolute inset-0 flex items-center justify-center" onClick={() => setActiveVideoId(video._id)}>
 																<div className="w-12 h-12 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center transform group-hover:scale-110 transition-all duration-300 shadow-2xl cursor-pointer border border-white/20">
-																	<Play className="w-6 h-6 text-brand ml-1" fill="currentColor" />
+																	<Play className="w-6 h-6 text-brand_primary ml-1" fill="currentColor" />
 																</div>
 															</div>
 														</>

@@ -81,11 +81,11 @@ export default function DownloadDetailClient({ doc, otherDownloads }: { doc: Doc
 					<Calendar size={18} className="mr-2" /> {doc.date}
 				</div>
 				<div className="flex gap-4 mb-4">
-					<button type="button" onClick={handleDownload.bind(null, doc.fileUrl, getLocalizedTitle(doc))} className="inline-flex items-center gap-2 px-6 py-3 bg-brand text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+					<button type="button" onClick={handleDownload.bind(null, doc.fileUrl, getLocalizedTitle(doc))} className="inline-flex items-center gap-2 px-6 py-3 bg-brand_primary text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors">
 						<DownloadIcon size={20} /> Download
 					</button>
 					{isPdf && (
-						<button type="button" className="inline-flex items-center gap-2 px-6 py-3 bg-light text-brand rounded-lg font-semibold hover:bg-light transition-colors" onClick={() => setShowPreview((v) => !v)} aria-label={showPreview ? "Hide PDF preview" : "Show PDF preview"}>
+						<button type="button" className="inline-flex items-center gap-2 px-6 py-3 bg-light text-brand_primary rounded-lg font-semibold hover:bg-light transition-colors" onClick={() => setShowPreview((v) => !v)} aria-label={showPreview ? "Hide PDF preview" : "Show PDF preview"}>
 							<Eye size={20} /> {showPreview ? "Hide Preview" : "Preview"}
 						</button>
 					)}

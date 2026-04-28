@@ -3,13 +3,13 @@ import MembershipPageClient from "./MembershipPageClient";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-	title: "Membership | PNSB-Norway",
-	description: "Stay informed with the latest membership information from PNSB-Norway. Get updates on events, announcements, and important information for our community.",
+	title: "Membership | Pashupatinath Norway Temple",
+	description: "Stay informed with the latest membership information from Pashupatinath Norway Temple. Get updates on events, announcements, and important information for our community.",
 	openGraph: {
-		title: "Membership | PNSB-Norway",
-		description: "Stay informed with the latest membership information from PNSB-Norway. Get updates on events, announcements, and important information for our community.",
+		title: "Membership | Pashupatinath Norway Temple",
+		description: "Stay informed with the latest membership information from Pashupatinath Norway Temple. Get updates on events, announcements, and important information for our community.",
 		url: "/membership",
-		siteName: "PNSB-Norway",
+		siteName: "Pashupatinath Norway Temple",
 		type: "website",
 	},
 };
