@@ -8,7 +8,7 @@ export const metadata = {
 
 export default async function SettingsPage() {
 	const t = await getTranslations("settings");
-	const m = await getTranslations("membership");
+	// const m = await getTranslations("membership");
 
 	const translations = {
 		title: t("title"),
@@ -26,7 +26,6 @@ export default async function SettingsPage() {
 		securityWarning: t("securityWarning"),
 		temporaryPasswordWarning: t("temporaryPasswordWarning"),
 		changePasswordNow: t("changePasswordNow"),
-		// Membership translations for interests
 		personalInfo: t("personalInfo", { defaultValue: "Personal Information" }),
 		updateProfile: t("updateProfile", { defaultValue: "Update Profile" }),
 		profileUpdated: t("profileUpdated", { defaultValue: "Profile updated successfully" }),
@@ -37,18 +36,9 @@ export default async function SettingsPage() {
 		postalCode: t("postalCode", { defaultValue: "Postal Code" }),
 		province: t("province", { defaultValue: "Province" }),
 		district: t("district", { defaultValue: "District" }),
-		profession: t("profession", { defaultValue: "Profession" }),
-		skills: t("skills", { defaultValue: "Skills" }),
-		volunteerInterest: t("volunteerInterest", { defaultValue: "Volunteer Interest" }),
 		updating: t("updating", { defaultValue: "Updating..." }),
-		areas_of_interests: m("areas_of_interests"),
-		interest_politics: m("interest_politics"),
-		interest_social: m("interest_social"),
-		interest_education: m("interest_education"),
-		interest_culture: m("interest_culture"),
-		interest_events: m("interest_events"),
-		interest_fundraising: m("interest_fundraising"),
+		
 	};
 
-	return <SettingsClient translations={translations} />;
+	return <SettingsClient translations={translations} />
 }

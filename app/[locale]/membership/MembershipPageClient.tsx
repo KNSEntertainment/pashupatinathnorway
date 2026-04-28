@@ -16,15 +16,18 @@ interface Translations {
 	title: string;
 	subtitle: string;
 	personal_info: string;
-	full_name: string;
-	full_name_placeholder: string;
+	first_name: string;
+	middle_name: string;
+	last_name: string;
+	first_name_placeholder: string;
+	middle_name_placeholder: string;
+	last_name_placeholder: string;
 	email_address: string;
-	executive_member: string;
-	executive_member_desc: string;
 	email_address_placeholder: string;
 	phone_number: string;
 	phone_number_placeholder: string;
-	date_of_birth: string;
+	personal_number: string;
+	personal_number_placeholder: string;
 	gender: string;
 	select_gender: string;
 	male: string;
@@ -40,21 +43,6 @@ interface Translations {
 	city_ph: string;
 	postal_code: string;
 	postal_code_ph: string;
-	professional_info: string;
-	occupation: string;
-	occupation_ph: string;
-	skills_expertise: string;
-	skills_expertise_ph: string;
-	membership_type: string;
-	general_member: string;
-	general_member_desc: string;
-	areas_of_interests: string;
-	interest_politics: string;
-	interest_social: string;
-	interest_education: string;
-	interest_culture: string;
-	interest_events: string;
-	interest_fundraising: string;
 	agree_terms: string;
 	agree_terms_prefix: string;
 	terms_and_conditions: string;
@@ -114,21 +102,19 @@ interface GeoapifyResponse {
 
 export default function MembershipPageClient({ translations: t, locale }: Props) {
 	const [formData, setFormData] = useState({
-		fullName: "",
+		firstName: "",
+		middleName: "",
+		lastName: "",
 		email: "",
 		phone: "",
 		address: "",
 		city: "",
 		postalCode: "",
-		dateOfBirth: "",
+		personalNumber: "",
 		gender: "",
 		province: "",
 		district: "",
-		profession: "",
-		membershipType: "general",
 		membershipStatus: "pending",
-		skills: "",
-		volunteerInterest: [] as string[],
 		agreeTerms: false,
 		permissionPhotos: false,
 		permissionPhone: false,
@@ -137,6 +123,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 
 	const [submitted, setSubmitted] = useState(false);
 	const [emailError, setEmailError] = useState("");
+	const [personalNumberError, setPersonalNumberError] = useState("");
 	const [addressSuggestions, setAddressSuggestions] = useState<AddressSuggestion[]>([]);
 	const [addressLoading, setAddressLoading] = useState(false);
 	const [addressError, setAddressError] = useState("");
@@ -171,14 +158,12 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 			setEmailError("");
 		}
 
-		if (target instanceof HTMLInputElement && target.type === "checkbox" && name === "volunteerInterest") {
-			const checked = target.checked;
-			const currentInterests = formData.volunteerInterest;
-			setFormData({
-				...formData,
-				volunteerInterest: checked ? [...currentInterests, value] : currentInterests.filter((item) => item !== value),
-			});
-		} else if (target instanceof HTMLInputElement && target.type === "checkbox") {
+		// Clear personal number error when user changes personal number field
+		if (name === "personalNumber" && personalNumberError) {
+			setPersonalNumberError("");
+		}
+
+		if (target instanceof HTMLInputElement && target.type === "checkbox") {
 			setFormData({ ...formData, [name]: target.checked });
 		} else {
 			setFormData({ ...formData, [name]: value });
@@ -337,8 +322,37 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 		}
 	};
 
+	const handlePersonalNumberBlur = () => {
+		if (!formData.personalNumber) {
+			setPersonalNumberError("Personal number is required.");
+			return;
+		}
+
+		if (!/^\d{11}$/.test(formData.personalNumber)) {
+			setPersonalNumberError("Personal number must be exactly 11 digits.");
+		} else {
+			setPersonalNumberError("");
+		}
+	};
+
 	const handleSubmit = async (e: React.FormEvent<HTMLButtonElement | HTMLFormElement>) => {
 		e.preventDefault();
+		
+		// Validate personal number before submission
+		if (!formData.personalNumber) {
+			setPersonalNumberError("Personal number is required.");
+			return;
+		}
+		
+		if (!/^\d{11}$/.test(formData.personalNumber)) {
+			setPersonalNumberError("Personal number must be exactly 11 digits.");
+			return;
+		}
+		
+		if (emailError) {
+			return;
+		}
+		
 		try {
 			const res = await fetch("/api/membership", {
 				method: "POST",
@@ -350,21 +364,19 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 			if (!res.ok) throw new Error("Failed to submit application");
 			setSubmitted(true);
 			setFormData({
-				fullName: "",
+				firstName: "",
+				middleName: "",
+				lastName: "",
 				email: "",
 				phone: "",
 				address: "",
 				city: "",
 				postalCode: "",
-				dateOfBirth: "",
+				personalNumber: "",
 				gender: "",
 				province: "",
 				district: "",
-				profession: "",
-				membershipType: "general",
 				membershipStatus: "pending",
-				skills: "",
-				volunteerInterest: [],
 				agreeTerms: false,
 				permissionPhotos: false,
 				permissionPhone: false,
@@ -377,21 +389,19 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 
 	const resetForm = () => {
 		setFormData({
-			fullName: "",
+			firstName: "",
+			middleName: "",
+			lastName: "",
 			email: "",
 			phone: "",
 			address: "",
 			city: "",
 			postalCode: "",
-			dateOfBirth: "",
+			personalNumber: "",
 			gender: "",
 			province: "",
 			district: "",
-			profession: "",
-			membershipType: "general",
 			membershipStatus: "pending",
-			skills: "",
-			volunteerInterest: [],
 			agreeTerms: false,
 			permissionPhotos: false,
 			permissionPhone: false,
@@ -400,6 +410,8 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 		setAddressSuggestions([]);
 		setAddressError("");
 		setActiveSuggestionIndex(-1);
+		setEmailError("");
+		setPersonalNumberError("");
 	};
 
 	if (submitted) {
@@ -438,9 +450,21 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 						<div className="grid md:grid-cols-2 gap-6">
 							<div>
 								<label className="block text-sm font-medium text-gray-900 mb-2">
-									{t.full_name} <span className="text-red-500">*</span>
+									{t.first_name} <span className="text-red-500">*</span>
 								</label>
-								<input type="text" name="fullName" value={formData.fullName} onChange={handleChange} className="w-full px-4 py-2 border border-light rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder={t.full_name_placeholder} />
+								<input type="text" name="firstName" value={formData.firstName} onChange={handleChange} className="w-full px-4 py-2 border border-light rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder={t.first_name_placeholder} />
+							</div>
+							<div>
+								<label className="block text-sm font-medium text-gray-900 mb-2">
+									{t.middle_name}
+								</label>
+								<input type="text" name="middleName" value={formData.middleName} onChange={handleChange} className="w-full px-4 py-2 border border-light rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder={t.middle_name_placeholder} />
+							</div>
+							<div>
+								<label className="block text-sm font-medium text-gray-900 mb-2">
+									{t.last_name} <span className="text-red-500">*</span>
+								</label>
+								<input type="text" name="lastName" value={formData.lastName} onChange={handleChange} className="w-full px-4 py-2 border border-light rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder={t.last_name_placeholder} />
 							</div>
 							<div>
 								<label className="block text-sm font-medium text-gray-900 mb-2">
@@ -457,9 +481,10 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 							</div>
 							<div>
 								<label className="block text-sm font-medium text-gray-900 mb-2">
-									{t.date_of_birth} <span className="text-red-500">*</span>
+									{t.personal_number} <span className="text-red-500">*</span>
 								</label>
-								<input type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleChange} className="w-full min-w-0 max-w-full text-sm px-3 py-2 border border-light rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent box-border" style={{ minWidth: "0", maxWidth: "95%" }} />
+								<input type="text" name="personalNumber" value={formData.personalNumber} onChange={handleChange} onBlur={handlePersonalNumberBlur} maxLength={11} pattern="\d{11}" className={`w-full px-4 py-2 border ${personalNumberError ? "border-red-500" : "border-light"} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`} placeholder={t.personal_number_placeholder} />
+								{personalNumberError && <p className="text-red-600 text-sm mt-1">{personalNumberError}</p>}
 							</div>
 							<div>
 								<label className="block text-sm font-medium text-gray-900 mb-2">
@@ -478,7 +503,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 									{/* Province Dropdown */}
 									<div>
-										<label className="block text-xs text-gray-900 mb-1">{t.province}</label>
+										{/* <label className="block text-xs text-gray-900 mb-1">{t.province}</label> */}
 										<select name="province" value={formData.province} onChange={handleChange} className="w-full px-4 py-2 border border-light rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
 											<option value="">{t.select_province}</option>
 											{nepalLocationsData.provinces.map((province) => (
@@ -491,7 +516,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 
 									{/* District Dropdown */}
 									<div>
-										<label className="block text-xs text-gray-900 mb-1">{t.district}</label>
+										{/* <label className="block text-xs text-gray-900 mb-1">{t.district}</label> */}
 										<select name="district" value={formData.district} onChange={handleChange} className="w-full px-4 py-2 border border-light rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" disabled={!formData.province}>
 											<option value="">{t.select_district}</option>
 											{availableDistricts.map((district) => (
@@ -557,55 +582,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 						</div>
 					</div>
 
-					{/* Professional Information */}
-					<div>
-						<h3 className="text-xl font-semibold text-gray-900 mb-4">{t.professional_info}</h3>
-						<div className="grid md:grid-cols-2 gap-6">
-							<div>
-								<label className="block text-sm font-medium text-gray-900 mb-2">{t.occupation}</label>
-								<input type="text" name="profession" value={formData.profession} onChange={handleChange} className="w-full px-4 py-2 border border-light rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder={t.occupation_ph} />
-							</div>
-							<div>
-								<label className="block text-sm font-medium text-gray-900 mb-2">{t.skills_expertise}</label>
-								<input type="text" name="skills" value={formData.skills} onChange={handleChange} className="w-full px-4 py-2 border border-light rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder={t.skills_expertise_ph} />
-							</div>
-						</div>
-					</div>
-
-					{/* Membership Type */}
-					<div>
-						<h3 className="text-xl font-semibold text-gray-900 mb-4">{t.membership_type}</h3>
-						<div className="space-y-3">
-							<label className="flex items-center p-4 border border-light rounded-lg cursor-pointer hover:bg-brand_primary/10 transition-colors">
-								<input type="radio" name="membershipType" value="executive" checked={formData.membershipType === "executive"} onChange={handleChange} className="w-4 h-4 text-brand_primary" />
-								<div className="ml-3">
-									<span className="font-medium text-gray-900">{t.executive_member}</span>
-									<p className="text-sm text-gray-900">{t.executive_member_desc}</p>
-								</div>
-							</label>
-							<label className="flex items-center p-4 border border-light rounded-lg cursor-pointer hover:bg-brand_primary/10 transition-colors">
-								<input type="radio" name="membershipType" value="general" checked={formData.membershipType === "general"} onChange={handleChange} className="w-4 h-4 text-brand_primary" />
-								<div className="ml-3">
-									<span className="font-medium text-gray-900">{t.general_member}</span>
-									<p className="text-sm text-gray-900">{t.general_member_desc}</p>
-								</div>
-							</label>
-						</div>
-					</div>
-
-					{/* Volunteer Interests */}
-					<div>
-						<h3 className="text-xl font-semibold text-gray-900 mb-4">{t.areas_of_interests}</h3>
-						<div className="grid md:grid-cols-2 gap-3">
-							{[t.interest_politics, t.interest_social, t.interest_education, t.interest_culture, t.interest_events, t.interest_fundraising].map((interest) => (
-								<label key={interest} className="flex items-center p-3 border border-light rounded-lg cursor-pointer hover:bg-brand_primary/10 transition-colors">
-									<input type="checkbox" name="volunteerInterest" value={interest} checked={formData.volunteerInterest.includes(interest)} onChange={handleChange} className="w-4 h-4 text-brand_primary rounded" />
-									<span className="ml-3 text-gray-900">{interest}</span>
-								</label>
-							))}
-						</div>
-					</div>
-
+					
 					{/* Privacy Permissions */}
 					<div>
 						<h3 className="text-xl font-semibold text-gray-900 mb-4">{t.permissions_title}</h3>

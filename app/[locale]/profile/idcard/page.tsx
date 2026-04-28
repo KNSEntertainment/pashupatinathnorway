@@ -24,11 +24,6 @@ export default function IDCardPage() {
     const [profilePhoto, setProfilePhoto] = useState<string>("");
     const [logo, setLogo] = useState<string>("");
 
-
-    
-    
-        
-
     // Fetch membership data and profile photo
     useEffect(() => {
         if (status === "authenticated") {
@@ -162,7 +157,6 @@ export default function IDCardPage() {
 										email: session.user.email || "",
 										phone: membershipData.phone,
 										profilePhoto: profilePhoto || undefined,
-										nationalMembershipNo: membershipData.nationalMembershipNo,
 										membershipType: membershipData.membershipType,
 										city: membershipData.city,
 										province: membershipData.province,

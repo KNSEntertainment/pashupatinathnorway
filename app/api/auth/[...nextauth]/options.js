@@ -78,7 +78,7 @@ export const authOptions = {
 					return {
 						_id: member._id,
 						email: member.email,
-						fullName: member.fullName,
+						fullName: `${member.firstName} ${member.middleName ? member.middleName + ' ' : ''}${member.lastName}`,
 						phone: member.phone,
 						role: "member", // All members get "member" role
 						membershipType: member.membershipType,

@@ -45,8 +45,11 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
 			});
 
 			// Send welcome email with password setup link
+			const fullName = [membership.firstName, membership.middleName, membership.lastName]
+				.filter(Boolean)
+				.join(' ');
 			await sendWelcomeEmail({
-				name: membership.fullName,
+				name: fullName,
 				email: membership.email,
 				setupToken: setupToken,
 			});

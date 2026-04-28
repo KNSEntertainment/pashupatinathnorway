@@ -54,26 +54,24 @@ export default function MemberIDCard({ memberData, locale = "en" }: MemberIDCard
 				{/* Card Container */}
 				<div className="w-full h-full bg-white shadow-lg overflow-hidden min-h-[475px]">
 					{/* Header Section */}
-					<div className="relative bg-gradient-to-r from-brand to-blue-700 text-white px-6 pt-4 pb-8">
-						<div className="flex items-center justify-between">
-							<div>
-								<h2 className="text-lg font-bold mt-0.5">Pashupatinath Norway Temple</h2>
-								<p className="text-[10px] text-white font-semibold">Oslo, Norway</p>
-								<h3 className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-white shadow-md px-2 py-1 rounded-2xl text-xs font-semibold tracking-wide text-brand_primary">MEMBERSHIP CARD</h3>
-							</div>
-							{/* Logo */}
-							<div className="w-12 h-12 border border-white bg-gray-100 rounded-full flex items-center justify-center overflow-hidden">
-								<Image src="/pashupatinath.png" alt="Pashupatinath Norway Temple Logo" width={48} height={48} className="w-full h-full object-contain" />
-							</div>
+					<div className="relative bg-brand_primary text-gray-100 px-6 pt-4 pb-8">
+						<div className="flex flex-col items-center justify-between">
+								<h2 className="text-md font-bold mt-0.5 text-gray-700">Pashupatinath Norway Temple</h2>
+								<h3 className="text-sm font-semibold text-gray-700">Oslo, Norway</h3>
+								<h4 className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-brand_secondary shadow-md px-2 py-1 rounded-2xl text-xs font-semibold tracking-wide text-gray-100">MEMBERSHIP CARD</h4>
 						</div>
+					
 					</div>
 
 					{/* Content Section */}
-					<div className="px-6 py-5">
+					<div className="p-6">
 						{/* Membership Number - TOP LEFT */}
-
-						<div className="w-full flex justify-center mt-2 mb-4">
-							<div className="w-20 h-20 rounded-full overflow-hidden bg-light border-2 border-brand/20">
+						<div className="text-xs text-center font-light text-gray-600">
+								#<span className="font-semibold">{membershipNumber}</span>
+							</div>
+						<div className="w-full flex justify-center my-2">
+							<div className="w-20 h-20 rounded-md overflow-hidden bg-light border-2 border-white shadow-md">
+							
 								{memberData.profilePhoto ? (
 									<Image src={memberData.profilePhoto} alt={memberData.fullName} width={80} height={80} className="w-full h-full object-cover" />
 								) : (
@@ -82,29 +80,14 @@ export default function MemberIDCard({ memberData, locale = "en" }: MemberIDCard
 									</div>
 								)}
 							</div>
+							
 						</div>
-
-						<div className="grid grid-cols-2 gap-2">
+					</div>
+					<div className="relative grid grid-cols-1 ml-8 gap-2">
 							{/* Name */}
 							<div>
 								<p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wide">Full Name</p>
 								<p className="text-sm font-bold text-gray-900 truncate">{memberData.fullName}</p>
-							</div>
-
-							{/* Membership Date */}
-							<div>
-								<p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wide">Member Since</p>
-								<p className="text-xs font-semibold text-gray-900">{membershipDate}</p>
-							</div>
-
-							{/* Contact Information */}
-							<div className="space-y-1">
-								{memberData.phone && (
-									<div>
-										<p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wide">Contact</p>
-										<p className="text-xs font-semibold text-gray-900">{memberData.phone}</p>
-									</div>
-								)}
 							</div>
 
 							{/* Address */}
@@ -116,34 +99,41 @@ export default function MemberIDCard({ memberData, locale = "en" }: MemberIDCard
 									</div>
 								)}
 							</div>
+
+								{/* Contact Information */}
+							<div className="space-y-1">
+								{memberData.phone && (
+									<div>
+										<p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wide">Contact</p>
+										<p className="text-xs font-semibold text-gray-900">{memberData.phone}</p>
+									</div>
+								)}
+							</div>
+								{/* Issued date Information */}
+							<div className="space-y-1">
+								{membershipDate && (
+									<div>
+										<p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wide">Issued on</p>
+										<p className="text-xs font-semibold text-gray-900">{membershipDate}</p>
+									</div>
+								)}
+							</div>
 						</div>
-					</div>
-					<div className="flex justify-between px-6">
-						<div className="flex flex-col">
-							<p className="py-2 text-[10px] font-light text-gray-600">
-								Membership No. <br />
-								<span className="font-semibold">{membershipNumber}</span>
-							</p>
-							<p className="py-2 text-[10px] font-light text-gray-600">
-								Member Since <br />
-								<span className="font-semibold">{membershipDate}</span>
-							</p>
-						</div>
+					
 						{/* QR Code with Signature */}
-						<div className="w-fit flex-shrink-0">
+						<div className="absolute bottom-16 right-12 flex flex-col items-center">
 								<QRCodeSVG value={qrData} size={64} level="H" includeMargin={false} />
 							{/* Signature below QR */}
 							<div className="my-2 text-center">
 								{/* <div className="w-16 h-8 mx-auto flex items-center justify-center">
 									<Image src="/signature.png" alt="President's Signature" className="w-full h-full object-contain" width={64} height={32} />
 								</div> */}
-								<p className="text-xs text-gray-600 mt-6">President</p>
+								<p className="text-xs text-gray-600 mt-1">President</p>
 							</div>
 						</div>
-					</div>
 
 					{/* Footer Section with Contact Info */}
-					<div className="absolute bottom-0 w-full bg-gradient-to-r from-success to-emerald-600 px-6 py-4">
+					<div className="absolute bottom-0 w-full bg-brand_secondary px-6 py-4">
 								
 								<div className="flex justify-center items-center">
 									<p className="text-xs text-gray-100">http://pashupatinathnorway.vercel.app/</p>
@@ -157,12 +147,16 @@ export default function MemberIDCard({ memberData, locale = "en" }: MemberIDCard
 				{/* Card Container */}
 				<div className="bg-white shadow-lg overflow-hidden min-h-[475px]">
 					{/* Header Section */}
-					<div className="bg-gradient-to-r from-brand to-blue-700 text-white px-6 py-6">
+					<div className="bg-gradient-to-r from-brand to-blue-700 text-gray-700 px-6 pt-6">
 						<h3 className="text-sm font-bold text-center">Emergency Contact & Guidelines</h3>
 					</div>
 
+					
+
 					{/* Main Content */}
-					<div className="p-12 space-y-6">
+					<Image src="/pashupatinath.png" alt="Pashupatinath Norway Temple Logo" width={144} height={144} className="w-36 h-36 object-contain mx-auto" />
+					<div className="px-6 space-y-6">
+						
 						{/* Emergency Contact */}
 						<div>
 							<p className="text-xs font-bold text-gray-900 mb-2">Emergency Contact</p>
@@ -183,24 +177,22 @@ export default function MemberIDCard({ memberData, locale = "en" }: MemberIDCard
 						{/* Guidelines */}
 						<div>
 							<p className="text-xs font-bold text-gray-900 mb-2">Member Guidelines</p>
-							<ul className="text-[9px] text-gray-700 space-y-1 list-disc list-inside">
+							<ul className="text-xs text-gray-700 space-y-1 list-disc list-inside">
 								<li>This card is non-transferable</li>
 								<li>Report lost or stolen cards immediately</li>
 								<li>Valid for active memberships only</li>
-								<li>Present this card at Pashupatinath Norway Temple events</li>
 							</ul>
 						</div>
 
 						{/* Organization Info */}
 						<div className="border-t border-light pt-3">
 							<p className="text-[10px] font-bold text-brand_primary mb-1">Pashupatinath Norway Temple</p>
-							<p className="text-[9px] text-gray-600 mt-1">http://pashupatinathnorway.vercel.app/</p>
-							<p className="text-[9px] text-gray-600">nepalihindusamfunn@gmail.com</p>
+							<p className="text-[9px] text-gray-600 mt-1">Org. No.926499211</p>
 						</div>
 					</div>
 
 					{/* Footer Section */}
-					<div className="absolute bottom-0 w-full bg-gradient-to-r from-success to-emerald-600 px-6 py-4">
+					<div className="absolute bottom-0 w-full bg-brand_secondary px-6 py-4">
 						
 							<div className="flex justify-center items-center">
 									<p className="text-xs text-gray-100">nepalihindusamfunn@gmail.com</p>

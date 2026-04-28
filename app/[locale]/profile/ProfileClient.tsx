@@ -1,9 +1,9 @@
 "use client";
 
 import { useSession, signOut } from "next-auth/react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
-import { User, Mail, Phone, Calendar, Shield, CheckCircle, Clock, XCircle, Users, Camera, Upload, AlertCircle, Settings } from "lucide-react";
+import { User, Mail, Phone, Calendar, Shield, CheckCircle, Clock, XCircle, Users, Camera, Upload, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -43,8 +43,6 @@ interface Props {
 export default function ProfileClient({ translations: t }: Props) {
 	const { data: session, status } = useSession();
 	const router = useRouter();
-	const params = useParams();
-	const locale = params.locale as string;
 	const [membershipData, setMembershipData] = useState<Membership | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -80,7 +78,7 @@ export default function ProfileClient({ translations: t }: Props) {
 					},
 					body: JSON.stringify({
 						email: session?.user?.email,
-						name: session?.user?.fullName || session?.user?.email || 'User',
+						fullName: session?.user?.fullName,
 					}),
 				});
 
@@ -311,7 +309,7 @@ export default function ProfileClient({ translations: t }: Props) {
 									</button>
 									<input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
 								</div>
-								<CardTitle className="text-center text-xl">{session.user.fullName}</CardTitle>
+								<CardTitle className="text-center text-xl">{session?.user?.fullName}</CardTitle>
 								<Badge variant="secondary" className="mt-2">
 									<Shield className="w-3 h-3 mr-1" />
 									{session.user.role === "admin" ? t.admin : t.member}
@@ -332,11 +330,7 @@ export default function ProfileClient({ translations: t }: Props) {
 									</p>
 								)}
 							</div>
-						
-								<Button onClick={() => router.push(`/${locale}/profile/settings`)} variant="outline" className="w-full">
-							<Settings className="w-4 h-4 mr-2" />
-							Settings
-						</Button>
+					
 						</CardContent>
 					</Card>
 
@@ -350,13 +344,7 @@ export default function ProfileClient({ translations: t }: Props) {
 						</CardHeader>
 						<CardContent>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-								<div className="space-y-2">
-									<label className="text-sm font-semibold text-gray-900 flex items-center">
-										<User className="w-4 h-4 mr-2" />
-										{t.fullName}
-									</label>
-									<p className="text-gray-900 text-lg">{session.user.fullName}</p>
-								</div>
+							
 
 								<div className="space-y-2">
 									<label className="text-sm font-semibold text-gray-900 flex items-center">
@@ -371,7 +359,7 @@ export default function ProfileClient({ translations: t }: Props) {
 										<Mail className="w-4 h-4 mr-2" />
 										{t.email}
 									</label>
-									<p className="text-gray-900 text-lg">{session.user.email}</p>
+									<p className="text-gray-900 text-lg">{session?.user?.email}</p>
 								</div>
 
 								<div className="space-y-2">
@@ -379,24 +367,26 @@ export default function ProfileClient({ translations: t }: Props) {
 										<Phone className="w-4 h-4 mr-2" />
 										{t.phone}
 									</label>
-									<p className="text-gray-900 text-lg">{session.user.phone || "N/A"}</p>
+									<p className="text-gray-900 text-lg">{session?.user?.phone || "N/A"}</p>
 								</div>
 
+							
 								<div className="space-y-2">
 									<label className="text-sm font-semibold text-gray-900 flex items-center">
 										<Calendar className="w-4 h-4 mr-2" />
-										{t.memberSince}
+										Address in Norway
 									</label>
-									<p className="text-gray-900 text-lg">{membershipData ? formatDate(membershipData.createdAt) : "N/A"}</p>
+									<p className="text-gray-900 text-lg">{membershipData?.address + ", " + membershipData?.city + " " + membershipData?.postalCode || "N/A"}</p>
 								</div>
-
 								<div className="space-y-2">
 									<label className="text-sm font-semibold text-gray-900 flex items-center">
-										<Shield className="w-4 h-4 mr-2" />
-										{t.accountType}
+										<Calendar className="w-4 h-4 mr-2" />
+										Address in Nepal
 									</label>
-									<p className="text-gray-900 text-lg capitalize">{session.user.role}</p>
+									<p className="text-gray-900 text-lg">{membershipData?.province + ", " + membershipData?.district  || "N/A"}</p>
 								</div>
+
+						
 							</div>
 						</CardContent>
 					</Card>
@@ -418,67 +408,17 @@ export default function ProfileClient({ translations: t }: Props) {
 									<div>{getStatusBadge(membershipData.membershipStatus)}</div>
 								</div>
 
-								<div className="flex flex-col space-y-2">
-									<label className="text-sm font-semibold text-gray-900">{t.membershipType}</label>
-									<Badge variant="outline" className="capitalize text-base w-fit">
-										{membershipData.membershipType === "general" ? t.general : t.active}
-									</Badge>
+	<div className="space-y-2">
+									<label className="text-sm font-semibold text-gray-900 flex items-center">
+										<Calendar className="w-4 h-4 mr-2" />
+										{t.memberSince}
+									</label>
+									<p className="text-gray-900 text-lg">{membershipData ? formatDate(membershipData.createdAt) : "N/A"}</p>
 								</div>
 
-								{membershipData.nationalMembershipNo && (
-									<div className="space-y-2">
-										<label className="text-sm font-semibold text-gray-900">National Membership No</label>
-										<p className="text-gray-900 text-lg">{membershipData.nationalMembershipNo}</p>
-									</div>
-								)}
 
-								{membershipData.province && (
-									<div className="space-y-2">
-										<label className="text-sm font-semibold text-gray-900">Province (Nepal)</label>
-										<p className="text-gray-900 text-lg capitalize">{membershipData.province}</p>
-									</div>
-								)}
+							
 
-								{membershipData.district && (
-									<div className="space-y-2">
-										<label className="text-sm font-semibold text-gray-900">District (Nepal)</label>
-										<p className="text-gray-900 text-lg capitalize">{membershipData.district}</p>
-									</div>
-								)}
-
-								{membershipData.city && (
-									<div className="space-y-2">
-										<label className="text-sm font-semibold text-gray-900">City (Norway)</label>
-										<p className="text-gray-900 text-lg">{membershipData.city}</p>
-									</div>
-								)}
-
-								{membershipData.profession && (
-									<div className="space-y-2 md:col-span-3">
-										<label className="text-sm font-semibold text-gray-900">Profession</label>
-										<p className="text-gray-900 text-lg">{membershipData.profession}</p>
-									</div>
-								)}
-
-								{membershipData.skills && (
-									<div className="space-y-2 md:col-span-3">
-										<label className="text-sm font-semibold text-gray-900">Skills & Expertise</label>
-										<p className="text-gray-900 text-lg">{membershipData.skills}</p>
-									</div>
-								)}
-
-								{membershipData.volunteerInterest && membershipData.volunteerInterest.length > 0 && (
-									<div className="space-y-2 md:col-span-3">
-										<label className="text-sm font-semibold text-gray-900">Areas of Interest</label>
-										<div className="flex flex-wrap gap-2 mt-2">
-											{membershipData.volunteerInterest.map((interest: string, index: number) => (
-												<Badge key={index} variant="secondary" className="text-sm text-white">
-													{interest}
-												</Badge>
-											))}
-										</div>
-									</div>
-								)}
 							</div>
 						</CardContent>
 					</Card>
@@ -557,8 +497,6 @@ export default function ProfileClient({ translations: t }: Props) {
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
-
-	
 		</div>
 	);
 }

@@ -51,11 +51,11 @@ MEMBERSHIP INFORMATION
 
 Personal Information:
 -------------------
-Full Name: ${membershipData.fullName || 'N/A'}
+Full Name: ${membershipData.firstName && membershipData.lastName ? `${membershipData.firstName} ${membershipData.middleName ? membershipData.middleName + ' ' : ''}${membershipData.lastName}` : 'N/A'}
 Email: ${membershipData.email || 'N/A'}
 Phone: ${membershipData.phone || 'N/A'}
-Date of Birth: ${membershipData.dateOfBirth || 'N/A'}
 Gender: ${membershipData.gender || 'N/A'}
+Personal Number: ${membershipData.personalNumber || 'N/A'}
 
 Address Information:
 ------------------
@@ -65,23 +65,11 @@ Postal Code: ${membershipData.postalCode || 'N/A'}
 Province: ${membershipData.province || 'N/A'}
 District: ${membershipData.district || 'N/A'}
 
-Professional Information:
------------------------
-Profession: ${membershipData.profession || 'N/A'}
-Skills: ${membershipData.skills || 'N/A'}
-
 Membership Details:
 ------------------
 Membership Type: ${membershipData.membershipType || 'N/A'}
 Membership Status: ${membershipData.membershipStatus || 'N/A'}
-National Membership No: ${membershipData.nationalMembershipNo || 'N/A'}
 Registration Date: ${membershipData.createdAt ? new Date(membershipData.createdAt).toLocaleDateString() : 'N/A'}
-
-Volunteer Interests:
-------------------
-${membershipData.volunteerInterest && membershipData.volunteerInterest.length > 0 
-	? membershipData.volunteerInterest.join(', ') 
-	: 'No interests specified'}
 
 Permissions:
 -----------

@@ -43,27 +43,30 @@ export interface Event {
 
 export interface Membership {
 	_id: string;
-	fullName: string;
+	firstName: string;
+	middleName?: string;
+	lastName: string;
 	email: string;
 	phone: string;
 	address: string;
 	city: string;
 	postalCode: string;
-	dateOfBirth: string;
+	personalNumber?: string;
 	gender: string;
 	province?: string;
 	district?: string;
-	profession?: string;
 	membershipType: "general" | "active" | "executive";
 	membershipStatus: "blocked" | "pending" | "approved";
-	nationalMembershipNo?: string;
-	skills?: string;
-	volunteerInterest?: string[];
 	agreeTerms: boolean;
 	permissionPhotos?: boolean;
 	permissionPhone?: boolean;
 	permissionEmail?: boolean;
 	profilePhoto?: string;
+	password?: string;
+	passwordSetupToken?: string;
+	passwordSetupTokenExpiry?: Date;
+	passwordResetToken?: string;
+	passwordResetTokenExpiry?: Date;
 	createdAt: string;
 }
 

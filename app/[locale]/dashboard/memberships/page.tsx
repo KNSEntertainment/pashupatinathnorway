@@ -5,7 +5,7 @@ import useFetchData from "@/hooks/useFetchData";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Eye, CheckCircle, XCircle, Clock, User, Mail, Phone, Calendar, MapPin, Briefcase, Award, Heart, X, Edit } from "lucide-react";
+import { Trash2, Eye, CheckCircle, XCircle, Clock, User, Mail, Phone, MapPin, Award, X, Edit } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -83,21 +83,20 @@ export default function MembershipsPage() {
 	const handleEdit = (member: Membership) => {
 		setEditingMember(member);
 		setEditFormData({
-			fullName: member.fullName,
+			firstName: member.firstName,
+			middleName: member.middleName || '',
+			lastName: member.lastName,
 			email: member.email,
 			phone: member.phone,
 			address: member.address,
 			city: member.city,
 			postalCode: member.postalCode,
-			dateOfBirth: member.dateOfBirth,
+			personalNumber: member.personalNumber,
 			gender: member.gender,
 			province: member.province,
 			district: member.district,
-			profession: member.profession,
 			membershipType: member.membershipType,
 			membershipStatus: member.membershipStatus,
-			skills: member.skills,
-			volunteerInterest: member.volunteerInterest || [],
 			permissionPhotos: member.permissionPhotos,
 			permissionPhone: member.permissionPhone,
 			permissionEmail: member.permissionEmail,
@@ -151,7 +150,7 @@ export default function MembershipsPage() {
 					break;
 				}
 			}
-			const memberName = selectedMember?.fullName || 'Member';
+			const memberName = `${selectedMember?.firstName} ${selectedMember?.middleName ? selectedMember.middleName + ' ' : ''}${selectedMember?.lastName}` || 'Member';
 			const memberEmail = selectedMember?.email;
 			
 			// Validate that we have a valid email
@@ -201,7 +200,7 @@ export default function MembershipsPage() {
 
 	const filteredMemberships =
 		memberships?.filter((member: Membership) => {
-			const matchesSearch = member.fullName?.toLowerCase().includes(search.toLowerCase()) || member.email?.toLowerCase().includes(search.toLowerCase()) || member.phone?.toLowerCase().includes(search.toLowerCase());
+			const matchesSearch = `${member.firstName} ${member.middleName ? member.middleName + ' ' : ''}${member.lastName}`.toLowerCase().includes(search.toLowerCase()) || member.email?.toLowerCase().includes(search.toLowerCase()) || member.phone?.toLowerCase().includes(search.toLowerCase());
 			const matchesStatus = statusFilter ? member.membershipStatus === statusFilter : true;
 			const matchesType = typeFilter ? member.membershipType === typeFilter : true;
 			return matchesSearch && matchesStatus && matchesType;
@@ -380,7 +379,7 @@ export default function MembershipsPage() {
 									<TableCell>
 										<input type="checkbox" checked={selectedMemberIds.includes(member._id)} onChange={() => handleSelectMember(member._id)} />
 									</TableCell>
-									<TableCell className="font-medium">{member.fullName}</TableCell>
+									<TableCell className="font-medium">{`${member.firstName} ${member.middleName ? member.middleName + ' ' : ''}${member.lastName}`}</TableCell>
 									<TableCell>{member.email}</TableCell>
 									<TableCell>{member.phone}</TableCell>
 									<TableCell>
@@ -468,10 +467,10 @@ export default function MembershipsPage() {
 							{/* Profile Photo & Quick Info */}
 							<div className="flex flex-col items-center mb-8">
 								<div className="relative mb-4">
-									<div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center shadow-xl ring-4 ring-white">{viewingMember.profilePhoto ? <Image src={viewingMember.profilePhoto} alt={viewingMember.fullName} width={128} height={128} className="w-full h-full object-cover" /> : <User className="w-16 h-16 text-gray-900" />}</div>
+									<div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center shadow-xl ring-4 ring-white">{viewingMember.profilePhoto ? <Image src={viewingMember.profilePhoto} alt={`${viewingMember.firstName} ${viewingMember.middleName ? viewingMember.middleName + ' ' : ''}${viewingMember.lastName}`} width={128} height={128} className="w-full h-full object-cover" /> : <User className="w-16 h-16 text-gray-900" />}</div>
 									<div className="absolute -bottom-2 -right-2">{getStatusBadge(viewingMember.membershipStatus)}</div>
 								</div>
-								<h3 className="text-2xl font-bold text-gray-900 mb-1">{viewingMember.fullName}</h3>
+								<h3 className="text-2xl font-bold text-gray-900 mb-1">{`${viewingMember.firstName} ${viewingMember.middleName ? viewingMember.middleName + ' ' : ''}${viewingMember.lastName}`}</h3>
 								<Badge variant="outline" className="capitalize text-sm">
 									{viewingMember.membershipType} Member
 								</Badge>
@@ -502,10 +501,10 @@ export default function MembershipsPage() {
 											</div>
 										</div>
 										<div className="flex items-start gap-3">
-											<Calendar className="w-5 h-5 text-gray-900 mt-0.5" />
+											<User className="w-5 h-5 text-gray-900 mt-0.5" />
 											<div>
-												<p className="text-xs text-gray-900 font-medium">Date of Birth</p>
-												<p className="text-gray-900">{viewingMember.dateOfBirth}</p>
+												<p className="text-xs text-gray-900 font-medium">Personal Number</p>
+												<p className="text-gray-900">{viewingMember.personalNumber || 'Not specified'}</p>
 											</div>
 										</div>
 										<div className="flex items-start gap-3">
@@ -550,51 +549,6 @@ export default function MembershipsPage() {
 								</CardContent>
 							</Card>
 
-							{/* Professional Information Card */}
-							<Card className="mb-6 border-l-4 border-l-purple-500 shadow-md hover:shadow-lg transition-shadow">
-								<CardHeader className="pb-3">
-									<CardTitle className="flex items-center gap-2 text-lg">
-										<Briefcase className="w-5 h-5 text-purple-600" />
-										Professional Details
-									</CardTitle>
-								</CardHeader>
-								<CardContent>
-									<div className="space-y-4">
-										<div>
-											<p className="text-xs text-gray-900 font-medium mb-1">Profession</p>
-											<p className="text-gray-900">{viewingMember.profession || "Not specified"}</p>
-										</div>
-										<div>
-											<p className="text-xs text-gray-900 font-medium mb-1">Skills & Expertise</p>
-											<p className="text-gray-900">{viewingMember.skills || "Not specified"}</p>
-										</div>
-									</div>
-								</CardContent>
-							</Card>
-
-							{/* Volunteer Interests Card */}
-							<Card className="mb-6 border-l-4 border-l-orange-500 shadow-md hover:shadow-lg transition-shadow">
-								<CardHeader className="pb-3">
-									<CardTitle className="flex items-center gap-2 text-lg">
-										<Heart className="w-5 h-5 text-orange-600" />
-										Areas of Interest
-									</CardTitle>
-								</CardHeader>
-								<CardContent>
-									<div className="flex flex-wrap gap-2">
-										{viewingMember.volunteerInterest && viewingMember.volunteerInterest.length > 0 ? (
-											viewingMember.volunteerInterest.map((interest: string, index: number) => (
-												<Badge key={index} variant="secondary" className="bg-orange-100 text-orange-800 hover:bg-orange-200">
-													{interest}
-												</Badge>
-											))
-										) : (
-											<span className="text-gray-900">No interests specified</span>
-										)}
-									</div>
-								</CardContent>
-							</Card>
-
 							{/* Membership Information Card */}
 							<Card className="mb-6 border-l-4 border-l-indigo-500 shadow-md hover:shadow-lg transition-shadow">
 								<CardHeader className="pb-3">
@@ -605,10 +559,6 @@ export default function MembershipsPage() {
 								</CardHeader>
 								<CardContent>
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-										<div>
-											<p className="text-xs text-gray-900 font-medium mb-1">National Membership No</p>
-											<p className="text-gray-900 font-mono">{viewingMember.nationalMembershipNo || "Not assigned"}</p>
-										</div>
 										<div>
 											<p className="text-xs text-gray-900 font-medium mb-1">Registration Date</p>
 											<p className="text-gray-900">{formatDate(viewingMember.createdAt)}</p>
@@ -699,11 +649,32 @@ export default function MembershipsPage() {
 									<h3 className="text-lg font-semibold text-gray-900 mb-4">Personal Information</h3>
 									
 									<div>
-										<label className="block text-sm font-medium text-gray-900 mb-2">Full Name *</label>
+										<label className="block text-sm font-medium text-gray-900 mb-2">First Name *</label>
 										<input
 											type="text"
-											value={editFormData.fullName || ''}
-											onChange={(e) => handleEditChange('fullName', e.target.value)}
+											value={editFormData.firstName || ''}
+											onChange={(e) => handleEditChange('firstName', e.target.value)}
+											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+											required
+										/>
+									</div>
+
+									<div>
+										<label className="block text-sm font-medium text-gray-900 mb-2">Middle Name</label>
+										<input
+											type="text"
+											value={editFormData.middleName || ''}
+											onChange={(e) => handleEditChange('middleName', e.target.value)}
+											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+										/>
+									</div>
+
+									<div>
+										<label className="block text-sm font-medium text-gray-900 mb-2">Last Name *</label>
+										<input
+											type="text"
+											value={editFormData.lastName || ''}
+											onChange={(e) => handleEditChange('lastName', e.target.value)}
 											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 											required
 										/>
@@ -732,11 +703,11 @@ export default function MembershipsPage() {
 									</div>
 
 									<div>
-										<label className="block text-sm font-medium text-gray-900 mb-2">Date of Birth</label>
+										<label className="block text-sm font-medium text-gray-900 mb-2">Personal Number</label>
 										<input
-											type="date"
-											value={editFormData.dateOfBirth || ''}
-											onChange={(e) => handleEditChange('dateOfBirth', e.target.value)}
+											type="text"
+											value={editFormData.personalNumber || ''}
+											onChange={(e) => handleEditChange('personalNumber', e.target.value)}
 											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 										/>
 									</div>
@@ -757,9 +728,9 @@ export default function MembershipsPage() {
 									</div>
 								</div>
 
-								{/* Location & Professional Information */}
+								{/* Location Information */}
 								<div className="space-y-4">
-									<h3 className="text-lg font-semibold text-gray-900 mb-4">Location & Professional</h3>
+									<h3 className="text-lg font-semibold text-gray-900 mb-4">Location Information</h3>
 									
 									<div>
 										<label className="block text-sm font-medium text-gray-900 mb-2">Address</label>
@@ -788,26 +759,6 @@ export default function MembershipsPage() {
 											value={editFormData.postalCode || ''}
 											onChange={(e) => handleEditChange('postalCode', e.target.value)}
 											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-										/>
-									</div>
-
-									<div>
-										<label className="block text-sm font-medium text-gray-900 mb-2">Profession</label>
-										<input
-											type="text"
-											value={editFormData.profession || ''}
-											onChange={(e) => handleEditChange('profession', e.target.value)}
-											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-										/>
-									</div>
-
-									<div>
-										<label className="block text-sm font-medium text-gray-900 mb-2">Skills</label>
-										<textarea
-											value={editFormData.skills || ''}
-											onChange={(e) => handleEditChange('skills', e.target.value)}
-											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-											rows={3}
 										/>
 									</div>
 								</div>

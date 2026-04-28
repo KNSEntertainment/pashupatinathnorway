@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Lock, Eye, EyeOff, AlertTriangle, CheckCircle, User, MapPin, Briefcase, Loader2 } from "lucide-react";
+import { Lock, Eye, EyeOff, AlertTriangle, CheckCircle, User, MapPin, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -69,17 +69,8 @@ interface Translations {
   postalCode: string;
   province: string;
   district: string;
-  profession: string;
-  skills: string;
-  volunteerInterest: string;
-  updating: string;
-  areas_of_interests: string;
-  interest_politics: string;
-  interest_social: string;
-  interest_education: string;
-  interest_culture: string;
-  interest_events: string;
-  interest_fundraising: string;
+ updating: string;
+
 }
 
 interface Props {
@@ -117,7 +108,6 @@ export default function SettingsPage({ translations: t }: Props) {
     district: "",
     profession: "",
     skills: "",
-    volunteerInterest: [] as string[],
   });
   
   // Address autocomplete states
@@ -161,7 +151,6 @@ export default function SettingsPage({ translations: t }: Props) {
               district: member.district || "",
               profession: member.profession || "",
               skills: member.skills || "",
-              volunteerInterest: member.volunteerInterest || [],
             });
             
             // Check if password was recently reset (within last 24 hours)
@@ -586,22 +575,7 @@ export default function SettingsPage({ translations: t }: Props) {
                       placeholder="Enter your phone number"
                     />
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="profession" className="text-sm font-semibold text-gray-900">
-                      {t.profession || "Profession"}
-                    </Label>
-                    <Input
-                      id="profession"
-                      type="text"
-                      value={profileForm.profession}
-                      onChange={(e) => handleProfileFormChange("profession", e.target.value)}
-                      placeholder="Enter your profession"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
+  <div className="space-y-2">
                   <Label htmlFor="address" className="text-sm font-semibold text-gray-900">
                     {t.address || "Address"}
                   </Label>
@@ -668,6 +642,10 @@ export default function SettingsPage({ translations: t }: Props) {
                     )}
                   </div>
                 </div>
+          
+                </div>
+
+              
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
@@ -702,49 +680,11 @@ export default function SettingsPage({ translations: t }: Props) {
              
               </div>
 
-              {/* Skills and Interests */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                  <Briefcase className="w-4 h-4 mr-2" />
-                  Interests
-                </h3>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-gray-900">
-                    {t.areas_of_interests || "Areas of Interest"}
-                  </Label>
-                  <div className="grid md:grid-cols-2 gap-3">
-                    {[
-                      t.interest_politics,
-                      t.interest_social,
-                      t.interest_education,
-                      t.interest_culture,
-                      t.interest_events,
-                      t.interest_fundraising
-                    ].map((interest) => (
-                      <label key={interest} className="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors">
-                        <input
-                          type="checkbox"
-                          checked={profileForm.volunteerInterest.includes(interest)}
-                          onChange={(e) => {
-                            const updatedInterests = e.target.checked
-                              ? [...profileForm.volunteerInterest, interest]
-                              : profileForm.volunteerInterest.filter(i => i !== interest);
-                            handleProfileFormChange("volunteerInterest", updatedInterests);
-                          }}
-                          className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                        />
-                        <span className="ml-3 text-gray-900">{interest}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              </div>
 
               {/* Submit Button */}
               <Button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700"
+                className="w-fit bg-blue-600 hover:bg-blue-700"
                 disabled={isUpdatingProfile}
               >
                 {isUpdatingProfile ? (
@@ -772,7 +712,7 @@ export default function SettingsPage({ translations: t }: Props) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handlePasswordChange} className="space-y-6">
+            <form onSubmit={handlePasswordChange} className="max-w-sm mx-auto space-y-6">
               {/* Current Password */}
               <div className="space-y-2">
                 <Label htmlFor="currentPassword" className="text-sm font-semibold text-gray-900">
