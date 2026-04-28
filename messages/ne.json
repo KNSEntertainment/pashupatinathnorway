@@ -141,6 +141,7 @@
 	},
 	"navigation": {
 		"home": "गृहपृष्ठ",
+		"sewa": "सेवा",
 		"members": "सदस्यहरू",
 		"about": "हाम्रो बारेमा",
 		"terms": "सर्त र शर्तहरू",
@@ -155,16 +156,17 @@
 		"pnsb": "PNSB",
 		"norway": "नर्वे",
 		"search_placeholder": "खोज्नुहोस्...",
-		"events": "कार्यक्रमहरू",
-		"rituals": "अनुष्ठानहरू",
-		"festivals": "चाडपर्वहरू",
+		"events": "कार्यक्रम",
+		"rituals": "अनुष्ठान",
+		"festivals": "चाडपर्व",
 		"management": "व्यवस्थापन",
-		"circulars": "परिपत्रहरू",
-		"updates": "अपडेटहरू",
-		"photos": "फोटोहरू",
-		"videos": "भिडियोहरू",
+		"circulars": "परिपत्र",
+		"updates": "अपडेट",
+		"photos": "फोटो",
+		"videos": "भिडियो",
 		"donate": "सहयोग गर्नुहोस्",
-		"follow_us": "हामीलाई फलो गर्नुहोस्"
+		"follow_us": "हामीलाई फलो गर्नुहोस्",
+		"store": "पसल"
 	},
 	"contact": {
 		"title": "सम्पर्क गर्नुहोस्",

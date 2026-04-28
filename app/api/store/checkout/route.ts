@@ -25,7 +25,7 @@ export async function POST(request: Request) {
 	try {
 		await connectDB();
 
-		const { customerInfo, items, total, subtotal, tax, shipping, currency, notes } = await request.json();
+		const { customerInfo, items, total, subtotal, tax, shipping, currency, notes, locale = 'en' } = await request.json();
 
 		// Validate required fields
 		if (!customerInfo || !customerInfo.name || !customerInfo.email || !customerInfo.phone) {
@@ -117,11 +117,10 @@ export async function POST(request: Request) {
 
 		// Create Stripe checkout session
 		const session = await stripe.checkout.sessions.create({
-			payment_method_types: ["card"],
 			line_items: lineItems,
 			mode: "payment",
-			success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/store/success?session_id={CHECKOUT_SESSION_ID}`,
-			cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout?canceled=true`,
+			success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/${locale}/store/success?session_id={CHECKOUT_SESSION_ID}`,
+			cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/${locale}/checkout?canceled=true`,
 			customer_email: customerInfo.email,
 			metadata: {
 				orderId: order._id.toString(),
@@ -129,6 +128,14 @@ export async function POST(request: Request) {
 			},
 			shipping_address_collection: {
 				allowed_countries: ['NO'], // Only allow Norway for now
+			},
+			payment_method_options: {
+				card: {
+					request_three_d_secure: 'automatic',
+				},
+			},
+			automatic_tax: {
+				enabled: true,
 			},
 		});
 

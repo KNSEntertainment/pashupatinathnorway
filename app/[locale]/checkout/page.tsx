@@ -118,7 +118,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ params }) => {
 					tax: cart.tax,
 					shipping: cart.shipping,
 					currency: cart.currency,
-					notes: formData.notes
+					notes: formData.notes,
+					locale: resolvedParams.locale
 				}),
 			});
 

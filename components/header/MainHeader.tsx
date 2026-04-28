@@ -20,15 +20,19 @@ export default function MainHeader() {
 			
 		},
 		{
-			title: t("events"),
-			href: "/events",
+			title: t("sewa"),
+			href: "/sewa",
+			dropdown: [
+				{ title: t("rituals"), href: "/rituals" },
+				{ title: t("festivals"), href: "/festivals" },
+				{ title: t("events"), href: "/events" },
+			],
 		
 		},
-		{ title: t("rituals"), href: "/rituals" },
-		{ title: t("festivals"), href: "/festivals" },
+		
 		{ title: t("management"), href: "/management" },
 		{ title: t("gallery"), href: "/gallery" },
-		{ title: "Store", href: "/store" },
+		{ title: t("store"), href: "/store" },
 		{ title: t("contact"), href: "/contact" },
 	];
 

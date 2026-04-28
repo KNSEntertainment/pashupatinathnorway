@@ -136,6 +136,7 @@
 	},
 	"navigation": {
 		"home": "Home",
+		"sewa": "Sewa",
 		"members": "Members",
 		"about": "About Us",
 		"terms": "Terms And Conditions",
@@ -159,7 +160,8 @@
 		"photos": "Photos",
 		"videos": "Videos",
 		"donate": "Donate",
-		"follow_us": "Follow Us"
+		"follow_us": "Follow Us",
+		"store": "Store"
 	},
 	"contact": {
 		"title": "Contact Us",

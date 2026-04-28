@@ -137,7 +137,7 @@ export default function AboutUsClient() {
 							<div className="absolute inset-0 bg-gradient-to-br from-green-600 to-brand rounded-2xl transform -rotate-2 group-hover:-rotate-3 transition-transform duration-500" />
 
 							<div className="relative rounded-2xl overflow-hidden shadow-2xl">
-								<Image src="/rabibalen.jpg" alt="Event Experience" width={200} height={200} className="w-full h-auto object-cover transform group-hover:scale-105 transition-transform duration-700" />
+								<Image src="/pashupatinath.png" alt="Event Experience" width={200} height={200} className="w-full h-auto object-cover transform group-hover:scale-105 transition-transform duration-700" />
 
 								{/* Overlay Gradient */}
 								<div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />

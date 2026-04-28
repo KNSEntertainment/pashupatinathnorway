@@ -19,7 +19,7 @@ export default function FullWidthHero() {
 	// Pre-optimized fallback slides with smaller images
 	const fallbackSlides = useMemo(() => [
 		{
-			image: "/rabibalen.jpg",
+			image: "/pashupatinath.png",
 			title: t("title_1"),
 			description: t("subtitle_1"),
 			primaryLink: "/membership",

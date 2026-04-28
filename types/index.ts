@@ -144,8 +144,6 @@ export interface Order {
 export interface StoreFilters {
 	category: "all" | "product" | "service";
 	type: string;
-	priceRange: [number, number];
 	sortBy: "date" | "price-asc" | "price-desc" | "name-asc" | "name-desc";
 	search: string;
-	inStockOnly: boolean;
 }

@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { useCart } from '@/context/CartContext';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingCart } from 'lucide-react';
 import CartDrawer from './CartDrawer';
@@ -13,8 +12,8 @@ const CartButton: React.FC = () => {
 
 	return (
 		<CartDrawer>
-			<Button variant="ghost" size="sm" className="relative">
-				<ShoppingCart className="w-5 h-5" />
+			<button className="btn-glass relative">
+				<ShoppingCart size={24} />
 				{itemCount > 0 && (
 					<Badge 
 						variant="destructive" 
@@ -23,7 +22,7 @@ const CartButton: React.FC = () => {
 						{itemCount > 99 ? '99+' : itemCount}
 					</Badge>
 				)}
-			</Button>
+			</button>
 		</CartDrawer>
 	);
 };

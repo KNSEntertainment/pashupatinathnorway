@@ -135,6 +135,7 @@
 	},
 	"navigation": {
 		"home": "Hjem",
+		"sewa": "Tjenester",
 		"members": "Medlemmer",
 		"about": "Om Oss",
 		"terms": "Vilkår og betingelser",
@@ -158,7 +159,8 @@
 		"photos": "Fotoer",
 		"videos": "Videoer",
 		"donate": "Doner",
-		"follow_us": "Følg oss"
+		"follow_us": "Følg oss",
+		"store": "Butikk"
 	},
 	"contact": {
 		"title": "Kontakt oss",

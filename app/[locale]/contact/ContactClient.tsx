@@ -82,31 +82,31 @@ export default function ContactPageClient({ settings, translations: t }: Props) 
 
 				<div className="bg-white rounded-3xl shadow-md md:shadow-2xl overflow-hidden flex flex-col lg:flex-row border border-light">
 					{/* Left: Contact Information (The "Official" Sidebar) */}
-					<aside className="lg:w-1/3 bg-brand_primary/90 p-8 md:p-12 text-white relative overflow-hidden">
+					<aside className="lg:w-1/3 bg-brand_primary/90 p-8 md:p-12 text-gray-700 relative overflow-hidden">
 						{/* Decorative Circle */}
 						<div className="absolute -bottom-20 -right-20 w-64 h-64 bg-brand_primary rounded-full opacity-50" />
 
 						<div className="relative z-10">
-							<h3 className="text-3xl font-bold mb-8">{t.info.title}</h3>
+							<h3 className="text-2xl font-bold mb-8">{t.info.title}</h3>
 
 							<div className="space-y-8">
 								<div className="flex gap-5 group">
 									<div className=" p-3 rounded-xl group-hover:bg-brand_primary/90 transition-colors">
-										<MapPin className="w-6 h-6 text-white" />
+										<MapPin className="w-6 h-6 text-gray-500" />
 									</div>
 									<div>
-										<p className="text-neutral-200 text-sm font-bold uppercase tracking-wider">{t.info.address}</p>
-										<address className="not-italic text-lg text-white mt-1">{setting.address}</address>
+										<p className="text-gray-600 text-sm font-bold uppercase tracking-wider">{t.info.address}</p>
+										<address className="not-italic text-lg text-gray-700 mt-1">{setting.address}</address>
 									</div>
 								</div>
 
 								<div className="flex gap-5 group">
 									<div className=" p-3 rounded-xl group-hover:bg-brand_primary/90 transition-colors">
-										<Phone className="w-6 h-6 text-white" />
+										<Phone className="w-6 h-6 text-gray-500" />
 									</div>
 									<div>
-										<p className="text-neutral-200 text-sm font-bold uppercase tracking-wider">{t.info.phone}</p>
-										<a href={`tel:${setting.phone}`} className="text-lg text-white hover:text-brand_primary/90 transition-colors">
+										<p className="text-gray-600 text-sm font-bold uppercase tracking-wider">{t.info.phone}</p>
+										<a href={`tel:${setting.phone}`} className="text-lg text-gray-700 hover:text-brand_primary/90 transition-colors">
 											{setting.phone}
 										</a>
 									</div>
@@ -114,11 +114,11 @@ export default function ContactPageClient({ settings, translations: t }: Props) 
 
 								<div className="flex gap-5 group">
 									<div className=" p-3 rounded-xl group-hover:bg-brand_primary/90 transition-colors">
-										<Mail className="w-6 h-6 text-white" />
+										<Mail className="w-6 h-6 text-gray-500" />
 									</div>
 									<div>
-										<p className="text-neutral-200 text-sm font-bold uppercase tracking-wider">{t.info.email}</p>
-										<a href={`mailto:${setting.email}`} className="text-lg text-white hover:text-brand_primary/90 transition-colors block break-words">
+										<p className="text-gray-600 text-sm font-bold uppercase tracking-wider">{t.info.email}</p>
+										<a href={`mailto:${setting.email}`} className="text-lg text-gray-700 hover:text-brand_primary/90 transition-colors block break-words">
 											{setting.email}
 										</a>
 									</div>
@@ -154,7 +154,7 @@ export default function ContactPageClient({ settings, translations: t }: Props) 
 								<textarea id="message" name="message" value={form.message} onChange={handleChange} required rows={5} className="w-full px-4 py-3 rounded-xl border border-light focus:ring-4 focus:ring-blue-100 focus:border-blue-600 outline-none transition-all resize-none" placeholder={t.form.message_placeholder} />
 							</div>
 
-							<button type="submit" disabled={submitting} className="w-full md:w-auto px-10 py-4 bg-brand_primary text-white font-bold rounded-xl shadow-lg shadow-brand/50 hover:bg-brand_primary/90 active:scale-95 transition-all flex items-center justify-center gap-2">
+							<button type="submit" disabled={submitting} className="w-full md:w-auto px-10 py-4 bg-brand_primary text-gray-700 font-bold rounded-xl shadow-lg shadow-brand/50 hover:bg-brand_primary/90 active:scale-95 transition-all flex items-center justify-center gap-2">
 								{submitting ? (
 									t.form.sending
 								) : (
