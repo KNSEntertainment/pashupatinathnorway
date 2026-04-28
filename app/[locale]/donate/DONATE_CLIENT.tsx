@@ -6,6 +6,7 @@ import DonationForm from "@/components/DonationForm";
 import DonorList from "@/components/DonorList";
 import DonationModal from "@/components/DonationModal";
 import SectionHeader from "@/components/SectionHeader";
+import DonateCTA from "@/components/DonateCTA";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -171,8 +172,12 @@ export default function DonatePageClient({ causes, locale }: DonatePageClientPro
 
 					{/* Impact Section */}
 					<div className="space-y-6">
-							{/* Donor List */}
+						{/* Donate CTA Section */}
+						<DonateCTA />
+						
+						{/* Donor List */}
 						<DonorList refreshTrigger={refreshTrigger} />
+						
 						<Card className="border-0 shadow-lg">
 							<CardContent className="pt-6">
 								<h3 className="text-xl font-bold text-gray-900 mb-4">{t("impact_title") || "Your Impact"}</h3>
@@ -228,7 +233,7 @@ export default function DonatePageClient({ causes, locale }: DonatePageClientPro
 							</CardContent>
 						</Card>
 {/* Why Donate */}
-						<Card className="border-0 shadow-lg bg-gradient-to-br from-brand to-blue-700 text-white">
+						<Card className="border-0 shadow-lg bg-gradient-to-br from-brand to-blue-700 text-gray-700">
 							<CardContent className="pt-6">
 								<h3 className="text-xl font-bold mb-3">{t("why_donate") || "Why Donate to Pashupatinath Norway Temple?"}</h3>
 								<ul className="space-y-2 text-sm">
@@ -250,6 +255,8 @@ export default function DonatePageClient({ causes, locale }: DonatePageClientPro
 					</div>
 				</div>
 			</div>
+
+	
 
 			{/* Donation Modal */}
 			<DonationModal 

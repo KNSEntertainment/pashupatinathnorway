@@ -151,12 +151,12 @@ export default function DonationForm() {
 
 	return (
 		<Card className="w-full max-w-2xl mx-auto shadow-xl border-0">
-			<CardHeader className="bg-gradient-to-r from-brand to-blue-700 text-white">
+			<CardHeader className="bg-gradient-to-r from-brand to-blue-700 text-gray-700">
 				<div className="flex items-center gap-3">
-					<Heart className="w-8 h-8" />
+					<Heart className="w-8 h-8 text-brand_secondary" />
 					<div>
 						<CardTitle className="text-2xl">{t("title") || "Make a Donation"}</CardTitle>
-						<CardDescription className="text-white/90">{t("description") || "Support our community with your generous contribution"}</CardDescription>
+						<CardDescription className="text-gray-500">{t("description") || "Support our community with your generous contribution"}</CardDescription>
 					</div>
 				</div>
 			</CardHeader>
@@ -164,10 +164,10 @@ export default function DonationForm() {
 				<form onSubmit={handleSubmit} className="space-y-6">
 					{/* Preset Amounts */}
 					<div>
-						<label className="block text-sm font-semibold text-gray-900 mb-3">{t("select_amount") || "Select Amount"}</label>
+						<label className="block text-sm font-semibold text-gray-700 mb-3">{t("select_amount") || "Select Amount"}</label>
 						<div className="grid grid-cols-3 gap-3">
 							{PRESET_AMOUNTS.map((presetAmount) => (
-								<button key={presetAmount} type="button" onClick={() => handlePresetClick(presetAmount)} className={`text-sm md:text-xl py-3 px-2 md:px-4 rounded-lg border-2 font-semibold transition-all ${amount === presetAmount ? "border-brand bg-brand_primary text-white" : "border-gray-300 text-gray-900 hover:border-brand"}`}>
+								<button key={presetAmount} type="button" onClick={() => handlePresetClick(presetAmount)} className={`text-sm md:text-xl py-3 px-2 md:px-4 rounded-lg border-2 font-semibold transition-all ${amount === presetAmount ? "border-brand bg-brand_primary text-gray-700" : "border-gray-300 text-gray-700 hover:border-brand"}`}>
 									{presetAmount} NOK
 								</button>
 							))}
@@ -250,7 +250,7 @@ export default function DonationForm() {
 								onClick={() => setPaymentMethod('card')}
 								className={`p-2 md:p-4 rounded-lg border-2 font-semibold transition-all ${
 									paymentMethod === 'card'
-										? 'border-brand bg-brand_primary text-white'
+										? 'border-brand bg-brand_primary text-gray-700'
 										: 'border-gray-300 text-gray-900 hover:border-brand'
 								}`}
 							>
@@ -267,8 +267,8 @@ export default function DonationForm() {
 								onClick={() => setPaymentMethod('vipps')}
 								className={`p-2 md:p-4 rounded-lg border-2 font-semibold transition-all ${
 									paymentMethod === 'vipps'
-										? 'border-brand bg-brand_primary text-white'
-										: 'border-gray-300 text-gray-900 hover:border-brand'
+										? 'border-brand bg-brand_primary text-gray-700'
+										: 'border-gray-300 text-gray-700 hover:border-brand'
 								}`}
 							>
 								<div className="flex items-center justify-center gap-2">
@@ -286,7 +286,7 @@ export default function DonationForm() {
 					</div>
 
 					{/* Submit Button */}
-					<Button type="submit" disabled={loading || amount < 50} className="w-full py-6 text-lg bg-brand_primary hover:bg-brand_primary/90 text-white">
+					<Button type="submit" disabled={loading || amount < 50} className="w-full py-6 text-lg bg-brand_primary hover:bg-brand_primary/90 text-gray-700 font-bold">
 						{loading ? (
 							<>
 								<Loader2 className="w-5 h-5 mr-2 animate-spin" />
@@ -302,7 +302,10 @@ export default function DonationForm() {
 									</>
 								) : (
 									<>
-										<Heart className="w-5 h-5 mr-2" />
+										<svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+											<rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+											<line x1="1" y1="10" x2="23" y2="10" />
+										</svg>
 										{t("donate_button") || `Donate ${amount} NOK`}
 									</>
 								)}
@@ -310,7 +313,7 @@ export default function DonationForm() {
 						)}
 					</Button>
 
-					<p className="text-xs text-center text-gray-500">
+					<p className="text-xs text-center text-gray-700">
 						{paymentMethod === 'vipps' ? t("vipps_description") || "Quick and secure payment with Vipps" : t("secure_payment") || "Secure payment powered by Stripe"}
 					</p>
 				</form>
