@@ -1,0 +1,72 @@
+{
+	"compilerOptions": {
+		"target": "ES2017",
+		"lib": ["dom", "dom.iterable", "esnext"],
+		"allowJs": true,
+		"skipLibCheck": true,
+		"strict": true,
+		"noEmit": true,
+		"esModuleInterop": true,
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"jsx": "preserve",
+		"incremental": true,
+		"plugins": [
+			{
+				"name": "next"
+			}
+		],
+		"paths": {
+			"@/*": ["./*"]
+		}
+	},
+	"include": [
+		"next-env.d.ts",
+		"**/*.ts",
+		"**/*.tsx",
+		"**/*.js",
+		"**/*.jsx",
+		".next/types/**/*.ts",
+		"app/components/ContactCard.jsx",
+		"app/components/UpcomingEvents.jsx",
+		"app/components/Newsletter.jsx",
+		"app/[locale]/dashboard/subscribers/SubscribersList.jsx",
+		"app/[locale]/dashboard/events/page.jsx",
+		"app/[locale]/dashboard/artists/page.jsx",
+		"app/[locale]/dashboard/testimonials/page.jsx",
+		"app/components/Testimonials.jsx",
+		"app/components/FeaturedArtists.jsx",
+		"app/[locale]/dashboard/settings/page.jsx",
+		"app/[Locale]/(auth)/login/page.jsx",
+		"app/api/webhook/route.js",
+		"app/[locale]/dashboard/1layout.jsx",
+		"app/[locale]/dashboard/subscribers/page.jsx",
+		"components/Footer.jsx",
+		"app/request-a-quote/page.jsx",
+		"components/Hero.jsx",
+		"components/SearchModal.jsx",
+		"components/SearchBox.jsx",
+		"app/[Locale]/contact/page.tsx",
+		"components/DisplayPrices.jsx",
+		"components/Testimonials.jsx",
+		"components/testimonials-masonry.jsx",
+		"components/testimonials-alt.jsx",
+		"components/Blogs.tsx",
+		"components/TestimonialCard.jsx",
+		"i18n.js",
+		"models/Membership.Model.js",
+		"app/[locale]/dashboard/downloads/page.jsx",
+		"i18n",
+		"app/[locale]/updates/page.jsx",
+		"app/[locale]/updates/page.jsx",
+		"app/[locale]/updates/page.jsx",
+		"app/[locale]/updates/page.jsx",
+		"components/FooterClient.jsx",
+		"components/DashboardMenuItems.js",
+		"app/[locale]/dashboard/layout.jsx",
+		"app/[locale]/dashboard/page.jsx"
+, "next.config.mjs"	],
+	"exclude": ["node_modules"]
+}

@@ -1,0 +1,90 @@
+import { getTranslations } from "next-intl/server";
+import MembershipPageClient from "./MembershipPageClient";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+	title: "Membership | PNSB-Norway",
+	description: "Stay informed with the latest membership information from PNSB-Norway. Get updates on events, announcements, and important information for our community.",
+	openGraph: {
+		title: "Membership | PNSB-Norway",
+		description: "Stay informed with the latest membership information from PNSB-Norway. Get updates on events, announcements, and important information for our community.",
+		url: "/membership",
+		siteName: "PNSB-Norway",
+		type: "website",
+	},
+};
+
+export default async function MembershipPage({ params }: { params: Promise<{ locale: string }> }) {
+	const { locale } = await params;
+	const t = await getTranslations("membership");
+
+	const translations = {
+		welcome: t("welcome"),
+		welcome_msg: t("welcome_msg"),
+		submit_another: t("submit_another"),
+		title: t("title"),
+		subtitle: t("subtitle"),
+		personal_info: t("personal_info"),
+		full_name: t("full_name"),
+		full_name_placeholder: t("full_name_placeholder"),
+		email_address: t("email_address"),
+		email_address_placeholder: t("email_address_placeholder"),
+		phone_number: t("phone_number"),
+		phone_number_placeholder: t("phone_number_placeholder"),
+		date_of_birth: t("date_of_birth"),
+		gender: t("gender"),
+		select_gender: t("select_gender"),
+		male: t("male"),
+		female: t("female"),
+		other: t("other"),
+		prefer_not_to_say: t("prefer_not_to_say"),
+		address_nepal: t("address_nepal"),
+		address_nepal_ph: t("address_nepal_ph"),
+		address_norway: t("address_norway"),
+		street_address: t("street_address"),
+		street_address_ph: t("street_address_ph"),
+		city: t("city"),
+		city_ph: t("city_ph"),
+		postal_code: t("postal_code"),
+		postal_code_ph: t("postal_code_ph"),
+		professional_info: t("professional_info"),
+		occupation: t("occupation"),
+		occupation_ph: t("occupation_ph"),
+		skills_expertise: t("skills_expertise"),
+		skills_expertise_ph: t("skills_expertise_ph"),
+		membership_type: t("membership_type"),
+		general_member: t("general_member"),
+		general_member_desc: t("general_member_desc"),
+		executive_member: t("executive_member"),
+		executive_member_desc: t("executive_member_desc"),
+		areas_of_interests: t("areas_of_interests"),
+		interest_politics: t("interest_politics"),
+		interest_social: t("interest_social"),
+		interest_education: t("interest_education"),
+		interest_culture: t("interest_culture"),
+		interest_events: t("interest_events"),
+		interest_fundraising: t("interest_fundraising"),
+		agree_terms: t("agree_terms"),
+		agree_terms_prefix: t("agree_terms_prefix"),
+		terms_and_conditions: t("terms_and_conditions"),
+		and: t("and"),
+		privacy_policy: t("privacy_policy"),
+		permissions_title: t("permissions_title"),
+		permission_photos: t("permission_photos"),
+		permission_phone: t("permission_phone"),
+		permission_email: t("permission_email"),
+		submit: t("submit"),
+		reset: t("reset"),
+		need_help: t("need_help"),
+		contact_us_any_questions: t("contact_us_any_questions"),
+		email_us: t("email_us"),
+		province: t("province"),
+		district: t("district"),
+		select_province: t("select_province"),
+		select_district: t("select_district"),
+		locating: t("locating"),
+		use_current_location: t("use_current_location"),
+	};
+
+	return <MembershipPageClient translations={translations} locale={locale} />;
+}

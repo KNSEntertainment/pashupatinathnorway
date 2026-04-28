@@ -1,0 +1,130 @@
+{
+	"provinces": [
+		{
+			"id": "province-1",
+			"name": "Koshi Province",
+			"nameNe": "कोशी प्रदेश",
+			"districts": [
+				{ "id": "bhojpur", "name": "Bhojpur", "nameNe": "भोजपुर" },
+				{ "id": "dhankuta", "name": "Dhankuta", "nameNe": "धनकुटा" },
+				{ "id": "ilam", "name": "Ilam", "nameNe": "इलाम" },
+				{ "id": "jhapa", "name": "Jhapa", "nameNe": "झापा" },
+				{ "id": "khotang", "name": "Khotang", "nameNe": "खोटाङ" },
+				{ "id": "morang", "name": "Morang", "nameNe": "मोरङ" },
+				{ "id": "okhaldhunga", "name": "Okhaldhunga", "nameNe": "ओखलढुङ्गा" },
+				{ "id": "panchthar", "name": "Panchthar", "nameNe": "पाँचथर" },
+				{ "id": "sankhuwasabha", "name": "Sankhuwasabha", "nameNe": "संखुवासभा" },
+				{ "id": "solukhumbu", "name": "Solukhumbu", "nameNe": "सोलुखुम्बु" },
+				{ "id": "sunsari", "name": "Sunsari", "nameNe": "सुनसरी" },
+				{ "id": "taplejung", "name": "Taplejung", "nameNe": "ताप्लेजुङ" },
+				{ "id": "terhathum", "name": "Terhathum", "nameNe": "तेह्रथुम" },
+				{ "id": "udayapur", "name": "Udayapur", "nameNe": "उदयपुर" }
+			]
+		},
+		{
+			"id": "province-2",
+			"name": "Madhesh Province",
+			"nameNe": "मधेश प्रदेश",
+			"districts": [
+				{ "id": "parsa", "name": "Parsa", "nameNe": "पर्सा" },
+				{ "id": "bara", "name": "Bara", "nameNe": "बारा" },
+				{ "id": "rautahat", "name": "Rautahat", "nameNe": "रौतहट" },
+				{ "id": "sarlahi", "name": "Sarlahi", "nameNe": "सर्लाही" },
+				{ "id": "dhanusha", "name": "Dhanusha", "nameNe": "धनुषा" },
+				{ "id": "siraha", "name": "Siraha", "nameNe": "सिराहा" },
+				{ "id": "mahottari", "name": "Mahottari", "nameNe": "महोत्तरी" },
+				{ "id": "saptari", "name": "Saptari", "nameNe": "सप्तरी" }
+			]
+		},
+		{
+			"id": "province-3",
+			"name": "Bagmati Province",
+			"nameNe": "बागमती प्रदेश",
+			"districts": [
+				{ "id": "sindhuli", "name": "Sindhuli", "nameNe": "सिन्धुली" },
+				{ "id": "ramechhap", "name": "Ramechhap", "nameNe": "रामेछाप" },
+				{ "id": "dolakha", "name": "Dolakha", "nameNe": "दोलखा" },
+				{ "id": "sindhupalchok", "name": "Sindhupalchok", "nameNe": "सिन्धुपाल्चोक" },
+				{ "id": "kavrepalanchok", "name": "Kavrepalanchok", "nameNe": "काभ्रेपलाञ्चोक" },
+				{ "id": "lalitpur", "name": "Lalitpur", "nameNe": "ललितपुर" },
+				{ "id": "bhaktapur", "name": "Bhaktapur", "nameNe": "भक्तपुर" },
+				{ "id": "kathmandu", "name": "Kathmandu", "nameNe": "काठमाडौं" },
+				{ "id": "nuwakot", "name": "Nuwakot", "nameNe": "नुवाकोट" },
+				{ "id": "rasuwa", "name": "Rasuwa", "nameNe": "रसुवा" },
+				{ "id": "dhading", "name": "Dhading", "nameNe": "धादिङ" },
+				{ "id": "makwanpur", "name": "Makwanpur", "nameNe": "मकवानपुर" },
+				{ "id": "chitwan", "name": "Chitwan", "nameNe": "चितवन" }
+			]
+		},
+		{
+			"id": "province-4",
+			"name": "Gandaki Province",
+			"nameNe": "गण्डकी प्रदेश",
+			"districts": [
+				{ "id": "gorkha", "name": "Gorkha", "nameNe": "गोरखा" },
+				{ "id": "manang", "name": "Manang", "nameNe": "मनाङ" },
+				{ "id": "mustang", "name": "Mustang", "nameNe": "मुस्ताङ" },
+				{ "id": "myagdi", "name": "Myagdi", "nameNe": "म्याग्दी" },
+				{ "id": "kaski", "name": "Kaski", "nameNe": "कास्की" },
+				{ "id": "lamjung", "name": "Lamjung", "nameNe": "लमजुङ" },
+				{ "id": "tanahu", "name": "Tanahu", "nameNe": "तनहुँ" },
+				{ "id": "syangja", "name": "Syangja", "nameNe": "स्याङ्जा" },
+				{ "id": "parbat", "name": "Parbat", "nameNe": "पर्वत" },
+				{ "id": "baglung", "name": "Baglung", "nameNe": "बागलुङ" },
+				{ "id": "nawalpur", "name": "Nawalpur", "nameNe": "नवलपुर" }
+			]
+		},
+		{
+			"id": "province-5",
+			"name": "Lumbini Province",
+			"nameNe": "लुम्बिनी प्रदेश",
+			"districts": [
+				{ "id": "kapilvastu", "name": "Kapilvastu", "nameNe": "कपिलवस्तु" },
+				{ "id": "parasi", "name": "Parasi", "nameNe": "पर्सी" },
+				{ "id": "rupandehi", "name": "Rupandehi", "nameNe": "रूपन्देही" },
+				{ "id": "arghakhanchi", "name": "Arghakhanchi", "nameNe": "अर्घाखाँची" },
+				{ "id": "gulmi", "name": "Gulmi", "nameNe": "गुल्मी" },
+				{ "id": "palpa", "name": "Palpa", "nameNe": "पाल्पा" },
+				{ "id": "dang", "name": "Dang", "nameNe": "दाङ" },
+				{ "id": "pyuthan", "name": "Pyuthan", "nameNe": "प्युठान" },
+				{ "id": "rolpa", "name": "Rolpa", "nameNe": "रोल्पा" },
+				{ "id": "eastern-rukum", "name": "Eastern Rukum", "nameNe": "पूर्वी रुकुम" },
+				{ "id": "banke", "name": "Banke", "nameNe": "बाँके" },
+				{ "id": "bardiya", "name": "Bardiya", "nameNe": "बर्दिया" }
+			]
+		},
+		{
+			"id": "province-6",
+			"name": "Karnali Province",
+			"nameNe": "कर्णाली प्रदेश",
+			"districts": [
+				{ "id": "western-rukum", "name": "Western Rukum", "nameNe": "पश्चिम रुकुम" },
+				{ "id": "salyan", "name": "Salyan", "nameNe": "सल्यान" },
+				{ "id": "dolpa", "name": "Dolpa", "nameNe": "डोल्पा" },
+				{ "id": "humla", "name": "Humla", "nameNe": "हुम्ला" },
+				{ "id": "jumla", "name": "Jumla", "nameNe": "जुम्ला" },
+				{ "id": "kalikot", "name": "Kalikot", "nameNe": "कालिकोट" },
+				{ "id": "mugu", "name": "Mugu", "nameNe": "मुगु" },
+				{ "id": "surkhet", "name": "Surkhet", "nameNe": "सुर्खेत" },
+				{ "id": "dailekh", "name": "Dailekh", "nameNe": "दैलेख" },
+				{ "id": "jajarkot", "name": "Jajarkot", "nameNe": "जाजरकोट" }
+			]
+		},
+		{
+			"id": "province-7",
+			"name": "Sudurpashchim Province",
+			"nameNe": "सुदूरपश्चिम प्रदेश",
+			"districts": [
+				{ "id": "bajura", "name": "Bajura", "nameNe": "बाजुरा" },
+				{ "id": "bajhang", "name": "Bajhang", "nameNe": "बझाङ" },
+				{ "id": "achham", "name": "Achham", "nameNe": "अछाम" },
+				{ "id": "doti", "name": "Doti", "nameNe": "डोटी" },
+				{ "id": "kailali", "name": "Kailali", "nameNe": "कैलाली" },
+				{ "id": "kanchanpur", "name": "Kanchanpur", "nameNe": "कञ्चनपुर" },
+				{ "id": "dadeldhura", "name": "Dadeldhura", "nameNe": "डडेलधुरा" },
+				{ "id": "baitadi", "name": "Baitadi", "nameNe": "बैतडी" },
+				{ "id": "darchula", "name": "Darchula", "nameNe": "दार्चुला" }
+			]
+		}
+	]
+}
