@@ -43,15 +43,20 @@ type sendWelcomeEmail = {
 	name: string;
 	email: string;
 	setupToken: string;
+	familyMembers?: string[]; // Array of family member names
 };
-export async function sendWelcomeEmail({ name, email, setupToken }: sendWelcomeEmail) {
+export async function sendWelcomeEmail({ name, email, setupToken, familyMembers }: sendWelcomeEmail) {
 	const setupUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/en/set-password?token=${setupToken}`;
+	
+	const familyMembersText = familyMembers && familyMembers.length > 0 
+		? `\n\nFamily Members Registered: ${familyMembers.join(', ')}`
+		: '';
 
 	const mailOptions = {
 		from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER}>`,
 		to: email,
 		subject: "Welcome to Pashupatinath Norway Temple - Set Your Password",
-		text: `Hello ${name},\n\nWelcome to Pashupatinath Norway Temple! Your membership has been approved.\n\nYou are now part of our sacred mission to build the first Nepali Hindu temple in Norway and unite our community. Together, we are creating a spiritual home where our cultural heritage and religious traditions can thrive for generations to come.\n\nPlease set your password by clicking the link below:\n${setupUrl}\n\nThis link is valid for 24 hours.\n\nWith your membership, you join us in our vision of a thriving, connected Nepalese community in Norway where every member feels supported, valued, and proud of their heritage.\n\nBest regards,\nPashupatinath Temple Norway Team`,
+		text: `Hello ${name},\n\nWelcome to Pashupatinath Norway Temple! Your membership has been approved.${familyMembersText}\n\nYou are now part of our sacred mission to build the first Nepali Hindu temple in Norway and unite our community. Together, we are creating a spiritual home where our cultural heritage and religious traditions can thrive for generations to come.\n\nPlease set your password by clicking the link below:\n${setupUrl}\n\nThis link is valid for 24 hours.\n\nWith your membership, you join us in our vision of a thriving, connected Nepalese community in Norway where every member feels supported, valued, and proud of their heritage.\n\nBest regards,\nPashupatinath Temple Norway Team`,
 		html: `
 			<!DOCTYPE html>
 			<html>
@@ -74,6 +79,12 @@ export async function sendWelcomeEmail({ name, email, setupToken }: sendWelcomeE
 					<div class="content">
 						<p>Hello <strong>${name}</strong>,</p>
 						<p>Congratulations! Your membership application has been approved. You are now part of our sacred mission to build the first Nepali Hindu temple in Norway and unite our community.</p>
+						${familyMembers && familyMembers.length > 0 ? `
+						<div style="background: white; border-left: 4px solid #10b981; padding: 20px; margin: 20px 0; border-radius: 5px;">
+							<h3 style="margin: 0 0 10px 0; color: #10b981;">Family Members Registered</h3>
+							<p style="margin: 0; font-weight: bold;">${familyMembers.join(', ')}</p>
+						</div>
+						` : ''}
 						<p>Together, we are creating a spiritual home where our cultural heritage and religious traditions can thrive for generations to come. Your membership brings us closer to our vision of a thriving, connected Nepalese community in Norway.</p>
 						<p>To complete your account setup, please set your password by clicking the button below:</p>
 						<center>

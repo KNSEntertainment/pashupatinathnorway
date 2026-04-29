@@ -74,5 +74,7 @@ export default async function MembershipPage({ params }: { params: Promise<{ loc
 		use_current_location: t("use_current_location"),
 	};
 
-	return <MembershipPageClient translations={translations} locale={locale} />;
+	return (
+		<MembershipPageClient translations={translations} locale={locale} />
+	);
 }

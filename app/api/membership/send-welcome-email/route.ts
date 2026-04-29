@@ -4,6 +4,15 @@ import Membership from "@/models/Membership.Model";
 import { sendWelcomeEmail } from "@/lib/email";
 import crypto from "crypto";
 
+interface FamilyMember {
+	firstName: string;
+	middleName?: string;
+	lastName: string;
+	personalNumber: string;
+	email: string;
+	phone?: string;
+}
+
 export async function POST(request: Request) {
 	try {
 		await connectDB();
@@ -53,11 +62,17 @@ export async function POST(request: Request) {
 			passwordSetupTokenExpiry: tokenExpiry,
 		});
 
+		// Extract family member names if they exist
+		const familyMemberNames = membership.familyMembers && membership.familyMembers.length > 0
+			? membership.familyMembers.map((member: FamilyMember) => `${member.firstName} ${member.lastName}`)
+			: [];
+
 		// Send welcome email
 		await sendWelcomeEmail({ 
-			name: membership.fullName, 
+			name: `${membership.firstName} ${membership.lastName}`, 
 			email: membership.email, 
-			setupToken 
+			setupToken,
+			familyMembers: familyMemberNames
 		});
 
 		return NextResponse.json({ 
