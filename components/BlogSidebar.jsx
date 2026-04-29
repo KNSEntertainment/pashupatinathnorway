@@ -23,7 +23,7 @@ function BlogSidebar({ blogs, locale: propLocale }) {
 				<div className="space-y-4">
 					{blogs &&
 						blogs.map((relBlog) => (
-							<Link href={`/${locale}/blogs/${relBlog._id}`} key={relBlog._id} className="flex space-x-4 group border-b pb-4 last:border-0 last:pb-0">
+							<Link href={`/blogs/${relBlog._id}`} key={relBlog._id} className="flex space-x-4 group border-b pb-4 last:border-0 last:pb-0">
 								<div className="relative w-16 h-16 flex-shrink-0 overflow-hidden rounded-md">
 									<Image src={relBlog?.blogMainPicture || "/pashupatinath.png"} alt={getLocalizedTitle(relBlog) || "Blog Title"} fill sizes="64px" className="object-cover" />
 								</div>

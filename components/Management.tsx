@@ -11,14 +11,20 @@ import {
   FileText,
   Crown,
   UserCheck,
-  Shield,
   Lightbulb
 } from "lucide-react";
+import SectionHeader from "./SectionHeader";
 
 interface BoardMember {
   name: string;
   position: string;
   type: "executive" | "member" | "advisor";
+}
+
+interface Report {
+  year: string;
+  title: string;
+  url: string;
 }
 
 export default function Management() {
@@ -37,7 +43,7 @@ export default function Management() {
     { name: "Ghanashyam Bartaula", position: t("member"), type: "member" },
     { name: "Hari Bahadur Baniya", position: t("member"), type: "member" },
     { name: "Ishwori Prasad Khanal", position: t("member"), type: "member" },
-    { name: "Khumanand Sharma Dhungana", position: t("member"), type: "member" },
+    { name: "Khumanand S. Dhungana", position: t("member"), type: "member" },
     { name: "Paban Acharya", position: t("member"), type: "member" },
     { name: "Prabina Munakarmi", position: t("member"), type: "member" },
     { name: "Ratna Prasad Sapkota", position: t("member"), type: "member" },
@@ -58,8 +64,12 @@ export default function Management() {
     { name: "Deependra Acharya", position: t("advisor"), type: "advisor" }
   ];
 
-  const annualReports = [
-    { year: "2025", title: t("annual_report_2025") }
+  const annualReports: Report[] = [
+    { 
+      year: "2025", 
+      title: t("annual_report_2025"),
+      url: "https://drive.google.com/file/d/1G175qOtMsbTG1qL6CDLfKLa7YcHheNCQ/view"
+    }
   ];
 
   const missionItems = [
@@ -102,75 +112,35 @@ export default function Management() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-brand_primary to-gray-800 text-white">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="absolute inset-0">
-          <div className="absolute top-20 left-10 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
-        </div>
-        
-        <div className="relative container mx-auto px-6 py-20 text-center">
-          <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-              <Users className="w-8 h-8 text-white" />
-            </div>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">{t("title")}</h1>
-          <p className="text-xl md:text-2xl max-w-4xl mx-auto leading-relaxed text-white/90">
-            {t("subtitle")}
-          </p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-12">
+      <div className="container mx-auto px-4 max-w-7xl">
+        <header className="text-center mb-6 md:mb-8">
+          <SectionHeader heading={t("current_board_members")} subtitle={t("board_description")} />
+        </header>
       </div>
 
-      {/* About Us Section */}
-      <div className="container mx-auto px-6 py-16">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-              <Shield className="w-8 h-8 text-brand_primary" />
-              {t("about_us_title")}
-            </h2>
-            <p className="text-lg text-gray-700 leading-relaxed mb-8">
-              {t("about_us_description")}
-            </p>
-            
-            <div className="bg-brand_primary/10 rounded-xl p-6 border border-brand_primary/20">
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">{t("vision_title")}</h3>
-              <p className="text-gray-700">{t("vision_description")}</p>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Current Board Members Section */}
-      <div className="container mx-auto px-6 py-16">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">{t("current_board_members")}</h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            {t("board_description")}
-          </p>
-        </div>
+      <div className="container mx-auto px-6">
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-16">
           {foundingCommittee.map((member, index) => (
             <div
               key={index}
-              className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100"
+              className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-4 border border-gray-100"
             >
-              <div className="flex items-start gap-4">
+              <div className="flex items-start gap-2">
                 <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-gradient-to-br from-brand_primary to-brand_secondary rounded-full flex items-center justify-center text-white font-bold text-lg">
+                  <div className="w-8 h-8 bg-gradient-to-br from-brand_primary to-brand_secondary rounded-full flex items-center justify-center text-white font-bold text-lg">
                     {member.name.charAt(0)}
                   </div>
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900">{member.name}</h3>
+                    <h3 className="text-sm font-semibold text-gray-900">{member.name}</h3>
                     {getMemberIcon(member.type)}
                   </div>
-                  <div className={`inline-block px-3 py-1 rounded-full text-xs font-medium border ${getMemberBadge(member.type)}`}>
+                  <div className={`inline-block px-3 py-1 rounded-full text-xs text-gray-600 font-medium border ${getMemberBadge(member.type)}`}>
                     {member.position}
                   </div>
                 </div>
@@ -190,7 +160,7 @@ export default function Management() {
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
             {advisors.map((advisor, index) => (
               <div
                 key={index}
@@ -201,7 +171,7 @@ export default function Management() {
                     {advisor.name.charAt(0)}
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{advisor.name}</h3>
+                    <h3 className="text-sm font-semibold text-gray-900">{advisor.name}</h3>
                     <div className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200 mt-1">
                       {advisor.position}
                     </div>
@@ -222,7 +192,7 @@ export default function Management() {
           </h2>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">
           {missionItems.map((item, index) => (
             <div
               key={index}
@@ -259,14 +229,19 @@ export default function Management() {
                     <FileText className="w-6 h-6 text-brand_primary" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{report.title}</h3>
+                    <h3 className="text-sm font-semibold text-gray-900">{report.title}</h3>
                     <p className="text-sm text-gray-600">{t("year")}: {report.year}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 text-brand_primary hover:text-brand_primary/80 transition-colors">
+                <a 
+                  href={report.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-brand_secondary hover:text-brand_secondary/60 transition-colors"
+                >
                   <span className="text-sm font-medium">{t("download")}</span>
                   <Award className="w-4 h-4" />
-                </div>
+                </a>
               </div>
             ))}
           </div>

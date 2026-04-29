@@ -12,87 +12,88 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'react-hot-toast';
 import Image from 'next/image';
+import SectionHeader from '@/components/SectionHeader';
 
 interface StorePageProps {
 	params: Promise<{ locale: string }>;
 }
 
 
-// ProductCard component outside StorePage
-interface ProductCardProps {
-	product: Product;
-	locale: string;
-	router: ReturnType<typeof useRouter>;
-}
-
-const ProductCard: React.FC<ProductCardProps> = ({ product, locale, router }) => {
-	const productName = product.name[locale as keyof typeof product.name] || product.name.en;
-
-	const handleProductClick = () => {
-		router.push(`/${locale}/store/${product._id}`);
-	};
-
-	return (
-		<Card 
-			className="h-full flex flex-col overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group"
-			onClick={handleProductClick}
-		>
-			<CardHeader className="p-0">
-				<div className="relative aspect-square overflow-hidden bg-gray-100">
-					<Image
-						src={product.imageUrl}
-						alt={productName || 'Product image'}
-						width={400}
-						height={400}
-						className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-					/>
-					{!product.inStock && !product.isDigital && (
-						<div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-							<Badge variant="destructive" className="text-sm">
-								Out of Stock
-							</Badge>
-						</div>
-					)}
-					{product.isDigital && (
-						<div className="absolute top-2 right-2">
-							<Badge variant="secondary" className="bg-brand_primary text-gray-700 text-xs">
-								Digital
-							</Badge>
-						</div>
-					)}
-					{/* Overlay on hover */}
-					<div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300 flex items-center justify-center">
-						<span className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black bg-opacity-50 px-3 py-1 rounded text-sm">
-							View Details
-						</span>
-					</div>
-				</div>
-			</CardHeader>
-			
-			<CardContent className="flex flex-col flex-1 p-4">
-				<CardTitle className="text-lg line-clamp-2 mb-2 group-hover:text-blue-600 transition-colors">
-					{productName}
-				</CardTitle>
-				
-				<div className="flex items-center justify-between mt-auto">
-					<span className="text-xl font-bold text-green-700">
-						NOK {product.price}
-					</span>
-					{!product.isDigital && product.stockQuantity !== undefined && product.stockQuantity > 0 && (
-						<span className="text-xs text-gray-500">
-							{product.stockQuantity} left
-						</span>
-					)}
-				</div>
-			</CardContent>
-		</Card>
-	);
-};
-
 const StorePage: React.FC<StorePageProps> = () => {
 	const router = useRouter();
 	const locale = useLocale();
 	const t = useTranslations('store');
+
+	// ProductCard component inside StorePage to access translations
+	interface ProductCardProps {
+		product: Product;
+		locale: string;
+		router: ReturnType<typeof useRouter>;
+	}
+
+	const ProductCard: React.FC<ProductCardProps> = ({ product, locale, router }) => {
+		const productName = product.name[locale as keyof typeof product.name] || product.name.en;
+
+		const handleProductClick = () => {
+			router.push(`/${locale}/store/${product._id}`);
+		};
+
+		return (
+			<Card 
+				className="h-full flex flex-col overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group"
+				onClick={handleProductClick}
+			>
+				<CardHeader className="p-0">
+					<div className="relative aspect-square overflow-hidden bg-gray-100">
+						<Image
+							src={product.imageUrl}
+							alt={productName || 'Product image'}
+							width={400}
+							height={400}
+							className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+						/>
+						{!product.inStock && !product.isDigital && (
+							<div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+								<Badge variant="destructive" className="text-sm">
+									{t('outOfStock')}
+								</Badge>
+							</div>
+						)}
+						{product.isDigital && (
+							<div className="absolute top-2 right-2">
+								<Badge variant="secondary" className="bg-brand_primary text-gray-700 text-xs">
+									{t('digital')}
+								</Badge>
+							</div>
+						)}
+						{/* Overlay on hover */}
+						<div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300 flex items-center justify-center">
+							<span className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black bg-opacity-50 px-3 py-1 rounded text-sm">
+								{t('viewDetails')}
+							</span>
+						</div>
+					</div>
+				</CardHeader>
+				
+				<CardContent className="flex flex-col flex-1 p-4">
+					<CardTitle className="text-lg line-clamp-2 mb-2 group-hover:text-blue-600 transition-colors">
+						{productName}
+					</CardTitle>
+					
+					<div className="flex items-center justify-between mt-auto">
+						<span className="text-xl font-bold text-green-700">
+							NOK {product.price}
+						</span>
+						{!product.isDigital && product.stockQuantity !== undefined && product.stockQuantity > 0 && (
+							<span className="text-xs text-gray-500">
+								{product.stockQuantity} {t('left')}
+							</span>
+						)}
+					</div>
+				</CardContent>
+			</Card>
+		);
+	};
 	const [products, setProducts] = useState<Product[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [productTypes, setProductTypes] = useState<string[]>([]);
@@ -166,65 +167,65 @@ const StorePage: React.FC<StorePageProps> = () => {
 
 
 	return (
-		<div className="container mx-auto px-4 py-8">
-			<div className="mb-8">
-				<h1 className="text-4xl font-bold mb-4">{t('title')}</h1>
-				<p className="text-gray-600">{t('description')}</p>
-			</div>
+		<div className="container mx-auto px-4 py-12">
+			<header className="text-center mb-6 md:mb-8">
+				<SectionHeader heading={t('title')} subtitle={t('description')} />
+			</header>
+		
 
 			{/* Search and Filter Bar */}
 			<div className="mb-6 space-y-4">
 				{/* Filtered By Badges */}
 				<div className="flex flex-wrap gap-2 mb-4">
-					<span className="text-sm font-medium text-gray-600">Filtered by:</span>
+					<span className="text-sm font-medium text-gray-600">{t('filteredBy')}</span>
 					{filters.category !== 'all' && (
 						<Badge variant="secondary" className="text-xs">
-							{filters.category === 'product' ? 'Products' : 'Services'}
+							{filters.category === 'product' ? t('product') : t('service')}
 						</Badge>
 					)}
 					{filters.type !== 'all' && (
 						<Badge variant="secondary" className="text-xs">
-							{filters.type.charAt(0).toUpperCase() + filters.type.slice(1)}
+							{t(`types.${filters.type}`) || filters.type.charAt(0).toUpperCase() + filters.type.slice(1)}
 						</Badge>
 					)}
 					{filters.search && (
 						<Badge variant="secondary" className="text-xs">
-							Search: &quot;{filters.search}&quot;
+							{t('search')}: &quot;{filters.search}&quot;
 						</Badge>
 					)}
 					{filters.category === 'all' && filters.type === 'all' && !filters.search && (
-						<span className="text-xs text-gray-500">No filters applied</span>
+						<span className="text-xs text-gray-500 mt-0.5">{t('noFiltersApplied')}</span>
 					)}
 				</div>
 
 				{/* Filters and Search */}
-				<div className="bg-gray-50 p-4 rounded-lg space-y-4 mb-8">
+				<div className="bg-brand_secondary/10 p-4 rounded-lg space-y-4 mb-8">
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 						<div>
-							<label className="block text-sm font-medium mb-2">Category</label>
+							<label className="block text-sm font-medium mb-2">{t('category')}</label>
 							<Select value={filters.category} onValueChange={(value) => updateFilter('category', value)}>
 								<SelectTrigger>
 									<SelectValue />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="all">All Categories</SelectItem>
-									<SelectItem value="product">Products</SelectItem>
-									<SelectItem value="service">Services</SelectItem>
+									<SelectItem value="all">{t('allCategories')}</SelectItem>
+									<SelectItem value="product">{t('product')}</SelectItem>
+									<SelectItem value="service">{t('service')}</SelectItem>
 								</SelectContent>
 							</Select>
 						</div>
 
 						<div>
-							<label className="block text-sm font-medium mb-2">Type</label>
+							<label className="block text-sm font-medium mb-2">{t('type')}</label>
 							<Select value={filters.type} onValueChange={(value) => updateFilter('type', value)}>
 								<SelectTrigger>
-									<SelectValue placeholder="All Types" />
+									<SelectValue placeholder={t('allTypes')} />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="all">All Types</SelectItem>
+									<SelectItem value="all">{t('allTypes')}</SelectItem>
 									{productTypes.map(type => (
 										<SelectItem key={type} value={type}>
-											{type.charAt(0).toUpperCase() + type.slice(1)}
+											{t(`types.${type}`) || type.charAt(0).toUpperCase() + type.slice(1)}
 										</SelectItem>
 									))}
 								</SelectContent>
@@ -232,23 +233,23 @@ const StorePage: React.FC<StorePageProps> = () => {
 						</div>
 
 						<div>
-							<label className="block text-sm font-medium mb-2">Sort By</label>
+							<label className="block text-sm font-medium mb-2">{t('sortBy')}</label>
 							<Select value={filters.sortBy} onValueChange={(value) => updateFilter('sortBy', value)}>
 								<SelectTrigger>
 									<SelectValue />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="date">Latest</SelectItem>
-									<SelectItem value="price-asc">Price: Low to High</SelectItem>
-									<SelectItem value="price-desc">Price: High to Low</SelectItem>
-									<SelectItem value="name-asc">Name (A-Z)</SelectItem>
-									<SelectItem value="name-desc">Name (Z-A)</SelectItem>
+									<SelectItem value="date">{t('latestFirst')}</SelectItem>
+									<SelectItem value="price-asc">{t('priceLowHigh')}</SelectItem>
+									<SelectItem value="price-desc">{t('priceHighLow')}</SelectItem>
+									<SelectItem value="name-asc">{t('nameAZ')}</SelectItem>
+									<SelectItem value="name-desc">{t('nameZA')}</SelectItem>
 								</SelectContent>
 							</Select>
 						</div>
 
 						<div>
-							<label className="block text-sm font-medium mb-2">Search</label>
+							<label className="block text-sm font-medium mb-2">{t('search')}</label>
 							<div className="relative">
 								<Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
 								<Input
@@ -281,13 +282,13 @@ const StorePage: React.FC<StorePageProps> = () => {
 					<div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
 						<span className="text-gray-400 text-2xl">📦</span>
 					</div>
-					<h3 className="text-xl font-semibold mb-2">No products found</h3>
-					<p className="text-gray-600">Try adjusting your filters or search terms</p>
+					<h3 className="text-xl font-semibold mb-2">{t('noProductsFound')}</h3>
+					<p className="text-gray-600">{t('tryAdjustingFilters')}</p>
 				</div>
 			) : (
 				<>
 					<div className="mb-4 text-sm text-gray-600">
-						Showing {products.length} of {pagination.total} products
+						{t('showing')} {products.length} {t('of')} {pagination.total} {t('products')}
 					</div>
 					
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -309,11 +310,11 @@ const StorePage: React.FC<StorePageProps> = () => {
 								onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
 								disabled={pagination.page === 1}
 							>
-								Previous
+								{t('previous')}
 							</Button>
 							
 							<span className="text-sm text-gray-600">
-								Page {pagination.page} of {pagination.pages}
+								{t('page')} {pagination.page} {t('ofPages')} {pagination.pages}
 							</span>
 							
 							<Button
@@ -321,7 +322,7 @@ const StorePage: React.FC<StorePageProps> = () => {
 								onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
 								disabled={pagination.page === pagination.pages}
 							>
-								Next
+								{t('next')}
 							</Button>
 						</div>
 					)}

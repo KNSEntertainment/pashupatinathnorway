@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { usePathname, Link } from "@/i18n/navigation";
 import { Menu, X, ChevronDown, Heart, LogOut, UserPlus } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { completeSignOut } from "@/utils/authUtils";
 
@@ -27,7 +27,6 @@ export default function MobileMenu({ navItems }: MobileMenuProps) {
 	const [isOpen, setIsOpen] = useState(false);
 	const [expandedItem, setExpandedItem] = useState<string | null>(null);
 	const pathname = usePathname();
-	const locale = useLocale();
 	const { data: session } = useSession();
 	const t = useTranslations("navigation");
 	const user = session?.user;
@@ -69,7 +68,7 @@ export default function MobileMenu({ navItems }: MobileMenuProps) {
 							{/* Action Buttons */}
 							<div className="space-y-2">
 								{/* Donate Button */}
-								<Link href="/donate" locale={locale} onClick={handleMenuClose} className="w-full flex items-center justify-center gap-2 bg-white text-brand_primary font-semibold py-2.5 rounded-lg hover:bg-opacity-90 transition-all duration-200 active:scale-95">
+								<Link href="/donate" onClick={handleMenuClose} className="w-full flex items-center justify-center gap-2 bg-white text-brand_primary font-semibold py-2.5 rounded-lg hover:bg-opacity-90 transition-all duration-200 active:scale-95">
 									<Heart size={18} />
 									{t("donate")}
 								</Link>
@@ -86,7 +85,7 @@ export default function MobileMenu({ navItems }: MobileMenuProps) {
 										Sign Out
 									</button>
 								) : (
-									<Link href="/membership" locale={locale} onClick={handleMenuClose} className="w-full flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-2.5 rounded-lg transition-all duration-200 active:scale-95">
+									<Link href="/membership" onClick={handleMenuClose} className="w-full flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-2.5 rounded-lg transition-all duration-200 active:scale-95">
 										<UserPlus size={18} />
 										Become a Member
 									</Link>
@@ -131,7 +130,6 @@ export default function MobileMenu({ navItems }: MobileMenuProps) {
 										) : (
 											<Link 
 												href={item.href} 
-												locale={locale} 
 												onClick={handleMenuClose}
 												className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 ${isActive ? "bg-brand_primary/10 text-brand_primary font-semibold border-l-4 border-brand" : "text-gray-700 hover:bg-gray-100"}`}
 											>
@@ -150,7 +148,7 @@ export default function MobileMenu({ navItems }: MobileMenuProps) {
 																			normalizedDropdownPathname.startsWith(normalizedDropdownHref + '/');
 
 														return (
-															<Link key={dropdownItem.href} href={dropdownItem.href} locale={locale} className={`block px-8 py-2.5 text-sm rounded transition-all duration-200 border-l-4 ${isDropdownActive ? "bg-brand_primary/5 text-brand_primary font-semibold border-brand" : "text-gray-700 hover:bg-gray-100/50 border-transparent"}`} onClick={handleMenuClose}>
+															<Link key={dropdownItem.href} href={dropdownItem.href} className={`block px-8 py-2.5 text-sm rounded transition-all duration-200 border-l-4 ${isDropdownActive ? "bg-brand_primary/5 text-brand_primary font-semibold border-brand" : "text-gray-700 hover:bg-gray-100/50 border-transparent"}`} onClick={handleMenuClose}>
 																{dropdownItem.title}
 															</Link>
 														);

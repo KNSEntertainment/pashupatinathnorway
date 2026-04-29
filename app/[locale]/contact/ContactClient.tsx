@@ -128,7 +128,7 @@ export default function ContactPageClient({ settings, translations: t }: Props) 
 					</aside>
 
 					{/* Right: Contact Form */}
-					<div className="lg:w-2/3 p-8 md:p-12 bg-white">
+					<div className="lg:w-2/3 p-8 md:p-12 bg-brand_primary/20">
 						<h2 className="text-2xl font-bold text-gray-900 mb-8">{t.subtitle}</h2>
 
 						<form onSubmit={handleSubmit} className="space-y-6">

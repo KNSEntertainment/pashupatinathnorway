@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Calendar, MapPin, Clock } from "lucide-react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import Image from "next/image";
 import SectionHeader from "./SectionHeader";
@@ -25,6 +25,7 @@ interface Event {
 
 export default function EventsTimeline() {
 	const locale = useLocale();
+	const t = useTranslations("events");
 	const [events, setEvents] = useState<Event[]>([]);
 	const [loading, setLoading] = useState(true);
 
@@ -95,28 +96,28 @@ export default function EventsTimeline() {
 	// };
 
 	if (loading) {
-		return (
-			<section className="py-20 bg-white w-full">
-				<div className="text-center mb-16 px-4">
-					<h2 className="text-3xl font-bold text-gray-900 mb-4">Recent Event</h2>
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-4">
-						{[...Array(4)].map((_, i) => (
-							<div key={i} className="bg-gray-100 rounded-xl p-6 animate-pulse">
-								<div className="h-4 bg-gray-300 rounded mb-4 w-3/4"></div>
-								<div className="h-3 bg-gray-300 rounded mb-2"></div>
-								<div className="h-3 bg-gray-300 rounded w-5/6"></div>
-							</div>
-						))}
+			return (
+				<section className="py-20 bg-white w-full">
+					<div className="text-center mb-16 px-4">
+						<h2 className="text-3xl font-bold text-gray-900 mb-4">{t("title")}</h2>
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-4">
+							{[...Array(4)].map((_, i) => (
+								<div key={i} className="bg-gray-100 rounded-xl p-6 animate-pulse">
+									<div className="h-4 bg-gray-300 rounded mb-4 w-3/4"></div>
+									<div className="h-3 bg-gray-300 rounded mb-2"></div>
+									<div className="h-3 bg-gray-300 rounded w-5/6"></div>
+								</div>
+							))}
+						</div>
 					</div>
-				</div>
-			</section>
-		);
+				</section>
+			);
 	}
 
 	
 	return (
 
-			<section className="py-12 md:py-20 bg-brand_primary w-full">
+			<section className="py-12 md:py-20 bg-brand_primary/20 w-full">
 				{/* Section Header */}
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
@@ -125,9 +126,9 @@ export default function EventsTimeline() {
 					className="text-center mb-16 px-4"
 				>
 					<SectionHeader 
-						heading="Recent Events" 
+						heading={t("title")} 
 						seeAllLink={`/${locale}/events`}
-						seeAllText="See All"
+						seeAllText={t("see_all")}
 					/>
 			
 				</motion.div>
@@ -145,7 +146,7 @@ export default function EventsTimeline() {
 									>
 										<div className="flex flex-col md:flex-row bg-gray-50 transition-all duration-300 overflow-hidden h-full">
 											{/* Event Poster */}
-											<div className="relative aspect-[16/9] w-full md:w-1/2">
+											<div className="w-full md:w-1/2 relative h-64 md:h-auto">
 												<Image 
 													src={event.eventposterUrl || "/pashupatinath.png"} 
 													alt={getLocalizedTitle(event)} 
@@ -157,7 +158,7 @@ export default function EventsTimeline() {
 											</div>
 
 											{/* Event Information */}
-											<div className="p-6 flex flex-col space-y-3 justify-center">
+											<div className="w-full md:w-1/2 p-6 flex flex-col space-y-3 justify-center">
 											
 
 												{/* Event Title */}
@@ -190,11 +191,11 @@ export default function EventsTimeline() {
 
 												{/* Action Buttons */}
 												<div className="flex gap-4">
-													<Link href={`/${locale}/updates?eventId=${event._id}`}>
+													<Link href={`/${locale}/events?eventId=${event._id}`}>
 														<button
 															className="flex-1 bg-brand_primary text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-brand_primary/90 transition-colors duration-200"
 														>
-															View Details
+															{t("view_details")}
 														</button>
 													</Link>
 												</div>
@@ -211,14 +212,14 @@ export default function EventsTimeline() {
 												transition={{ duration: 0.6, delay: 0.4 }}
 												className="flex justify-center pt-12"
 											>
-												<ViewAllButton href={`/${locale}/updates`} label="View All Events" />
+												<ViewAllButton href={`/${locale}/events`} label={t("view_all_events")} />
 											</motion.div>
 						</div>
 					) : (
 						<div className="text-center py-12 px-4">
 							<Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-							<h3 className="text-xl font-semibold text-gray-600 mb-2">No Upcoming Events</h3>
-							<p className="text-gray-500">Check back soon for new events and activities.</p>
+							<h3 className="text-xl font-semibold text-gray-600 mb-2">{t("no_events")}</h3>
+							<p className="text-gray-500">{t("no_events_desc")}</p>
 						</div>
 					)}
 			</section>

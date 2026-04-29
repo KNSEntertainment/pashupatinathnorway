@@ -9,7 +9,7 @@ export default function FooterClient({ settings }) {
 	const locale = useLocale();
 	
 	return (
-		<footer className="bg-white border-t border-gray-100 text-gray-900 py-16 relative overflow-hidden">
+		<footer className="bg-brand_primary border-t border-gray-100 text-gray-900 py-16 relative overflow-hidden">
 			{/* Background Pattern */}
 			<div className="absolute inset-0 opacity-5">
 				<div className="absolute inset-0 bg-gradient-to-br from-brand_primary/20 via-transparent to-transparent"></div>
@@ -21,7 +21,7 @@ export default function FooterClient({ settings }) {
 					{/* About Column */}
 				<div className="space-y-6">
 						<div className="flex items-center gap-3 mb-4">
-							<div className="w-8 h-0.5 bg-gradient-to-r from-brand_primary to-transparent"></div>
+							<div className="w-8 h-0.5 bg-gradient-to-r from-brand_secondary to-transparent"></div>
 							<h3 className="text-lg font-semibold text-gray-900">{t("about_us")}</h3>
 						</div>
 						
@@ -43,15 +43,15 @@ export default function FooterClient({ settings }) {
 					{/* Contact Column */}
 					<div className="space-y-6">
 						<div className="flex items-center gap-3 mb-4">
-							<div className="w-8 h-0.5 bg-gradient-to-r from-brand_primary to-transparent"></div>
+							<div className="w-8 h-0.5 bg-gradient-to-r from-brand_secondary to-transparent"></div>
 							<h3 className="text-lg font-semibold text-gray-900">{t("contact_details")}</h3>
 						</div>
 						
 						<div className="space-y-4">
 							{/* Address */}
-							<div className="flex items-start gap-3 group cursor-pointer">
+							<div className="flex items-center gap-3 group cursor-pointer">
 								<div className="w-8 h-8 rounded-lg bg-brand_primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-brand_primary transition-all duration-300">
-									<MapPin className="h-4 w-4 text-brand_primary group-hover:text-white transition-colors" />
+									<MapPin className="h-4 w-4 text-gray-700 group-hover:text-brand_secondary transition-colors" />
 								</div>
 								<div>
 									<p className="text-sm font-medium text-gray-900">{t("address")}</p>
@@ -64,10 +64,10 @@ export default function FooterClient({ settings }) {
 								className="flex items-center gap-3 group hover:translate-x-1 transition-transform duration-300"
 							>
 								<div className="w-8 h-8 rounded-lg bg-brand_primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-brand_primary transition-all duration-300">
-									<Mail className="h-4 w-4 text-brand_primary group-hover:text-white transition-colors" />
+									<Mail className="h-4 w-4 text-gray-700 group-hover:text-brand_secondary transition-colors" />
 								</div>
 								<div>
-									<p className="text-sm font-medium text-gray-900 group-hover:text-brand_primary transition-colors">{settings?.[0]?.email}</p>
+									<p className="text-sm font-medium text-gray-900 group-hover:text-brand_secondary transition-colors">{settings?.[0]?.email}</p>
 								</div>
 							</a>
 
@@ -77,10 +77,10 @@ export default function FooterClient({ settings }) {
 								className="flex items-center gap-3 group hover:translate-x-1 transition-transform duration-300"
 							>
 								<div className="w-8 h-8 rounded-lg bg-brand_primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-brand_primary transition-all duration-300">
-									<Phone className="h-4 w-4 text-brand_primary group-hover:text-white transition-colors" />
+									<Phone className="h-4 w-4 text-gray-700 group-hover:text-brand_secondary transition-colors" />
 								</div>
 								<div>
-									<p className="text-sm font-medium text-gray-900 group-hover:text-brand_primary transition-colors">{t("phone")}</p>
+									<p className="text-sm font-medium text-gray-900 group-hover:text-brand_secondary transition-colors">{t("phone")}</p>
 								</div>
 							</a>
 						</div>
@@ -89,7 +89,7 @@ export default function FooterClient({ settings }) {
 					{/* Social Media & Newsletter */}
 					<div className="space-y-6">
 						<div className="flex items-center gap-3 mb-4">
-							<div className="w-8 h-0.5 bg-gradient-to-r from-brand_primary to-transparent"></div>
+							<div className="w-8 h-0.5 bg-gradient-to-r from-brand_secondary to-transparent"></div>
 							<h3 className="text-lg font-semibold text-gray-900">{t("follow_us")}</h3>
 						</div>
 
@@ -102,8 +102,8 @@ export default function FooterClient({ settings }) {
 									className="group" 
 									aria-label="Facebook"
 								>
-									<div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center group-hover:bg-brand_primary group-hover:shadow-lg transition-all duration-300 transform group-hover:scale-105">
-										<Facebook className="h-5 w-5 text-gray-600 group-hover:text-white transition-colors" />
+									<div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center group-hover:bg-blue-700 group-hover:shadow-lg transition-all duration-300 transform group-hover:scale-105">
+										<Facebook className="h-5 w-5 text-gray-700 group-hover:text-white transition-colors" />
 									</div>
 								</a>
 							)}
@@ -116,7 +116,7 @@ export default function FooterClient({ settings }) {
 									aria-label="Instagram"
 								>
 									<div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center group-hover:bg-gradient-to-br group-hover:from-purple-500 group-hover:to-pink-500 group-hover:shadow-lg transition-all duration-300 transform group-hover:scale-105">
-										<Instagram className="h-5 w-5 text-gray-600 group-hover:text-white transition-colors" />
+										<Instagram className="h-5 w-5 text-gray-700 group-hover:text-white transition-colors" />
 									</div>
 								</a>
 							)}
@@ -151,13 +151,13 @@ export default function FooterClient({ settings }) {
 							{/* <p className="text-sm text-gray-600 mb-2">
 								{t("copyright") || `© ${new Date().getFullYear()} Pashupatinath Norway Temple. All rights reserved.`}
 							</p> */}
-							<p className="text-xs text-gray-500">
+							<p className="text-xs text-gray-700">
 								<span>{t("developed_by")} </span>
 								<a 
 									href="https://harisanjel.com.np" 
 									target="_blank" 
 									rel="noopener noreferrer" 
-									className="font-medium text-brand_primary hover:underline transition-all"
+									className="font-medium text-brand_secondary hover:underline transition-all"
 								>
 									{t("developer")}
 								</a>

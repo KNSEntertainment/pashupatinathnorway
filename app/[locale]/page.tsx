@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Hero from "@/components/Hero";
-import About from "@/components/About";
+// import About from "@/components/About";
 import AboutPreview from "@/components/AboutPreview";
 import EventsTimeline from "@/components/EventsTimeline";
 import NewsletterSection from "@/components/NewsletterSection";
@@ -24,7 +24,7 @@ export default function LandingPage() {
 			<Hero />
 
 			{/* About Section with Statistics */}
-			<About />
+			{/* <About /> */}
 
 			{/* About Preview Section */}
 			<AboutPreview />

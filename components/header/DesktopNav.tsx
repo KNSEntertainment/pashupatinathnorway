@@ -5,7 +5,6 @@ import { usePathname } from "@/i18n/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { Link } from "@/i18n/navigation";
-import { useLocale } from "next-intl";
 
 type NavDropdownItem = {
 	href: string;
@@ -24,7 +23,6 @@ type DesktopNavProps = {
 
 export default function DesktopNav({ navItems }: DesktopNavProps) {
 	const pathname = usePathname();
-	const locale = useLocale();
 	const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
 	return (
@@ -42,7 +40,7 @@ export default function DesktopNav({ navItems }: DesktopNavProps) {
 								<ChevronDown size={16} className={`transition-transform ${isOpen ? "rotate-180" : ""}`} />
 							</button>
 						) : (
-							<Link href={item.href} locale={locale} className={`px-3 py-2 rounded-lg font-semibold ${isActive ? "bg-white text-brand_secondary" : "text-white/90 hover:bg-white hover:text-brand_secondary"}`}>
+							<Link href={item.href} className={`px-3 py-2 rounded-lg font-semibold ${isActive ? "bg-white text-brand_secondary" : "text-white/90 hover:bg-white hover:text-brand_secondary"}`}>
 								{item.title}
 							</Link>
 						)}
@@ -51,7 +49,7 @@ export default function DesktopNav({ navItems }: DesktopNavProps) {
 							{hasDropdown && isOpen && (
 								<motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="absolute left-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg">
 									{item.dropdown!.map((sub: NavDropdownItem) => (
-										<Link key={sub.href} href={sub.href} locale={locale} className="block px-4 py-2 text-sm hover:bg-brand_secondary/20">
+										<Link key={sub.href} href={sub.href} className="block px-4 py-2 text-sm hover:bg-brand_secondary/20">
 											{sub.title}
 										</Link>
 									))}

@@ -100,37 +100,37 @@ export default function DonatePageClient({ causes, locale }: DonatePageClientPro
 												{/* Badges at the top */}
 												<div className="flex gap-2 mb-4">
 													{cause.featured && (
-														<Badge className="bg-purple-500 text-white text-xs">{t("featured") || "Featured"}</Badge>
+														<Badge className="bg-gradient-to-r from-purple-600 to-purple-700 text-white text-xs font-medium shadow-sm">{t("featured") || "Featured"}</Badge>
 													)}
 													<Badge className={
-														cause.urgency === 'critical' ? 'bg-red-700 text-white' :
-														cause.urgency === 'high' ? 'bg-red-500 text-white' :
-														cause.urgency === 'medium' ? 'bg-orange-500 text-white' :
-														'bg-gray-500 text-white'
+														cause.urgency === 'critical' ? 'bg-gradient-to-r from-red-600 to-red-700 text-white font-medium shadow-sm' :
+														cause.urgency === 'high' ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white font-medium shadow-sm' :
+														cause.urgency === 'medium' ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-white font-medium shadow-sm' :
+														'bg-gradient-to-r from-slate-500 to-slate-600 text-white font-medium shadow-sm'
 													}>
 														{cause.urgency}
 													</Badge>
 												</div>
 												
-												<h3 className="text-lg font-bold line-clamp-2 mb-3">{cause.title}</h3>
-												<p className="text-gray-600 mb-4 line-clamp-3">{cause.description}</p>
+												<h3 className="text-xl font-bold text-gray-900 line-clamp-2 mb-3">{cause.title}</h3>
+												<p className="text-gray-600 mb-4 line-clamp-3 leading-relaxed">{cause.description}</p>
 												
 												<div className="space-y-3">
 													<div className="flex justify-between text-sm">
 														<span>{t("progress") || "Progress"}:</span>
-														<span className="font-semibold">
+														<span className="font-semibold text-gray-900">
 															{cause.currentAmount?.toLocaleString() || 0} / {cause.goalAmount?.toLocaleString() || 0} NOK
 														</span>
 													</div>
 													<Progress value={progressPercentage} className="h-2" />
-													<div className="flex justify-between text-sm text-gray-500">
-														<span>{progressPercentage.toFixed(1)}% {t("complete") || "complete"}</span>
-														<span>{cause.donationCount || 0} {t("donations") || "donations"}</span>
+													<div className="flex justify-between text-sm text-gray-600">
+														<span className="font-medium">{progressPercentage.toFixed(1)}% {t("complete") || "complete"}</span>
+														<span className="font-medium">{cause.donationCount || 0} {t("donations") || "donations"}</span>
 													</div>
 												</div>
 												
 												{cause.endDate && isMounted && (
-													<p className="text-sm text-gray-500 mt-3">
+													<p className="text-sm text-gray-600 mt-3 font-medium">
 														{t("ends") || "Ends"}: {new Date(cause.endDate).toLocaleDateString()}
 													</p>
 												)}
@@ -138,7 +138,7 @@ export default function DonatePageClient({ causes, locale }: DonatePageClientPro
 												<div className="flex flex-col space-y-3 mt-6">
 													<button 
 														onClick={() => handleSupportCause(cause)}
-														className="w-full bg-brand_primary hover:bg-brand_primary/90 text-gray-700 py-3 px-6 rounded-lg transition-colors font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
+														className="w-full bg-gradient-to-r from-brand_secondary to-brand_secondary_light hover:from-brand_secondary_light hover:to-brand_secondary text-white py-3 px-6 rounded-lg transition-all font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] duration-200"
 													>
 														{t("support_this_cause") || "Support This Cause"}
 													</button>
@@ -150,10 +150,13 @@ export default function DonatePageClient({ causes, locale }: DonatePageClientPro
 							})}
 						</div>
 						
-						<div className="text-center mt-8">
+						<div className="text-center mt-8 mb-12 md:mt-12 md:mb-20">
 							<Link href={`/${locale}/donate/reports`}>
-								<button className="text-gray-700 hover:text-gray-600 font-medium">
-									{t("view_all_reports") || "View All Donation Reports"} &rarr;
+								<button className="inline-flex items-center gap-2 text-brand_secondary hover:text-brand_secondary_light font-medium transition-colors duration-200">
+									{t("view_all_reports") || "View All Donation Reports"}
+									<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+									</svg>
 								</button>
 							</Link>
 						</div>
@@ -175,37 +178,40 @@ export default function DonatePageClient({ causes, locale }: DonatePageClientPro
 						<DonorList refreshTrigger={refreshTrigger} />
 						
 						{/* Impact Preview Card */}
-						<Card className="border-0 shadow-lg hover:shadow-md transition-shadow cursor-pointer">
+						<Card className="border border-gray-200 shadow-lg transition-all duration-300 cursor-pointer group">
 							<Link href={`/${locale}/donate/why-donate`}>
 								<CardContent className="pt-6">
 									<div className="flex items-center justify-between mb-4">
 										<h3 className="text-xl font-bold text-gray-900">{t("impact_title") || "Your Impact"}</h3>
-										<span className="text-brand_primary">→</span>
+										<span className="text-brand_secondary group-hover:text-brand_secondary_light transition-colors duration-200">→</span>
 									</div>
 									<div className="space-y-3">
 										<div className="flex items-center gap-3">
-											<div className="w-8 h-8 rounded-full bg-brand_primary/10 flex items-center justify-center">
-												<Building className="w-4 h-4 text-brand_primary" />
+											<div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand_primary/20 to-brand_primary/10 flex items-center justify-center shadow-sm">
+												<Building className="w-5 h-5 text-brand_secondary" />
 											</div>
 											<div className="flex-1">
 												<h4 className="font-semibold text-gray-900 text-sm">{t("temple_construction") || "Temple Construction"}</h4>
-												<p className="text-xs text-gray-600 line-clamp-2">{t("temple_construction_desc") || "Build Norway's first Nepali Hindu temple"}</p>
+												<p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">{t("temple_construction_desc") || "Build Norway's first Nepali Hindu temple"}</p>
 											</div>
 										</div>
 										<div className="flex items-center gap-3">
-											<div className="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center">
-												<Heart className="w-4 h-4 text-success" />
+											<div className="w-10 h-10 rounded-full bg-gradient-to-br from-success/20 to-success/10 flex items-center justify-center shadow-sm">
+												<Heart className="w-5 h-5 text-success" />
 											</div>
 											<div className="flex-1">
 												<h4 className="font-semibold text-gray-900 text-sm">{t("cultural_preservation") || "Cultural Preservation"}</h4>
-												<p className="text-xs text-gray-600 line-clamp-2">{t("cultural_preservation_desc") || "Preserve and celebrate our rich Nepali heritage"}</p>
+												<p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">{t("cultural_preservation_desc") || "Preserve and celebrate our rich Nepali heritage"}</p>
 											</div>
 										</div>
-									</div>
-									<div className="mt-4 text-center">
-										<span className="text-sm text-gray-700 bg-brand_primary/20 hover:bg-brand_primary/50 px-4 py-2 rounded-full font-medium">
-											{t("learn_more_impact") || "Learn more about your impact"} →
-										</span>
+										<div className="mt-6 text-center">
+											<span className="inline-flex items-center gap-2 text-sm text-brand_secondary hover:underline px-4 py-1 rounded-full font-medium transition-all duration-200 ">
+												{t("learn_more_impact") || "Learn more about your impact"}
+												<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+													<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+												</svg>
+											</span>
+										</div>
 									</div>
 								</CardContent>
 							</Link>

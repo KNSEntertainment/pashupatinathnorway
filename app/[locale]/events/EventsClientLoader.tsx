@@ -5,14 +5,14 @@ import dynamic from "next/dynamic";
 const EventsClient = dynamic(() => import("./EventsClient"), {
 	ssr: false,
 	loading: () => (
-		<div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-brand-50">
+		<div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50">
 			<div className="container max-w-7xl mx-auto px-4 pt-8 lg:pt-12">
 				<div className="text-center mb-8 md:mb-20">
-					<div className="h-10 w-48 mx-auto rounded bg-gray-100 animate-pulse" />
+					<div className="h-10 w-48 mx-auto rounded bg-orange-100 animate-pulse" />
 				</div>
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-12">
-					<div className="h-72 rounded-2xl border border-gray-100 bg-white animate-pulse" />
-					<div className="h-72 rounded-2xl border border-gray-100 bg-white animate-pulse" />
+					<div className="h-72 rounded-2xl border border-orange-100 bg-white animate-pulse" />
+					<div className="h-72 rounded-2xl border border-orange-100 bg-white animate-pulse" />
 				</div>
 			</div>
 		</div>

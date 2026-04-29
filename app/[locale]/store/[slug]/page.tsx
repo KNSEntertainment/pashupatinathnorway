@@ -328,10 +328,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ params }) => {
 
 						{/* Action Buttons */}
 						<div className="flex gap-4">
-							{/* Debug info */}
-							<div className="text-xs text-gray-500">
-								DEBUG: canAddToCart={canAddToCart().toString()}, inStock={product?.inStock?.toString()}, isDigital={product?.isDigital?.toString()}
-							</div>
+						
 							<Button
 								onClick={handleAddToCart}
 								disabled={!canAddToCart()}

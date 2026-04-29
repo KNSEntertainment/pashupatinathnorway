@@ -140,9 +140,15 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 	const [personalNumberError, setPersonalNumberError] = useState("");
 	const [phoneError, setPhoneError] = useState("");
 	const [familyMemberErrors, setFamilyMemberErrors] = useState<Record<string, string>>({});
+	const [firstNameError, setFirstNameError] = useState("");
+	const [lastNameError, setLastNameError] = useState("");
+	const [genderError, setGenderError] = useState("");
+	const [addressError, setAddressError] = useState("");
+	const [cityError, setCityError] = useState("");
+	const [postalCodeError, setPostalCodeError] = useState("");
+	const [termsError, setTermsError] = useState("");
 	const [addressSuggestions, setAddressSuggestions] = useState<AddressSuggestion[]>([]);
 	const [addressLoading, setAddressLoading] = useState(false);
-	const [addressError, setAddressError] = useState("");
 	const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
 	const [locating, setLocating] = useState(false);
 	const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -282,9 +288,33 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 		const name = target.name;
 		let value = target.value;
 
-		// Clear email error when user changes email field
+		// Clear field-specific errors when user changes corresponding field
 		if (name === "email" && emailError) {
 			setEmailError("");
+		}
+		if (name === "firstName" && firstNameError) {
+			setFirstNameError("");
+		}
+		if (name === "lastName" && lastNameError) {
+			setLastNameError("");
+		}
+		if (name === "gender" && genderError) {
+			setGenderError("");
+		}
+		if (name === "address" && addressError) {
+			setAddressError("");
+		}
+		if (name === "city" && cityError) {
+			setCityError("");
+		}
+		if (name === "postalCode" && postalCodeError) {
+			setPostalCodeError("");
+		}
+		if (name === "phone" && phoneError) {
+			setPhoneError("");
+		}
+		if (name === "agreeTerms" && termsError) {
+			setTermsError("");
 		}
 
 		// Real-time validation for personal number field
@@ -574,56 +604,126 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 	const handleSubmit = async (e: React.FormEvent<HTMLButtonElement | HTMLFormElement>) => {
 		e.preventDefault();
 		
-		// Validate phone number before submission
+		// Clear all previous errors
+		setFirstNameError("");
+		setLastNameError("");
+		setGenderError("");
+		setAddressError("");
+		setCityError("");
+		setPostalCodeError("");
+		setTermsError("");
+		setPhoneError("");
+		setPersonalNumberError("");
+		
+		let hasError = false;
+		
+		// Validate first name
+		if (!formData.firstName) {
+			setFirstNameError("First name is required.");
+			hasError = true;
+		}
+		
+		// Validate last name
+		if (!formData.lastName) {
+			setLastNameError("Last name is required.");
+			hasError = true;
+		}
+		
+		// Validate gender
+		if (!formData.gender) {
+			setGenderError("Gender is required.");
+			hasError = true;
+		}
+		
+		// Validate address
+		if (!formData.address) {
+			setAddressError("Address is required.");
+			hasError = true;
+		}
+		
+		// Validate city
+		if (!formData.city) {
+			setCityError("City is required.");
+			hasError = true;
+		}
+		
+		// Validate postal code
+		if (!formData.postalCode) {
+			setPostalCodeError("Postal code is required.");
+			hasError = true;
+		}
+		
+		// Validate phone number
 		if (!formData.phone) {
 			setPhoneError("Phone number is required.");
-			return;
-		}
-		
-		if (!validatePhoneNumber(formData.phone)) {
+			hasError = true;
+		} else if (!validatePhoneNumber(formData.phone)) {
 			setPhoneError("Phone number must be exactly 8 digits.");
-			return;
+			hasError = true;
 		}
 		
-		// Validate personal number before submission
+		// Validate personal number
 		if (!formData.personalNumber) {
 			setPersonalNumberError("Personal number is required.");
-			return;
-		}
-		
-		if (!validateNorwegianPersonalNumber(formData.personalNumber)) {
+			hasError = true;
+		} else if (!validateNorwegianPersonalNumber(formData.personalNumber)) {
 			setPersonalNumberError("Invalid Norwegian personal number. Please check date, month, and year (must be 1901+).");
-			return;
+			hasError = true;
 		}
 		
-		if (emailError) {
+		// Validate terms agreement
+		if (!formData.agreeTerms) {
+			setTermsError("You must agree to the terms and conditions.");
+			hasError = true;
+		}
+		
+		// Don't proceed if there are validation errors
+		if (hasError || emailError) {
 			return;
 		}
 
 		// Validate family members
 		for (const member of formData.familyMembers) {
 			if (!member.firstName || !member.lastName || !member.personalNumber || !member.email) {
-				alert("Please fill in all required fields (First Name, Last Name, Personal Number, Email) for family members.");
-				return;
+				// Set error for the specific family member field
+				setFamilyMemberErrors(prev => ({
+					...prev,
+					[`${member.id}-required`]: "Please fill in all required fields for family members."
+				}));
+				hasError = true;
 			}
 			
-			if (!validateNorwegianPersonalNumber(member.personalNumber)) {
-				alert(`Family member ${member.firstName} ${member.lastName} has invalid Norwegian personal number. Please check date, month, and year (must be 1901+).`);
-				return;
+			if (member.personalNumber && !validateNorwegianPersonalNumber(member.personalNumber)) {
+				setFamilyMemberErrors(prev => ({
+					...prev,
+					[`${member.id}-personalNumber`]: `Invalid Norwegian personal number. Please check date, month, and year (must be 1901+).`
+				}));
+				hasError = true;
 			}
 			
 			// Validate family member phone number (optional but if provided must be 8 digits)
 			if (member.phone && !validatePhoneNumber(member.phone)) {
-				alert(`Family member ${member.firstName} ${member.lastName} phone number must be exactly 8 digits.`);
-				return;
+				setFamilyMemberErrors(prev => ({
+					...prev,
+					[`${member.id}-phone`]: "Phone number must be exactly 8 digits."
+				}));
+				hasError = true;
 			}
 			
 			// Basic email validation
 			const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-			if (!emailRegex.test(member.email)) {
-				alert("Family member email address is not valid.");
-				return;
+			if (member.email && !emailRegex.test(member.email)) {
+				setFamilyMemberErrors(prev => ({
+					...prev,
+					[`${member.id}-email`]: "Email address is not valid."
+				}));
+				hasError = true;
 			}
+		}
+		
+		// Don't proceed if there are family member validation errors
+		if (hasError) {
+			return;
 		}
 		
 		try {
@@ -700,6 +800,13 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 		setPersonalNumberError("");
 		setPhoneError("");
 		setFamilyMemberErrors({});
+		setFirstNameError("");
+		setLastNameError("");
+		setGenderError("");
+		setAddressError("");
+		setCityError("");
+		setPostalCodeError("");
+		setTermsError("");
 	};
 
 	// Success Modal Component
@@ -792,7 +899,8 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 								<label className="block text-sm font-medium text-gray-900 mb-2">
 									{t.first_name} <span className="text-red-500">*</span>
 								</label>
-								<input type="text" name="firstName" value={formData.firstName} onChange={handleChange} className="w-full px-4 py-2 border border-light rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder={t.first_name_placeholder} />
+								<input type="text" name="firstName" value={formData.firstName} onChange={handleChange} className={`w-full px-4 py-2 border ${firstNameError ? "border-red-500" : "border-light"} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`} placeholder={t.first_name_placeholder} />
+								{firstNameError && <p className="text-red-600 text-sm mt-1">{firstNameError}</p>}
 							</div>
 							<div>
 								<label className="block text-sm font-medium text-gray-900 mb-2">
@@ -804,7 +912,8 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 								<label className="block text-sm font-medium text-gray-900 mb-2">
 									{t.last_name} <span className="text-red-500">*</span>
 								</label>
-								<input type="text" name="lastName" value={formData.lastName} onChange={handleChange} className="w-full px-4 py-2 border border-light rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder={t.last_name_placeholder} />
+								<input type="text" name="lastName" value={formData.lastName} onChange={handleChange} className={`w-full px-4 py-2 border ${lastNameError ? "border-red-500" : "border-light"} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`} placeholder={t.last_name_placeholder} />
+								{lastNameError && <p className="text-red-600 text-sm mt-1">{lastNameError}</p>}
 							</div>
 							<div>
 								<label className="block text-sm font-medium text-gray-900 mb-2">
@@ -831,13 +940,14 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 								<label className="block text-sm font-medium text-gray-900 mb-2">
 									{t.gender} <span className="text-red-500">*</span>
 								</label>
-								<select name="gender" value={formData.gender} onChange={handleChange} className="w-full px-4 py-2 border border-light rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+								<select name="gender" value={formData.gender} onChange={handleChange} className={`w-full px-4 py-2 border ${genderError ? "border-red-500" : "border-light"} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`}>
 									<option value="">{t.select_gender}</option>
 									<option value="male">{t.male}</option>
 									<option value="female">{t.female}</option>
 									<option value="other">{t.other}</option>
 									<option value="prefer-not-to-say">{t.prefer_not_to_say}</option>
 								</select>
+								{genderError && <p className="text-red-600 text-sm mt-1">{genderError}</p>}
 							</div>
 							<div>
 								<label className="block text-sm font-medium text-gray-900 mb-2">{t.address_nepal}</label>
@@ -875,72 +985,72 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 					{/* Family Members Section */}
 					<div>
 						<div className="flex justify-between items-center mb-4">
-							<h3 className="text-xl font-semibold text-gray-900">Family Members</h3>
+							<h3 className="text-xl font-semibold text-gray-900">{tr("family_members")}</h3>
 							<button
 								type="button"
 								onClick={addFamilyMember}
 								className="bg-brand_secondary text-white px-4 py-2 rounded-lg hover:bg-brand_primary/90 transition-colors text-sm font-medium"
 							>
-								Add Family Member
+								{tr("add_family_member")}
 							</button>
 						</div>
 						
 						{formData.familyMembers.length === 0 ? (
-							<p className="text-gray-600 text-sm italic">No family members added. Click &quot;Add Family Member&quot; to add family members.</p>
+							<p className="text-gray-600 text-sm italic">{tr("no_family_members")}</p>
 						) : (
 							<div className="space-y-4">
 								{formData.familyMembers.map((member, index) => (
 									<div key={member.id} className="border border-light rounded-lg p-4 bg-gray-50">
 										<div className="flex justify-between items-center mb-3">
-											<h4 className="font-medium text-gray-900">Family Member {index + 1}</h4>
+											<h4 className="font-medium text-gray-900">{tr("family_member_title")} {index + 1}</h4>
 											<button
 												type="button"
 												onClick={() => removeFamilyMember(member.id)}
 												className="text-red-600 hover:text-red-800 text-sm font-medium"
 											>
-												Remove
+												{tr("remove")}
 											</button>
 										</div>
 										<div className="grid md:grid-cols-2 gap-4">
 											<div>
 												<label className="block text-sm font-medium text-gray-900 mb-1">
-													First Name <span className="text-red-500">*</span>
+													{tr("family_member_first_name")} <span className="text-red-500">*</span>
 												</label>
 												<input
 													type="text"
 													value={member.firstName}
 													onChange={(e) => updateFamilyMember(member.id, 'firstName', e.target.value)}
 													className="w-full px-3 py-2 border border-light rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-													placeholder="First name"
+													placeholder={tr("family_member_first_name_placeholder")}
 												/>
 											</div>
 											<div>
 												<label className="block text-sm font-medium text-gray-900 mb-1">
-													Middle Name (Optional)
+													{tr("family_member_middle_name")}
 												</label>
 												<input
 													type="text"
 													value={member.middleName}
 													onChange={(e) => updateFamilyMember(member.id, 'middleName', e.target.value)}
 													className="w-full px-3 py-2 border border-light rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-													placeholder="Middle name"
+													placeholder={tr("family_member_middle_name_placeholder")}
 												/>
 											</div>
 											<div>
 												<label className="block text-sm font-medium text-gray-900 mb-1">
-													Last Name <span className="text-red-500">*</span>
+													{tr("family_member_last_name")} <span className="text-red-500">*</span>
 												</label>
 												<input
 													type="text"
 													value={member.lastName}
 													onChange={(e) => updateFamilyMember(member.id, 'lastName', e.target.value)}
 													className="w-full px-3 py-2 border border-light rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-													placeholder="Last name"
+													placeholder={tr("family_member_last_name_placeholder")}
 												/>
 											</div>
 											<div>
 												<label className="block text-sm font-medium text-gray-900 mb-1">
-													Personal Number <span className="text-red-500">*</span>
+													{tr("family_member_personal_number")} <span className="text-red-500">*</span>
 												</label>
 												<input
 													type="text"
@@ -949,7 +1059,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 													maxLength={11}
 													pattern="\d{11}"
 													className={`w-full px-3 py-2 border ${familyMemberErrors[`${member.id}-personalNumber`] ? "border-red-500" : "border-light"} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-													placeholder="11-digit personal number"
+													placeholder={tr("family_member_personal_number_placeholder")}
 												/>
 												{familyMemberErrors[`${member.id}-personalNumber`] && (
 													<p className="text-red-600 text-sm mt-1">{familyMemberErrors[`${member.id}-personalNumber`]}</p>
@@ -957,19 +1067,19 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 											</div>
 											<div>
 												<label className="block text-sm font-medium text-gray-900 mb-1">
-													Email Address <span className="text-red-500">*</span>
+													{tr("family_member_email_address")} <span className="text-red-500">*</span>
 												</label>
 												<input
 													type="email"
 													value={member.email}
 													onChange={(e) => updateFamilyMember(member.id, 'email', e.target.value)}
 													className="w-full px-3 py-2 border border-light rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-													placeholder="Email address"
+													placeholder={tr("family_member_email_address_placeholder")}
 												/>
 											</div>
 											<div>
 												<label className="block text-sm font-medium text-gray-900 mb-1">
-													Phone Number (Optional - 8 digits)
+													{tr("family_member_phone_number")}
 												</label>
 												<input
 													type="tel"
@@ -984,7 +1094,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 													}}
 													maxLength={8}
 													className="w-full px-3 py-2 border border-light rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-													placeholder="8-digit phone number"
+													placeholder={tr("family_member_phone_number_placeholder")}
 												/>
 											</div>
 										</div>
@@ -1003,7 +1113,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 									{t.street_address} <span className="text-red-500">*</span>
 								</label>
 								<div className="relative">
-									<input type="text" name="address" value={formData.address} onChange={handleAddressChange} onKeyDown={handleAddressKeyDown} className="w-full px-4 py-2 border border-light rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder={t.street_address_ph} autoComplete="off" />
+									<input type="text" name="address" value={formData.address} onChange={handleAddressChange} onKeyDown={handleAddressKeyDown} className={`w-full px-4 py-2 border ${addressError ? "border-red-500" : "border-light"} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`} placeholder={t.street_address_ph} autoComplete="off" />
 									<div className="mt-2">
 										<button type="button" onClick={handleUseMyLocation} disabled={locating} className={`text-sm font-medium px-3 py-1.5 rounded border border-light bg-white hover:bg-light transition-colors ${locating ? "opacity-60 cursor-not-allowed" : ""}`}>
 											{locating ? t.locating : t.use_current_location}
@@ -1034,13 +1144,15 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 								<label className="block text-sm font-medium text-gray-900 mb-2">
 									{t.city} <span className="text-red-500">*</span>
 								</label>
-								<input type="text" name="city" value={formData.city} onChange={handleChange} className="w-full px-4 py-2 border border-light rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder={t.city_ph} />
+								<input type="text" name="city" value={formData.city} onChange={handleChange} className={`w-full px-4 py-2 border ${cityError ? "border-red-500" : "border-light"} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`} placeholder={t.city_ph} />
+								{cityError && <p className="text-red-600 text-sm mt-1">{cityError}</p>}
 							</div>
 							<div>
 								<label className="block text-sm font-medium text-gray-900 mb-2">
 									{t.postal_code} <span className="text-red-500">*</span>
 								</label>
-								<input type="text" name="postalCode" value={formData.postalCode} onChange={handleChange} className="w-full px-4 py-2 border border-light rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder={t.postal_code_ph} />
+								<input type="text" name="postalCode" value={formData.postalCode} onChange={handleChange} className={`w-full px-4 py-2 border ${postalCodeError ? "border-red-500" : "border-light"} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`} placeholder={t.postal_code_ph} />
+								{postalCodeError && <p className="text-red-600 text-sm mt-1">{postalCodeError}</p>}
 							</div>
 						</div>
 					</div>
@@ -1081,11 +1193,12 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 								. <span className="text-red-500"> *</span>
 							</span>
 						</label>
+						{termsError && <p className="text-red-600 text-sm mt-2">{termsError}</p>}
 					</div>
 
 					{/* Submit Button */}
 					<div className="flex gap-4">
-						<button onClick={handleSubmit} className={`flex-1 bg-brand_secondary text-white py-2 md:py-4 px-6 md:px-8 rounded-lg font-semibold hover:bg-brand_primary/90 transition-colors shadow-lg hover:shadow-xl${!formData.agreeTerms ? " opacity-50 cursor-not-allowed" : ""}`} disabled={!formData.agreeTerms}>
+						<button onClick={handleSubmit} className={`flex-1 bg-brand_secondary text-white py-2 md:py-4 px-6 md:px-8 rounded-lg font-semibold transition-colors shadow-lg hover:shadow-xl${!formData.agreeTerms ? " opacity-50 cursor-not-allowed" : ""}`} disabled={!formData.agreeTerms}>
 							{t.submit}
 						</button>
 						<button onClick={resetForm} className="px-6 md:px-8 py-2 md:py-4 border-2 border-light text-gray-900 rounded-lg font-semibold hover:bg-light transition-colors">

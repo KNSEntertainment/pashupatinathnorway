@@ -7,12 +7,10 @@ import {
   Flame, 
   Heart, 
   Star, 
-  Calendar,
   Clock,
-  Users,
   Sparkles,
-  Circle
 } from "lucide-react";
+import SectionHeader from "./SectionHeader";
 
 interface Ritual {
   id: string;
@@ -93,57 +91,23 @@ export default function Rituals() {
   const [selectedRitual, setSelectedRitual] = useState<Ritual | null>(null);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-brand_primary to-brand_secondary text-white">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="absolute inset-0">
-          <div className="absolute top-20 left-10 w-32 h-32 bg-yellow-400/20 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-10 w-40 h-40 bg-orange-400/20 rounded-full blur-3xl"></div>
-        </div>
-        
-        <div className="relative container mx-auto px-6 py-20 text-center">
-          <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-              <Circle className="w-8 h-8 text-white" />
-            </div>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">{t("title")}</h1>
-          <p className="text-xl md:text-2xl max-w-4xl mx-auto leading-relaxed text-white/90">
-            {t("subtitle")}
-          </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full backdrop-blur-sm">
-              <Calendar className="w-4 h-4" />
-              <span className="text-sm">{t("daily_services")}</span>
-            </div>
-            <div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full backdrop-blur-sm">
-              <Users className="w-4 h-4" />
-              <span className="text-sm">{t("community_ceremonies")}</span>
-            </div>
-            <div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full backdrop-blur-sm">
-              <Clock className="w-4 h-4" />
-              <span className="text-sm">{t("special_occasions")}</span>
-            </div>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50 py-12">
+      <div className="container mx-auto px-4 max-w-7xl">
+        <header className="text-center mb-6 md:mb-8">
+          <SectionHeader heading={t("title")} subtitle={t("subtitle")} />
+        </header>
       </div>
 
       {/* Introduction Section */}
-      <div className="container mx-auto px-6 py-16">
-        <div className="max-w-4xl mx-auto text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">{t("intro_title")}</h2>
-          <p className="text-lg text-gray-700 leading-relaxed">
-            {t("intro_description")}
-          </p>
-        </div>
+      <div className="container mx-auto px-6">
+  
 
         {/* Rituals Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {rituals.map((ritual) => (
             <div
               key={ritual.id}
-              className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group cursor-pointer border border-orange-100"
+              className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group cursor-pointer border border-orange-100 flex flex-col justify-between h-full"
               onClick={() => setSelectedRitual(ritual)}
             >
               <div className="p-6">
@@ -154,7 +118,7 @@ export default function Rituals() {
                 <p className="text-gray-600 mb-4">{ritual.description}</p>
                 
                 {ritual.timing && (
-                  <div className="flex items-center gap-2 text-sm text-brand_primary font-medium mb-4">
+                  <div className="flex items-center gap-2 text-sm w-fit text-gray-700 bg-brand_primary/20 px-3 py-1 rounded-full mb-4">
                     <Clock className="w-4 h-4" />
                     {ritual.timing}
                   </div>
@@ -168,15 +132,15 @@ export default function Rituals() {
                     </div>
                   ))}
                   {ritual.features.length > 2 && (
-                    <div className="text-sm text-brand_primary font-medium">
+                    <div className="text-sm text-brand_secondary">
                       +{ritual.features.length - 2} {t("more_features")}
                     </div>
                   )}
                 </div>
               </div>
               
-              <div className="bg-gradient-to-r from-brand_primary/10 to-brand_secondary/10 px-6 py-3 text-center">
-                <span className="text-brand_primary font-medium">{t("learn_more")}</span>
+              <div className="bg-brand_primary px-6 py-3 text-center">
+                <span className="text-gray-700 font-medium">{t("learn_more")}</span>
               </div>
             </div>
           ))}
@@ -189,10 +153,10 @@ export default function Rituals() {
             {t("cta_description")}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white text-brand_primary px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
+            <button className="bg-white text-gray-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
               {t("book_ritual")}
             </button>
-            <button className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-brand_primary transition-colors">
+            <button className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-gray-700 transition-colors">
               {t("contact_priest")}
             </button>
           </div>
@@ -229,7 +193,7 @@ export default function Rituals() {
               
               {selectedRitual.timing && (
                 <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
-                  <div className="flex items-center gap-2 text-brand_primary font-medium mb-2">
+                  <div className="flex items-center gap-2 text-brand_secondary font-medium mb-2">
                     <Clock className="w-5 h-5" />
                     {t("timing")}
                   </div>
@@ -241,17 +205,17 @@ export default function Rituals() {
                 <h4 className="font-semibold text-gray-900 mb-3">{t("key_features")}</h4>
                 {selectedRitual.features.map((feature, index) => (
                   <div key={index} className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-brand_primary rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="w-2 h-2 bg-brand_secondary rounded-full mt-2 flex-shrink-0"></div>
                     <p className="text-gray-700">{feature}</p>
                   </div>
                 ))}
               </div>
               
               <div className="flex gap-4">
-                <button className="flex-1 bg-brand_primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-brand_primary/90 transition-colors">
+                <button className="flex-1 bg-brand_secondary text-white px-6 py-3 rounded-lg font-semibold hover:bg-brand_secondary/90 transition-colors">
                   {t("book_now")}
                 </button>
-                <button className="flex-1 border border-brand_primary text-brand_primary px-6 py-3 rounded-lg font-semibold hover:bg-brand_primary/10 transition-colors">
+                <button className="flex-1 border border-brand_secondary text-brand_secondary px-6 py-3 rounded-lg font-semibold hover:bg-brand_secondary/10 transition-colors">
                   {t("inquire")}
                 </button>
               </div>

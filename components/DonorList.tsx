@@ -58,14 +58,14 @@ export default function DonorList({ refreshTrigger }: { refreshTrigger?: number 
 		<Card className="border-2 border-brand">
 			<CardHeader className="pb-3">
 				<CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
-					<Users className="w-5 h-5 text-brand_primary" />
+					<Users className="w-5 h-5" />
 					{t("recent_donors")}
 				</CardTitle>
 			</CardHeader>
 			<CardContent className="pt-0">
 				{donations.length === 0 ? (
 					<div className="text-center py-8 text-gray-500">
-						<Heart className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+						<Heart className="w-8 h-8 mx-auto mb-2 text-brand_secondary" />
 						<p className="text-sm">{t("no_donors_yet")}</p>
 					</div>
 				) : (
@@ -77,10 +77,10 @@ export default function DonorList({ refreshTrigger }: { refreshTrigger?: number 
 							>
 								<div className="flex items-center gap-3">
 									<div className="w-8 h-8 rounded-full bg-brand_primary/10 flex items-center justify-center">
-										<Heart className="w-4 h-4 text-brand_primary" />
+										<Heart className="w-4 h-4 text-green-700" />
 									</div>
 									<div>
-										<p className="font-medium text-gray-900 text-sm">
+										<p className="font-medium text-gray-700 text-sm">
 											{donation.isAnonymous ? t("anonymous") : donation.donorName}
 										</p>
 										<p className="text-xs text-gray-500">
@@ -89,7 +89,7 @@ export default function DonorList({ refreshTrigger }: { refreshTrigger?: number 
 									</div>
 								</div>
 								<div className="text-right">
-									<p className="font-semibold text-brand_primary">
+									<p className="font-semibold text-green-700">
 										{donation.amount} {donation.currency}
 									</p>
 								</div>

@@ -1,8 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { Calendar, MapPin, Clock } from "lucide-react";
-import SectionHeader from "@/components/SectionHeader";
+import { Calendar, MapPin, Clock, Users } from "lucide-react";
 
 interface Event {
 	_id: string;
@@ -66,9 +65,9 @@ export default function EventsColumn({ events, translations: t, initialEventId }
 		const eventImages = [selectedEvent.eventposterUrl, selectedEvent.eventposter2Url, selectedEvent.eventposter3Url].filter(Boolean) as string[];
 
 		return (
-			<div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
-				<div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-					<button onClick={() => setSelectedEvent(null)} className="group inline-flex items-center gap-2 px-4 py-2 bg-white hover:bg-gray-50 text-gray-700 hover:text-gray-900 rounded-lg border border-gray-200 shadow-sm transition-all duration-200 mb-8">
+			<div className="min-h-screen">
+				<div className="container max-w-7xl mx-auto px-4 py-8">
+					<button onClick={() => setSelectedEvent(null)} className="group inline-flex items-center gap-2 px-4 py-2 bg-white hover:bg-orange-50 text-gray-700 hover:text-orange-900 rounded-lg border border-orange-200 shadow-sm transition-all duration-200 mb-8">
 						<svg className="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
 						</svg>
@@ -78,10 +77,9 @@ export default function EventsColumn({ events, translations: t, initialEventId }
 					<div className="grid lg:grid-cols-3 gap-8">
 						{/* ── Main Content ── */}
 						<div className="lg:col-span-2 space-y-6">
-							<div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+							<div className="bg-brand_secondary rounded-2xl shadow-xl border border-orange-100 overflow-hidden">
 								{/* Gradient Header */}
-								<div className="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-8">
-									<div className="absolute inset-0 bg-black/10" />
+								<div className="relative bg-gradient-to-r from-brand_primary to-brand_secondary p-8">
 									<div className="relative flex items-start gap-6">
 										<div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-white/30 min-w-[100px] text-center flex-shrink-0">
 											<div className="text-4xl md:text-5xl font-bold text-white leading-none drop-shadow-lg">{day}</div>
@@ -89,7 +87,7 @@ export default function EventsColumn({ events, translations: t, initialEventId }
 										</div>
 										<div className="flex-1">
 											<h1 className="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight drop-shadow-lg">{selectedEvent.eventname}</h1>
-											<div className="flex flex-wrap gap-4 text-white/95">
+											<div className="flex flex-wrap gap-4 text-white">
 												{selectedEvent.eventtime && (
 													<div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
 														<Clock className="w-4 h-4" />
@@ -108,24 +106,24 @@ export default function EventsColumn({ events, translations: t, initialEventId }
 								</div>
 
 								{/* Body */}
-								<div className="p-8 space-y-6">
+								<div className="p-2 space-y-6">
 									{/* Main Image */}
-									<div className="relative overflow-hidden rounded-xl bg-gray-50 border border-gray-200">
+									<div className="relative overflow-hidden rounded-xl bg-orange-50 border border-orange-200">
 										{eventImages.length > 0 ? (
 											<div className="aspect-video sm:aspect-square relative">
 												<Image src={eventImages[0]} alt={selectedEvent.eventname} fill className="object-cover transition-transform duration-300 hover:scale-105" priority />
 											</div>
 										) : (
-											<div className="aspect-video sm:aspect-square flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-												<Calendar className="w-16 h-16 text-gray-400" />
+											<div className="aspect-video sm:aspect-square flex items-center justify-center bg-gradient-to-br from-orange-100 to-amber-100">
+												<Calendar className="w-16 h-16 text-orange-400" />
 											</div>
 										)}
 									</div>
 
 									{/* Description */}
-									<div className="bg-white rounded-xl p-6 border border-gray-100">
+									<div className="bg-white rounded-xl p-6 border border-orange-100">
 										<div className="flex items-center gap-3 mb-4">
-											<div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+											<div className="w-8 h-8 bg-gradient-to-r from-brand_primary to-brand_secondary rounded-lg flex items-center justify-center">
 												<svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 													<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
 												</svg>
@@ -151,7 +149,7 @@ export default function EventsColumn({ events, translations: t, initialEventId }
 
 									{/* Gallery */}
 									{eventImages.length > 1 && (
-										<div className="bg-white rounded-xl p-6 border border-gray-100">
+										<div className="bg-white rounded-xl p-6 border border-orange-100">
 											<h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
 												<svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 													<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -160,7 +158,7 @@ export default function EventsColumn({ events, translations: t, initialEventId }
 											</h3>
 											<div className="grid grid-cols-2 md:grid-cols-3 gap-4">
 												{eventImages.slice(1).map((url, index) => (
-													<div key={`${url}-${index}`} className="group relative overflow-hidden rounded-lg border border-gray-200 bg-gray-50 hover:border-indigo-300 transition-all duration-300">
+													<div key={`${url}-${index}`} className="group relative overflow-hidden rounded-lg border border-orange-200 bg-orange-50 hover:border-brand_primary transition-all duration-300">
 														<div className="aspect-square relative">
 															<Image src={url} alt={`${selectedEvent.eventname} ${index + 2}`} fill className="object-cover transition-transform duration-300 group-hover:scale-110" />
 														</div>
@@ -177,8 +175,8 @@ export default function EventsColumn({ events, translations: t, initialEventId }
 						{/* ── Sidebar ── */}
 						<div className="lg:col-span-1">
 							<div className="sticky top-8 space-y-6">
-								<div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-									<div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6">
+								<div className="bg-white rounded-2xl shadow-xl border border-orange-100 overflow-hidden">
+									<div className="bg-gradient-to-r from-brand_primary to-brand_secondary p-6">
 										<div className="flex items-center gap-3">
 											<Calendar className="w-6 h-6 text-white" />
 											<h3 className="text-xl font-bold text-white">{t.other_events}</h3>
@@ -191,14 +189,14 @@ export default function EventsColumn({ events, translations: t, initialEventId }
 											.map((event) => {
 												const { day, month } = formatEventDate(event.eventdate);
 												return (
-													<div key={event._id} className="group cursor-pointer rounded-xl border border-gray-200 bg-white hover:border-indigo-300 hover:shadow-lg transition-all duration-300 p-4" onClick={() => setSelectedEvent(event)}>
+													<div key={event._id} className="group cursor-pointer rounded-xl border border-orange-200 bg-white hover:border-brand_primary hover:shadow-lg transition-all duration-300 p-4" onClick={() => setSelectedEvent(event)}>
 														<div className="flex gap-4">
-															<div className="bg-gradient-to-br from-indigo-100 to-purple-100 text-indigo-600 rounded-xl p-4 text-center min-w-[80px] flex-shrink-0">
+															<div className="bg-gradient-to-br from-orange-100 to-amber-100 text-brand_primary rounded-xl p-4 text-center min-w-[80px] flex-shrink-0">
 																<div className="text-2xl font-bold leading-none">{day}</div>
 																<div className="text-xs uppercase tracking-wider mt-1 font-semibold">{month}</div>
 															</div>
 															<div className="flex-1 min-w-0">
-																<h4 className="font-bold text-gray-900 line-clamp-2 mb-2 group-hover:text-indigo-600 transition-colors">{event.eventname}</h4>
+																<h4 className="font-bold text-gray-900 line-clamp-2 mb-2 group-hover:text-brand_primary transition-colors">{event.eventname}</h4>
 																<p className="text-sm text-gray-600 line-clamp-2">{event.eventvenue}</p>
 															</div>
 														</div>
@@ -217,26 +215,60 @@ export default function EventsColumn({ events, translations: t, initialEventId }
 
 	// ── List View ─────────────────────────────────────────────────────
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-brand-50">
+		<div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50">
+			{/* Hero Section */}
+			<div className="relative overflow-hidden bg-gradient-to-r from-brand_primary to-brand_secondary text-white">
+				<div className="absolute inset-0 bg-black/20"></div>
+				<div className="absolute inset-0">
+					<div className="absolute top-20 left-10 w-32 h-32 bg-yellow-400/20 rounded-full blur-3xl"></div>
+					<div className="absolute bottom-20 right-10 w-40 h-40 bg-orange-400/20 rounded-full blur-3xl"></div>
+				</div>
+				
+				<div className="relative container mx-auto px-6 py-20 text-center">
+					<div className="flex justify-center mb-6">
+						<div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+							<Calendar className="w-8 h-8 text-white" />
+						</div>
+					</div>
+					<h1 className="text-4xl md:text-5xl font-bold mb-6">{t.events_tab}</h1>
+					<p className="text-xl md:text-2xl max-w-4xl mx-auto leading-relaxed text-white/90">
+						{t.events_subtitle}
+					</p>
+					<div className="mt-8 flex flex-wrap justify-center gap-4">
+						<div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full backdrop-blur-sm">
+							<Calendar className="w-4 h-4" />
+							<span className="text-sm">Upcoming Events</span>
+						</div>
+						<div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full backdrop-blur-sm">
+							<Users className="w-4 h-4" />
+							<span className="text-sm">Community Gatherings</span>
+						</div>
+						<div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full backdrop-blur-sm">
+							<Clock className="w-4 h-4" />
+							<span className="text-sm">Special Occasions</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
 			<div className="container max-w-7xl mx-auto px-4 pt-8 lg:pt-12">
-				<SectionHeader heading={t.events_tab} subtitle={t.events_subtitle} />
 				{sortedEvents.length > 0 ? (
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-12">
 						{sortedEvents.map((event) => {
 							const { day, month } = formatEventDate(event.eventdate);
 							return (
-								<div key={event._id} className="group cursor-pointer bg-white rounded-2xl border border-gray-100 hover:border-indigo-200 shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden h-full flex flex-col" onClick={() => setSelectedEvent(event)}>
+								<div key={event._id} className="group cursor-pointer bg-white rounded-2xl border border-orange-100 hover:border-brand_primary shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden h-full flex flex-col" onClick={() => setSelectedEvent(event)}>
 									{/* Image Section */}
 									<div className="relative h-56 overflow-hidden">
 										{event.eventposterUrl ? (
 											<Image src={event.eventposterUrl} alt={event.eventname} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
 										) : (
-											<div className="w-full h-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
-												<Calendar className="w-12 h-12 text-indigo-300" />
+											<div className="w-full h-full bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center">
+												<Calendar className="w-12 h-12 text-orange-300" />
 											</div>
 										)}
 										{/* Date Badge */}
-										<div className="absolute top-3 right-3 bg-gradient-to-br from-brand to-brand/80 text-white rounded-xl p-3 text-center shadow-lg backdrop-blur-sm bg-opacity-95">
+										<div className="absolute top-3 right-3 bg-gradient-to-br from-brand_primary to-brand_secondary text-white rounded-xl p-3 text-center shadow-lg backdrop-blur-sm bg-opacity-95">
 											<div className="text-2xl font-bold leading-none">{day}</div>
 											<div className="text-xs uppercase font-semibold">{month}</div>
 										</div>
@@ -244,23 +276,23 @@ export default function EventsColumn({ events, translations: t, initialEventId }
 
 									{/* Content Section */}
 									<div className="p-6 flex flex-col flex-1">
-										<h3 className="font-bold text-lg text-gray-900 mb-3 line-clamp-2 group-hover:text-brand_primary transition-colors">{event.eventname}</h3>
+										<h3 className="font-bold text-lg text-gray-900 mb-3 line-clamp-2 group-hover:text-brand_secondary transition-colors">{event.eventname}</h3>
 										<div className="space-y-2 text-sm text-gray-600 mb-4 flex-1">
 											{event.eventtime && (
 												<div className="flex items-start gap-2">
-													<Clock className="w-4 h-4 text-brand_primary flex-shrink-0 mt-0.5" />
+													<Clock className="w-4 h-4 text-brand_secondary flex-shrink-0 mt-0.5" />
 													<span className="line-clamp-1">{event.eventtime}</span>
 												</div>
 											)}
 											{event.eventvenue && (
 												<div className="flex items-start gap-2">
-													<MapPin className="w-4 h-4 text-brand_primary flex-shrink-0 mt-0.5" />
+													<MapPin className="w-4 h-4 text-brand_secondary flex-shrink-0 mt-0.5" />
 													<span className="line-clamp-1">{event.eventvenue}</span>
 												</div>
 											)}
 										</div>
-										<div className="pt-3 border-t border-gray-100">
-											<span className="text-brand_primary font-semibold text-sm inline-flex items-center gap-1 group-hover:gap-2 transition-all">
+										<div className="pt-3 border-t border-orange-100">
+											<span className="text-brand_secondary font-semibold text-sm inline-flex items-center gap-1 group-hover:gap-2 transition-all">
 												{t.view_detail}
 												<svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 													<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -274,8 +306,8 @@ export default function EventsColumn({ events, translations: t, initialEventId }
 					</div>
 				) : (
 					<div className="text-center py-12">
-						<div className="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-							<Calendar className="w-10 h-10 text-gray-400" />
+						<div className="bg-orange-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+							<Calendar className="w-10 h-10 text-orange-400" />
 						</div>
 						<h3 className="text-lg font-medium text-gray-900 mb-2">{t.no_events}</h3>
 						<p className="text-gray-600 text-sm">{t.no_events_desc}</p>
