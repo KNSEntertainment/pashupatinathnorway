@@ -5,10 +5,10 @@ import Flag from "@/components/ui/Flag";
 import { useLocale } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
 
-const LANGUAGES: { code: string; flag: "np" | "no" | "gb"; label: string }[] = [
-	{ code: "ne", flag: "np", label: "NE" },
-	{ code: "no", flag: "no", label: "NO" },
-	{ code: "en", flag: "gb", label: "EN" },
+const LANGUAGES: { code: string; flag: "np" | "no" | "gb"; label: string; labelDesktop: string }[] = [
+	{ code: "ne", flag: "np", label: "NE", labelDesktop: "नेपाली" },
+	{ code: "no", flag: "no", label: "NO", labelDesktop: "Norsk" },
+	{ code: "en", flag: "gb", label: "EN", labelDesktop: "English" },
 ];
 
 const LanguageSelector = () => {
@@ -31,15 +31,18 @@ const LanguageSelector = () => {
 						aria-label={`Switch to ${lang.label}`}
 						className={`
               flex items-center px-1 md:px-1.5 py-1 rounded
-              transition-all duration-200 font-medium text-xs
+              transition-all duration-200 text-gray-900 font-medium text-xs
               hover:scale-105 active:scale-95
               focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand/50
-              ${lang.code === locale ? "bg-brand_secondary/80 text-brand_primary scale-105" : "text-gray-900 hover:bg-brand_primary/5"}
+              ${lang.code === locale ? "border-1 border-brand_secondary bg-brand_secondary/25 scale-105" : "hover:bg-brand_secondary/25"}
             `}
 					>
 						<Flag country={lang.flag} size={14} />
 
-						<span className="leading-none">{lang.label}</span>
+						<span className="leading-none">
+							<span className="md:hidden">{lang.label}</span>
+							<span className="hidden md:inline">{lang.labelDesktop}</span>
+						</span>
 					</button>
 					{idx < LANGUAGES.length - 1 && <span className="text-xs text-gray-400">|</span>}
 				</React.Fragment>

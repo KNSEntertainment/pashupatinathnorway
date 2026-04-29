@@ -2,9 +2,8 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
-import { useCallback, useState, useEffect, useMemo } from "react";
+import { useCallback, useState, useEffect } from "react";
 import Image from "next/image";
-import { useTranslations, useLocale } from "next-intl";
 import HeroLoading from "@/components/HeroLoading";
 import { useOptimizedFetch } from "@/hooks/useOptimizedFetch";
 
@@ -13,32 +12,12 @@ export default function FullWidthHero() {
 	const [isAnimating, setIsAnimating] = useState(false);
 	const [slides, setSlides] = useState([]);
 	const [loading] = useState(false); // Start with false for faster LCP
-	const t = useTranslations("slider");
 	const locale = useLocale();
-
-	// Pre-optimized fallback slides with smaller images
-	const fallbackSlides = useMemo(() => [
-		{
-			image: "/pashupatinath.png",
-			title: t("title_1"),
-			description: t("subtitle_1"),
-			primaryLink: "/membership",
-			primaryButton: t("become_a_member"),
-			secondaryLink: "/about-us",
-			secondaryButton: t("explore_rsp"),
-		},
-	
-	], [t]);
-
-	// Set fallback slides immediately for faster LCP
-	useEffect(() => {
-		setSlides(fallbackSlides);
-	}, [fallbackSlides]);
 
 	// Use optimized fetch with caching - load in background
 	const { data: heroData } = useOptimizedFetch(`/api/hero?locale=${locale}`);
 
-	// Update slides when data arrives (non-blocking)
+	// Set slides when data arrives
 	useEffect(() => {
 		if (heroData && heroData.slides && heroData.slides.length > 0) {
 			// Filter only active slides
@@ -56,13 +35,6 @@ export default function FullWidthHero() {
 		setTimeout(() => setIsAnimating(false), 1200);
 	}, [isAnimating, slides.length, loading]);
 
-	// const prevSlide = useCallback(() => {
-	// 	if (isAnimating || loading || slides.length === 0) return;
-	// 	setIsAnimating(true);
-	// 	setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
-	// 	setTimeout(() => setIsAnimating(false), 1200);
-	// }, [isAnimating, slides.length, loading]);
-
 	useEffect(() => {
 		if (loading || slides.length === 0) return;
 		const interval = setInterval(() => {
@@ -71,15 +43,13 @@ export default function FullWidthHero() {
 		return () => clearInterval(interval);
 	}, [currentSlide, nextSlide, isAnimating, loading, slides.length]);
 
-	// Show loading state only if explicitly loading, not if slides are being set
-	if (loading) {
+	// Show loading state when loading or when no slides are available yet
+	if (loading || slides.length === 0) {
 		return <HeroLoading />;
 	}
 
 	return (
-		/* The trick for True Full Width:
-           w-screen + relative left-1/2 -translate-x-1/2 
-        */
+		
 		<div className="relative w-screen left-1/2 right-1/2 -translate-x-1/2 overflow-hidden bg-white">
 			<section className="relative h-[82vh] w-full flex items-center">
 				{/* Background Layer */}

@@ -5,7 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import DesktopNav from "@/components/header/DesktopNav";
 import AuthSection from "@/components/header/AuthSection";
-import SearchButton from "@/components/header/SearchButton";
+// import SearchButton from "@/components/header/SearchButton";
 import MobileMenu from "@/components/MobileMenu";
 import CartButton from "@/components/CartButton";
 
@@ -53,10 +53,10 @@ export default function MainHeader() {
 
 				{/* Right Side */}
 				<div className="flex items-center gap-2">
-					<SearchButton />
+					{/* <SearchButton /> */}
 					<CartButton />
-					<Link href="/donate" locale={locale} className="hidden sm:flex btn-success">
-						<span className=" md:inline">{t("donate")}</span>
+					<Link href="/donate" locale={locale} className="!hidden md:!flex btn-success">
+						{t("donate")}
 					</Link>
 
 					<AuthSection />

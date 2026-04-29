@@ -1,5 +1,5 @@
 "use client";
-import { MapPin, Mail, Phone, Facebook, Instagram, ArrowUpRight, Globe, Calendar, Users } from "lucide-react";
+import { MapPin, Mail, Phone, Facebook, Instagram, ArrowUpRight} from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
@@ -19,39 +19,26 @@ export default function FooterClient({ settings }) {
 				{/* Main Footer Content */}
 				<div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-16">
 					{/* About Column */}
-					<div className="lg:col-span-1 space-y-6">
-						<div className="flex flex-col items-center lg:items-start text-center lg:text-left">
-								<div className="flex items-center gap-3 mb-4">
+				<div className="space-y-6">
+						<div className="flex items-center gap-3 mb-4">
 							<div className="w-8 h-0.5 bg-gradient-to-r from-brand_primary to-transparent"></div>
 							<h3 className="text-lg font-semibold text-gray-900">{t("about_us")}</h3>
 						</div>
-
-							<Image 
-								src={settings?.[0]?.companyLogo || "/pashupatinath.png"} 
-								alt={t("logo_alt")} 
-								width={120} 
-								height={120} 
-								className="w-16 h-16 lg:w-20 lg:h-20 object-contain mb-4 transition-transform hover:scale-105" 
-							/>
-						<p className="text-sm text-gray-600 leading-relaxed">{t("about_description")}</p>
-	<div className="space-y-3 pt-4">
-							<div className="flex items-center gap-3 text-sm text-gray-600">
-								<Users className="h-4 w-4 text-brand_primary" />
-								<span>500+ Community Members</span>
-							</div>
-							<div className="flex items-center gap-3 text-sm text-gray-600">
-								<Calendar className="h-4 w-4 text-brand_primary" />
-								<span>Established 2025</span>
-							</div>
-							<div className="flex items-center gap-3 text-sm text-gray-600">
-								<Globe className="h-4 w-4 text-brand_primary" />
-								<span>Oslo, Norway</span>
-							</div>
+						
+						<div className="space-y-4">
+									{/* Logo */}
+				<Link href="/" locale={locale} className="flex items-center gap-1">
+					<Image src="/pashupatinath.png" alt="Logo" width={40} height={40} className="h-16 md:h-20 w-auto" priority />
+					<div className="flex flex-col text-gray-700 leading-5">
+						<span className="font-bold">Pashupatinath Norway</span>
+						<span>Temple</span>
+						<p className="text-sm text-gray-600 leading-relaxed">Org nr. 926499211</p>
+					</div>
+				</Link>
+				<p className="text-md text-gray-600 leading-relaxed">{t("tagline")}</p>
 						</div>
-					</div>
-					</div>
 
-			
+					</div>
 
 					{/* Contact Column */}
 					<div className="space-y-6">

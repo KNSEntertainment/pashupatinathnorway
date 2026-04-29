@@ -1,7 +1,6 @@
 "use client";
 
 import { Phone, Mail } from "lucide-react";
-import SocialMediaLinks from "@/components/SocialMediaLinks";
 import LanguageSelector from "@/components/LanguageSelector";
 import { useTranslations } from "next-intl";
 
@@ -22,7 +21,6 @@ export default function TopBar() {
 						nepalihindusamfunn@gmail.com
 					</a>
 
-					<SocialMediaLinks />
 				</div>
 
 				<LanguageSelector />

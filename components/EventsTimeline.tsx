@@ -143,9 +143,9 @@ export default function EventsTimeline() {
 										animate={{ opacity: 1, y: 0 }}
 										transition={{ duration: 0.6, delay: index * 0.1 }}
 									>
-										<div className="flex bg-gray-50 transition-all duration-300 overflow-hidden h-full">
+										<div className="flex flex-col md:flex-row bg-gray-50 transition-all duration-300 overflow-hidden h-full">
 											{/* Event Poster */}
-											<div className="relative aspect-[16/9] w-1/2">
+											<div className="relative aspect-[16/9] w-full md:w-1/2">
 												<Image 
 													src={event.eventposterUrl || "/pashupatinath.png"} 
 													alt={getLocalizedTitle(event)} 
@@ -157,12 +157,12 @@ export default function EventsTimeline() {
 											</div>
 
 											{/* Event Information */}
-											<div className="p-6 flex flex-col justify-center">
+											<div className="p-6 flex flex-col space-y-3 justify-center">
 											
 
 												{/* Event Title */}
 												<Link href={`/${locale}/updates?eventId=${event._id}`}>
-													<h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 group-hover:text-brand_primary transition-colors duration-300 cursor-pointer">
+													<h3 className="text-2xl md:text-3xl font-bold text-gray-900 md:mb-4 group-hover:text-brand_primary transition-colors duration-300 cursor-pointer">
 														{getLocalizedTitle(event)}
 													</h3>
 												</Link>
