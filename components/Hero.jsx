@@ -6,6 +6,7 @@ import { useCallback, useState, useEffect } from "react";
 import Image from "next/image";
 import HeroLoading from "@/components/HeroLoading";
 import { useOptimizedFetch } from "@/hooks/useOptimizedFetch";
+import { useLocale } from "next-intl";
 
 export default function FullWidthHero() {
 	const [currentSlide, setCurrentSlide] = useState(0);
@@ -117,7 +118,7 @@ export default function FullWidthHero() {
 										<Button className="h-12 px-4 md:px-6 text-md md:text-lg font-bold rounded-full bg-brand_primary/90 hover:bg-brand_primary text-gray-700 shadow-2xl shadow-blue-500/20 transition-all hover:scale-105 active:scale-95">{slides[currentSlide]?.primaryButton || "Learn More"}</Button>
 									</Link>
 									<Link href={slides[currentSlide]?.secondaryLink || "#"} locale={locale}>
-										<Button variant="outline" className="h-12 px-4 md:px-6 text-md md:text-lg font-bold rounded-full border-white/30 bg-brand_secondary/70 backdrop-blur-md text-gray-100 hover:bg-white hover:text-brand_primary transition-all flex items-center gap-2">
+										<Button variant="outline" className="h-12 px-4 md:px-6 text-md md:text-lg font-bold rounded-full border-white/30 bg-brand_secondary/70 backdrop-blur-md text-gray-100 hover:bg-brand_secondary hover:text-gray-100 hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
 											{slides[currentSlide]?.secondaryButton || "Explore"}
 										</Button>
 									</Link>

@@ -1,17 +1,18 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Copy, Banknote, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslations } from "next-intl";
 
 export default function DonateCTA() {
 	const { toast } = useToast();
+	const t = useTranslations("donate");
 
 	const copyToClipboard = (text: string, label: string) => {
 		navigator.clipboard.writeText(text);
 		toast({
-			title: "Copied!",
-			description: `${label} has been copied to clipboard.`,
+			title: t("copied"),
+			description: t("copy_description", { label }),
 		});
 	};
 
@@ -19,7 +20,7 @@ export default function DonateCTA() {
 			<Card className="shadow-lg border-0">
 				<CardHeader className="text-center bg-gradient-to-r from-brand_primary to-brand_secondary text-white rounded-t-lg">
 					<CardTitle className="text-2xl font-bold">
-						You can Donate to us
+						{t("cta_title")}
 					</CardTitle>
 				</CardHeader>
 				<CardContent className="p-8">
@@ -29,7 +30,7 @@ export default function DonateCTA() {
 							<div className="flex items-center gap-3 mb-4">
 								<Banknote className="w-8 h-8 text-blue-600" />
 								<h3 className="text-xl font-semibold text-gray-900">
-									Via Bank Transfer
+									{t("bank_transfer")}
 								</h3>
 							</div>
 
@@ -38,7 +39,7 @@ export default function DonateCTA() {
 									<div className="flex items-center justify-between mb-2">
 										<div>
 											<p className="text-sm font-medium text-gray-600">
-												For Temple Activities
+												{t("for_temple_activities")}
 											</p>
 											<p className="text-lg font-mono font-semibold text-gray-900">
 												1520.24.74176
@@ -50,13 +51,13 @@ export default function DonateCTA() {
 											onClick={() =>
 												copyToClipboard(
 													"1520.24.74176",
-													"Temple Activities Account Number"
+													t("temple_activities_account")
 												)
 											}
 											className="flex items-center gap-2"
 										>
 											<Copy className="w-4 h-4" />
-											Copy
+											{t("copy")}
 										</Button>
 									</div>
 								</div>
@@ -65,7 +66,7 @@ export default function DonateCTA() {
 									<div className="flex items-center justify-between mb-2">
 										<div>
 											<p className="text-sm font-medium text-gray-600">
-												For Temple Construction
+												{t("for_temple_construction")}
 											</p>
 											<p className="text-lg font-mono font-semibold text-gray-900">
 												1520.31.97613
@@ -77,13 +78,13 @@ export default function DonateCTA() {
 											onClick={() =>
 												copyToClipboard(
 													"1520.31.97613",
-													"Temple Construction Account Number"
+													t("temple_construction_account")
 												)
 											}
 											className="flex items-center gap-2"
 										>
 											<Copy className="w-4 h-4" />
-											Copy
+											{t("copy")}
 										</Button>
 									</div>
 								</div>
@@ -95,7 +96,7 @@ export default function DonateCTA() {
 							<div className="flex items-center gap-3 mb-4">
 								<Smartphone className="w-8 h-8 text-green-600" />
 								<h3 className="text-xl font-semibold text-gray-900">
-									Via Vipps
+									{t("via_vipps")}
 								</h3>
 							</div>
 
@@ -103,41 +104,28 @@ export default function DonateCTA() {
 								<div className="space-y-4">
 									<div>
 										<p className="text-sm font-medium text-gray-600 mb-2">
-											Vipps Number
+											{t("vipps_number")}
 										</p>
 										<p className="text-3xl font-mono font-bold text-green-700">
 											12200
 										</p>
+										
 									</div>
-									<Button
-										variant="outline"
-										size="sm"
-										onClick={() =>
-											copyToClipboard("12200", "Vipps Number")
-										}
-										className="flex items-center gap-2 mx-auto"
-									>
-										<Copy className="w-4 h-4" />
-										Copy Vipps Number
-									</Button>
-									<div className="mt-4">
-										<Badge variant="secondary" className="bg-green-100 text-green-800">
-											Quick & Easy Donation
-										</Badge>
+									<div>
+										<p>
+											Donation (आर्थिक सहयोग)
+										</p>
+										<p>
+											Pashupatinath Norway Temple
+										</p>
 									</div>
+							
 								</div>
 							</div>
 						</div>
 					</div>
 
-					{/* Additional Info */}
-					<div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
-						<p className="text-sm text-blue-800 text-center">
-							<strong>Thank you for your generous support!</strong> Your donations help us maintain 
-							and grow our temple community, preserve our cultural heritage, and serve the Nepali 
-							Hindu community in Norway.
-						</p>
-					</div>
+				
 				</CardContent>
 			</Card>
 	);

@@ -43,8 +43,8 @@ export default function MainHeader() {
 				<Link href="/" locale={locale} className="flex items-center gap-1">
 					<Image src="/pashupatinath.png" alt="Logo" width={40} height={40} className="h-10 md:h-12 w-auto" priority />
 					<div className="hidden md:flex flex-col text-white leading-5">
-						<span className="font-bold">Pashupatinath Norway</span>
-						<span>Temple</span>
+						<span className="font-bold">{t("logo_title")}</span>
+						<span>{t("logo_subtitle")}</span>
 					</div>
 				</Link>
 

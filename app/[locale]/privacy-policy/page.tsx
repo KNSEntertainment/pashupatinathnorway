@@ -6,7 +6,7 @@ export default function PrivacyPolicy() {
 			{/* Header */}
 			<header className="">
 				<div className="max-w-4xl mx-auto px-4 py-6">
-					<h1 className="text-3xl font-bold text-gray-900">Pashupatinath Norway Temple Web/App Privacy Policy</h1>
+					<h1 className="text-3xl font-bold text-gray-900">Pashupatinath Norway Temple Membership Privacy Policy</h1>
 					<p className="text-sm text-gray-900 mt-2">Last Updated: December 2025</p>
 				</div>
 			</header>
@@ -16,123 +16,164 @@ export default function PrivacyPolicy() {
 				<div className="bg-white rounded-lg shadow-md p-8 space-y-8">
 					{/* Introduction */}
 					<section>
-						<p className="text-gray-900 leading-relaxed">This Privacy Policy will help you understand what data we collect, why we collect it and what we do with it. By downloading this app you understand and accept the contents of this privacy policy and its subsequent versions. We appreciate & acknowledge the informed consent granted by you while downloading the App, using its features and/or submitting your information within the App.</p>
-					</section>
-
-					{/* Collection */}
-					<section>
-						<h2 className="text-2xl font-semibold text-gray-900 mb-4">Collection</h2>
-						<p className="text-gray-900 leading-relaxed">To provide a tailor made and personalised experience, the information you share maybe processed and analysed by third party services who are engaged by us with due confidentiality obligations and solely for the specific purpose of such services. This will help the App give you the best possible experience by showing content in your language and according to your interests. For example, based on the location data collected, you may get a push notification when Pashupatinath Norway Temple is doing event is in your province or district or there is an important initiative or event happening in your location. Similarly, based on your previous interactions within the App you may receive push notifications based on your interests in the future.</p>
-					</section>
-
-					{/* Permissions */}
-					<section>
-						<h2 className="text-2xl font-semibold text-gray-900 mb-4">Permissions</h2>
-						<p className="text-gray-900 leading-relaxed mb-4">The Pashupatinath Norway Temple App requests you for several permissions in order to serve you better. All these permissions are contextual and cause-specific. You are also free to grant or deny many of these permissions. Below is a list of permissions requested along with the purpose they serve:</p>
-
-						<div className="space-y-4">
-							<PermissionCard title="Identity and Accounts" description="Permission to use your identity and use relevant information from your device to help you use your Social Media to login to the App. You may choose to not grant this permission and enter your identity details independently or choose to browse the App in Guest mode." />
-							<PermissionCard title="Contacts" description="Permission to access your contacts is requested to help you connect with your friends to form a community on the New Connect module." />
-							<PermissionCard title="Camera and File Storage" description="Permission to access your camera and/or photos/media/files is requested to help you use features like Registration, 'Selfie With Leader', 'Likewise Pashupatinath Norway Temple will be conducting various other initiatives where posting a photo may be required to participate. These permissions are also required to enable you to post photos anywhere on the App." />
-							<PermissionCard title="Read SMS" description="Pashupatinath Norway Temple App has a donation provision whereby people who want to contribute to the party in financial terms. Since the process requires financial transaction to be carried out, permission to access your SMS is used by the Payment Gateway to read OTP sent over SMS to authenticate the transaction. User can choose not to grant this permission." />
-							<PermissionCard title="Microphone" description="Permission to access your microphone is requested only to enable you to converse in live video facilities." />
-							<PermissionCard title="Phone" description="Permission to access your phone is requested only to enable you to place phone calls to access feedback mechanism, party programmes and services." />
-							<PermissionCard title="Wi-Fi/Network Connection/Network Access" description="Permission to access Wi-Fi, Network Connection and Network Access is taken only to allow the App to connect to the internet to provide its functionality." />
-							<PermissionCard title="Draw over other apps" description="Permission to draw over other apps is taken only to allow for a modern and contextual user interface that can be showcased outside the App." />
-						</div>
-
-						<p className="text-gray-900 leading-relaxed mt-4">Similarly functionality related to Sticky Broadcast, Flashlight, Vibration, Prevent device from sleeping, service configurations and others are used only for purposes of providing reliable and efficient functionality. The permissions asked for are used only for a specific feature or user action. For example, permission to use photos is used only when you want to post a photo and the file storage permission is used only to store the photo on the device.</p>
-					</section>
-
-					{/* Use */}
-					<section>
-						<h2 className="text-2xl font-semibold text-gray-900 mb-4">Use</h2>
-						<p className="text-gray-900 leading-relaxed mb-4">The following information collected by the App is used only for the purposes mentioned below:</p>
-
-						<div className="space-y-3">
-							<DataUseItem type="User Photo" purpose="is used to display personalised messaging in comments to articles and registration for the party." />
-							<DataUseItem type="Gender" purpose="is used to address you correctly in notifications and other communications" />
-							<DataUseItem type="Name" purpose="is used to personalise notifications and communications" />
-							<DataUseItem type="Email ID" purpose="is used to send important communications" />
-							<DataUseItem type="Location details" purpose="are used to send notifications in your language and to serve you content relevant to your geography" />
-							<DataUseItem type="IP Address" purpose="is used as a security feature to log malicious activity, if any" />
-							<DataUseItem type="Phone Number" purpose="is used to send special communications from the Pashupatinath Norway Temple Team also the number is used in many cases for user authentication." />
-							<DataUseItem type="Device information" purpose="is used to create accounts, perform contextual actions, personalised services and provide personalised services." />
-							<DataUseItem type="Unique Application numbers, cookies and similar technologies" purpose="are used to identify your device uniquely for contextual services and push notifications." />
-						</div>
-					</section>
-
-					{/* Transparency and Choice */}
-					<section>
-						<h2 className="text-2xl font-semibold text-gray-900 mb-4">Transparency and Choice</h2>
-						<p className="text-gray-900 leading-relaxed">You are free to grant or deny the permissions listed above and utilise the App with a subset of the features you choose to avail at any given time. We may update our Privacy Policy from time to time. When we change the policy in a material way, a notice will be posted on our website along with the updated Privacy Policy.</p>
-					</section>
-
-					{/* Termination */}
-					<section>
-						<h2 className="text-2xl font-semibold text-gray-900 mb-4">Termination of the use of personal information collected from the user</h2>
 						<p className="text-gray-900 leading-relaxed">
-							The user may request the deletion of their data by sending an email to{" "}
-							<a href="mailto:nepalihindusamfunn@gmail.com" className="text-brand_primary hover:text-brand_primary underline">
-								nepalihindusamfunn@gmail.com
-							</a>{" "}
-							and should get a response within 48 hours.
+							This Privacy Policy explains how Pashupatinath Norway Temple (Organization Number: 926 499 211) collects, uses, and protects your personal information when you apply for membership or interact with our organization. We are committed to protecting your privacy and ensuring transparency in our data handling practices.
 						</p>
 					</section>
 
-					{/* Voting Counts */}
+					{/* Information We Collect */}
 					<section>
-						<h2 className="text-2xl font-semibold text-gray-900 mb-4">Voting Counts</h2>
-						<p className="text-gray-900 leading-relaxed mb-3">If the votes received between the candidates are equal, the basis for election will be as follows:</p>
-						<div className="bg-light rounded-lg p-4 space-y-2">
+						<h2 className="text-2xl font-semibold text-gray-900 mb-4">Information We Collect</h2>
+						<p className="text-gray-900 leading-relaxed mb-4">
+							When you apply for membership or interact with our organization, we collect the following information:
+						</p>
+
+						<div className="space-y-3">
+							<DataItem title="Personal Information" description="First name, middle name, last name, date of birth, and gender" />
+							<DataItem title="Contact Information" description="Email address, phone number, and residential addresses in Norway and Nepal" />
+							<DataItem title="Identification" description="Personal number (personnummer) and other identification details" />
+							<DataItem title="Family Information" description="Parents' names, spouse's name, and children's information" />
+							<DataItem title="Professional Information" description="Education, occupation, and professional details" />
+							<DataItem title="Membership Details" description="Membership application date, status, and participation in activities" />
+						</div>
+					</section>
+
+					{/* How We Use Your Information */}
+					<section>
+						<h2 className="text-2xl font-semibold text-gray-900 mb-4">How We Use Your Information</h2>
+						<p className="text-gray-900 leading-relaxed mb-4">
+							We use your personal information only for the following purposes:
+						</p>
+
+						<div className="space-y-3">
+							<DataUseItem type="Membership Administration" purpose="To process and manage your membership application and maintain accurate membership records" />
+							<DataUseItem type="Communication" purpose="To send important announcements, event invitations, and organizational updates via email or phone" />
+							<DataUseItem type="Event Organization" purpose="To organize religious ceremonies, cultural events, and community activities" />
+							<DataUseItem type="Legal Compliance" purpose="To comply with Norwegian laws and regulations regarding religious organizations" />
+							<DataUseItem type="Community Building" purpose="To connect members and foster a sense of community within our organization" />
+						</div>
+					</section>
+
+					{/* Data Protection and Security */}
+					<section>
+						<h2 className="text-2xl font-semibold text-gray-900 mb-4">Data Protection and Security</h2>
+						<p className="text-gray-900 leading-relaxed mb-4">
+							We implement appropriate technical and organizational measures to protect your personal information:
+						</p>
+						<div className="bg-blue-50 rounded-lg p-4 space-y-2">
 							<div className="flex items-start">
-								<span className="font-semibold text-gray-900 mr-2">1.</span>
-								<span className="text-gray-900">First woman on the basis of priority.</span>
+								<span className="inline-block w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+								<span className="text-gray-900">Secure storage of personal data with limited access</span>
 							</div>
 							<div className="flex items-start">
-								<span className="font-semibold text-gray-900 mr-2">2.</span>
-								<span className="text-gray-900">The second minority and caste basis are minorities, Dalits, Tharu, Muslims, Madheshi, tribal tribes and Khasarya respectively.</span>
+								<span className="inline-block w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+								<span className="text-gray-900">Regular security updates and monitoring</span>
 							</div>
 							<div className="flex items-start">
-								<span className="font-semibold text-gray-900 mr-2">3.</span>
-								<span className="text-gray-900">If the above priorities are also repeated, the youth (younger age) will be elected on the basis of priority</span>
+								<span className="inline-block w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+								<span className="text-gray-900">Staff training on data protection best practices</span>
+							</div>
+							<div className="flex items-start">
+								<span className="inline-block w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+								<span className="text-gray-900">Compliance with GDPR and Norwegian data protection laws</span>
 							</div>
 						</div>
 					</section>
 
-					{/* Donations */}
+					{/* Data Sharing */}
 					<section>
-						<h2 className="text-2xl font-semibold text-gray-900 mb-4">Donations</h2>
-						<p className="text-gray-900 leading-relaxed">Pashupatinath Norway Temple is a member-based party and your contributions is the bases on which the party operates. Please read the respective terms and conditions of the payment gateways app before donating.</p>
+						<h2 className="text-2xl font-semibold text-gray-900 mb-4">Data Sharing</h2>
+						<p className="text-gray-900 leading-relaxed mb-4">
+							We do not sell, rent, or share your personal information with third parties for marketing purposes. Your information may only be shared in the following circumstances:
+						</p>
+						<div className="space-y-3">
+							<DataUseItem type="Legal Requirements" purpose="When required by Norwegian law, court order, or government authorities" />
+							<DataUseItem type="Organizational Purpose" purpose="With other members for community building and event organization (with your consent)" />
+							<DataUseItem type="Service Providers" purpose="With trusted third-party service providers who assist in membership administration" />
+						</div>
 					</section>
 
-					{/* User Safety */}
+					{/* Your Rights */}
 					<section>
-						<h2 className="text-2xl font-semibold text-gray-900 mb-4">User Safety and Security</h2>
-						<p className="text-gray-900 leading-relaxed">We value all personal information provided by you and we shall ensure the safety and security of information you provide in the App. Your data shall not be sold or rented to anyone and will only be utilised for the functionality of the App and related features, services, etc.</p>
+						<h2 className="text-2xl font-semibold text-gray-900 mb-4">Your Rights</h2>
+						<p className="text-gray-900 leading-relaxed mb-4">
+							As a member, you have the following rights regarding your personal information:
+						</p>
+						<div className="space-y-3">
+							<RightsCard title="Access" description="You can request a copy of all personal information we hold about you" />
+							<RightsCard title="Correction" description="You can request correction of inaccurate or incomplete information" />
+							<RightsCard title="Deletion" description="You can request deletion of your personal information when you cancel membership" />
+							<RightsCard title="Portability" description="You can request your data in a machine-readable format" />
+							<RightsCard title="Objection" description="You can object to certain uses of your personal information" />
+						</div>
 					</section>
 
-					{/* Contact */}
+					{/* Data Retention */}
+					<section>
+						<h2 className="text-2xl font-semibold text-gray-900 mb-4">Data Retention</h2>
+						<p className="text-gray-900 leading-relaxed mb-4">
+							We retain your personal information only as long as necessary for the purposes outlined in this policy:
+						</p>
+						<div className="bg-light rounded-lg p-4 space-y-2">
+							<div className="flex items-start">
+								<span className="font-semibold text-gray-900 mr-2">•</span>
+								<span className="text-gray-900">Active members: Information retained throughout membership period</span>
+							</div>
+							<div className="flex items-start">
+								<span className="font-semibold text-gray-900 mr-2">•</span>
+								<span className="text-gray-900">Cancelled membership: Information deleted within 48 hours of request</span>
+							</div>
+							<div className="flex items-start">
+								<span className="font-semibold text-gray-900 mr-2">•</span>
+								<span className="text-gray-900">Legal requirements: Some information may be retained longer if required by law</span>
+							</div>
+						</div>
+					</section>
+
+					{/* Children's Privacy */}
+					<section>
+						<h2 className="text-2xl font-semibold text-gray-900 mb-4">Children&apos;s Privacy</h2>
+						<p className="text-gray-900 leading-relaxed">
+							For children under 15 years of age, membership applications must be submitted by parents or legal guardians. We only collect minimal necessary information about children and ensure their privacy is protected in accordance with applicable laws.
+						</p>
+					</section>
+
+					{/* Policy Updates */}
 					<section className="bg-blue-50 rounded-lg p-6 border border-blue-100">
-						<h2 className="text-xl font-semibold text-gray-900 mb-3">Questions or Concerns?</h2>
-						<p className="text-gray-900 leading-relaxed">If you have any questions or concerns about our Privacy Policy or data usage, please write to us on the Help & Feedback section of the App.</p>
+						<h2 className="text-xl font-semibold text-gray-900 mb-3">Policy Updates</h2>
+						<p className="text-gray-900 leading-relaxed">
+							We may update this Privacy Policy from time to time to reflect changes in our practices or legal requirements. Any significant changes will be communicated to members via email and posted on our website at least 30 days before taking effect.
+						</p>
 					</section>
 
-					{/* Additional Resources */}
-					<section className="border-t border-light pt-6">
+					{/* Contact Information */}
+					<section className="bg-gradient-to-r from-green-50 to-blue-50 border-l-4 border-green-500 p-6 rounded-r-lg">
+						<h2 className="text-xl font-bold text-green-900 mb-3">Contact Information</h2>
+						<p className="text-gray-900 leading-relaxed mb-4">
+							If you have any questions about this Privacy Policy or wish to exercise your rights regarding your personal information, please contact us:
+						</p>
+						<div className="space-y-2">
+							<p className="text-gray-900"><strong>Email:</strong> norwaynepalihindutemple@gmail.com</p>
+							<p className="text-gray-900"><strong>Website:</strong> www.nepalihindu.no</p>
+							<p className="text-gray-900"><strong>Organization Number:</strong> 926 499 211</p>
+						</div>
+					</section>
+
+					{/* Related Documents */}
+					<section className="border-t border-gray-200 pt-6">
 						<h3 className="text-lg font-semibold text-gray-900 mb-4">Related Documents</h3>
 						<div className="flex flex-wrap gap-3">
-							<Link href="/en/terms-and-conditions" className="inline-flex items-center px-4 py-2 bg-brand_primary text-white rounded-lg hover:bg-blue-700 transition-colors">
+							<Link href="/en/terms-and-conditions" className="inline-flex items-center px-4 py-2 bg-brand_primary text-gray-700 rounded-lg hover:scale-105 transition-all">
 								<svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
 								</svg>
 								Terms and Conditions
 							</Link>
-							<Link href="mailto:nepalihindusamfunn@gmail.com" className="inline-flex items-center px-4 py-2 bg-neutral-600 text-white rounded-lg hover:bg-neutral-700 transition-colors">
+							<Link href="/en/membership" className="inline-flex items-center px-4 py-2 bg-neutral-600 text-white rounded-lg  hover:scale-105 transition-all">
 								<svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
 								</svg>
-								Contact Support
+								Membership Application
 							</Link>
 						</div>
 					</section>
@@ -140,16 +181,18 @@ export default function PrivacyPolicy() {
 			</main>
 
 			{/* Footer */}
-			{/* <footer className="bg-white border-t border-light mt-12">
+			<footer className="bg-white border-t border-gray-200 mt-12">
 				<div className="max-w-4xl mx-auto px-4 py-6 text-center text-gray-900 text-sm">
-					<p>© 2025 Pashupatinath Norway Temple Nepal. All rights reserved.</p>
+					<p>© 2025 Pashupatinath Norway Temple. All rights reserved.</p>
+					<p className="mt-1">Organization Number: 926 499 211</p>
+					<p className="mt-1">This Privacy Policy is effective as of December 2025</p>
 				</div>
-			</footer> */}
+			</footer>
 		</div>
 	);
 }
 
-function PermissionCard({ title, description }: { title: string; description: string }) {
+function DataItem({ title, description }: { title: string; description: string }) {
 	return (
 		<div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
 			<h3 className="font-semibold text-gray-900 mb-2">{title}</h3>
@@ -163,8 +206,17 @@ function DataUseItem({ type, purpose }: { type: string; purpose: string }) {
 		<div className="flex items-start">
 			<span className="inline-block w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
 			<p className="text-gray-900">
-				<span className="font-semibold text-gray-900">{type}</span> {purpose}
+				<span className="font-semibold text-gray-900">{type}</span> - {purpose}
 			</p>
+		</div>
+	);
+}
+
+function RightsCard({ title, description }: { title: string; description: string }) {
+	return (
+		<div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border border-green-100">
+			<h3 className="font-semibold text-gray-900 mb-2">{title}</h3>
+			<p className="text-gray-900 text-sm leading-relaxed">{description}</p>
 		</div>
 	);
 }

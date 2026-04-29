@@ -7,10 +7,10 @@ import DonorList from "@/components/DonorList";
 import DonationModal from "@/components/DonationModal";
 import SectionHeader from "@/components/SectionHeader";
 import DonateCTA from "@/components/DonateCTA";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Heart, Users, Target, TrendingUp } from "lucide-react";
+import { Heart, Building } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -74,49 +74,45 @@ export default function DonatePageClient({ causes, locale }: DonatePageClientPro
 				{/* Active Causes Section */}
 				{isMounted && causes.length > 0 && (
 					<section className="mb-12">
-					
-						
-						<div className="flex md:flex-col items-center justify-center gap-8 px-4 py-8">
+						<div className="flex md:flex-col items-center justify-center gap-8 px-4 md:px-0">
 							{causes.map((cause: Cause) => {
 								const progressPercentage = cause.goalAmount > 0 
 									? Math.min((cause.currentAmount / cause.goalAmount) * 100, 100) 
 									: 0;
 								
 								return (
-									<div key={cause._id} className="flex flex-col w-full max-w-2xl">
-										{/* Image on top for mobile */}
-										{cause.poster && (
-											<div className="relative w-full h-48 sm:h-64 md:h-80 lg:h-96">
-												<Image
-													src={cause.poster}
-													alt={cause.title}
-													fill
-													className="object-cover"
-												/>
-											</div>
-										)}
-										
-										{/* Card content below image */}
-										<Card className="overflow-hidden w-full rounded-none shadow-none">
-											{/* Badges at the top */}
-											<div className="flex gap-2 px-4 pt-4">
-												{cause.featured && (
-													<Badge className="bg-purple-500 text-white text-xs">{t("featured") || "Featured"}</Badge>
-												)}
-												<Badge className={
-													cause.urgency === 'critical' ? 'bg-red-700 text-white' :
-													cause.urgency === 'high' ? 'bg-red-500 text-white' :
-													cause.urgency === 'medium' ? 'bg-orange-500 text-white' :
-													'bg-gray-500 text-white'
-												}>
-													{cause.urgency}
-												</Badge>
-											</div>
+									<Card key={cause._id} className="overflow-hidden w-full max-w-6xl rounded-lg shadow-lg border-0">
+										<div className="flex flex-col lg:flex-row gap-0">
+											{/* Image on left for desktop, top for mobile */}
+											{cause.poster && (
+												<div className="relative w-full lg:w-1/2 h-48 sm:h-64 md:h-80 lg:h-auto lg:min-h-[400px]">
+													<Image
+														src={cause.poster}
+														alt={cause.title}
+														fill
+														className="object-cover object-top"
+													/>
+												</div>
+											)}
 											
-											<CardHeader>
-												<CardTitle className="text-lg line-clamp-2">{cause.title}</CardTitle>
-											</CardHeader>
-											<CardContent>
+											{/* Card content on right for desktop, below image for mobile */}
+											<div className="w-full lg:w-1/2 flex flex-col p-4 md:p-6">
+												{/* Badges at the top */}
+												<div className="flex gap-2 mb-4">
+													{cause.featured && (
+														<Badge className="bg-purple-500 text-white text-xs">{t("featured") || "Featured"}</Badge>
+													)}
+													<Badge className={
+														cause.urgency === 'critical' ? 'bg-red-700 text-white' :
+														cause.urgency === 'high' ? 'bg-red-500 text-white' :
+														cause.urgency === 'medium' ? 'bg-orange-500 text-white' :
+														'bg-gray-500 text-white'
+													}>
+														{cause.urgency}
+													</Badge>
+												</div>
+												
+												<h3 className="text-lg font-bold line-clamp-2 mb-3">{cause.title}</h3>
 												<p className="text-gray-600 mb-4 line-clamp-3">{cause.description}</p>
 												
 												<div className="space-y-3">
@@ -140,23 +136,23 @@ export default function DonatePageClient({ causes, locale }: DonatePageClientPro
 												)}
 												
 												<div className="flex flex-col space-y-3 mt-6">
-												<button 
-													onClick={() => handleSupportCause(cause)}
-													className="w-full bg-brand_primary hover:bg-brand_primary/90 text-white py-3 px-6 rounded-lg transition-colors font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
-												>
-													{t("support_this_cause") || "Support This Cause"}
-												</button>
+													<button 
+														onClick={() => handleSupportCause(cause)}
+														className="w-full bg-brand_primary hover:bg-brand_primary/90 text-gray-700 py-3 px-6 rounded-lg transition-colors font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
+													>
+														{t("support_this_cause") || "Support This Cause"}
+													</button>
+												</div>
 											</div>
-											</CardContent>
-										</Card>
-									</div>
+										</div>
+									</Card>
 								);
 							})}
 						</div>
 						
 						<div className="text-center mt-8">
 							<Link href={`/${locale}/donate/reports`}>
-								<button className="text-brand_primary hover:text-brand_primary/90 font-medium">
+								<button className="text-gray-700 hover:text-gray-600 font-medium">
 									{t("view_all_reports") || "View All Donation Reports"} &rarr;
 								</button>
 							</Link>
@@ -178,80 +174,43 @@ export default function DonatePageClient({ causes, locale }: DonatePageClientPro
 						{/* Donor List */}
 						<DonorList refreshTrigger={refreshTrigger} />
 						
-						<Card className="border-0 shadow-lg">
-							<CardContent className="pt-6">
-								<h3 className="text-xl font-bold text-gray-900 mb-4">{t("impact_title") || "Your Impact"}</h3>
-								<div className="space-y-4">
-									<div className="flex gap-3">
-										<div className="flex-shrink-0">
-											<div className="w-10 h-10 rounded-full bg-brand_primary/10 flex items-center justify-center">
-												<Users className="w-5 h-5 text-brand_primary" />
+						{/* Impact Preview Card */}
+						<Card className="border-0 shadow-lg hover:shadow-md transition-shadow cursor-pointer">
+							<Link href={`/${locale}/donate/why-donate`}>
+								<CardContent className="pt-6">
+									<div className="flex items-center justify-between mb-4">
+										<h3 className="text-xl font-bold text-gray-900">{t("impact_title") || "Your Impact"}</h3>
+										<span className="text-brand_primary">→</span>
+									</div>
+									<div className="space-y-3">
+										<div className="flex items-center gap-3">
+											<div className="w-8 h-8 rounded-full bg-brand_primary/10 flex items-center justify-center">
+												<Building className="w-4 h-4 text-brand_primary" />
+											</div>
+											<div className="flex-1">
+												<h4 className="font-semibold text-gray-900 text-sm">{t("temple_construction") || "Temple Construction"}</h4>
+												<p className="text-xs text-gray-600 line-clamp-2">{t("temple_construction_desc") || "Build Norway's first Nepali Hindu temple"}</p>
 											</div>
 										</div>
-										<div>
-											<h4 className="font-semibold text-gray-900">{t("community_events") || "Community Events"}</h4>
-											<p className="text-sm text-gray-600">{t("community_events_desc") || "Support cultural events and community gatherings"}</p>
-										</div>
-									</div>
-
-									<div className="flex gap-3">
-										<div className="flex-shrink-0">
-											<div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center">
-												<Target className="w-5 h-5 text-success" />
+										<div className="flex items-center gap-3">
+											<div className="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center">
+												<Heart className="w-4 h-4 text-success" />
+											</div>
+											<div className="flex-1">
+												<h4 className="font-semibold text-gray-900 text-sm">{t("cultural_preservation") || "Cultural Preservation"}</h4>
+												<p className="text-xs text-gray-600 line-clamp-2">{t("cultural_preservation_desc") || "Preserve and celebrate our rich Nepali heritage"}</p>
 											</div>
 										</div>
-										<div>
-											<h4 className="font-semibold text-gray-900">{t("political_advocacy") || "Political Advocacy"}</h4>
-											<p className="text-sm text-gray-600">{t("political_advocacy_desc") || "Advocate for Nepalese community rights in Norway"}</p>
-										</div>
 									</div>
-
-									<div className="flex gap-3">
-										<div className="flex-shrink-0">
-											<div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
-												<TrendingUp className="w-5 h-5 text-purple-600" />
-											</div>
-										</div>
-										<div>
-											<h4 className="font-semibold text-gray-900">{t("organizational_growth") || "Organizational Growth"}</h4>
-											<p className="text-sm text-gray-600">{t("organizational_growth_desc") || "Expand our reach and impact in the community"}</p>
-										</div>
+									<div className="mt-4 text-center">
+										<span className="text-sm text-gray-700 bg-brand_primary/20 hover:bg-brand_primary/50 px-4 py-2 rounded-full font-medium">
+											{t("learn_more_impact") || "Learn more about your impact"} →
+										</span>
 									</div>
-
-									<div className="flex gap-3">
-										<div className="flex-shrink-0">
-											<div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
-												<Heart className="w-5 h-5 text-amber-600" />
-											</div>
-										</div>
-										<div>
-											<h4 className="font-semibold text-gray-900">{t("member_support") || "Member Support"}</h4>
-											<p className="text-sm text-gray-600">{t("member_support_desc") || "Provide resources and assistance to our members"}</p>
-										</div>
-									</div>
-								</div>
-							</CardContent>
+								</CardContent>
+							</Link>
 						</Card>
-{/* Why Donate */}
-						<Card className="border-0 shadow-lg bg-gradient-to-br from-brand to-blue-700 text-gray-700">
-							<CardContent className="pt-6">
-								<h3 className="text-xl font-bold mb-3">{t("why_donate") || "Why Donate to Pashupatinath Norway Temple?"}</h3>
-								<ul className="space-y-2 text-sm">
-									<li className="flex items-start gap-2">
-										<span className="text-white/80">👍</span>
-										<span>{t("why_donate_1") || "Support community development initiatives"}</span>
-									</li>
-									<li className="flex items-start gap-2">
-										<span className="text-white/80">👍</span>
-										<span>{t("why_donate_2") || "Help preserve Nepalese culture in Norway"}</span>
-									</li>
-									<li className="flex items-start gap-2">
-										<span className="text-white/80">👍</span>
-										<span>{t("why_donate_3") || "Empower our community through education and advocacy"}</span>
-									</li>
-								</ul>
-							</CardContent>
-						</Card>
+
 					</div>
 				</div>
 			</div>

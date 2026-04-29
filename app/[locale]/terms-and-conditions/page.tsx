@@ -6,8 +6,8 @@ export default function TermsAndConditions() {
 			{/* Header */}
 			<header className="">
 				<div className="max-w-4xl mx-auto px-4 py-6">
-					<h1 className="text-3xl font-bold text-gray-900">Pashupatinath Norway Temple App Terms and Conditions</h1>
-					<p className="text-sm text-gray-900 mt-2">Submission Agreement</p>
+					<h1 className="text-3xl font-bold text-gray-900">Pashupatinath Norway Temple Membership Terms and Conditions</h1>
+					<p className="text-sm text-gray-900 mt-2">Membership Agreement</p>
 				</div>
 			</header>
 
@@ -17,75 +17,103 @@ export default function TermsAndConditions() {
 					{/* Important Notice */}
 					<section className="bg-gradient-to-r from-red-50 to-orange-50 border-l-4 border-red-500 p-6 rounded-r-lg">
 						<h2 className="text-xl font-bold text-red-900 mb-3 uppercase">Important Notice</h2>
-						<p className="text-gray-900 leading-relaxed font-medium">BEFORE SUBMITTING ANY INFORMATION, TEXT, GRAPHICS, VIDEOS, PHOTOS OR OTHER MATERIAL (&quot;CONTENT&quot;) TO THE Pashupatinath Norway Temple APP YOU MUST READ AND AGREE TO THE TERMS OF THIS SUBMISSION AGREEMENT, WHICH APPLIES TO ALL CONTENT UPLOADED FROM YOUR ACCOUNT AT ANY TIME.</p>
+						<p className="text-gray-900 leading-relaxed font-medium">BEFORE SUBMITTING YOUR MEMBERSHIP APPLICATION, YOU MUST READ AND AGREE TO THESE TERMS AND CONDITIONS, WHICH GOVERN YOUR MEMBERSHIP WITH PASHUPATINATH NORWAY TEMPLE (ORGANIZATION NUMBER: 926 499 211).</p>
 					</section>
 
-					{/* Submission Agreement */}
+					{/* Organization Information */}
 					<section>
-						<h2 className="text-2xl font-semibold text-gray-900 mb-4">Submission Agreement</h2>
-						<p className="text-gray-900 leading-relaxed">By submitting any content to the Pashupatinath Norway Temple App, you hereby agree that you are responsible for any Content that you submit and any consequences thereof.</p>
+						<h2 className="text-2xl font-semibold text-gray-900 mb-4">About Our Organization</h2>
+						<p className="text-gray-900 leading-relaxed mb-4">
+							Pashupatinath Norway Temple is a registered organization in Norway (registration number: 926 499 211) with the main purpose of preserving and promoting Nepali Hindu religion and culture in Norway. More information about our activities can be found at www.nepalihindu.no.
+						</p>
+						<p className="text-gray-900 leading-relaxed">
+							Becoming a member is completely free of charge. Your membership helps us strengthen our community and continue our cultural and religious activities.
+						</p>
 					</section>
 
-					{/* Content Removal */}
+					{/* Membership Terms */}
 					<section>
-						<h2 className="text-2xl font-semibold text-gray-900 mb-4">Content Removal</h2>
-						<p className="text-gray-900 leading-relaxed">You understand that any Content submitted on the Pashupatinath Norway Temple App can be removed if we believe that it violates these Terms of Service, our policies or any laws by which we are governed.</p>
-					</section>
-
-					{/* User Responsibilities */}
-					<section>
-						<h2 className="text-2xl font-semibold text-gray-900 mb-4">Your Responsibilities</h2>
+						<h2 className="text-2xl font-semibold text-gray-900 mb-4">Membership Terms</h2>
 						<div className="space-y-4">
-							<ResponsibilityCard title="Privacy Policy Agreement" description="You further agree that any information that you or other users provide to the Pashupatinath Norway Temple APP is subject to our Privacy Policy, which governs our collection and use of information." />
-
-							<ResponsibilityCard title="Copyright and Third-Party Rights" description="You agree not to upload any content that infringes upon or violates copyright, trademark, privacy or any other rights of any third party, and not to attempt to circumvent any content filtering techniques we may employ." />
-
-							<ResponsibilityCard title="Appropriate Content" description="You agree to not post nude, partially nude, or sexually suggestive photos." />
-
-							<ResponsibilityCard title="Account Security" description="You are responsible for any activity that occurs under your screen name. You are responsible for keeping your password secure." />
-
-							<ResponsibilityCard title="User Conduct" description="You must not abuse, harass, threaten, impersonate, or intimidate other users on the app." />
-
-							<ResponsibilityCard title="Content Ownership" description="You are solely responsible for your conduct and any data, text, information, screen names, graphics, photos, profiles, audio and video clips, links, contents that you submit, post, and display on the app." />
+							<TermCard title="Free Membership" description="Membership in Pashupatinath Norway Temple is completely free. No membership fees are required to join or maintain your membership status." />
+							
+							<TermCard title="Age Requirements" description="Membership forms for children under 15 years of age must be filled out and submitted by their parents or legal guardians." />
+							
+							<TermCard title="Individual Applications" description="Each person must submit a separate membership application. Parents cannot include their children in their own application form." />
+							
+							<TermCard title="Accurate Information" description="You must provide accurate, complete, and current information in your membership application. You are responsible for updating your information when it changes." />
+							
+							<TermCard title="Single Membership" description="You may only hold membership with one religious organization at a time. If you are currently a member of another religious organization, you should cancel that membership before joining ours." />
 						</div>
+					</section>
+
+					{/* Data Protection and Privacy */}
+					<section>
+						<h2 className="text-2xl font-semibold text-gray-900 mb-4">Data Protection and Privacy</h2>
+						<p className="text-gray-900 leading-relaxed mb-4">
+							Your personal data will only be used by Pashupatinath Norway Temple for membership administration and communication purposes. We will not share your personal information with third parties without your explicit consent, except as required by law.
+						</p>
+						<p className="text-gray-900 leading-relaxed">
+							You have the right to access, update, or delete your personal information at any time by contacting us or through your member portal. For detailed information about how we handle your data, please refer to our Privacy Policy.
+						</p>
+					</section>
+
+					{/* Membership Rights and Responsibilities */}
+					<section>
+						<h2 className="text-2xl font-semibold text-gray-900 mb-4">Membership Rights and Responsibilities</h2>
+						<div className="space-y-4">
+							<TermCard title="Participation Rights" description="As a member, you have the right to participate in our religious ceremonies, cultural events, and general meetings." />
+							
+							<TermCard title="Voting Rights" description="Active members have voting rights in organizational matters as specified in our bylaws and during general meetings." />
+							
+							<TermCard title="Code of Conduct" description="Members are expected to respect our cultural and religious traditions, maintain respectful behavior towards other members, and support the organization's mission." />
+							
+							<TermCard title="Communication" description="We will communicate with members primarily through email and our member portal. Please keep your contact information updated to receive important announcements." />
+						</div>
+					</section>
+
+					{/* Membership Cancellation */}
+					<section>
+						<h2 className="text-2xl font-semibold text-gray-900 mb-4">Membership Cancellation</h2>
+						<p className="text-gray-900 leading-relaxed mb-4">
+							You may cancel your membership at any time by sending a written request to our organization. We will process your cancellation within 48 hours and confirm the completion of the process.
+						</p>
+						<p className="text-gray-900 leading-relaxed">
+							To cancel your membership, please email us at norwaynepalihindutemple@gmail.com with your full name, personal number, and a clear statement that you wish to cancel your membership.
+						</p>
 					</section>
 
 					{/* Terms Modification */}
 					<section className="bg-blue-50 rounded-lg p-6 border border-blue-100">
 						<h2 className="text-xl font-semibold text-gray-900 mb-3">Terms Modification</h2>
-						<p className="text-gray-900 leading-relaxed">We may change or modify these terms, at any time, in our sole discretion.</p>
+						<p className="text-gray-900 leading-relaxed">We may update these terms and conditions from time to time. Any changes will be communicated to members through email and posted on our website. Continued membership after such changes constitutes acceptance of the modified terms.</p>
 					</section>
 
-					{/* Disclaimer */}
-					<section>
-						<h2 className="text-2xl font-semibold text-gray-900 mb-4">Disclaimer of Liability</h2>
-						<div className="bg-light rounded-lg p-6 border border-light">
-							<p className="text-gray-900 leading-relaxed mb-4">You agree and acknowledge that the Pashupatinath Norway Temple App is not responsible for and does not control Content submitted and published by a third party.</p>
-							<p className="text-gray-900 leading-relaxed">Under no circumstances will the Pashupatinath Norway Temple App be liable in any way for any Content, including, but not limited to, any errors or omissions in any Content, or any loss or damage of any kind incurred as a result of the use of any Content posted, emailed, transmitted or otherwise made available via the Pashupatinath Norway Temple App or broadcast elsewhere.</p>
+					{/* Contact Information */}
+					<section className="bg-gradient-to-r from-green-50 to-blue-50 border-l-4 border-green-500 p-6 rounded-r-lg">
+						<h2 className="text-xl font-bold text-green-900 mb-3">Contact Information</h2>
+						<div className="space-y-2">
+							<p className="text-gray-900"><strong>Email:</strong> norwaynepalihindutemple@gmail.com</p>
+							<p className="text-gray-900"><strong>Website:</strong> www.nepalihindu.no</p>
+							<p className="text-gray-900"><strong>Organization Number:</strong> 926 499 211</p>
 						</div>
 					</section>
 
-					{/* Termination Warning */}
-					<section className="bg-gradient-to-r from-yellow-50 to-orange-50 border-l-4 border-yellow-500 p-6 rounded-r-lg">
-						<h2 className="text-xl font-bold text-yellow-900 mb-3 uppercase">Termination Policy</h2>
-						<p className="text-gray-900 leading-relaxed font-medium">FAILURE TO ADHERE TO THE TERMS OF SERVICE AND PRIVACY POLICY, AMONG OTHERS, MAY RESULT, AMONG OTHER THINGS, IN THE TERMINATION OF YOUR ACCOUNT AND THE DELETION OF CONTENT SUBMITTED FROM YOUR ACCOUNT ON THE Pashupatinath Norway Temple APP, WITH OR WITHOUT NOTICE, AS DETERMINED BY THE Pashupatinath Norway Temple APP IN ITS SOLE DISCRETION.</p>
-					</section>
-
-					{/* Additional Resources */}
-					<section className="border-t border-light pt-6">
+					{/* Related Documents */}
+					<section className="border-t border-gray-200 pt-6">
 						<h3 className="text-lg font-semibold text-gray-900 mb-4">Related Documents</h3>
 						<div className="flex flex-wrap gap-3">
-							<Link href="/en/privacy-policy" className="inline-flex items-center px-4 py-2 bg-brand_primary text-white rounded-lg hover:bg-blue-700 transition-colors">
+							<Link href="/en/privacy-policy" className="inline-flex items-center px-4 py-2 bg-brand_primary text-gray-700 rounded-lg hover:scale-105 transition-all">
 								<svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
 								</svg>
 								Privacy Policy
 							</Link>
-							<Link href="mailto:nepalihindusamfunn@gmail.com" className="inline-flex items-center px-4 py-2 bg-neutral-600 text-white rounded-lg hover:bg-neutral-700 transition-colors">
+							<Link href="/en/membership" className="inline-flex items-center px-4 py-2 bg-neutral-600 text-white rounded-lg  hover:scale-105 transition-all">
 								<svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
 								</svg>
-								Contact Support
+								Membership Application
 							</Link>
 						</div>
 					</section>
@@ -93,17 +121,18 @@ export default function TermsAndConditions() {
 			</main>
 
 			{/* Footer */}
-			<footer className="bg-white border-t border-light mt-12">
+			<footer className="bg-white border-t border-gray-200 mt-12">
 				<div className="max-w-4xl mx-auto px-4 py-6 text-center text-gray-900 text-sm">
-					<p>© 2025 Pashupatinath Norway Temple Nepal. All rights reserved.</p>
-					<p className="mt-1">By using the Pashupatinath Norway Temple App, you agree to these Terms and Conditions</p>
+					<p>© 2025 Pashupatinath Norway Temple. All rights reserved.</p>
+					<p className="mt-1">Organization Number: 926 499 211</p>
+					<p className="mt-1">By submitting a membership application, you agree to these Terms and Conditions</p>
 				</div>
 			</footer>
 		</div>
 	);
 }
 
-function ResponsibilityCard({ title, description }: { title: string; description: string }) {
+function TermCard({ title, description }: { title: string; description: string }) {
 	return (
 		<div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-5 border border-indigo-100">
 			<div className="flex items-start">

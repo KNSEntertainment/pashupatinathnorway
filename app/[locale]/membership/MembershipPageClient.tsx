@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import nepalLocationsData from "@/lib/data/nepal-locations.json";
 
 interface District {
@@ -101,6 +103,7 @@ interface GeoapifyResponse {
 }
 
 export default function MembershipPageClient({ translations: t, locale }: Props) {
+	const tr = useTranslations("membership");
 	const [formData, setFormData] = useState({
 		firstName: "",
 		middleName: "",
@@ -443,6 +446,8 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 					<p className="text-gray-900 mb-8"> {t.subtitle}</p>
 				</div>
 
+			
+
 				<div className="  relative z-10 space-y-6">
 					{/* Personal Information */}
 					<div>
@@ -608,11 +613,11 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 							<input type="checkbox" name="agreeTerms" checked={formData.agreeTerms} onChange={handleChange} className="w-5 h-5 text-brand_primary rounded mt-1" />
 							<span className="ml-2 md:ml-3 text-gray-900">
 								{t.agree_terms_prefix}{" "}
-								<Link href="/terms-and-conditions" className="text-brand_primary hover:underline">
+								<Link href="/terms-and-conditions" className="text-black underline">
 									{t.terms_and_conditions}
 								</Link>{" "}
 								{t.and}{" "}
-								<Link href="/privacy-policy" className="text-brand_primary hover:underline">
+								<Link href="/privacy-policy" className="text-black underline">
 									{t.privacy_policy}
 								</Link>
 								. <span className="text-red-500"> *</span>
@@ -622,7 +627,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 
 					{/* Submit Button */}
 					<div className="flex gap-4">
-						<button onClick={handleSubmit} className={`flex-1 bg-brand_primary text-white py-2 md:py-4 px-6 md:px-8 rounded-lg font-semibold hover:bg-brand_primary/90 transition-colors shadow-lg hover:shadow-xl${!formData.agreeTerms ? " opacity-50 cursor-not-allowed" : ""}`} disabled={!formData.agreeTerms}>
+						<button onClick={handleSubmit} className={`flex-1 bg-brand_primary text-gray-700 py-2 md:py-4 px-6 md:px-8 rounded-lg font-semibold hover:bg-brand_primary/90 transition-colors shadow-lg hover:shadow-xl${!formData.agreeTerms ? " opacity-50 cursor-not-allowed" : ""}`} disabled={!formData.agreeTerms}>
 							{t.submit}
 						</button>
 						<button onClick={resetForm} className="px-6 md:px-8 py-2 md:py-4 border-2 border-light text-gray-900 rounded-lg font-semibold hover:bg-light transition-colors">
@@ -633,18 +638,55 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 			</div>
 
 			{/* Contact Info */}
-			<div className="mt-12 md:rounded-2xl bg-gradient-to-r from-blue-400 to-brand text-white p-8 text-center">
-				<h3 className="text-2xl font-bold mb-4">{t.need_help}</h3>
-				<p className="mb-6 font-medium text-lg">{t.contact_us_any_questions}</p>
-				<div className="flex flex-wrap justify-center gap-4">
-					<a href="mailto:nepalihindusamfunn@gmail.com" className="inline-flex items-center px-6 py-3 bg-white text-brand_primary rounded-lg font-semibold hover:translate-y-[-2px] transition-colors">
-						<svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-						</svg>
-						{t.email_us}
-					</a>
+				{/* Membership Information Card */}
+				<div className="max-w-3xl mx-auto relative z-10 my-8">
+					<Card className="bg-white/95 backdrop-blur-sm border-2 border-brand_primary/20 shadow-xl">
+						<CardHeader className="bg-gradient-to-r from-brand_primary to-brand_secondary border-b border-brand_primary/20">
+							<CardTitle className="text-xl font-bold text-gray-700 flex items-center gap-2">
+								<svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+									<path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+								</svg>
+								{tr("membership_info_title")}
+							</CardTitle>
+						</CardHeader>
+						<CardContent className="p-6 space-y-4">
+							<div className="space-y-3">
+								<div className="flex items-start gap-3">
+									<div className="w-2 h-2 rounded-full bg-brand_primary mt-2 flex-shrink-0"></div>
+									<p className="text-gray-700 leading-relaxed text-sm">
+										{tr("membership_info_1")}
+									</p>
+								</div>
+								<div className="flex items-start gap-3">
+									<div className="w-2 h-2 rounded-full bg-brand_primary mt-2 flex-shrink-0"></div>
+									<p className="text-gray-700 leading-relaxed text-sm">
+										{tr("membership_info_2")}
+									</p>
+								</div>
+								<div className="flex items-start gap-3">
+									<div className="w-2 h-2 rounded-full bg-brand_primary mt-2 flex-shrink-0"></div>
+									<p className="text-gray-700 leading-relaxed text-sm">
+										{tr("membership_info_3")}
+									</p>
+								</div>
+							
+							</div>
+				
+				<div className="bg-brand_primary/20 p-6 flex flex-col space-y-4">
+					<h3 className="text-sm font-bold">{t.need_help}</h3>
+				<p className="font-medium text-sm">{t.contact_us_any_questions}</p>
+				<a href="mailto:nepalihindusamfunn@gmail.com" className="inline-flex items-center w-fit px-4 py-1.5 bg-brand_primary rounded-lg font-medium  text-sm hover:translate-y-[-2px] transition-colors">
+					<svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+					</svg>
+					{t.email_us}
+				</a>
 				</div>
-			</div>
-		</div>
-	);
+					</CardContent>
+					</Card>
+				
+				
+				</div>
+				</div>
+			);
 }

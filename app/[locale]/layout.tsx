@@ -5,6 +5,7 @@ import ClientLayout from "./ClientLayout";
 import { NextIntlClientProvider } from "next-intl";
 import Header from "@/components/header/Header";
 import { CartProvider } from "@/context/CartContext";
+import { Toaster } from "@/components/ui/toaster";
 
 const geistSans = localFont({
 	src: "./fonts/GeistVF.woff",
@@ -29,6 +30,7 @@ export default function LocaleLayout({ children }: { children: React.ReactNode }
 							<Footer />
 						</NextIntlClientProvider>
 					</ClientLayout>
+					<Toaster />
 				</CartProvider>
 			</body>
 		</html>

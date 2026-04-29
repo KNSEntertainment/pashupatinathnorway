@@ -10,7 +10,7 @@ import { useSession } from "next-auth/react";
 import { toast } from "react-hot-toast";
 import Image from "next/image";
 
-const PRESET_AMOUNTS = [100, 250, 500, 1000, 2500, 5000];
+const PRESET_AMOUNTS = [100, 250, 500, 1000, 2500, 5000, 10000, 20000];
 
 export default function DonationForm() {
 	const t = useTranslations("donation");
@@ -26,7 +26,7 @@ export default function DonationForm() {
 	const [paymentMethod, setPaymentMethod] = useState<'card' | 'vipps'>('card');
 	const [showVippsSuccess, setShowVippsSuccess] = useState(false);
 	const [selectedCause, setSelectedCause] = useState<string>("");
-	const [causes, setCauses] = useState<Array<{ _id: string; title: { [key: string]: string }; category: string }>>([]);
+	const [causes, setCauses] = useState<Array<{ _id: string; title: string; category: string }>>([]);
 
 	useEffect(() => {
 		fetchCauses();
@@ -150,8 +150,8 @@ export default function DonationForm() {
 	};
 
 	return (
-		<Card className="w-full max-w-2xl mx-auto shadow-xl border-0">
-			<CardHeader className="bg-gradient-to-r from-brand to-blue-700 text-gray-700">
+		<Card className="w-full max-w-3xl mx-auto shadow-xl border-0">
+			<CardHeader className="bg-gradient-to-r from-brand_primary/50 to-brand_secondary/50 text-gray-700">
 				<div className="flex items-center gap-3">
 					<Heart className="w-8 h-8 text-brand_secondary" />
 					<div>
@@ -165,9 +165,9 @@ export default function DonationForm() {
 					{/* Preset Amounts */}
 					<div>
 						<label className="block text-sm font-semibold text-gray-700 mb-3">{t("select_amount") || "Select Amount"}</label>
-						<div className="grid grid-cols-3 gap-3">
+						<div className="grid grid-cols-4 gap-3">
 							{PRESET_AMOUNTS.map((presetAmount) => (
-								<button key={presetAmount} type="button" onClick={() => handlePresetClick(presetAmount)} className={`text-sm md:text-xl py-3 px-2 md:px-4 rounded-lg border-2 font-semibold transition-all ${amount === presetAmount ? "border-brand bg-brand_primary text-gray-700" : "border-gray-300 text-gray-700 hover:border-brand"}`}>
+								<button key={presetAmount} type="button" onClick={() => handlePresetClick(presetAmount)} className={`text-sm md:text-lg py-1 md:py-2 px-2 md:px-4 rounded-lg border border-1 transition-all ${amount === presetAmount ? "border-brand_primary bg-green-100 text-gray-700" : "border-gray-300 text-gray-700 hover:border-brand_primary"}`}>
 									{presetAmount} NOK
 								</button>
 							))}
@@ -179,7 +179,7 @@ export default function DonationForm() {
 						<label className="block text-sm font-semibold text-gray-900 mb-2">{t("custom_amount") || "Custom Amount"}</label>
 						<div className="relative">
 							<input type="number" min="50" value={customAmount} onChange={(e) => handleCustomAmountChange(e.target.value)} placeholder={t("amount_placeholder") || "Enter amount"} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-brand focus:outline-none text-gray-900" />
-							<span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">NOK</span>
+							<span className="absolute right-12 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">NOK</span>
 						</div>
 						<p className="text-xs text-gray-500 mt-1">{t("minimum_donation") || "Minimum donation: 50 NOK"}</p>
 					</div>
@@ -195,7 +195,7 @@ export default function DonationForm() {
 								<SelectItem value="general">{t("general_donation") || "General Donation"}</SelectItem>
 								{causes.map((cause) => (
 									<SelectItem key={cause._id} value={cause._id}>
-										{cause.title.en || cause.title.no || cause.title.ne} ({cause.category})
+										{cause.title} ({cause.category})
 									</SelectItem>
 								))}
 							</SelectContent>
@@ -248,10 +248,10 @@ export default function DonationForm() {
 							<button
 								type="button"
 								onClick={() => setPaymentMethod('card')}
-								className={`p-2 md:p-4 rounded-lg border-2 font-semibold transition-all ${
+								className={`p-2 rounded-lg border border-1 font-semibold transition-all ${
 									paymentMethod === 'card'
-										? 'border-brand bg-brand_primary text-gray-700'
-										: 'border-gray-300 text-gray-900 hover:border-brand'
+										? 'border-brand_primary bg-green-100 text-gray-700'
+										: 'border-gray-300 text-gray-900 hover:border-brand_primary'
 								}`}
 							>
 								<div className="flex items-center justify-center gap-2">
@@ -265,10 +265,10 @@ export default function DonationForm() {
 							<button
 								type="button"
 								onClick={() => setPaymentMethod('vipps')}
-								className={`p-2 md:p-4 rounded-lg border-2 font-semibold transition-all ${
+								className={`p-2 rounded-lg border border-1 font-semibold transition-all ${
 									paymentMethod === 'vipps'
-										? 'border-brand bg-brand_primary text-gray-700'
-										: 'border-gray-300 text-gray-700 hover:border-brand'
+										? 'border-brand_primary bg-green-100 text-gray-700'
+										: 'border-gray-300 text-gray-900 hover:border-brand_primary'
 								}`}
 							>
 								<div className="flex items-center justify-center gap-2">
@@ -286,7 +286,7 @@ export default function DonationForm() {
 					</div>
 
 					{/* Submit Button */}
-					<Button type="submit" disabled={loading || amount < 50} className="w-full py-6 text-lg bg-brand_primary hover:bg-brand_primary/90 text-gray-700 font-bold">
+					<Button type="submit" disabled={loading || amount < 50} className="w-full py-6 md:py-8 text-lg bg-brand_primary hover:bg-brand_primary/90 text-gray-700 font-bold">
 						{loading ? (
 							<>
 								<Loader2 className="w-5 h-5 mr-2 animate-spin" />

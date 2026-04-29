@@ -8,7 +8,7 @@ export const metadata = {
 
 async function getActiveCauses(locale: string) {
 	try {
-		const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/causes?status=active&featured=true&limit=6&locale=${locale}`, {
+		const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/causes?status=active&featured=true&limit=2&locale=${locale}`, {
 			cache: 'no-store'
 		});
 		const data = await response.json();
