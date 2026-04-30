@@ -3,13 +3,8 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import nepalLocationsData from "@/lib/data/nepal-locations.json";
+import { LocateIcon } from "lucide-react";
 
-interface District {
-	id: string;
-	name: string;
-	nameNe: string;
-}
 
 interface Translations {
 	welcome: string;
@@ -154,22 +149,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 	const [successMessage, setSuccessMessage] = useState("");
 	const geoapifyKey = process.env.NEXT_PUBLIC_GEOAPIFY_KEY;
 
-	// Cascading dropdown state
-	const [availableDistricts, setAvailableDistricts] = useState<District[]>([]);
-
-	// Update available districts when province changes
-	useEffect(() => {
-		if (formData.province) {
-			const province = nepalLocationsData.provinces.find((p) => p.id === formData.province);
-			if (province) {
-				setAvailableDistricts(province.districts);
-				// Reset dependent fields
-				setFormData((prev) => ({ ...prev, district: "" }));
-			}
-		} else {
-			setAvailableDistricts([]);
-		}
-	}, [formData.province]);
+	
 
 	const validatePhoneNumber = (phone: string) => {
 		// Check if phone contains only digits and is exactly 8 characters
@@ -225,6 +205,85 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 		}
 
 		return true;
+	};
+
+	const calculateAgeFromPersonalNumber = (personalNumber: string): number | null => {
+		if (!validateNorwegianPersonalNumber(personalNumber)) {
+			return null;
+		}
+
+		// Extract date components
+		const day = parseInt(personalNumber.substring(0, 2));
+		const month = parseInt(personalNumber.substring(2, 4)) - 1; // JavaScript months are 0-indexed
+		const yearShort = parseInt(personalNumber.substring(4, 6));
+		const individualNumber = parseInt(personalNumber.substring(6, 9));
+		const currentYear = new Date().getFullYear();
+		
+		// Norwegian personal number year determination logic (official rules)
+		let fullYear: number;
+		
+		// The individual number (digits 7-9) determines the century
+		// 000-499: 1900-1999
+		// 500-749: 1854-1899  
+		// 750-999: 1854-1899 (alternative range)
+		// 900-999 with year 00-39: 2000-2039
+		
+		if (individualNumber >= 0 && individualNumber <= 499) {
+			// 1900-1999 range
+			fullYear = 1900 + yearShort;
+		} else if (individualNumber >= 500 && individualNumber <= 749) {
+			// 1854-1899 range
+			fullYear = 1800 + yearShort;
+		} else if (individualNumber >= 750 && individualNumber <= 999) {
+			// Check if this falls in the 2000-2039 range
+			if (yearShort <= 39 && individualNumber >= 900) {
+				// 2000-2039 range (for individuals 900-999 with year 00-39)
+				fullYear = 2000 + yearShort;
+			} else {
+				// 1854-1899 range
+				fullYear = 1800 + yearShort;
+			}
+		} else {
+			// Default to 1900s
+			fullYear = 1900 + yearShort;
+		}
+		
+		// Additional logic: if calculated year is in the future, adjust to previous century
+		if (fullYear > currentYear) {
+			// Try to determine if this should be 1900s or 1800s
+			if (yearShort <= currentYear % 100) {
+				fullYear -= 100; // Move to previous century
+			} else {
+				fullYear -= 200; // Move two centuries back
+			}
+		}
+		
+		// Special case: for very recent births (last 15 years), prioritize 2000s
+		const birthDate = new Date(fullYear, month, day);
+		const today = new Date();
+		const age = today.getFullYear() - birthDate.getFullYear();
+		const monthDiff = today.getMonth() - birthDate.getMonth();
+		const actualAge = monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate()) ? age - 1 : age;
+		
+		// If the calculated age seems unreasonable (over 120) or individual number suggests recent birth
+		if (actualAge > 120 || (individualNumber >= 900 && yearShort <= 39 && actualAge > 25)) {
+			// Try 2000s for recent births
+			const alternativeYear = 2000 + yearShort;
+			if (alternativeYear <= currentYear) {
+				fullYear = alternativeYear;
+			}
+		}
+		
+		// Final age calculation
+		const finalBirthDate = new Date(fullYear, month, day);
+		let finalAge = today.getFullYear() - finalBirthDate.getFullYear();
+		const finalMonthDiff = today.getMonth() - finalBirthDate.getMonth();
+		
+		if (finalMonthDiff < 0 || (finalMonthDiff === 0 && today.getDate() < finalBirthDate.getDate())) {
+			finalAge--;
+		}
+		
+		return finalAge;
 	};
 
 	const validatePartialPersonalNumber = (personalNumber: string) => {
@@ -525,8 +584,107 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 		if (!validateNorwegianPersonalNumber(formData.personalNumber)) {
 			setPersonalNumberError("Invalid Norwegian personal number. Please check date, month, and year (must be 1901+).");
 		} else {
-			setPersonalNumberError("");
+			// Check if main applicant is over 15 years old
+			const age = calculateAgeFromPersonalNumber(formData.personalNumber);
+			if (age !== null && age <= 15) {
+				setPersonalNumberError("You must be over 15 years old to fill this form. Please ask your parents to fill it for you.");
+			} else {
+				setPersonalNumberError("");
+			}
 		}
+	};
+
+	const isFormValid = (): boolean => {
+		// Check main applicant required fields
+		if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || 
+			!formData.personalNumber || !formData.gender || !formData.address || 
+			!formData.city || !formData.postalCode || !formData.agreeTerms) {
+			return false;
+		}
+
+		// Check for email error
+		if (emailError) {
+			return false;
+		}
+
+		// Check for personal number error
+		if (personalNumberError) {
+			return false;
+		}
+
+		// Check for other field errors
+		if (firstNameError || lastNameError || genderError || addressError || 
+			cityError || postalCodeError || phoneError || termsError) {
+			return false;
+		}
+
+		// Validate main applicant is over 15
+		if (!isMainApplicantOver15()) {
+			return false;
+		}
+
+		// Validate phone number format
+		if (!validatePhoneNumber(formData.phone)) {
+			return false;
+		}
+
+		// Validate personal number format
+		if (!validateNorwegianPersonalNumber(formData.personalNumber)) {
+			return false;
+		}
+
+		// Validate basic email format
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!emailRegex.test(formData.email)) {
+			return false;
+		}
+
+		// Check family members if any exist
+		for (const member of formData.familyMembers) {
+			// Check required fields for each family member
+			if (!member.firstName || !member.lastName || !member.personalNumber || !member.email) {
+				return false;
+			}
+
+			// Check for family member errors
+			if (familyMemberErrors[`${member.id}-personalNumber`] || 
+				familyMemberErrors[`${member.id}-required`] || 
+				familyMemberErrors[`${member.id}-email`] || 
+				familyMemberErrors[`${member.id}-phone`]) {
+				return false;
+			}
+
+			// Validate family member personal number
+			if (!validateNorwegianPersonalNumber(member.personalNumber)) {
+				return false;
+			}
+
+			// Validate family member is under 15
+			const age = calculateAgeFromPersonalNumber(member.personalNumber);
+			if (age === null || age >= 15) {
+				return false;
+			}
+
+			// Validate family member email format
+			if (!emailRegex.test(member.email)) {
+				return false;
+			}
+
+			// Validate family member phone if provided
+			if (member.phone && !validatePhoneNumber(member.phone)) {
+				return false;
+			}
+		}
+
+		return true;
+	};
+
+	const isMainApplicantOver15 = (): boolean => {
+		if (!formData.personalNumber || !validateNorwegianPersonalNumber(formData.personalNumber)) {
+			return false;
+		}
+		const age = calculateAgeFromPersonalNumber(formData.personalNumber);
+		return age !== null && age > 15;
 	};
 
 	const addFamilyMember = () => {
@@ -550,6 +708,21 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 			delete newErrors[`${id}-personalNumber`];
 			return newErrors;
 		});
+	};
+
+	const validateFamilyMemberPersonalNumber = (personalNumber: string): string => {
+		// First validate format
+		if (!validateNorwegianPersonalNumber(personalNumber)) {
+			return "Invalid Norwegian personal number. Please check date, month, and year (must be 1901+).";
+		}
+		
+		// Then check if under 15
+		const age = calculateAgeFromPersonalNumber(personalNumber);
+		if (age !== null && age >= 15) {
+			return "You cannot add another adult (15+ years). They must fill their own form.";
+		}
+		
+		return "";
 	};
 
 	const updateFamilyMember = (id: string, field: keyof FamilyMember, value: string) => {
@@ -582,12 +755,23 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 					}
 				}
 			} else {
-				// Clear error when valid
+				// Clear error when valid format
 				setFamilyMemberErrors(prev => {
 					const newErrors = { ...prev };
 					delete newErrors[`${id}-personalNumber`];
 					return newErrors;
 				});
+				
+				// Additional validation: check if family member is under 15 when complete
+				if (value.length === 11 && validateNorwegianPersonalNumber(value)) {
+					const familyMemberError = validateFamilyMemberPersonalNumber(value);
+					if (familyMemberError) {
+						setFamilyMemberErrors(prev => ({
+							...prev,
+							[`${id}-personalNumber`]: familyMemberError
+						}));
+					}
+				}
 			}
 		}
 		
@@ -668,6 +852,13 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 		} else if (!validateNorwegianPersonalNumber(formData.personalNumber)) {
 			setPersonalNumberError("Invalid Norwegian personal number. Please check date, month, and year (must be 1901+).");
 			hasError = true;
+		} else {
+			// Check if main applicant is over 15 years old
+			const age = calculateAgeFromPersonalNumber(formData.personalNumber);
+			if (age !== null && age <= 15) {
+				setPersonalNumberError("You must be over 15 years old to fill this form. Please ask your parents to fill it for you.");
+				hasError = true;
+			}
 		}
 		
 		// Validate terms agreement
@@ -692,12 +883,16 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 				hasError = true;
 			}
 			
-			if (member.personalNumber && !validateNorwegianPersonalNumber(member.personalNumber)) {
-				setFamilyMemberErrors(prev => ({
-					...prev,
-					[`${member.id}-personalNumber`]: `Invalid Norwegian personal number. Please check date, month, and year (must be 1901+).`
-				}));
-				hasError = true;
+			// Validate family member personal number
+			if (member.personalNumber) {
+				const familyMemberError = validateFamilyMemberPersonalNumber(member.personalNumber);
+				if (familyMemberError) {
+					setFamilyMemberErrors(prev => ({
+						...prev,
+						[`${member.id}-personalNumber`]: familyMemberError
+					}));
+					hasError = true;
+				}
 			}
 			
 			// Validate family member phone number (optional but if provided must be 8 digits)
@@ -923,48 +1118,9 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 								<input type="text" name="personalNumber" value={formData.personalNumber} onChange={handleChange} onBlur={handlePersonalNumberBlur} maxLength={11} pattern="\d{11}" className={`w-full px-4 py-2 border ${personalNumberError ? "border-red-500" : "border-light"} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`} placeholder={t.personal_number_placeholder} />
 								{personalNumberError && <p className="text-red-600 text-sm mt-1">{personalNumberError}</p>}
 							</div>
+						
 							<div>
-								<label className="block text-sm font-medium text-gray-900 mb-2">
-									{t.gender} <span className="text-red-500">*</span>
-								</label>
-								<select name="gender" value={formData.gender} onChange={handleChange} className={`w-full px-4 py-2 border ${genderError ? "border-red-500" : "border-light"} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`}>
-									<option value="">{t.select_gender}</option>
-									<option value="male">{t.male}</option>
-									<option value="female">{t.female}</option>
-									<option value="other">{t.other}</option>
-									<option value="prefer-not-to-say">{t.prefer_not_to_say}</option>
-								</select>
-								{genderError && <p className="text-red-600 text-sm mt-1">{genderError}</p>}
-							</div>
-							<div>
-								<label className="block text-sm font-medium text-gray-900 mb-2">{t.address_nepal}</label>
-								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-									{/* Province Dropdown */}
-									<div>
-										{/* <label className="block text-xs text-gray-900 mb-1">{t.province}</label> */}
-										<select name="province" value={formData.province} onChange={handleChange} className="w-full px-4 py-2 border border-light rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-											<option value="">{t.select_province}</option>
-											{nepalLocationsData.provinces.map((province) => (
-												<option key={province.id} value={province.id}>
-													{locale === "ne" ? province.nameNe : province.name}
-												</option>
-											))}
-										</select>
-									</div>
-
-									{/* District Dropdown */}
-									<div>
-										{/* <label className="block text-xs text-gray-900 mb-1">{t.district}</label> */}
-										<select name="district" value={formData.district} onChange={handleChange} className="w-full px-4 py-2 border border-light rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" disabled={!formData.province}>
-											<option value="">{t.select_district}</option>
-											{availableDistricts.map((district) => (
-												<option key={district.id} value={district.id}>
-													{locale === "ne" ? district.nameNe : district.name}
-												</option>
-											))}
-										</select>
-									</div>
-								</div>
+							
 							</div>
 						</div>
 					</div>
@@ -976,7 +1132,10 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 							<button
 								type="button"
 								onClick={addFamilyMember}
-								className="bg-brand_secondary text-white px-4 py-2 rounded-lg hover:bg-rd-700 transition-colors text-sm font-medium"
+								disabled={!isMainApplicantOver15()}
+								className={`bg-brand_secondary text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
+									!isMainApplicantOver15() ? "opacity-50 cursor-not-allowed" : "hover:bg-rd-700"
+								}`}
 							>
 								{tr("add_family_member")}
 							</button>
@@ -1102,8 +1261,8 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 								<div className="relative">
 									<input type="text" name="address" value={formData.address} onChange={handleAddressChange} onKeyDown={handleAddressKeyDown} className={`w-full px-4 py-2 border ${addressError ? "border-red-500" : "border-light"} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`} placeholder={t.street_address_ph} autoComplete="off" />
 									<div className="mt-2">
-										<button type="button" onClick={handleUseMyLocation} disabled={locating} className={`text-sm font-medium px-3 py-1.5 rounded border border-light bg-white hover:bg-light transition-colors ${locating ? "opacity-60 cursor-not-allowed" : ""}`}>
-											{locating ? t.locating : t.use_current_location}
+										<button type="button" onClick={handleUseMyLocation} disabled={locating} className={`text-sm font-medium px-3 py-1.5 rounded border border-light hover:bg-light transition-colors ${locating ? "opacity-60 cursor-not-allowed" : ""}`}>
+											{locating ? t.locating : <div className="flex items-center"><LocateIcon className="w-4 h-4 mr-1 text-blue-600" />{t.use_current_location}</div>}
 										</button>
 									</div>
 									{addressLoading && <div className="absolute right-3 top-2.5 text-xs text-gray-500">Loading…</div>}
@@ -1146,7 +1305,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 
 					
 					{/* Privacy Permissions */}
-					<div>
+					{/* <div>
 						<h3 className="text-xl font-semibold text-gray-900 mb-4">{t.permissions_title}</h3>
 						<div className="space-y-3">
 							<label className="flex items-start cursor-pointer p-3 border border-light rounded-lg hover:bg-brand_primary/10 transition-colors">
@@ -1162,7 +1321,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 								<span className="ml-3 text-gray-900 text-sm">{t.permission_email}</span>
 							</label>
 						</div>
-					</div>
+					</div> */}
 
 					{/* Terms and Conditions */}
 					<div className="bg-light rounded-lg p-2 md:p-6">
@@ -1177,7 +1336,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 								<Link href="/privacy-policy" className="text-black underline">
 									{t.privacy_policy}
 								</Link>
-								. <span className="text-red-500"> *</span>
+								{locale === "ne" && "संग सहमत छु।"}<span className="text-red-500"> *</span>
 							</span>
 						</label>
 						{termsError && <p className="text-red-600 text-sm mt-2">{termsError}</p>}
@@ -1185,7 +1344,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 
 					{/* Submit Button */}
 					<div className="flex gap-4">
-						<button onClick={handleSubmit} className={`flex-1 bg-brand_secondary text-white py-2 md:py-4 px-6 md:px-8 rounded-lg font-semibold transition-colors shadow-lg hover:shadow-xl${!formData.agreeTerms ? " opacity-50 cursor-not-allowed" : ""}`} disabled={!formData.agreeTerms}>
+						<button onClick={handleSubmit} disabled={!isFormValid()} className={`flex-1 bg-brand_secondary text-white py-2 md:py-4 px-6 md:px-8 rounded-lg font-semibold transition-colors shadow-lg hover:shadow-xl${!isFormValid() ? " opacity-50 cursor-not-allowed" : ""}`}>
 							{t.submit}
 						</button>
 						<button onClick={resetForm} className="px-6 md:px-8 py-2 md:py-4 border-2 border-light text-gray-900 rounded-lg font-semibold hover:bg-light transition-colors">
