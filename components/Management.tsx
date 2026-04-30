@@ -2,16 +2,12 @@
 
 import { useTranslations } from "next-intl";
 import { 
-  Users, 
-  Building, 
-  Target, 
-  Heart, 
-  Calendar,
-  Award,
+
   FileText,
   Crown,
   UserCheck,
-  Lightbulb
+  Lightbulb,
+  Download
 } from "lucide-react";
 import SectionHeader from "./SectionHeader";
 
@@ -72,28 +68,28 @@ export default function Management() {
     }
   ];
 
-  const missionItems = [
-    {
-      icon: <Building className="w-6 h-6" />,
-      title: t("temple_construction"),
-      description: t("temple_construction_desc")
-    },
-    {
-      icon: <Heart className="w-6 h-6" />,
-      title: t("religious_services"),
-      description: t("religious_services_desc")
-    },
-    {
-      icon: <Calendar className="w-6 h-6" />,
-      title: t("cultural_spiritual_events"),
-      description: t("cultural_spiritual_events_desc")
-    },
-    {
-      icon: <Users className="w-6 h-6" />,
-      title: t("community_support"),
-      description: t("community_support_desc")
-    }
-  ];
+  // const missionItems = [
+  //   {
+  //     icon: <Building className="w-6 h-6" />,
+  //     title: t("temple_construction"),
+  //     description: t("temple_construction_desc")
+  //   },
+  //   {
+  //     icon: <Heart className="w-6 h-6" />,
+  //     title: t("religious_services"),
+  //     description: t("religious_services_desc")
+  //   },
+  //   {
+  //     icon: <Calendar className="w-6 h-6" />,
+  //     title: t("cultural_spiritual_events"),
+  //     description: t("cultural_spiritual_events_desc")
+  //   },
+  //   {
+  //     icon: <Users className="w-6 h-6" />,
+  //     title: t("community_support"),
+  //     description: t("community_support_desc")
+  //   }
+  // ];
 
   const getMemberIcon = (type: string) => {
     switch(type) {
@@ -112,7 +108,7 @@ export default function Management() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-12">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 pt-12">
       <div className="container mx-auto px-4 max-w-7xl">
         <header className="text-center mb-6 md:mb-8">
           <SectionHeader heading={t("current_board_members")} subtitle={t("board_description")} />
@@ -184,7 +180,7 @@ export default function Management() {
       </div>
 
       {/* Mission & Purpose Section */}
-      <div className="container mx-auto px-6 py-16">
+      {/* <div className="container mx-auto px-6 py-16">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-3">
             <Target className="w-8 h-8 text-brand_primary" />
@@ -206,7 +202,7 @@ export default function Management() {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
 
       {/* Annual Reports Section */}
       <div className="bg-gray-50 py-16">
@@ -239,8 +235,8 @@ export default function Management() {
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-brand_secondary hover:text-brand_secondary/60 transition-colors"
                 >
-                  <span className="text-sm font-medium">{t("download")}</span>
-                  <Award className="w-4 h-4" />
+                  <span className="hidden md:block text-sm font-medium">{t("download")}</span>
+                  <Download className="w-4 h-4" />
                 </a>
               </div>
             ))}

@@ -252,10 +252,11 @@
 		"about_description_2": "With the support of our community, we are working towards making this vision a reality. Join us in this journey—together, we can establish a spiritual place for generations to come.",
 		"about_description_3": "Jai Pashupatinath!",
 		"mission_title": "Our Mission",
-		"mission_description": "Our mission is to unite and empower the Nepalese community in Norway.",
+		"mission_description": "To build Norway's first Nepali Hindu temple, creating a sacred space for worship, cultural preservation, and spiritual growth for the Nepalese community in Norway.",
 		"vision_title": "Our Vision",
-		"vision_description": "A thriving, connected Nepalese community in Norway where every member feels supported, valued, and proud of their heritage - while contributing as active, integrated members of Norwegian society.",
-		"values_title": "What We Stand For"
+		"vision_description": "To establish a vibrant spiritual and cultural center that connects generations, preserves our rich Hindu traditions, and serves as a beacon of Nepali heritage in Norway for decades to come.",
+		"values_title": "What We Stand For",
+		"more_about_us": "More About Us"
 	},
 	"about": {
 		"title": "Welcome to Pashupatinath Norway Temple",
@@ -268,20 +269,20 @@
 		"stat_cities": "Cities Reached",
 		"stat_impacted": "Lives Impacted",
 		"values_title": "What We Stand For",
-		"value_cultural_preservation_title": "Cultural Preservation",
-		"value_cultural_preservation_desc": "Preserving our heritage by celebrating Nepalese festivals and promoting our language, culture, religion, traditions, norms, and values for current and future generations.",
+		"value_cultural_preservation_title": "Temple & Heritage",
+		"value_cultural_preservation_desc": "Building Norway's first Nepali Hindu temple to preserve and celebrate our rich religious traditions, festivals, and cultural practices for generations to come.",
 
-		"value_community_brotherhood_title": "Community Brotherhood",
-		"value_community_brotherhood_desc": "Building a supportive network where community members help each other through life’s challenges and celebrate successes together.",
+		"value_community_brotherhood_title": "Spiritual Community",
+		"value_community_brotherhood_desc": "Creating a sacred space where devotees can gather for worship, prayers, and rituals, strengthening our spiritual bonds and cultural identity.",
 
-		"value_social_integration_title": "Social Integration",
-		"value_social_integration_desc": "Encouraging meaningful participation in Norwegian society while maintaining strong connections to our Nepalese identity.",
+		"value_social_integration_title": "Cultural Bridge",
+		"value_social_integration_desc": "Serving as a cultural ambassador, sharing Nepali Hindu traditions with Norwegian society while fostering mutual respect and understanding.",
 
-		"value_humanitarian_support_title": "Humanitarian Support",
-		"value_humanitarian_support_desc": "Providing financial assistance and community aid during emergencies, natural disasters, and times of need, both in Norway and in Nepal.",
+		"value_humanitarian_support_title": "Sacred Service",
+		"value_humanitarian_support_desc": "Providing spiritual guidance, religious ceremonies, and community support through the temple's sacred activities and charitable initiatives.",
 
-		"value_knowledge_exchange_title": "Knowledge & Cultural Exchange",
-		"value_knowledge_exchange_desc": "Sharing knowledge, experiences, and positive aspects of Norwegian society with our community and with people in Nepal for mutual growth and understanding.",
+		"value_knowledge_exchange_title": "Temple Education",
+		"value_knowledge_exchange_desc": "Teaching our children and youth about Hindu scriptures, Sanskrit, rituals, and the significance of our temple traditions in the modern world.",
 
 		"cta_title": "Get Started Today",
 		"cta_member_title": "Become a Member",

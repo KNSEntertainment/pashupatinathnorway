@@ -18,7 +18,7 @@ export default function DonateCTA() {
 
 	return (
 			<Card className="shadow-lg border-0">
-				<CardHeader className="text-center bg-gray-900 text-white rounded-t-lg">
+				<CardHeader className="text-center bg-red-900 text-white rounded-t-lg">
 					<CardTitle className="text-2xl font-bold">
 						{t("cta_title")}
 					</CardTitle>

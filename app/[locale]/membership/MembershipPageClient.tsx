@@ -878,10 +878,10 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 	return (
 		<>
 			<SuccessModal />
-			<div className="container mx-auto md:px-4 py-12">
+			<div className="container mx-auto md:px-4 md:py-12">
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 				{/* Membership Form */}
-			<div className="md:col-span-2 mt-8 md:shadow-md p-8 md:px-12 bg-brand_primary relative overflow-hidden">
+			<div className="md:col-span-2 md:mt-8 md:shadow-md p-8 md:px-12 bg-brand_primary relative overflow-hidden">
 				<div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-50" style={{ backgroundImage: "url('/nepalipaper.jpg')" }} />
 				<div className="relative z-10flex flex-col md:items-center md:justify-center">
 					<h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{t.title}</h2>
@@ -890,7 +890,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 
 			
 
-				<div className="  relative z-10 space-y-6">
+				<div className="relative z-10 space-y-6">
 					{/* Personal Information */}
 					<div>
 						<h3 className="text-xl font-semibold text-gray-900 mb-4">{t.personal_info}</h3>
@@ -1209,9 +1209,9 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 			</div>
 
 			{/* Membership Information Card */}
-			<div className="relative z-10 my-8 md:sticky md:top-8 md:self-start">
-					<Card className="bg-white/95 backdrop-blur-sm border-2 border-brand_primary/20 shadow-xl">
-						<CardHeader className="bg-gradient-to-r from-brand_primary to-brand_secondary border-b border-brand_primary/20">
+			<div className="px-4 md:px-0 relative z-10 mb-8 md:my-8 md:sticky md:top-8 md:self-start">
+					<Card className="bg-brand_primary/10 md:backdrop-blur-sm">
+						<CardHeader className="bg-gradient-to-r from-brand_primary to-brand_secondary">
 							<CardTitle className="text-xl font-bold text-gray-700 flex items-center gap-2">
 								<svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
 									<path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />

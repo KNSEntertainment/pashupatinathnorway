@@ -114,7 +114,7 @@ export default function AuthFormContent() {
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-light p-4">
 			<Card className="w-full max-w-md mx-auto">
-				<CardHeader className="bg-brand_primary text-neutral-200 rounded-t-lg text-center">
+				<CardHeader className="bg-brand_primary text-gray-700 rounded-t-lg text-center">
 					<CardTitle className="text-2xl font-bold">{hasInvite ? t("set_password") : t("title")}</CardTitle>
 				</CardHeader>
 				<CardContent className="mt-6">
@@ -174,7 +174,7 @@ export default function AuthFormContent() {
 										</div>
 									</div>
 									<div className="mt-4 text-center">
-										<Link href={`/${locale}/forgot-password`} className="text-sm text-brand_primary hover:underline">
+										<Link href={`/${locale}/forgot-password`} className="text-sm text-gray-700 hover:underline">
 											{t("forgot_password")}
 										</Link>
 									</div>
@@ -182,7 +182,7 @@ export default function AuthFormContent() {
 										<Button type="button" variant="outline" onClick={handleCancel}>
 											{t("cancel_button")}
 										</Button>
-										<Button type="submit" className="bg-brand_primary hover:bg-orange-400" disabled={submitting}>
+										<Button type="submit" className="bg-brand_primary text-gray-700 hover:bg-orange-400" disabled={submitting}>
 											{submitting ? t("logging_in") : t("login_button")}
 										</Button>
 									</div>

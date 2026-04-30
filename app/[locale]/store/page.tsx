@@ -199,7 +199,7 @@ const StorePage: React.FC<StorePageProps> = () => {
 				</div>
 
 				{/* Filters and Search */}
-				<div className="bg-brand_secondary/10 p-4 rounded-lg space-y-4 mb-8">
+				<div className="bg-slate-50 p-4 rounded-lg space-y-4 mb-8">
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 						<div>
 							<label className="block text-sm font-medium mb-2">{t('category')}</label>

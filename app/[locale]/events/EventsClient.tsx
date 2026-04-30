@@ -234,7 +234,7 @@ export default function EventsColumn({ events, translations: t, initialEventId }
 					<p className="text-xl md:text-2xl max-w-4xl mx-auto leading-relaxed text-white/90">
 						{t.events_subtitle}
 					</p>
-					<div className="mt-8 flex flex-wrap justify-center gap-4">
+					<div className="hidden md:flex mt-8 flex-wrap justify-center gap-4">
 						<div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full backdrop-blur-sm">
 							<Calendar className="w-4 h-4" />
 							<span className="text-sm">Upcoming Events</span>

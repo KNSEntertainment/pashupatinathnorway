@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { motion } from "framer-motion";
-import { Users, RefreshCcw, Heart, Target, Sparkles } from "lucide-react";
+import { Users, RefreshCcw, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import ViewAllButton from "@/components/ViewAllButton";
@@ -11,7 +11,7 @@ export default function AboutPreview() {
 	const locale = useLocale();
 
 	return (
-		<section className="relative min-h-screen py-20 lg:py-32 bg-gradient-to-br from-slate-50 via-white to-orange-50/30 overflow-hidden" aria-labelledby="about-preview-heading">
+		<section className="relative min-h-screen py-12 lg:py-20 bg-gradient-to-br from-slate-50 via-white to-orange-50/30 overflow-hidden" aria-labelledby="about-preview-heading">
 			{/* Enhanced Background Elements */}
 			<div className="absolute inset-0" aria-hidden="true">
 				{/* Geometric Pattern */}
@@ -74,44 +74,26 @@ export default function AboutPreview() {
 						className="space-y-6 sm:space-y-8 lg:space-y-10"
 					>
 						{/* Mission Cards */}
-						<div className="space-y-4 sm:space-y-6">
+						<div className="space-y-4">
 							<motion.div 
 								initial={{ opacity: 0, y: 30 }}
 								whileInView={{ opacity: 1, y: 0 }}
 								transition={{ duration: 0.8, delay: 0.3 }}
-								className="group relative bg-white/60 backdrop-blur-sm p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-orange-100/50 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 sm:hover:-translate-y-2"
+								className="group relative bg-white/60 backdrop-blur-sm p-6 sm:p-8"
 							>
-								<div className="absolute inset-0 bg-gradient-to-br from-orange-50/50 to-red-50/50 rounded-2xl sm:rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+								{/* <div className="absolute inset-0 bg-gradient-to-br from-orange-50/50 to-red-50/50 rounded-2xl sm:rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" /> */}
 								<div className="relative z-10">
-									<div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
-										<div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center flex-shrink-0">
-											<Target className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-										</div>
-									</div>
+								
 									<p className="text-gray-800 leading-relaxed text-base sm:text-lg font-medium">
 										{t("about_description_1")}
-									</p>
-								</div>
-							</motion.div>
-							
-							<motion.div 
-								initial={{ opacity: 0, y: 30 }}
-								whileInView={{ opacity: 1, y: 0 }}
-								transition={{ duration: 0.8, delay: 0.4 }}
-								className="group relative bg-white/60 backdrop-blur-sm p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-red-100/50 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 sm:hover:-translate-y-2"
-							>
-								<div className="absolute inset-0 bg-gradient-to-br from-red-50/50 to-orange-50/50 rounded-2xl sm:rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-								<div className="relative z-10">
-									<div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
-										<div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center flex-shrink-0">
-											<Heart className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-										</div>
-									</div>
+									</p> <br/>
 									<p className="text-gray-800 leading-relaxed text-base sm:text-lg font-medium">
 										{t("about_description_2")}
 									</p>
 								</div>
 							</motion.div>
+							
+					
 						</div>
 
 						{/* Enhanced Statistics */}
@@ -256,7 +238,7 @@ export default function AboutPreview() {
 					transition={{ duration: 1, delay: 0.6 }}
 					className="flex justify-center pt-8"
 				>
-					<ViewAllButton href={`/${locale}/about-us`} label="Discover Our Journey" />
+					<ViewAllButton href={`/${locale}/about-us`} label={t("more_about_us") || "More About Us"} />
 				</motion.div>
 			</div>
 		</section>
