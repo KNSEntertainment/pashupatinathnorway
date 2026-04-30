@@ -250,9 +250,7 @@ export default function ProfileClient({ translations: t }: Props) {
 		return null;
 	}
 
-	// Extract username from email (everything before @)
-	const username = session.user.email?.split("@")[0] || "N/A";
-
+	
 	const getStatusBadge = (status: string) => {
 		switch (status) {
 			case "approved":
@@ -290,7 +288,7 @@ export default function ProfileClient({ translations: t }: Props) {
 	};
 
 	return (
-			<div className="max-w-4xl mx-auto space-y-6">
+			<div className="max-w-3xl space-y-6">
 			<div className="mb-8">
 				{/* Header */}
 				<div className="mb-8">
@@ -346,13 +344,6 @@ export default function ProfileClient({ translations: t }: Props) {
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 							
 
-								<div className="space-y-2">
-									<label className="text-sm font-semibold text-gray-900 flex items-center">
-										<User className="w-4 h-4 mr-2" />
-										{t.username}
-									</label>
-									<p className="text-gray-900 text-lg">{username}</p>
-								</div>
 
 								<div className="space-y-2">
 									<label className="text-sm font-semibold text-gray-900 flex items-center">
@@ -378,13 +369,7 @@ export default function ProfileClient({ translations: t }: Props) {
 									</label>
 									<p className="text-gray-900 text-lg">{membershipData?.address + ", " + membershipData?.city + " " + membershipData?.postalCode || "N/A"}</p>
 								</div>
-								<div className="space-y-2">
-									<label className="text-sm font-semibold text-gray-900 flex items-center">
-										<Calendar className="w-4 h-4 mr-2" />
-										Address in Nepal
-									</label>
-									<p className="text-gray-900 text-lg">{membershipData?.province + ", " + membershipData?.district  || "N/A"}</p>
-								</div>
+							
 
 						
 							</div>

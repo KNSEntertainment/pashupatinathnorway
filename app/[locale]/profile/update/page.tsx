@@ -1,4 +1,4 @@
-import SettingsClient from "./SettingsClient";
+import UpdateClient from "./UpdateClient";
 import { getTranslations } from "next-intl/server";
 
 export const metadata = {
@@ -6,7 +6,7 @@ export const metadata = {
 	description: "Manage your account settings and security",
 };
 
-export default async function SettingsPage() {
+export default async function UpdateProfilePage() {
 	const t = await getTranslations("settings");
 	// const m = await getTranslations("membership");
 
@@ -40,5 +40,5 @@ export default async function SettingsPage() {
 		
 	};
 
-	return <SettingsClient translations={translations} />
+	return <UpdateClient translations={translations} />
 }

@@ -134,7 +134,7 @@ export default function IDCardPage() {
         <div className="space-y-6">
             <div className="mb-8 flex gap-4">
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">My ID Card</h1>
-                <Button onClick={handlePrint} variant="outline" className="border-brand text-brand_primary hover:bg-brand_primary/10">
+                <Button onClick={handlePrint} variant="outline" className="border-brand text-brand_secondary hover:bg-brand_secondary/10">
 					<Printer className="w-4 h-4" />
 					Print
 				</Button>
@@ -160,6 +160,7 @@ export default function IDCardPage() {
 										membershipType: membershipData.membershipType,
 										city: membershipData.city,
 										province: membershipData.province,
+										personalNumber: membershipData.personalNumber,
 										createdAt: membershipData.createdAt,
 									}}
 									logo={logo}

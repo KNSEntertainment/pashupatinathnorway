@@ -6,6 +6,7 @@ export async function GET(req: NextRequest) {
 	await connectDB();
 	const { searchParams } = new URL(req.url);
 	const email = searchParams.get("email");
+	const personalNumber = searchParams.get("personalNumber");
 
 	if (email) {
 		// Check if email exists
@@ -13,7 +14,13 @@ export async function GET(req: NextRequest) {
 		return NextResponse.json(membership ? [membership] : []);
 	}
 
-	// Return all memberships if no email filter
+	if (personalNumber) {
+		// Check if personal number exists
+		const membership = await Membership.findOne({ personalNumber });
+		return NextResponse.json({ exists: !!membership });
+	}
+
+	// Return all memberships if no filter
 	const memberships = await Membership.find().sort({ createdAt: -1 });
 	return NextResponse.json(memberships);
 }

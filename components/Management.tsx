@@ -2,10 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { 
-
   FileText,
-  Crown,
-  UserCheck,
   Lightbulb,
   Download
 } from "lucide-react";
@@ -91,21 +88,8 @@ export default function Management() {
   //   }
   // ];
 
-  const getMemberIcon = (type: string) => {
-    switch(type) {
-      case "executive": return <Crown className="w-4 h-4 text-yellow-600" />;
-      case "advisor": return <Lightbulb className="w-4 h-4 text-purple-600" />;
-      default: return <UserCheck className="w-4 h-4 text-brand_primary" />;
-    }
-  };
+  
 
-  const getMemberBadge = (type: string) => {
-    switch(type) {
-      case "executive": return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "advisor": return "bg-purple-100 text-purple-800 border-purple-200";
-      default: return "bg-brand_primary/10 text-brand_primary border-brand_primary/20";
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 pt-12">
@@ -125,20 +109,18 @@ export default function Management() {
               key={index}
               className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-4 border border-gray-100"
             >
-              <div className="flex items-start gap-2">
+              <div className="flex items-start gap-4">
                 <div className="flex-shrink-0">
                   <div className="w-8 h-8 bg-gradient-to-br from-brand_primary to-brand_secondary rounded-full flex items-center justify-center text-white font-bold text-lg">
                     {member.name.charAt(0)}
                   </div>
                 </div>
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex flex-col items-start gap-1 mb-2">
                     <h3 className="text-sm font-semibold text-gray-900">{member.name}</h3>
-                    {getMemberIcon(member.type)}
+                    <p className="text-xs text-gray-500">{member.position}</p>
                   </div>
-                  <div className={`inline-block px-3 py-1 rounded-full text-xs text-gray-600 font-medium border ${getMemberBadge(member.type)}`}>
-                    {member.position}
-                  </div>
+             
                 </div>
               </div>
             </div>
@@ -168,9 +150,7 @@ export default function Management() {
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold text-gray-900">{advisor.name}</h3>
-                    <div className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200 mt-1">
-                      {advisor.position}
-                    </div>
+                    <p className="text-xs text-gray-500">{advisor.position}</p>
                   </div>
                 </div>
               </div>

@@ -35,12 +35,12 @@ export default function DesktopNav({ navItems }: DesktopNavProps) {
 				return (
 					<div key={item.href} className="relative" onMouseEnter={() => hasDropdown && setActiveDropdown(item.href)} onMouseLeave={() => setActiveDropdown(null)}>
 						{hasDropdown ? (
-							<button className={`px-3 py-2 rounded-lg font-semibold flex items-center gap-1 ${isActive ? "bg-white text-brand_secondary" : "text-white/90 hover:bg-white hover:text-brand_secondary"}`}>
+							<button className={`px-3 py-2 rounded-lg font-semibold flex items-center justify-center gap-1 min-w-fit ${isActive ? "bg-white text-brand_secondary" : "text-white/90 hover:bg-white hover:text-brand_secondary"}`}>
 								{item.title}
 								<ChevronDown size={16} className={`transition-transform ${isOpen ? "rotate-180" : ""}`} />
 							</button>
 						) : (
-							<Link href={item.href} className={`px-3 py-2 rounded-lg font-semibold ${isActive ? "bg-white text-brand_secondary" : "text-white/90 hover:bg-white hover:text-brand_secondary"}`}>
+							<Link href={item.href} className={`px-3 py-2 rounded-lg font-semibold flex items-center justify-center ${isActive ? "bg-white text-brand_secondary" : "text-white/90 hover:bg-white hover:text-brand_secondary"}`}>
 								{item.title}
 							</Link>
 						)}

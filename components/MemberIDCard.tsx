@@ -16,13 +16,14 @@ interface MemberIDCardProps {
 		membershipType: string;
 		city?: string;
 		province?: string;
+		personalNumber?: string;
 		createdAt: string;
 	};
 	logo?: string;
 	locale?: string;
 }
 
-export default function MemberIDCard({ memberData, locale = "en" }: MemberIDCardProps) {
+export default function MemberIDCard({ memberData }: MemberIDCardProps) {
 	const cardRef = useRef<HTMLDivElement>(null);
 	
 	// Cache-busting key to prevent Safari caching issues
@@ -31,11 +32,33 @@ export default function MemberIDCard({ memberData, locale = "en" }: MemberIDCard
 	// Generate membership number from last 6 digits of _id
 	const membershipNumber = memberData._id.slice(-6).toUpperCase();
 
+	// Generate enhanced QR code data with structured member information
+	const baseUrl = process.env.NEXTAUTH_URL || "https://pashupatinathnorway.vercel.app/";
+	const issuedDate = new Date(memberData.createdAt).toISOString().split('T')[0];
+	const expiryDate = new Date(new Date(memberData.createdAt).setFullYear(new Date(memberData.createdAt).getFullYear() + 1)).toISOString().split('T')[0];
 
+	// Get personal number from member data (will be passed from parent component)
+	const personalNumber = memberData.personalNumber || "";
 
-	// QR code contains the member profile URL with locale prefix
-	const baseUrl = process.env.NEXTAUTH_URL || "https://http://pashupatinathnorway.vercel.app/";
-	const qrData = `${baseUrl}/${locale}/members/${memberData._id}`;
+	const qrData = JSON.stringify({
+		type: "member_card",
+		version: "1.0",
+		memberId: memberData._id,
+		membershipNumber: membershipNumber,
+		personalNumber: personalNumber,
+		fullName: memberData.fullName,
+		phone: memberData.phone || "",
+		email: memberData.email,
+		membershipStatus: "approved",
+		issuedDate: issuedDate,
+		expiryDate: expiryDate,
+		verificationUrl: `${baseUrl}/api/verify/${personalNumber}`,
+		organization: {
+			name: "Pashupatinath Norway Temple",
+			location: "Oslo, Norway",
+			contact: "nepalihindusamfunn@gmail.com"
+		}
+	});
 
 
 	// Format membership date
@@ -66,11 +89,11 @@ export default function MemberIDCard({ memberData, locale = "en" }: MemberIDCard
 					{/* Content Section */}
 					<div className="p-6">
 						{/* Membership Number - TOP LEFT */}
-						<div className="text-xs text-center font-light text-gray-600">
+						{/* <div className="text-xs text-center font-light text-gray-600">
 								#<span className="font-semibold">{membershipNumber}</span>
-							</div>
-						<div className="w-full flex justify-center my-2">
-							<div className="w-20 h-20 rounded-md overflow-hidden bg-light border-2 border-white shadow-md">
+							</div> */}
+						<div className="w-full flex justify-center my-1">
+							<div className="w-24 h-24 rounded-md overflow-hidden bg-light border-2 border-white shadow-md">
 							
 								{memberData.profilePhoto ? (
 									<Image src={memberData.profilePhoto} alt={memberData.fullName} width={80} height={80} className="w-full h-full object-cover" />
@@ -122,13 +145,12 @@ export default function MemberIDCard({ memberData, locale = "en" }: MemberIDCard
 					
 						{/* QR Code with Signature */}
 						<div className="absolute bottom-16 right-12 flex flex-col items-center">
-								<QRCodeSVG value={qrData} size={64} level="H" includeMargin={false} />
+								<QRCodeSVG value={qrData} size={108} level="H" includeMargin={false} />
 							{/* Signature below QR */}
 							<div className="my-2 text-center">
 								{/* <div className="w-16 h-8 mx-auto flex items-center justify-center">
 									<Image src="/signature.png" alt="President's Signature" className="w-full h-full object-contain" width={64} height={32} />
 								</div> */}
-								<p className="text-xs text-gray-600 mt-1">President</p>
 							</div>
 						</div>
 

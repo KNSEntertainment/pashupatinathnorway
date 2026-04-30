@@ -1,6 +1,6 @@
 "use client";
 
-import { Globe, HandHeart, Landmark, MessageCirclePlusIcon, Users } from "lucide-react";
+import { Globe, Landmark, MessageCirclePlusIcon, Users } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import SectionHeader from "@/components/SectionHeader";
@@ -17,7 +17,6 @@ export default function AboutUsClient() {
 		{ icon: Landmark, title: ta("value_cultural_preservation_title"), description: ta("value_cultural_preservation_desc") },
 		{ icon: Users, title: ta("value_community_brotherhood_title"), description: ta("value_community_brotherhood_desc") },
 		{ icon: Globe, title: ta("value_social_integration_title"), description: ta("value_social_integration_desc") },
-		{ icon: HandHeart, title: ta("value_humanitarian_support_title"), description: ta("value_humanitarian_support_desc") },
 	];
 
 	useEffect(() => {

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -54,10 +54,6 @@ interface Translations {
 	need_help: string;
 	contact_us_any_questions: string;
 	email_us: string;
-	province: string;
-	district: string;
-	select_province: string;
-	select_district: string;
 	locating: string;
 	use_current_location: string;
 }
@@ -73,6 +69,8 @@ interface AddressSuggestion {
 	addressLine: string;
 	city: string;
 	postalCode: string;
+	kommune: string;
+	fylke: string;
 }
 
 interface FamilyMember {
@@ -96,6 +94,8 @@ interface GeoapifyProperties {
 	municipality?: string;
 	county?: string;
 	postcode?: string;
+	suburb?: string;
+	iso3166_2?: string;
 }
 
 interface GeoapifyFeature {
@@ -118,10 +118,9 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 		address: "",
 		city: "",
 		postalCode: "",
+		kommune: "",
+		fylke: "",
 		personalNumber: "",
-		gender: "",
-		province: "",
-		district: "",
 		membershipStatus: "pending",
 		agreeTerms: false,
 		permissionPhotos: false,
@@ -132,11 +131,11 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 
 	const [emailError, setEmailError] = useState("");
 	const [personalNumberError, setPersonalNumberError] = useState("");
+	const [personalNumberStatus, setPersonalNumberStatus] = useState<"checking" | "available" | "exists" | "">("");
 	const [phoneError, setPhoneError] = useState("");
 	const [familyMemberErrors, setFamilyMemberErrors] = useState<Record<string, string>>({});
 	const [firstNameError, setFirstNameError] = useState("");
 	const [lastNameError, setLastNameError] = useState("");
-	const [genderError, setGenderError] = useState("");
 	const [addressError, setAddressError] = useState("");
 	const [cityError, setCityError] = useState("");
 	const [postalCodeError, setPostalCodeError] = useState("");
@@ -147,6 +146,8 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 	const [locating, setLocating] = useState(false);
 	const [showSuccessModal, setShowSuccessModal] = useState(false);
 	const [successMessage, setSuccessMessage] = useState("");
+	const lastAppliedAddress = useRef("");
+	const fylkeInputRef = useRef<HTMLInputElement>(null);
 	const geoapifyKey = process.env.NEXT_PUBLIC_GEOAPIFY_KEY;
 
 	
@@ -207,84 +208,67 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 		return true;
 	};
 
-	const calculateAgeFromPersonalNumber = (personalNumber: string): number | null => {
-		if (!validateNorwegianPersonalNumber(personalNumber)) {
-			return null;
-		}
-
-		// Extract date components
-		const day = parseInt(personalNumber.substring(0, 2));
-		const month = parseInt(personalNumber.substring(2, 4)) - 1; // JavaScript months are 0-indexed
-		const yearShort = parseInt(personalNumber.substring(4, 6));
-		const individualNumber = parseInt(personalNumber.substring(6, 9));
-		const currentYear = new Date().getFullYear();
-		
-		// Norwegian personal number year determination logic (official rules)
-		let fullYear: number;
-		
-		// The individual number (digits 7-9) determines the century
-		// 000-499: 1900-1999
-		// 500-749: 1854-1899  
-		// 750-999: 1854-1899 (alternative range)
-		// 900-999 with year 00-39: 2000-2039
-		
-		if (individualNumber >= 0 && individualNumber <= 499) {
-			// 1900-1999 range
-			fullYear = 1900 + yearShort;
-		} else if (individualNumber >= 500 && individualNumber <= 749) {
-			// 1854-1899 range
-			fullYear = 1800 + yearShort;
-		} else if (individualNumber >= 750 && individualNumber <= 999) {
-			// Check if this falls in the 2000-2039 range
-			if (yearShort <= 39 && individualNumber >= 900) {
-				// 2000-2039 range (for individuals 900-999 with year 00-39)
-				fullYear = 2000 + yearShort;
-			} else {
-				// 1854-1899 range
-				fullYear = 1800 + yearShort;
-			}
-		} else {
-			// Default to 1900s
-			fullYear = 1900 + yearShort;
-		}
-		
-		// Additional logic: if calculated year is in the future, adjust to previous century
-		if (fullYear > currentYear) {
-			// Try to determine if this should be 1900s or 1800s
-			if (yearShort <= currentYear % 100) {
-				fullYear -= 100; // Move to previous century
-			} else {
-				fullYear -= 200; // Move two centuries back
-			}
-		}
-		
-		// Special case: for very recent births (last 15 years), prioritize 2000s
-		const birthDate = new Date(fullYear, month, day);
-		const today = new Date();
-		const age = today.getFullYear() - birthDate.getFullYear();
-		const monthDiff = today.getMonth() - birthDate.getMonth();
-		const actualAge = monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate()) ? age - 1 : age;
-		
-		// If the calculated age seems unreasonable (over 120) or individual number suggests recent birth
-		if (actualAge > 120 || (individualNumber >= 900 && yearShort <= 39 && actualAge > 25)) {
-			// Try 2000s for recent births
-			const alternativeYear = 2000 + yearShort;
-			if (alternativeYear <= currentYear) {
-				fullYear = alternativeYear;
-			}
-		}
-		
-		// Final age calculation
-		const finalBirthDate = new Date(fullYear, month, day);
-		let finalAge = today.getFullYear() - finalBirthDate.getFullYear();
-		const finalMonthDiff = today.getMonth() - finalBirthDate.getMonth();
-		
-		if (finalMonthDiff < 0 || (finalMonthDiff === 0 && today.getDate() < finalBirthDate.getDate())) {
-			finalAge--;
-		}
-		
-		return finalAge;
+	// Norwegian fylke (county) mapping
+	const fylkeMapping: Record<string, string> = {
+		'NO-03': 'Oslo',
+		'NO-11': 'Rogaland',
+		'NO-15': 'Møre og Romsdal',
+		'NO-18': 'Nordland',
+		'NO-30': 'Viken',
+		'NO-34': 'Innlandet',
+		'NO-38': 'Vestfold og Telemark',
+		'NO-42': 'Agder',
+		'NO-46': 'Vestland',
+		'NO-50': 'Trøndelag',
+		'NO-54': 'Troms og Finnmark',
+		'NO-56': 'Vestland', 
+		'NO-57': 'Vestland', 
 	};
+
+const calculateAgeFromPersonalNumber = (personalNumber: string): number | null => {
+  if (!validateNorwegianPersonalNumber(personalNumber)) {
+    return null;
+  }
+
+  const day = parseInt(personalNumber.substring(0, 2));
+  const month = parseInt(personalNumber.substring(2, 4)) - 1;
+  const yearShort = parseInt(personalNumber.substring(4, 6));
+  const individualNumber = parseInt(personalNumber.substring(6, 9));
+  const currentYear = new Date().getFullYear();
+
+  let fullYear: number;
+
+  // Individual number 750–999 with year 00–39 → born 2000–2039
+  if (individualNumber >= 750 && individualNumber <= 999 && yearShort <= 39) {
+    fullYear = 2000 + yearShort;
+  } else {
+    // Everyone else in 0-99 age range → born 1900–1999
+    fullYear = 1900 + yearShort;
+  }
+
+  // Safety check: if resolved year is somehow in the future, step back
+  if (fullYear > currentYear) {
+    fullYear -= 100;
+  }
+
+  // Calculate exact age
+  const birthDate = new Date(fullYear, month, day);
+  const today = new Date();
+
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+
+  // Reject if outside supported range
+  if (age < 0 || age > 99) {
+    return null;
+  }
+
+  return age;
+};
+
 
 	const validatePartialPersonalNumber = (personalNumber: string) => {
 		if (personalNumber.length === 0) {
@@ -356,9 +340,6 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 		if (name === "lastName" && lastNameError) {
 			setLastNameError("");
 		}
-		if (name === "gender" && genderError) {
-			setGenderError("");
-		}
 		if (name === "address" && addressError) {
 			setAddressError("");
 		}
@@ -370,6 +351,14 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 		}
 		if (name === "phone" && phoneError) {
 			setPhoneError("");
+		}
+		if (name === "personalNumber") {
+			if (personalNumberError) {
+				setPersonalNumberError("");
+			}
+			if (personalNumberStatus) {
+				setPersonalNumberStatus("");
+			}
 		}
 		if (name === "agreeTerms" && termsError) {
 			setTermsError("");
@@ -440,6 +429,11 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 			return;
 		}
 
+		// Don't fetch suggestions if the address matches the last applied suggestion
+		if (formData.address === lastAppliedAddress.current) {
+			return;
+		}
+
 		const controller = new AbortController();
 		const timer = setTimeout(async () => {
 			try {
@@ -456,12 +450,18 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 					const addressLine = [props.street, props.housenumber].filter(Boolean).join(" ").trim() || props.formatted || "";
 					const city = props.city || props.town || props.village || props.municipality || props.county || "";
 					const postalCode = props.postcode || "";
+					const kommune = props.suburb || "";
+					const fylkeCode = props.iso3166_2 || "";
+					const fylke = fylkeMapping[fylkeCode] || "";
+					
 					return {
 						id: props.place_id?.toString() || feature?.id?.toString() || `${addressLine}-${postalCode}`,
 						label: props.formatted || addressLine || "Unknown address",
 						addressLine: addressLine || props.formatted || "",
 						city,
 						postalCode,
+						kommune,
+						fylke,
 					};
 				});
 				setAddressSuggestions(suggestions);
@@ -482,14 +482,23 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 	}, [formData.address, geoapifyKey]);
 
 	const applySuggestion = (item: AddressSuggestion) => {
+		const newAddress = item.addressLine || item.label;
 		setFormData((prev) => ({
 			...prev,
-			address: item.addressLine || item.label,
+			address: newAddress,
 			city: item.city || prev.city,
 			postalCode: item.postalCode || prev.postalCode,
+			kommune: item.kommune || "",
+			fylke: item.fylke || "",
 		}));
 		setAddressSuggestions([]);
 		setActiveSuggestionIndex(-1);
+		lastAppliedAddress.current = newAddress;
+		
+		// Focus the fylke input field after a short delay to ensure the DOM has updated
+		setTimeout(() => {
+			fylkeInputRef.current?.focus();
+		}, 100);
 	};
 
 	const handleAddressKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -575,21 +584,41 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 		}
 	};
 
-	const handlePersonalNumberBlur = () => {
+	const handlePersonalNumberBlur = async () => {
 		if (!formData.personalNumber) {
 			setPersonalNumberError("Personal number is required.");
+			setPersonalNumberStatus("");
 			return;
 		}
 
 		if (!validateNorwegianPersonalNumber(formData.personalNumber)) {
 			setPersonalNumberError("Invalid Norwegian personal number. Please check date, month, and year (must be 1901+).");
+			setPersonalNumberStatus("");
 		} else {
 			// Check if main applicant is over 15 years old
 			const age = calculateAgeFromPersonalNumber(formData.personalNumber);
 			if (age !== null && age <= 15) {
 				setPersonalNumberError("You must be over 15 years old to fill this form. Please ask your parents to fill it for you.");
+				setPersonalNumberStatus("");
 			} else {
 				setPersonalNumberError("");
+				// Check if personal number already exists in database
+				try {
+					setPersonalNumberStatus("checking");
+					const res = await fetch(`/api/membership?personalNumber=${encodeURIComponent(formData.personalNumber)}`);
+					if (res.ok) {
+						const data = await res.json();
+						if (data.exists) {
+							setPersonalNumberStatus("exists");
+							setPersonalNumberError("This personal number is already registered. An account with this personal number already exists.");
+						} else {
+							setPersonalNumberStatus("available");
+						}
+					}
+				} catch {
+					// If API call fails, don't show error, just reset status
+					setPersonalNumberStatus("");
+				}
 			}
 		}
 	};
@@ -597,7 +626,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 	const isFormValid = (): boolean => {
 		// Check main applicant required fields
 		if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || 
-			!formData.personalNumber || !formData.gender || !formData.address || 
+			!formData.personalNumber || !formData.address || 
 			!formData.city || !formData.postalCode || !formData.agreeTerms) {
 			return false;
 		}
@@ -612,8 +641,13 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 			return false;
 		}
 
+		// Check if personal number already exists
+		if (personalNumberStatus === "exists") {
+			return false;
+		}
+
 		// Check for other field errors
-		if (firstNameError || lastNameError || genderError || addressError || 
+		if (firstNameError || lastNameError || addressError || 
 			cityError || postalCodeError || phoneError || termsError) {
 			return false;
 		}
@@ -790,7 +824,6 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 		// Clear all previous errors
 		setFirstNameError("");
 		setLastNameError("");
-		setGenderError("");
 		setAddressError("");
 		setCityError("");
 		setPostalCodeError("");
@@ -809,12 +842,6 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 		// Validate last name
 		if (!formData.lastName) {
 			setLastNameError("Last name is required.");
-			hasError = true;
-		}
-		
-		// Validate gender
-		if (!formData.gender) {
-			setGenderError("Gender is required.");
 			hasError = true;
 		}
 		
@@ -950,10 +977,9 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 				address: "",
 				city: "",
 				postalCode: "",
+				kommune: "",
+				fylke: "",
 				personalNumber: "",
-				gender: "",
-				province: "",
-				district: "",
 				membershipStatus: "pending",
 				agreeTerms: false,
 				permissionPhotos: false,
@@ -976,10 +1002,9 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 			address: "",
 			city: "",
 			postalCode: "",
+			kommune: "",
+			fylke: "",
 			personalNumber: "",
-			gender: "",
-			province: "",
-			district: "",
 			membershipStatus: "pending",
 			agreeTerms: false,
 			permissionPhotos: false,
@@ -996,7 +1021,6 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 		setFamilyMemberErrors({});
 		setFirstNameError("");
 		setLastNameError("");
-		setGenderError("");
 		setAddressError("");
 		setCityError("");
 		setPostalCodeError("");
@@ -1115,8 +1139,18 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 								<label className="block text-sm font-medium text-gray-900 mb-2">
 									{t.personal_number} <span className="text-red-500">*</span>
 								</label>
-								<input type="text" name="personalNumber" value={formData.personalNumber} onChange={handleChange} onBlur={handlePersonalNumberBlur} maxLength={11} pattern="\d{11}" className={`w-full px-4 py-2 border ${personalNumberError ? "border-red-500" : "border-light"} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`} placeholder={t.personal_number_placeholder} />
+								<input type="text" name="personalNumber" value={formData.personalNumber} onChange={handleChange} onBlur={handlePersonalNumberBlur} maxLength={11} pattern="\d{11}" className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+									personalNumberError ? "border-red-500" : 
+									personalNumberStatus === "available" ? "border-green-500" : 
+									personalNumberStatus === "exists" ? "border-red-500" : 
+									personalNumberStatus === "checking" ? "border-yellow-500" : 
+									"border-light"
+								}`} placeholder={t.personal_number_placeholder} />
 								{personalNumberError && <p className="text-red-600 text-sm mt-1">{personalNumberError}</p>}
+							
+								{personalNumberStatus === "checking" && (
+									<p className="text-yellow-600 text-sm mt-1">Checking availability...</p>
+								)}
 							</div>
 						
 							<div>
@@ -1137,7 +1171,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 									!isMainApplicantOver15() ? "opacity-50 cursor-not-allowed" : "hover:bg-rd-700"
 								}`}
 							>
-								{tr("add_family_member")}
+								{tr("add_children_u15")}
 							</button>
 						</div>
 						
@@ -1280,6 +1314,11 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 												>
 													<div className="font-medium">{item.label}</div>
 													<div className="text-xs text-gray-600">{[item.postalCode, item.city].filter(Boolean).join(" ")}</div>
+													{(item.kommune || item.fylke) && (
+														<div className="text-xs text-gray-500">
+															{[item.kommune && `Kommune: ${item.kommune}`, item.fylke && `Fylke: ${item.fylke}`].filter(Boolean).join(" • ")}
+														</div>
+													)}
 												</li>
 											))}
 										</ul>
@@ -1298,12 +1337,53 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 									{t.postal_code} <span className="text-red-500">*</span>
 								</label>
 								<input type="text" name="postalCode" value={formData.postalCode} onChange={handleChange} className={`w-full px-4 py-2 border ${postalCodeError ? "border-red-500" : "border-light"} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`} placeholder={t.postal_code_ph} />
-								{postalCodeError && <p className="text-red-600 text-sm mt-1">{postalCodeError}</p>}
+						{postalCodeError && <p className="text-red-600 text-sm mt-1">{postalCodeError}</p>}
+					</div>
+					<div>
+						<label className="block text-sm font-medium text-gray-900 mb-2">
+							Kommune (District)
+						</label>
+						<div className="relative">
+							<input 
+								type="text" 
+								name="kommune" 
+								value={formData.kommune} 
+								onChange={handleChange} 
+								className="w-full px-4 py-2 border border-light rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 text-gray-700" 
+								placeholder="e.g., Ammerud" 
+								readOnly 
+							/>
+							<div className="absolute right-3 top-2.5 text-gray-400">
+								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+								</svg>
 							</div>
 						</div>
 					</div>
+					<div>
+						<label className="block text-sm font-medium text-gray-900 mb-2">
+							Fylke (County)
+						</label>
+						<div className="relative">
+							<input 
+								type="text" 
+								name="fylke" 
+								ref={fylkeInputRef}
+								value={formData.fylke} 
+								onChange={handleChange} 
+								className="w-full px-4 py-2 border border-light rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900" 
+							/>
+							<div className="absolute right-3 top-2.5 text-gray-400">
+								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+								</svg>
+							</div>
+						</div>
+					</div>
+						</div>
+					</div>
 
-					
 					{/* Privacy Permissions */}
 					{/* <div>
 						<h3 className="text-xl font-semibold text-gray-900 mb-4">{t.permissions_title}</h3>

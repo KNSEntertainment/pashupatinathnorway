@@ -77,7 +77,7 @@ interface Props {
   translations: Translations;
 }
 
-export default function SettingsPage({ translations: t }: Props) {
+export default function UpdateClient({ translations: t }: Props) {
   const { data: session, status } = useSession();
   const router = useRouter();
   const params = useParams();
@@ -100,14 +100,20 @@ export default function SettingsPage({ translations: t }: Props) {
   // Personal information form states
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [profileForm, setProfileForm] = useState({
+    firstName: "",
+    middleName: "",
+    lastName: "",
     phone: "",
     address: "",
     city: "",
     postalCode: "",
-    province: "",
-    district: "",
-    profession: "",
-    skills: "",
+    kommune: "",
+    fylke: "",
+    personalNumber: "",
+    permissionPhotos: false,
+    permissionPhone: false,
+    permissionEmail: false,
+    profilePhoto: "",
   });
   
   // Address autocomplete states
@@ -143,14 +149,20 @@ export default function SettingsPage({ translations: t }: Props) {
             
             // Populate profile form with existing data
             setProfileForm({
+              firstName: member.firstName || "",
+              middleName: member.middleName || "",
+              lastName: member.lastName || "",
               phone: member.phone || "",
               address: member.address || "",
               city: member.city || "",
               postalCode: member.postalCode || "",
-              province: member.province || "",
-              district: member.district || "",
-              profession: member.profession || "",
-              skills: member.skills || "",
+              kommune: member.kommune || "",
+              fylke: member.fylke || "",
+              personalNumber: member.personalNumber || "",
+              permissionPhotos: member.permissionPhotos || false,
+              permissionPhone: member.permissionPhone || false,
+              permissionEmail: member.permissionEmail || false,
+              profilePhoto: member.profilePhoto || "",
             });
             
             // Check if password was recently reset (within last 24 hours)
@@ -345,7 +357,7 @@ export default function SettingsPage({ translations: t }: Props) {
     }
   };
 
-  const handleProfileFormChange = (field: string, value: string | string[]) => {
+  const handleProfileFormChange = (field: string, value: string | string[] | boolean) => {
     setProfileForm(prev => ({
       ...prev,
       [field]: value
@@ -523,12 +535,12 @@ export default function SettingsPage({ translations: t }: Props) {
   }
 
   return (
-        	<div className="max-w-4xl mx-auto space-y-6">
+        	<div className="max-w-4xl space-y-6">
         {/* Header */}
      
         <div className="mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{t.settings || "Settings"}</h1>
-          <p className="text-gray-600">Manage your account settings and security</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Update your profile</h1>
+          <p className="text-gray-600">Update your personal information and contact details</p>
         </div>
 
   
@@ -555,13 +567,52 @@ export default function SettingsPage({ translations: t }: Props) {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleProfileUpdate} className="space-y-6">
-              {/* Contact Information */}
+              {/* Personal Information */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  Contact Information
+                  <User className="w-4 h-4 mr-2" />
+                  Personal Information
                 </h3>
                 
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName" className="text-sm font-semibold text-gray-900">
+                      First Name
+                    </Label>
+                    <Input
+                      id="firstName"
+                      type="text"
+                      value={profileForm.firstName}
+                      onChange={(e) => handleProfileFormChange("firstName", e.target.value)}
+                      placeholder="Enter your first name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="middleName" className="text-sm font-semibold text-gray-900">
+                      Middle Name (Optional)
+                    </Label>
+                    <Input
+                      id="middleName"
+                      type="text"
+                      value={profileForm.middleName}
+                      onChange={(e) => handleProfileFormChange("middleName", e.target.value)}
+                      placeholder="Enter your middle name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName" className="text-sm font-semibold text-gray-900">
+                      Last Name
+                    </Label>
+                    <Input
+                      id="lastName"
+                      type="text"
+                      value={profileForm.lastName}
+                      onChange={(e) => handleProfileFormChange("lastName", e.target.value)}
+                      placeholder="Enter your last name"
+                    />
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="phone" className="text-sm font-semibold text-gray-900">
@@ -575,79 +626,102 @@ export default function SettingsPage({ translations: t }: Props) {
                       placeholder="Enter your phone number"
                     />
                   </div>
-  <div className="space-y-2">
-                  <Label htmlFor="address" className="text-sm font-semibold text-gray-900">
-                    {t.address || "Address"}
-                  </Label>
-                  <div className="relative">
+                  <div className="space-y-2">
+                    <Label htmlFor="personalNumber" className="text-sm font-semibold text-gray-900">
+                      Personal Number
+                    </Label>
                     <Input
-                      id="address"
+                      id="personalNumber"
                       type="text"
-                      value={profileForm.address}
-                      onChange={handleAddressChange}
-                      onFocus={handleAddressFocus}
-                      onBlur={handleAddressBlur}
-                      onKeyDown={handleAddressKeyDown}
-                      placeholder="Enter your address"
-                      autoComplete="off"
+                      value={profileForm.personalNumber}
+                      onChange={(e) => handleProfileFormChange("personalNumber", e.target.value)}
+                      placeholder="Enter your personal number"
+                      maxLength={11}
+                      readOnly
+                      className="bg-gray-50"
                     />
-                    <div className="mt-2">
-                      <button 
-                        type="button" 
-                        onClick={handleUseMyLocation} 
-                        disabled={locating} 
-                        className={`text-sm font-medium px-3 py-1.5 rounded border border-gray-300 bg-white hover:bg-gray-50 transition-colors flex items-center gap-2 ${locating ? "opacity-60 cursor-not-allowed" : ""}`}
-                      >
-                        {locating ? (
-                          <>
-                            <Loader2 className="w-3 h-3 animate-spin" />
-                            Locating...
-                          </>
-                        ) : (
-                          <>
-                            <MapPin className="w-3 h-3" />
-                            Use current location
-                          </>
-                        )}
-                      </button>
-                    </div>
-                    {addressLoading && (
-                      <div className="absolute right-3 top-2.5 text-xs text-gray-500">
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      </div>
-                    )}
-                    {addressError && (
-                      <p className="text-xs text-red-600 mt-1">{addressError}</p>
-                    )}
-                    {addressSuggestions.length > 0 && (
-                      <ul className="absolute z-20 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
-                        {addressSuggestions.map((item, index) => (
-                          <li
-                            key={item.id}
-                            className={`px-3 py-2 text-sm text-gray-900 cursor-pointer ${
-                              index === activeSuggestionIndex ? "bg-gray-100" : "hover:bg-gray-50"
-                            }`}
-                            onMouseDown={(e) => {
-                              e.preventDefault();
-                              applySuggestion(item);
-                            }}
-                          >
-                            <div className="font-medium">{item.label}</div>
-                            <div className="text-xs text-gray-600">
-                              {[item.postalCode, item.city].filter(Boolean).join(" ")}
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
                   </div>
                 </div>
-          
+              </div>
+
+              {/* Contact Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                  <MapPin className="w-4 h-4 mr-2" />
+                  Address Information
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="address" className="text-sm font-semibold text-gray-900">
+                      {t.address || "Address"}
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="address"
+                        type="text"
+                        value={profileForm.address}
+                        onChange={handleAddressChange}
+                        onFocus={handleAddressFocus}
+                        onBlur={handleAddressBlur}
+                        onKeyDown={handleAddressKeyDown}
+                        placeholder="Enter your address"
+                        autoComplete="off"
+                      />
+                      <div className="mt-2">
+                        <button 
+                          type="button" 
+                          onClick={handleUseMyLocation} 
+                          disabled={locating} 
+                          className={`text-sm font-medium px-3 py-1.5 rounded border border-gray-300 bg-white hover:bg-gray-50 transition-colors flex items-center gap-2 ${locating ? "opacity-60 cursor-not-allowed" : ""}`}
+                        >
+                          {locating ? (
+                            <>
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                              Locating...
+                            </>
+                          ) : (
+                            <>
+                              <MapPin className="w-3 h-3" />
+                              Use current location
+                            </>
+                          )}
+                        </button>
+                      </div>
+                      {addressLoading && (
+                        <div className="absolute right-3 top-2.5 text-xs text-gray-500">
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        </div>
+                      )}
+                      {addressError && (
+                        <p className="text-xs text-red-600 mt-1">{addressError}</p>
+                      )}
+                      {addressSuggestions.length > 0 && (
+                        <ul className="absolute z-20 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
+                          {addressSuggestions.map((item, index) => (
+                            <li
+                              key={item.id}
+                              className={`px-3 py-2 text-sm text-gray-900 cursor-pointer ${
+                                index === activeSuggestionIndex ? "bg-gray-100" : "hover:bg-gray-50"
+                              }`}
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                applySuggestion(item);
+                              }}
+                            >
+                              <div className="font-medium">{item.label}</div>
+                              <div className="text-xs text-gray-600">
+                                {[item.postalCode, item.city].filter(Boolean).join(" ")}
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
-              
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="city" className="text-sm font-semibold text-gray-900">
                       {t.city || "City"}
@@ -674,11 +748,34 @@ export default function SettingsPage({ translations: t }: Props) {
                     />
                   </div>
 
-               
-                </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="kommune" className="text-sm font-semibold text-gray-900">
+                      Kommune
+                    </Label>
+                    <Input
+                      id="kommune"
+                      type="text"
+                      value={profileForm.kommune}
+                      onChange={(e) => handleProfileFormChange("kommune", e.target.value)}
+                      placeholder="Enter kommune"
+                    />
+                  </div>
 
-             
+                  <div className="space-y-2">
+                    <Label htmlFor="fylke" className="text-sm font-semibold text-gray-900">
+                      Fylke (County)
+                    </Label>
+                    <Input
+                      id="fylke"
+                      type="text"
+                      value={profileForm.fylke}
+                      onChange={(e) => handleProfileFormChange("fylke", e.target.value)}
+                      placeholder="Enter fylke"
+                    />
+                  </div>
+                </div>
               </div>
+
 
 
               {/* Submit Button */}

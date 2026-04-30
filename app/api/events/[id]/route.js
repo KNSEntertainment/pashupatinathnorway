@@ -13,7 +13,7 @@ export const config = {
 };
 
 export async function PUT(request, { params }) {
-	const { id } = params;
+	const { id } = await params;
 
 	try {
 		await connectDB();

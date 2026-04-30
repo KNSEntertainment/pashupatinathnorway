@@ -24,13 +24,12 @@ export default function MainHeader() {
 			dropdown: [
 				{ title: t("rituals"), href: "/rituals" },
 				{ title: t("festivals"), href: "/festivals" },
-				{ title: t("events"), href: "/events" },
 			],
 		
 		},
 		
 		{ title: t("management"), href: "/management" },
-		{ title: t("gallery"), href: "/gallery" },
+		{ title: t("publication"), href: "/publications" },
 		{ title: t("store"), href: "/store" },
 		{ title: t("contact"), href: "/contact" },
 	];

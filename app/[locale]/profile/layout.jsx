@@ -59,7 +59,7 @@ function ProfileLayoutContent({ children }) {
 			</div>
 
 			{/* Content Area */}
-			<main className="bg-brand_primary/5 flex-1 p-6">{children}</main>
+			<main className="bg-brand_primary/5 flex-1 p-6 m-6">{children}</main>
 			<Toaster />
 		</div>
 	);

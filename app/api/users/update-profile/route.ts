@@ -19,15 +19,19 @@ export async function PATCH(request: NextRequest) {
 		
 		// Define which fields are allowed to be updated
 		const allowedFields = [
+			'firstName',
+			'middleName',
+			'lastName',
 			'phone',
 			'address', 
 			'city',
 			'postalCode',
-			'province',
-			'district',
-			'profession',
-			'skills',
-			'volunteerInterest'
+			'kommune',
+			'fylke',
+			'permissionPhotos',
+			'permissionPhone',
+			'permissionEmail',
+			'profilePhoto'
 		];
 
 		// Filter the update data to only include allowed fields
@@ -64,18 +68,21 @@ export async function PATCH(request: NextRequest) {
 
 		// Return the updated member data (excluding sensitive fields)
 		const updatedMember = {
-			fullName: member.fullName,
+			firstName: member.firstName,
+			middleName: member.middleName,
+			lastName: member.lastName,
 			email: member.email,
 			phone: member.phone,
 			address: member.address,
 			city: member.city,
 			postalCode: member.postalCode,
-			province: member.province,
-			district: member.district,
-			profession: member.profession,
-			skills: member.skills,
-			volunteerInterest: member.volunteerInterest,
-			membershipType: member.membershipType,
+			kommune: member.kommune,
+			fylke: member.fylke,
+			personalNumber: member.personalNumber,
+			permissionPhotos: member.permissionPhotos,
+			permissionPhone: member.permissionPhone,
+			permissionEmail: member.permissionEmail,
+			profilePhoto: member.profilePhoto,
 			membershipStatus: member.membershipStatus,
 		};
 
