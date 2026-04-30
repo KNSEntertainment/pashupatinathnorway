@@ -867,7 +867,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 					</div>
 					<h2 className="text-3xl font-bold text-gray-900 mb-4">{t.welcome}</h2>
 					<p className="text-gray-900 mb-6">{t.welcome_msg}</p>
-					<button onClick={() => setSubmitted(false)} className="bg-brand_primary text-gray-700 px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+					<button onClick={() => setSubmitted(false)} className="bg-brand_primary text-gray-700 px-6 py-3 rounded-lg transition-colors">
 						{t.submit_another}
 					</button>
 				</div>
@@ -989,7 +989,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 							<button
 								type="button"
 								onClick={addFamilyMember}
-								className="bg-brand_secondary text-white px-4 py-2 rounded-lg hover:bg-brand_primary/90 transition-colors text-sm font-medium"
+								className="bg-brand_secondary text-white px-4 py-2 rounded-lg hover:bg-rd-700 transition-colors text-sm font-medium"
 							>
 								{tr("add_family_member")}
 							</button>
