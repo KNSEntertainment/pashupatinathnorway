@@ -78,9 +78,9 @@ const UnifiedGallery = () => {
 
 	// Helper function to get YouTube thumbnail
 	const getYouTubeThumbnailUrl = (url: string) => {
-		if (!url) return "/ghanti.jpg";
+		if (!url) return "/pashupatinath.png";
 		const videoId = url.match(/(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/watch\?.+&v=))([^&\n?#]+)/)?.[1];
-		return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : "/ghanti.jpg";
+		return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : "/pashupatinath.png";
 	};
 
 	// Fetch photos and videos
@@ -385,7 +385,7 @@ const UnifiedGallery = () => {
 									{/* Video Thumbnail Container */}
 									<div className="relative aspect-video">
 										<Image
-											src={video.isYouTube ? getYouTubeThumbnailUrl(video.url) : video.thumbnail || "/ghanti.jpg"}
+											src={video.isYouTube ? getYouTubeThumbnailUrl(video.url) : video.thumbnail || "/pashupatinath.png"}
 											alt={getLocalizedTitle(video)}
 											fill
 											className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -439,7 +439,7 @@ const UnifiedGallery = () => {
 											{/* Video Thumbnail Container */}
 											<div className="relative aspect-video">
 												<Image
-													src={video.isYouTube ? getYouTubeThumbnailUrl(video.url) : video.thumbnail || "/ghanti.jpg"}
+													src={video.isYouTube ? getYouTubeThumbnailUrl(video.url) : video.thumbnail || "/pashupatinath.png"}
 													alt={getLocalizedTitle(video)}
 													fill
 													className="object-cover group-hover:scale-105 transition-transform duration-500"

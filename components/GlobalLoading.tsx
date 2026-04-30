@@ -1,4 +1,3 @@
-import Ghanti from "@/components/Ghanti";
 
 export default function GlobalLoading() {
 	return (
@@ -14,8 +13,6 @@ export default function GlobalLoading() {
 					<div className="w-20 h-20 rounded-full border-2 border-transparent border-b-brand animate-spin-reverse"></div>
 				</div>
 
-				{/* Logo Container */}
-				<Ghanti />
 			</div>
 		</div>
 	);

@@ -99,7 +99,7 @@ export default function VideoGallery() {
 										<div className="relative aspect-video bg-slate-800 rounded-2xl overflow-hidden border border-slate-700/50 shadow-2xl">
 											{videos[0].isYouTube ? activeVideoId === videos[0]._id ? 
 												<iframe src={getYouTubeEmbed(videos[0].url)} title={getLocalizedTitle(videos[0])} className="w-full h-full rounded-2xl" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen /> : 
-												<Image src={getYouTubeThumbnail(videos[0].url) || "/ghanti.jpeg"} alt={getLocalizedTitle(videos[0])} fill className="object-cover transition-transform duration-700 group-hover:scale-105" /> : 
+												<Image src={getYouTubeThumbnail(videos[0].url) || "/pashupatinath.png"} alt={getLocalizedTitle(videos[0])} fill className="object-cover transition-transform duration-700 group-hover:scale-105" /> : 
 												activeVideoId === videos[0]._id ? 
 												<video src={videos[0].url} className="w-full h-full object-cover rounded-2xl" controls autoPlay /> : 
 												<video src={videos[0].url} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
@@ -145,7 +145,7 @@ export default function VideoGallery() {
 												<div className="relative aspect-video bg-slate-800 rounded-2xl overflow-hidden border border-slate-700/50 shadow-2xl">
 													{video.isYouTube ? isActive ? 
 														<iframe src={getYouTubeEmbed(video.url)} title={getLocalizedTitle(video)} className="w-full h-full rounded-2xl" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen /> : 
-														<Image src={getYouTubeThumbnail(video.url) || "/ghanti.jpeg"} alt={getLocalizedTitle(video)} fill className="object-cover transition-transform duration-700 group-hover:scale-105" /> : 
+														<Image src={getYouTubeThumbnail(video.url) || "/pashupatinath.png"} alt={getLocalizedTitle(video)} fill className="object-cover transition-transform duration-700 group-hover:scale-105" /> : 
 														isActive ? 
 														<video src={video.url} className="w-full h-full object-cover rounded-2xl" controls autoPlay /> : 
 														<video src={video.url} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
@@ -193,7 +193,7 @@ export default function VideoGallery() {
 												<div className="relative aspect-video bg-slate-800 rounded-2xl overflow-hidden border border-slate-700/50 shadow-2xl">
 													{video.isYouTube ? isActive ? 
 														<iframe src={getYouTubeEmbed(video.url)} title={getLocalizedTitle(video)} className="w-full h-full rounded-2xl" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen /> : 
-														<Image src={getYouTubeThumbnail(video.url) || "/ghanti.jpeg"} alt={getLocalizedTitle(video)} fill className="object-cover transition-transform duration-700 group-hover:scale-105" /> : 
+														<Image src={getYouTubeThumbnail(video.url) || "/pashupatinath.png"} alt={getLocalizedTitle(video)} fill className="object-cover transition-transform duration-700 group-hover:scale-105" /> : 
 														isActive ? 
 														<video src={video.url} className="w-full h-full object-cover rounded-2xl" controls autoPlay /> : 
 														<video src={video.url} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />

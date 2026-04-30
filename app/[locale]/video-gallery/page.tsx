@@ -41,12 +41,12 @@ const getYouTubeVideoId = (url: string) => {
 
 // Helper function to get YouTube thumbnail URL
 const getYouTubeThumbnailUrl = (url: string) => {
-	if (!url) return "/ghanti.jpg";
+	if (!url) return "/pashupatinath.png";
 	
 	const videoId = getYouTubeVideoId(url);
 	
 	// Return high-quality thumbnail
-	return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : "/ghanti.jpg";
+	return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : "/pashupatinath.png";
 };
 
 // Helper function to detect YouTube URLs
