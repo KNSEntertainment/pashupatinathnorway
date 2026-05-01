@@ -68,13 +68,13 @@ export default function MemberIDCard({ memberData }: MemberIDCardProps) {
 	});
 
 	return (
-		<div className="flex max-w-2xl mt-6 items-start" key={cacheKey}>
+		<div id="print-cards-container" className="flex flex-col items-center mt-6 space-y-8" key={cacheKey}>
 		
 
 			{/* ID Card - Front */}
-			<div ref={cardRef} className="relative w-full max-w-[300px] mx-auto">
+			<div ref={cardRef} className="relative" style={{ width: '300px', height: '475px' }}>
 				{/* Card Container */}
-				<div className="w-full h-full bg-white shadow-lg overflow-hidden min-h-[475px]">
+				<div className="w-full h-full bg-white shadow-lg overflow-hidden">
 					{/* Header Section */}
 					<div className="relative bg-brand_primary text-gray-100 px-6 pt-4 pb-8">
 						<div className="flex flex-col items-center justify-between">
@@ -164,9 +164,9 @@ export default function MemberIDCard({ memberData }: MemberIDCardProps) {
 			</div>
 
 			{/* ID Card - Back */}
-			<div className="relative block relative w-full max-w-[300px] mx-auto">
+			<div className="relative block" style={{ width: '300px', height: '475px' }}>
 				{/* Card Container */}
-				<div className="bg-white shadow-lg overflow-hidden min-h-[475px]">
+				<div className="w-full h-full bg-white shadow-lg overflow-hidden">
 					{/* Header Section */}
 					<div className="bg-gradient-to-r from-brand to-blue-700 text-gray-700 px-6 pt-6">
 						<h3 className="text-sm font-bold text-center">Emergency Contact & Guidelines</h3>
@@ -224,27 +224,35 @@ export default function MemberIDCard({ memberData }: MemberIDCardProps) {
 			</div>
 
 			{/* Print Styles */}
-			{/* <style jsx global>{`
+			<style jsx global>{`
 				@media print {
 					body * {
 						visibility: hidden;
 					}
-					#id-card-container,
-					#id-card-container * {
+					#print-cards-container,
+					#print-cards-container * {
 						visibility: visible;
 					}
-					#id-card-container {
+					#print-cards-container {
 						position: absolute;
 						left: 0;
 						top: 0;
 						width: 100%;
+						display: flex !important;
+						justify-content: center !important;
+						align-items: flex-start !important;
+						padding: 20px !important;
+						gap: 40px !important;
+					}
+					#print-cards-container > div {
+						page-break-inside: avoid;
 					}
 					@page {
 						size: A4;
-						margin: 20mm;
+						margin: 10mm;
 					}
 				}
-			`}</style> */}
+			`}</style>
 		</div>
 	);
 }

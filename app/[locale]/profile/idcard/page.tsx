@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Shield, CreditCard, Loader2, Printer } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -18,14 +18,18 @@ export default function IDCardPage() {
     const [membershipData, setMembershipData] = useState<Membership | null>(null);
     const [profilePhoto, setProfilePhoto] = useState<string>("");
     const [logo, setLogo] = useState<string>("");
+    const lastEmailRef = useRef<string | null>(null);
+    const hasFetchedRef = useRef<boolean>(false);
 
     const handlePrint = () => {
         window.print();
     };
 
-    const fetchMembershipData = async () => {
+    const fetchMembershipData = useCallback(async () => {
+        if (!session?.user?.email) return;
+        
         try {
-            const response = await fetch(`/api/membership?email=${session?.user?.email}`);
+            const response = await fetch(`/api/membership?email=${session.user.email}`);
             if (!response.ok) {
                 throw new Error("Failed to fetch membership data");
             }
@@ -49,11 +53,13 @@ export default function IDCardPage() {
         } catch (error) {
             console.error("Error fetching membership data:", error);
         }
-    };
+    }, [session?.user?.email]);
 
-    const fetchProfilePhoto = async () => {
+    const fetchProfilePhoto = useCallback(async () => {
+        if (!session?.user?.email) return;
+        
         try {
-            const response = await fetch(`/api/users/profile-photo?email=${session?.user?.email}`);
+            const response = await fetch(`/api/users/profile-photo?email=${session.user.email}`);
             if (response.ok) {
                 const data = await response.json();
                 if (data.profilePhoto) {
@@ -63,9 +69,9 @@ export default function IDCardPage() {
         } catch (error) {
             console.error("Error fetching profile photo:", error);
         }
-    };
+    }, [session?.user?.email]);
 
-    const fetchLogo = async () => {
+    const fetchLogo = useCallback(async () => {
         try {
             const response = await fetch(`/api/settings`);
             if (response.ok) {
@@ -77,19 +83,30 @@ export default function IDCardPage() {
         } catch (error) {
             console.error("Error fetching logo:", error);
         }
-    };
+    }, []);
 
-    // Fetch membership data and profile photo
-    if (status === "authenticated") {
-        const fetchData = async () => {
-            await Promise.all([
-                fetchMembershipData(),
-                fetchProfilePhoto(),
-                fetchLogo()
-            ]);
-        };
-        fetchData();
-    }
+    // Fetch membership data and profile photo when authenticated
+    useEffect(() => {
+        if (status === "authenticated" && session?.user?.email) {
+            const currentEmail = session.user.email;
+            
+            // Only fetch if email has changed or we haven't fetched yet
+            if (lastEmailRef.current === currentEmail && hasFetchedRef.current) {
+                return;
+            }
+            
+            const fetchData = async () => {
+                await Promise.all([
+                    fetchMembershipData(),
+                    fetchProfilePhoto(),
+                    fetchLogo()
+                ]);
+                lastEmailRef.current = currentEmail;
+                hasFetchedRef.current = true;
+            };
+            fetchData();
+        }
+    }, [status, session?.user?.email, fetchMembershipData, fetchProfilePhoto, fetchLogo]);
 
     if (status === "loading") {
         return (

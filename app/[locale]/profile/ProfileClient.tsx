@@ -2,7 +2,7 @@
 
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { User, Mail, Phone, Calendar, Shield, CheckCircle, Clock, XCircle, Users, Camera, Upload, AlertCircle, Download, Trash2, MailMinus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -210,7 +210,7 @@ export default function ProfileClient({ translations: t }: Props) {
 		}
 	};
 
-	const checkSubscriptionStatus = async () => {
+	const checkSubscriptionStatus = useCallback(async () => {
 		try {
 			const response = await fetch('/api/user/unsubscribe', {
 				method: 'GET',
@@ -223,7 +223,7 @@ export default function ProfileClient({ translations: t }: Props) {
 		} catch (error) {
 			console.error('Error checking subscription status:', error);
 		}
-	};
+	}, []);
 
 
 
@@ -267,7 +267,7 @@ export default function ProfileClient({ translations: t }: Props) {
 		}, 5000); // 5 second timeout
 
 		return () => clearTimeout(loadingTimeout);
-	}, [status, session?.user?.email, session?.user?.role, router]);
+	}, [status, session?.user?.email, router]); // Removed unstable dependencies
 
 	const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];

@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
@@ -22,15 +22,22 @@ const LoggedInUser = ({ user }: { user: SessionUser }) => {
 	const avatarInitial = typeof user?.email === "string" && user.email ? user.email.charAt(0).toUpperCase() : "U";
 	const [showUserDropdown, setShowUserDropdown] = useState(false);
 	const [memberPhoto, setMemberPhoto] = useState<string | null>(null);
+	const lastEmailRef = useRef<string | null>(null);
 
 	// Fetch member profile photo when user is a member
 	useEffect(() => {
+		if (!user?.isMember || !user?.email) return;
+		
+		// Only fetch if email has actually changed
+		if (lastEmailRef.current === user.email) return;
+		
 		const fetchMemberPhoto = async () => {
-			if (!user?.isMember || !user?.email) return;
-
 			try {
-				setMemberPhoto(null); // Reset photo when fetching new user
-				const response = await fetch(`/api/users/profile-photo?email=${encodeURIComponent(user.email)}`);
+				// Only reset if we're actually fetching a different email
+				if (lastEmailRef.current !== user.email) {
+					setMemberPhoto(null);
+				}
+				const response = await fetch(`/api/users/profile-photo?email=${encodeURIComponent(user.email!)}`);
 				if (response.ok) {
 					const data = await response.json();
 					if (data.profilePhoto) {
@@ -43,6 +50,7 @@ const LoggedInUser = ({ user }: { user: SessionUser }) => {
 		};
 
 		fetchMemberPhoto();
+		lastEmailRef.current = user.email; // Update last email
 	}, [user?.isMember, user?.email]);
 
 	// Function to determine user role display
