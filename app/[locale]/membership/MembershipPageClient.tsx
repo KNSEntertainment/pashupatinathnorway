@@ -475,7 +475,7 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 			clearTimeout(timer);
 			controller.abort();
 		};
-	}, [formData.address, geoapifyKey]);
+	}, [formData.address, geoapifyKey, fylkeMapping]);
 
 	const applySuggestion = (item: AddressSuggestion) => {
 		const newAddress = item.addressLine || item.label;

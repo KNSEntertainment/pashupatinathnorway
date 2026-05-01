@@ -2,7 +2,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import User from "@/models/User.Model";
 import Membership from "@/models/Membership.Model";
-import ConnectDB from "@/lib/mongodb";
+import connectDB from "@/lib/mongodb";
 import NextAuth from "next-auth";
 
 /** @type {import('next-auth').AuthOptions} */
@@ -23,7 +23,7 @@ export const authOptions = {
 				console.log("=== AUTHORIZE FUNCTION CALLED ===");
 				console.log("Email from credentials:", credentials?.email);
 
-				await ConnectDB();
+				await connectDB();
 
 				try {
 					if (!credentials?.email) {

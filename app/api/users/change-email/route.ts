@@ -63,11 +63,25 @@ export async function POST(req: NextRequest) {
       .filter(Boolean)
       .join(" ");
     
-    await sendEmailVerificationEmail({
-      name: fullName,
-      email: newEmail,
-      verificationToken: verificationToken,
-    });
+    console.log("=== SENDING EMAIL VERIFICATION ===");
+    console.log("To:", newEmail);
+    console.log("Name:", fullName);
+    console.log("Token:", verificationToken);
+    console.log("EMAIL_USER configured:", !!process.env.EMAIL_USER);
+    console.log("EMAIL_APP_PASS configured:", !!process.env.EMAIL_APP_PASS);
+    
+    try {
+      await sendEmailVerificationEmail({
+        name: fullName,
+        email: newEmail,
+        verificationToken: verificationToken,
+      });
+      console.log("Email verification email sent successfully");
+    } catch (emailError) {
+      console.error("Failed to send email verification email:", emailError);
+      const errorMessage = emailError instanceof Error ? emailError.message : "Unknown error";
+      throw new Error("Failed to send verification email: " + errorMessage);
+    }
 
     return NextResponse.json(
       { 

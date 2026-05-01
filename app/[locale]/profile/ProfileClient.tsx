@@ -3,7 +3,7 @@
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
-import { User, Mail, Phone, Calendar, Shield, CheckCircle, Clock, XCircle, Users, Camera, Upload, AlertCircle } from "lucide-react";
+import { User, Mail, Phone, Calendar, Shield, CheckCircle, Clock, XCircle, Users, Camera, Upload, AlertCircle, Download, Trash2, MailMinus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -47,6 +47,11 @@ export default function ProfileClient({ translations: t }: Props) {
 	const [loading, setLoading] = useState(true);
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
+	const [showUnsubscribeDialog, setShowUnsubscribeDialog] = useState(false);
+	const [isUnsubscribing, setIsUnsubscribing] = useState(false);
+	const [isDownloading, setIsDownloading] = useState(false);
+	const [isSubscribed, setIsSubscribed] = useState<boolean | null>(null);
+	const [isSubscribing, setIsSubscribing] = useState(false);
 	const [uploading, setUploading] = useState(false);
 	const [profilePhoto, setProfilePhoto] = useState<string>("");
 	const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
@@ -107,6 +112,119 @@ export default function ProfileClient({ translations: t }: Props) {
 		}
 	};
 
+	const handleDownloadData = async () => {
+		setIsDownloading(true);
+		try {
+			const response = await fetch('/api/user/download-data', {
+				method: 'GET',
+			});
+
+			if (response.ok) {
+				const blob = await response.blob();
+				const url = window.URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.style.display = 'none';
+				a.href = url;
+				const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+				a.download = `my-data_${timestamp}.csv`;
+				document.body.appendChild(a);
+				a.click();
+				window.URL.revokeObjectURL(url);
+				document.body.removeChild(a);
+
+				toast({
+					title: "Success",
+					description: "Your data has been downloaded successfully.",
+				});
+			} else {
+				throw new Error('Failed to download data');
+			}
+		} catch (error) {
+			console.error('Download data error:', error);
+			toast({
+				title: "Error",
+				description: "Failed to download your data. Please try again.",
+				variant: "destructive",
+			});
+		} finally {
+			setIsDownloading(false);
+		}
+	};
+
+	const handleUnsubscribe = async () => {
+		setIsUnsubscribing(true);
+		try {
+			const response = await fetch('/api/user/unsubscribe', {
+				method: 'POST',
+			});
+
+			if (response.ok) {
+				const data = await response.json();
+				setIsSubscribed(false);
+				toast({
+					title: "Unsubscribed",
+					description: data.message,
+				});
+			} else {
+				throw new Error('Failed to unsubscribe');
+			}
+		} catch (error) {
+			console.error('Unsubscribe error:', error);
+			toast({
+				title: "Error",
+				description: "Failed to unsubscribe from newsletter. Please try again.",
+				variant: "destructive",
+			});
+		} finally {
+			setIsUnsubscribing(false);
+			setShowUnsubscribeDialog(false);
+		}
+	};
+
+	const handleSubscribe = async () => {
+		setIsSubscribing(true);
+		try {
+			const response = await fetch('/api/user/subscribe', {
+				method: 'POST',
+			});
+
+			if (response.ok) {
+				const data = await response.json();
+				setIsSubscribed(true);
+				toast({
+					title: "Subscribed",
+					description: data.message,
+				});
+			} else {
+				throw new Error('Failed to subscribe');
+			}
+		} catch (error) {
+			console.error('Subscribe error:', error);
+			toast({
+				title: "Error",
+				description: "Failed to subscribe to newsletter. Please try again.",
+				variant: "destructive",
+			});
+		} finally {
+			setIsSubscribing(false);
+		}
+	};
+
+	const checkSubscriptionStatus = async () => {
+		try {
+			const response = await fetch('/api/user/unsubscribe', {
+				method: 'GET',
+			});
+
+			if (response.ok) {
+				const data = await response.json();
+				setIsSubscribed(data.isSubscribed);
+			}
+		} catch (error) {
+			console.error('Error checking subscription status:', error);
+		}
+	};
+
 
 
 	useEffect(() => {
@@ -136,6 +254,9 @@ export default function ProfileClient({ translations: t }: Props) {
 					setLoading(false);
 				})
 				.catch(() => setLoading(false));
+
+			// Check subscription status
+			checkSubscriptionStatus();
 		} else {
 			setLoading(false);
 		}
@@ -409,7 +530,83 @@ export default function ProfileClient({ translations: t }: Props) {
 					</Card>
 				)}
 
-			
+				{/* Data Management */}
+				<Card className="mt-6 shadow-lg border-0">
+					<CardHeader>
+						<CardTitle className="flex items-center text-2xl">
+							<Download className="w-6 h-6 mr-2 text-blue-600" />
+							Data Management
+						</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<div className="space-y-4">
+							<div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+								<div className="flex-1">
+									<h3 className="font-semibold text-gray-900 mb-1">Download Your Data</h3>
+									<p className="text-sm text-gray-600">Export all your personal data in CSV format</p>
+								</div>
+								<Button 
+									onClick={handleDownloadData}
+									disabled={isDownloading}
+									variant="outline"
+									className="flex items-center gap-2"
+								>
+									<Download className="w-4 h-4" />
+									{isDownloading ? "Downloading..." : "Download CSV"}
+								</Button>
+							</div>
+
+							<div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+								<div className="flex-1">
+									<h3 className="font-semibold text-gray-900 mb-1">Email Subscription</h3>
+									<p className="text-sm text-gray-600">
+										{isSubscribed === null ? "Checking..." : 
+										 isSubscribed ? "You are subscribed to our newsletter" : 
+										 "You are not subscribed to our newsletter"}
+									</p>
+								</div>
+								{isSubscribed ? (
+									<Button 
+										onClick={() => setShowUnsubscribeDialog(true)}
+										disabled={isUnsubscribing}
+										variant="outline"
+										className="flex items-center gap-2 text-orange-600 hover:text-orange-700"
+									>
+										<MailMinus className="w-4 h-4" />
+										{isUnsubscribing ? "Unsubscribing..." : "Unsubscribe"}
+									</Button>
+								) : (
+									<Button 
+										onClick={handleSubscribe}
+										disabled={isSubscribing || isSubscribed === null}
+										variant="outline"
+										className="flex items-center gap-2 text-green-600 hover:text-green-700"
+									>
+										<Mail className="w-4 h-4" />
+										{isSubscribing ? "Subscribing..." : "Subscribe"}
+									</Button>
+								)}
+							</div>
+
+							<div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-200">
+								<div className="flex-1">
+									<h3 className="font-semibold text-red-600 mb-1">Delete Account</h3>
+									<p className="text-sm text-red-600">Permanently delete your account and all data</p>
+								</div>
+								<Button 
+									onClick={() => setShowDeleteDialog(true)}
+									disabled={isDeleting}
+									variant="destructive"
+									className="flex items-center gap-2"
+								>
+									<Trash2 className="w-4 h-4" />
+									{isDeleting ? "Deleting..." : "Delete Account"}
+								</Button>
+							</div>
+						</div>
+					</CardContent>
+				</Card>
+
 			</div>
 
 			{/* File Size Alert Dialog */}
@@ -478,6 +675,37 @@ export default function ProfileClient({ translations: t }: Props) {
 							disabled={isDeleting}
 						>
 							{isDeleting ? "Deleting..." : "Delete Forever"}
+						</Button>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
+
+			{/* Unsubscribe Confirmation Dialog */}
+			<AlertDialog open={showUnsubscribeDialog} onOpenChange={setShowUnsubscribeDialog}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle className="text-orange-600">Unsubscribe from Newsletter</AlertDialogTitle>
+						<AlertDialogDescription>
+							Are you sure you want to unsubscribe from our newsletter? 
+							You will no longer receive email updates about events, news, and announcements.
+							You can always subscribe again later through the contact form.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<Button
+							onClick={() => setShowUnsubscribeDialog(false)}
+							variant="outline"
+							className="mr-2"
+							disabled={isUnsubscribing}
+						>
+							Cancel
+						</Button>
+						<Button
+							onClick={handleUnsubscribe}
+							className="bg-orange-600 hover:bg-orange-700 text-white"
+							disabled={isUnsubscribing}
+						>
+							{isUnsubscribing ? "Unsubscribing..." : "Unsubscribe"}
 						</Button>
 					</AlertDialogFooter>
 				</AlertDialogContent>

@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { addEmailFooter } from "./emailUtils";
 
 // Create nodemailer transporter
 const transporter = nodemailer.createTransport({
@@ -118,6 +119,10 @@ export async function sendGeneralMemberWelcomeEmail({ name, email, familyMembers
 	};
 
 	try {
+		// Add unsubscribe footer if user is subscribed
+		const htmlContentWithFooter = await addEmailFooter(email, mailOptions.html);
+		mailOptions.html = htmlContentWithFooter;
+		
 		await transporter.sendMail(mailOptions);
 		console.log("General Member welcome email sent to:", email);
 	} catch (error) {
@@ -234,6 +239,10 @@ export async function sendActiveMemberApprovalEmailEnglish({ name, email, setupT
 	};
 
 	try {
+		// Add unsubscribe footer if user is subscribed
+		const htmlContentWithFooter = await addEmailFooter(email, mailOptions.html);
+		mailOptions.html = htmlContentWithFooter;
+		
 		await transporter.sendMail(mailOptions);
 		console.log("Active Member approval email sent to:", email);
 	} catch (error) {
@@ -350,6 +359,10 @@ export async function sendActiveMemberApprovalEmail({ name, email, setupToken, f
 	};
 
 	try {
+		// Add unsubscribe footer if user is subscribed
+		const htmlContentWithFooter = await addEmailFooter(email, mailOptions.html);
+		mailOptions.html = htmlContentWithFooter;
+		
 		await transporter.sendMail(mailOptions);
 		console.log("Nepali Active Member approval email sent to:", email);
 	} catch (error) {
@@ -425,6 +438,10 @@ export async function sendVerificationFollowupEmail({ name, email, personalNumbe
 	};
 
 	try {
+		// Add unsubscribe footer if user is subscribed
+		const htmlContentWithFooter = await addEmailFooter(email, mailOptions.html);
+		mailOptions.html = htmlContentWithFooter;
+		
 		await transporter.sendMail(mailOptions);
 		console.log("Verification follow-up email sent to:", email);
 	} catch (error) {
@@ -508,6 +525,10 @@ export async function sendOsloVerificationApprovalEmail({ name, email, setupToke
 	};
 
 	try {
+		// Add unsubscribe footer if user is subscribed
+		const htmlContentWithFooter = await addEmailFooter(email, mailOptions.html);
+		mailOptions.html = htmlContentWithFooter;
+		
 		await transporter.sendMail(mailOptions);
 		console.log("Oslo verification approval email sent to:", email);
 	} catch (error) {
@@ -799,6 +820,13 @@ type sendEmailVerificationEmail = {
 	verificationToken: string;
 };
 export async function sendEmailVerificationEmail({ name, email, verificationToken }: sendEmailVerificationEmail) {
+	console.log("=== EMAIL VERIFICATION FUNCTION CALLED ===");
+	console.log("Sending to:", email);
+	console.log("Name:", name);
+	console.log("Verification URL:", `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/en/verify-email?token=${verificationToken}`);
+	console.log("Transporter configured:", !!transporter);
+	console.log("EMAIL_USER:", process.env.EMAIL_USER);
+	
 	const verificationUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/en/verify-email?token=${verificationToken}`;
 	
 	const mailOptions = {
@@ -847,7 +875,17 @@ export async function sendEmailVerificationEmail({ name, email, verificationToke
 	};
 
 	try {
-		await transporter.sendMail(mailOptions);
+		// Add unsubscribe footer if user is subscribed
+		const htmlContentWithFooter = await addEmailFooter(email, mailOptions.html);
+		mailOptions.html = htmlContentWithFooter;
+		
+		console.log("=== SENDING EMAIL ===");
+		console.log("From:", mailOptions.from);
+		console.log("To:", mailOptions.to);
+		console.log("Subject:", mailOptions.subject);
+		
+		const result = await transporter.sendMail(mailOptions);
+		console.log("Email verification email sent successfully:", result.messageId);
 		console.log("Email verification email sent to:", email);
 	} catch (error) {
 		console.error("Error sending email verification email:", error);
