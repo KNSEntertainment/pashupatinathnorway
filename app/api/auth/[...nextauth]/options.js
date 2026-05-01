@@ -60,7 +60,42 @@ export const authOptions = {
 					});
 					
 					if (!member) {
-						throw new Error("No approved member found with this email");
+						// Also check if there's a member with the pending email (after email change)
+						const pendingMember = await Membership.findOne({ 
+							email: credentials.email,
+							pendingEmail: { $exists: true } // Check if this email was set as pending
+						});
+						
+						// If no member found with either email, throw error
+						if (!pendingMember) {
+							throw new Error("No approved member found with this email");
+						}
+						
+						// If found member with pending email, use that one (email was changed)
+						if (pendingMember) {
+							// Check if this member has a password set
+							if (!pendingMember.password) {
+								throw new Error("Please set your password first. Check your email for the setup link.");
+							}
+							
+							// Validate password for the member with updated email
+							const isValid = await bcrypt.compare(credentials.password, pendingMember.password);
+							if (!isValid) {
+								throw new Error("Invalid credentials");
+							}
+							
+							// Return the member with the updated email (pendingEmail becomes primary after verification)
+							return {
+								_id: pendingMember._id,
+								email: pendingMember.email, // Use the new email that was set as pending
+								fullName: `${pendingMember.firstName} ${pendingMember.middleName ? pendingMember.middleName + ' ' : ''}${pendingMember.lastName}`,
+								phone: pendingMember.phone,
+								role: "member",
+								membershipType: pendingMember.membershipType,
+								membershipStatus: pendingMember.membershipStatus,
+								isMember: true,
+							};
+						}
 					}
 					
 					// Check if member has a password set

@@ -66,10 +66,6 @@ export default async function MembershipPage({ params }: { params: Promise<{ loc
 		need_help: t("need_help"),
 		contact_us_any_questions: t("contact_us_any_questions"),
 		email_us: t("email_us"),
-		province: t("province"),
-		district: t("district"),
-		select_province: t("select_province"),
-		select_district: t("select_district"),
 		locating: t("locating"),
 		use_current_location: t("use_current_location"),
 	};

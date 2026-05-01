@@ -99,7 +99,7 @@ export default function SetPasswordClient({ translations: t }: Props) {
 
 	if (success) {
 		return (
-			<div className="min-h-screen flex items-center justify-center  p-4">
+			<div className="min-h-screen flex items-center justify-center p-4">
 				<div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full text-center">
 					<div className="flex justify-center mb-4">
 						<CheckCircle className="w-16 h-16 text-success0" />
@@ -116,7 +116,7 @@ export default function SetPasswordClient({ translations: t }: Props) {
 	}
 
 	return (
-		<div className="min-h-screen flex items-center justify-center p-4">
+		<div className="h-[600px] flex items-center justify-center p-4">
 			<div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full">
 				<h1 className="text-3xl font-bold text-gray-900 mb-2">{t.title}</h1>
 				<p className="text-gray-900 mb-6">{t.subtitle}</p>

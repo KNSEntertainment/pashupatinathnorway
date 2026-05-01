@@ -28,9 +28,7 @@ export async function PATCH(request: NextRequest) {
 			'postalCode',
 			'kommune',
 			'fylke',
-			'permissionPhotos',
-			'permissionPhone',
-			'permissionEmail',
+			
 			'profilePhoto'
 		];
 
@@ -79,9 +77,7 @@ export async function PATCH(request: NextRequest) {
 			kommune: member.kommune,
 			fylke: member.fylke,
 			personalNumber: member.personalNumber,
-			permissionPhotos: member.permissionPhotos,
-			permissionPhone: member.permissionPhone,
-			permissionEmail: member.permissionEmail,
+			
 			profilePhoto: member.profilePhoto,
 			membershipStatus: member.membershipStatus,
 		};

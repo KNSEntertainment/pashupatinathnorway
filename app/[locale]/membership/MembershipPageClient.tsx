@@ -122,10 +122,9 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 		fylke: "",
 		personalNumber: "",
 		membershipStatus: "pending",
+		membershipType: "General",
 		agreeTerms: false,
-		permissionPhotos: false,
-		permissionPhone: false,
-		permissionEmail: false,
+
 		familyMembers: [] as FamilyMember[],
 	});
 
@@ -610,7 +609,7 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 						const data = await res.json();
 						if (data.exists) {
 							setPersonalNumberStatus("exists");
-							setPersonalNumberError("This personal number is already registered. An account with this personal number already exists.");
+							setPersonalNumberError("An account with this personal number already exists.");
 						} else {
 							setPersonalNumberStatus("available");
 						}
@@ -981,10 +980,9 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 				fylke: "",
 				personalNumber: "",
 				membershipStatus: "pending",
+				membershipType: "General",
 				agreeTerms: false,
-				permissionPhotos: false,
-				permissionPhone: false,
-				permissionEmail: false,
+			
 				familyMembers: [],
 			});
 		} catch (error) {
@@ -1006,10 +1004,9 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 			fylke: "",
 			personalNumber: "",
 			membershipStatus: "pending",
+			membershipType: "General",
 			agreeTerms: false,
-			permissionPhotos: false,
-			permissionPhone: false,
-			permissionEmail: false,
+		
 			familyMembers: [],
 		});
 		setAddressSuggestions([]);
@@ -1166,9 +1163,9 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 							<button
 								type="button"
 								onClick={addFamilyMember}
-								disabled={!isMainApplicantOver15()}
+								disabled={!isMainApplicantOver15() || !!personalNumberError}
 								className={`bg-brand_secondary text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
-									!isMainApplicantOver15() ? "opacity-50 cursor-not-allowed" : "hover:bg-rd-700"
+									(!isMainApplicantOver15() || !!personalNumberError) ? "opacity-50 cursor-not-allowed" : "hover:bg-rd-700"
 								}`}
 							>
 								{tr("add_children_u15")}
@@ -1384,24 +1381,6 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 						</div>
 					</div>
 
-					{/* Privacy Permissions */}
-					{/* <div>
-						<h3 className="text-xl font-semibold text-gray-900 mb-4">{t.permissions_title}</h3>
-						<div className="space-y-3">
-							<label className="flex items-start cursor-pointer p-3 border border-light rounded-lg hover:bg-brand_primary/10 transition-colors">
-								<input type="checkbox" name="permissionPhotos" checked={formData.permissionPhotos} onChange={handleChange} className="w-5 h-5 text-brand_primary rounded mt-1" />
-								<span className="ml-3 text-gray-900 text-sm">{t.permission_photos}</span>
-							</label>
-							<label className="flex items-start cursor-pointer p-3 border border-light rounded-lg hover:bg-brand_primary/10 transition-colors">
-								<input type="checkbox" name="permissionPhone" checked={formData.permissionPhone} onChange={handleChange} className="w-5 h-5 text-brand_primary rounded mt-1" />
-								<span className="ml-3 text-gray-900 text-sm">{t.permission_phone}</span>
-							</label>
-							<label className="flex items-start cursor-pointer p-3 border border-light rounded-lg hover:bg-brand_primary/10 transition-colors">
-								<input type="checkbox" name="permissionEmail" checked={formData.permissionEmail} onChange={handleChange} className="w-5 h-5 text-brand_primary rounded mt-1" />
-								<span className="ml-3 text-gray-900 text-sm">{t.permission_email}</span>
-							</label>
-						</div>
-					</div> */}
 
 					{/* Terms and Conditions */}
 					<div className="bg-light rounded-lg p-2 md:p-6">

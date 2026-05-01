@@ -12,13 +12,10 @@ const MembershipSchema = new mongoose.Schema({
 	kommune: { type: String },
 	fylke: { type: String },
 	personalNumber: { type: String, required: true, validate: { validator: function(v) { return /^\d{11}$/.test(v); }, message: 'Personal number must be exactly 11 digits' } },
-	province: { type: String },
-	district: { type: String },
 	membershipStatus: { type: String, enum: ["blocked", "pending", "approved"], required: true },
-	agreeTerms: { type: Boolean, required: true },
-	permissionPhotos: { type: Boolean, default: false },
-	permissionPhone: { type: Boolean, default: false },
-	permissionEmail: { type: Boolean, default: false },
+	membershipType: { type: String, enum: ["General", "Active"], default: "General" },
+	osloVerificationStatus: { type: String, enum: ["pending", "verified", "rejected", "follow_up_needed"], default: "pending" },
+	agreeTerms: { type: Boolean, required: false, default: true },
 	profilePhoto: { type: String },
 	familyMembers: [{
 		firstName: { type: String, required: true },
@@ -33,6 +30,9 @@ const MembershipSchema = new mongoose.Schema({
 	passwordSetupTokenExpiry: { type: Date },
 	passwordResetToken: { type: String },
 	passwordResetTokenExpiry: { type: Date },
+	pendingEmail: { type: String }, // For email change verification
+	emailVerificationToken: { type: String }, // For email change verification
+	emailVerificationTokenExpiry: { type: Date }, // For email change verification
 	createdAt: { type: Date, default: Date.now },
 });
 

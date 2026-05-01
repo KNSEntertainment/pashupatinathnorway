@@ -15,7 +15,6 @@ interface MemberIDCardProps {
 		nationalMembershipNo?: string;
 		membershipType: string;
 		city?: string;
-		province?: string;
 		personalNumber?: string;
 		createdAt: string;
 	};
@@ -115,10 +114,10 @@ export default function MemberIDCard({ memberData }: MemberIDCardProps) {
 
 							{/* Address */}
 							<div>
-								{(memberData.city || memberData.province) && (
+								{memberData.city && (
 									<div>
 										<p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wide">Address</p>
-										<p className="text-xs font-semibold text-gray-900">{[memberData.city, memberData.province].filter(Boolean).join(", ")}</p>
+										<p className="text-xs font-semibold text-gray-900">{memberData.city}</p>
 									</div>
 								)}
 							</div>

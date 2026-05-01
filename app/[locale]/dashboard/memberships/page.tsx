@@ -5,11 +5,56 @@ import useFetchData from "@/hooks/useFetchData";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Eye, CheckCircle, XCircle, Clock, User, Mail, Phone, MapPin, Award, X, Edit } from "lucide-react";
+import { Trash2, Eye, CheckCircle, XCircle, Clock, User, Mail, Phone, X, Edit, Download, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Membership } from "@/types";
+import { Link } from "@/i18n/navigation";
+import * as XLSX from 'xlsx';
+
+const calculateAgeFromPersonalNumber = (personalNumber: string): number | null => {
+	if (!personalNumber || personalNumber.length !== 11 || !/^\d{11}$/.test(personalNumber)) {
+		return null;
+	}
+
+	const day = parseInt(personalNumber.substring(0, 2));
+	const month = parseInt(personalNumber.substring(2, 4)) - 1;
+	const yearShort = parseInt(personalNumber.substring(4, 6));
+	const individualNumber = parseInt(personalNumber.substring(6, 9));
+	const currentYear = new Date().getFullYear();
+
+	let fullYear: number;
+
+	// Individual number 750–999 with year 00–39 → born 2000–2039
+	if (individualNumber >= 750 && individualNumber <= 999 && yearShort <= 39) {
+		fullYear = 2000 + yearShort;
+	} else {
+		// Everyone else in 0-99 age range → born 1900–1999
+		fullYear = 1900 + yearShort;
+	}
+
+	// Safety check: if resolved year is somehow in the future, step back
+	if (fullYear > currentYear) {
+		fullYear -= 100;
+	}
+
+	// Calculate exact age
+	const birthDate = new Date(fullYear, month, day);
+	const today = new Date();
+
+	let age = today.getFullYear() - birthDate.getFullYear();
+	const monthDiff = today.getMonth() - birthDate.getMonth();
+	if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+		age--;
+	}
+
+	// Reject if outside supported range
+	if (age < 0 || age > 99) {
+		return null;
+	}
+
+	return age;
+};
 
 export default function MembershipsPage() {
 	const [search, setSearch] = useState("");
@@ -93,13 +138,11 @@ export default function MembershipsPage() {
 			postalCode: member.postalCode,
 			personalNumber: member.personalNumber,
 			gender: member.gender,
-			province: member.province,
-			district: member.district,
+			fylke: member.fylke,
+			kommune: member.kommune,
 			membershipType: member.membershipType,
 			membershipStatus: member.membershipStatus,
-			permissionPhotos: member.permissionPhotos,
-			permissionPhone: member.permissionPhone,
-			permissionEmail: member.permissionEmail,
+	
 		});
 	};
 
@@ -141,60 +184,56 @@ export default function MembershipsPage() {
 
 	const handlePasswordReset = async () => {
 		const firstSelectedId = selectedMemberIds[0];
-		if (firstSelectedId) {
-			// Find the member's name from the paginated data
-			let selectedMember: Membership | undefined;
-			for (const member of paginatedMemberships) {
-				if ((member as Membership)._id === firstSelectedId) {
-					selectedMember = member as Membership;
-					break;
-				}
-			}
-			const memberName = `${selectedMember?.firstName} ${selectedMember?.middleName ? selectedMember.middleName + ' ' : ''}${selectedMember?.lastName}` || 'Member';
-			const memberEmail = selectedMember?.email;
-			
-			// Validate that we have a valid email
-			if (!memberEmail) {
-				toast({
-					title: "Error",
-					description: "Selected member does not have a valid email address.",
-					variant: "destructive",
-				});
-				return;
-			}
-			
-			// Send password reset email directly without prompting for password
-			try {
-				const response = await fetch('/api/email/password-reset', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({
-						email: memberEmail,
-						name: memberName,
-						temporaryPassword: '', // API generates its own password but expects this field
-					}),
-				});
+		if (!firstSelectedId) return;
+		
+		// Find the member from paginated data
+		const selectedMember = paginatedMemberships.find((member: Membership) => member._id === firstSelectedId) as Membership | undefined;
+		if (!selectedMember) return;
+		
+		const memberName = `${selectedMember.firstName} ${selectedMember.middleName ? selectedMember.middleName + ' ' : ''}${selectedMember.lastName}`;
+		const memberEmail = selectedMember.email;
+		
+		// Validate that we have a valid email
+		if (!memberEmail) {
+			toast({
+				title: "Error",
+				description: "Selected member does not have a valid email address.",
+				variant: "destructive",
+			});
+			return;
+		}
+		
+		// Send password reset email directly without prompting for password
+		try {
+			const response = await fetch('/api/email/password-reset', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					email: memberEmail,
+					name: memberName,
+					temporaryPassword: '', // API generates its own password but expects this field
+				}),
+			});
 
-				if (response.ok) {
-					toast({
-						title: "Password Reset Email Sent",
-						description: `Password reset email sent to ${memberName}.`,
-					});
-				} else {
-					const errorData = await response.json();
-					console.error('API Error Response:', errorData);
-					throw new Error(errorData.error || 'Failed to send password reset email');
-				}
-			} catch (error) {
-				console.error('Password reset error:', error);
+			if (response.ok) {
 				toast({
-					title: "Error",
-					description: error instanceof Error ? error.message : "Failed to send password reset email. Please try again.",
-					variant: "destructive",
+					title: "Password Reset Email Sent",
+					description: `Password reset email sent to ${memberName}.`,
 				});
+			} else {
+				const errorData = await response.json();
+				console.error('API Error Response:', errorData);
+				throw new Error(errorData.error || 'Failed to send password reset email');
 			}
+		} catch (error) {
+			console.error('Password reset error:', error);
+			toast({
+				title: "Error",
+				description: error instanceof Error ? error.message : "Failed to send password reset email. Please try again.",
+				variant: "destructive",
+			});
 		}
 	};
 
@@ -242,6 +281,21 @@ export default function MembershipsPage() {
 	const handleBulkStatusChange = async () => {
 		if (!selectedMemberIds.length || !bulkStatus) return;
 
+		// Check if trying to approve General members
+		if (bulkStatus === "approved") {
+			for (const id of selectedMemberIds) {
+				const member = paginatedMemberships.find((m: Membership) => m._id === id) as Membership | undefined;
+				if (member?.membershipType === "general") {
+					toast({
+						title: "Cannot Approve",
+						description: "General members cannot be approved. Please change their membership type to Active first.",
+						variant: "destructive",
+					});
+					return; // Stop execution
+				}
+			}
+		}
+
 		for (const id of selectedMemberIds) {
 			try {
 				const response = await fetch(`/api/membership/${id}`, {
@@ -267,6 +321,99 @@ export default function MembershipsPage() {
 		});
 		
 		mutate();
+	};
+
+	const downloadExcel = () => {
+		// Prepare data for Excel
+		const excelData = filteredMemberships.map((member: Membership) => {
+			const age = calculateAgeFromPersonalNumber(member.personalNumber || '');
+			return {
+				'First Name': member.firstName,
+				'Middle Name': member.middleName || '',
+				'Last Name': member.lastName,
+				'Email': member.email,
+				'Phone': member.phone,
+				'Address': member.address,
+				'City': member.city,
+				'Postal Code': member.postalCode,
+				'Fylke':member.fylke,
+				'Kommune':member.kommune,
+				'Personal Number': member.personalNumber,
+				'Gender': member.gender || '',
+				'Membership Type': member.membershipType,
+				'Membership Status': member.membershipStatus,
+				'Age': age !== null ? `${age} years` : 'Unknown',
+				'Registration Date': formatDate(member.createdAt),
+			
+			};
+		});
+
+		// Create workbook and worksheet
+		const ws = XLSX.utils.json_to_sheet(excelData);
+		const wb = XLSX.utils.book_new();
+		XLSX.utils.book_append_sheet(wb, ws, "Members");
+
+		// Generate filename with timestamp
+		const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+		const filename = `members_${timestamp}.xlsx`;
+
+		// Download the file
+		XLSX.writeFile(wb, filename);
+
+		toast({
+			title: "Success",
+			description: `Excel file "${filename}" downloaded successfully`,
+		});
+	};
+
+	const downloadCSV = () => {
+		// Prepare data for CSV
+		const csvData = filteredMemberships.map((member: Membership) => {
+			const age = calculateAgeFromPersonalNumber(member.personalNumber || '');
+			return {
+				'First Name': member.firstName,
+				'Middle Name': member.middleName || '',
+				'Last Name': member.lastName,
+				'Email': member.email,
+				'Phone': member.phone,
+				'Address': member.address,
+				'City': member.city,
+				'Postal Code': member.postalCode,
+				'Fylke': member.fylke || '',
+				'Kommune': member.kommune || '',
+				'Personal Number': member.personalNumber,
+				'Gender': member.gender || '',
+				'Membership Type': member.membershipType,
+				'Membership Status': member.membershipStatus,
+				'Age': age !== null ? `${age} years` : 'Unknown',
+				'Registration Date': formatDate(member.createdAt),
+			
+			};
+		});
+
+		// Convert to CSV string
+		const ws = XLSX.utils.json_to_sheet(csvData);
+		const csv = XLSX.utils.sheet_to_csv(ws);
+
+		// Generate filename with timestamp
+		const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+		const filename = `members_${timestamp}.csv`;
+
+		// Create blob and download
+		const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+		const link = document.createElement('a');
+		const url = URL.createObjectURL(blob);
+		link.setAttribute('href', url);
+		link.setAttribute('download', filename);
+		link.style.visibility = 'hidden';
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+
+		toast({
+			title: "Success",
+			description: `CSV file "${filename}" downloaded successfully`,
+		});
 	};
 
 	const handlePageChange = (page: number) => {
@@ -325,17 +472,15 @@ export default function MembershipsPage() {
 					</select>
 					<select className="border rounded px-2 py-2" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
 						<option value="">All Types</option>
-						<option value="general">General</option>
-						<option value="executive">Executive</option>
+						<option value="General">General member</option>
+						<option value="Active">Active member</option>
 					</select>
 				</div>
 			</div>
 
 			{/* Bulk Actions */}
 			<div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
-				<div className="flex gap-4 flex-1 items-center pl-2">
-					<input type="checkbox" checked={allSelectedOnPage} onChange={handleSelectAll} aria-label="Select all memberships on page" />
-					<span className="text-sm">Select All</span>
+				<div className="flex gap-4 flex-1 items-center">
 					<Button variant="destructive" size="sm" onClick={handleBulkDelete} disabled={selectedMemberIds.length === 0}>
 						Delete Selected
 					</Button>
@@ -345,13 +490,42 @@ export default function MembershipsPage() {
 						<option value="blocked">Block</option>
 						<option value="pending">Pending</option>
 					</select>
-					<Button size="sm" onClick={handleBulkStatusChange} disabled={selectedMemberIds.length === 0 || !bulkStatus}>
+					<Button size="sm" onClick={handleBulkStatusChange} disabled={selectedMemberIds.length === 0 || !bulkStatus || (bulkStatus === 'approved')}>
 						Apply Status
 					</Button>
-					<Button size="sm" onClick={handlePasswordReset}>Reset Password</Button>
+					{(() => {
+						// Check if any selected member has "approved" status
+						const hasActiveMemberSelected = selectedMemberIds.some(id => {
+							const member = paginatedMemberships.find((m: Membership) => m._id === id) as Membership | undefined;
+							return member?.membershipStatus === "approved";
+						});
+						
+						return (
+							<Button 
+								size="sm" 
+								onClick={handlePasswordReset} 
+								disabled={!hasActiveMemberSelected}
+							>
+								Reset Password
+							</Button>
+						);
+					})()}
 				</div>
-				<div className="text-sm text-gray-900">
-					Total: {filteredMemberships.length} | Selected: {selectedMemberIds.length}
+				<div className="flex gap-3 items-center">
+					<Button size="sm" onClick={downloadExcel} className="flex items-center gap-2">
+						<Download className="w-4 h-4" />
+						Download Excel
+					</Button>
+					<Button size="sm" onClick={downloadCSV} variant="outline" className="flex items-center gap-2">
+						<Download className="w-4 h-4" />
+						Download CSV
+					</Button>
+					<Link href="/dashboard/bulk-upload">
+						<Button size="sm" variant="secondary" className="flex items-center gap-2">
+							<Upload className="w-4 h-4" />
+							Bulk Upload
+						</Button>
+					</Link>
 				</div>
 			</div>
 
@@ -361,7 +535,7 @@ export default function MembershipsPage() {
 					<TableHeader>
 						<TableRow>
 							<TableHead className="w-12">
-								<input type="checkbox" checked={allSelectedOnPage} onChange={handleSelectAll} />
+								<input type="checkbox" checked={allSelectedOnPage} onChange={handleSelectAll} className="w-5 h-5" />
 							</TableHead>
 							<TableHead>Name</TableHead>
 							<TableHead>Email</TableHead>
@@ -375,21 +549,32 @@ export default function MembershipsPage() {
 					<TableBody>
 						{paginatedMemberships.length > 0 ? (
 							paginatedMemberships.map((member: Membership) => (
-								<TableRow key={member._id}>
-									<TableCell>
-										<input type="checkbox" checked={selectedMemberIds.includes(member._id)} onChange={() => handleSelectMember(member._id)} />
+								<TableRow 
+									key={member._id}
+									className={`cursor-pointer hover:bg-gray-50 ${selectedMemberIds.includes(member._id) ? 'bg-blue-50' : ''}`}
+									onClick={() => handleSelectMember(member._id)}
+								>
+									<TableCell onClick={(e) => e.stopPropagation()}>
+										<input type="checkbox" checked={selectedMemberIds.includes(member._id)} onChange={() => handleSelectMember(member._id)} className="w-5 h-5" />
 									</TableCell>
 									<TableCell className="font-medium">{`${member.firstName} ${member.middleName ? member.middleName + ' ' : ''}${member.lastName}`}</TableCell>
 									<TableCell>{member.email}</TableCell>
 									<TableCell>{member.phone}</TableCell>
 									<TableCell>
-										<Badge variant="outline" className="capitalize">
+										<Badge 
+											variant="outline" 
+											className={`capitalize ${
+												member.membershipType === 'general'
+													? 'bg-blue-50 text-blue-700 border-blue-200' 
+													: 'bg-green-50 text-green-700 border-green-200'
+											}`}
+										>
 											{member.membershipType}
 										</Badge>
 									</TableCell>
 									<TableCell>{getStatusBadge(member.membershipStatus)}</TableCell>
 									<TableCell>{formatDate(member.createdAt)}</TableCell>
-									<TableCell>
+									<TableCell onClick={(e) => e.stopPropagation()}>
 										<div className="flex gap-2">
 											<Button variant="outline" size="sm" onClick={() => setViewingMember(member)} title="View Details">
 												<Eye className="w-4 h-4" />
@@ -399,9 +584,32 @@ export default function MembershipsPage() {
 											</Button>
 											{member.membershipStatus === "pending" && (
 												<>
-													<Button variant="outline" size="sm" className="text-success hover:text-success" onClick={() => handleStatusUpdate(member._id, "approved")} title="Approve">
-														<CheckCircle className="w-4 h-4" />
-													</Button>
+													{(() => {
+														const age = calculateAgeFromPersonalNumber(member.personalNumber || '');
+														const canApprove = age !== null && age >= 15;
+														return (
+															<Button 
+																variant="outline" 
+																size="sm" 
+																className={`text-success hover:text-success ${!canApprove ? 'opacity-50 cursor-not-allowed' : ''}`} 
+																onClick={() => {
+																	if (canApprove) {
+																		handleStatusUpdate(member._id, "approved");
+																	} else {
+																		toast({
+																			title: "Cannot Approve",
+																			description: `Member is ${age} years old. Cannot approve members under 15 years old.`,
+																			variant: "destructive",
+																		});
+																	}
+																}} 
+																title={canApprove ? "Approve" : `Cannot approve: Member is ${age} years old (under 15)`}
+																disabled={!canApprove}
+															>
+																<CheckCircle className="w-4 h-4" />
+															</Button>
+														);
+													})()}
 													<Button variant="outline" size="sm" className="text-red-600 hover:text-red-600" onClick={() => handleStatusUpdate(member._id, "blocked")} title="Block">
 														<XCircle className="w-4 h-4" />
 													</Button>
@@ -450,179 +658,170 @@ export default function MembershipsPage() {
 				</div>
 			</div>
 
-			{/* View Member Modal */}
+			{/* View Member Modal - Minimalist Design */}
 			{viewingMember && (
-				<div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200" onClick={() => setViewingMember(null)}>
-					<div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
-						{/* Header with gradient background */}
-						<div className="relative bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6">
-							<button onClick={() => setViewingMember(null)} className="absolute top-4 right-4 text-white/80 hover:text-white hover:bg-white/20 rounded-full p-2 transition-all duration-200">
+				<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setViewingMember(null)}>
+					<div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+						{/* Simple Header */}
+						<div className="flex items-center justify-between px-6 py-4 border-b">
+							<h2 className="text-xl font-semibold text-gray-900">Member Details</h2>
+							<button onClick={() => setViewingMember(null)} className="text-gray-400 hover:text-gray-600">
 								<X className="w-5 h-5" />
 							</button>
-							<h2 className="text-3xl font-bold text-white mb-2">Member Profile</h2>
-							<p className="text-blue-100">Detailed membership information</p>
 						</div>
 
-						<div className="overflow-y-auto max-h-[calc(90vh-180px)] px-8 py-6">
-							{/* Profile Photo & Quick Info */}
-							<div className="flex flex-col items-center mb-8">
-								<div className="relative mb-4">
-									<div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center shadow-xl ring-4 ring-white">{viewingMember.profilePhoto ? <Image src={viewingMember.profilePhoto} alt={`${viewingMember.firstName} ${viewingMember.middleName ? viewingMember.middleName + ' ' : ''}${viewingMember.lastName}`} width={128} height={128} className="w-full h-full object-cover" /> : <User className="w-16 h-16 text-gray-900" />}</div>
-									<div className="absolute -bottom-2 -right-2">{getStatusBadge(viewingMember.membershipStatus)}</div>
+						<div className="overflow-y-auto max-h-[calc(90vh-80px)] px-6 py-4">
+							{/* Basic Info */}
+							<div className="flex items-start gap-4 mb-6">
+								{viewingMember.profilePhoto ? (
+									<Image 
+										src={viewingMember.profilePhoto} 
+										alt={`${viewingMember.firstName} ${viewingMember.middleName ? viewingMember.middleName + ' ' : ''}${viewingMember.lastName}`} 
+										width={80} 
+										height={80} 
+										className="w-20 h-20 rounded-full object-cover border-2 border-gray-200" 
+									/>
+								) : (
+									<div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center">
+										<User className="w-8 h-8 text-gray-500" />
+									</div>
+								)}
+								<div className="flex-1">
+									<h3 className="text-lg font-semibold text-gray-900 mb-1">
+										{`${viewingMember.firstName} ${viewingMember.middleName ? viewingMember.middleName + ' ' : ''}${viewingMember.lastName}`}
+									</h3>
+									<div className="flex items-center gap-2 mb-2">
+										<Badge 
+											variant="outline" 
+											className={`capitalize ${
+												viewingMember.membershipType === 'general'
+													? 'bg-blue-50 text-blue-700 border-blue-200' 
+													: 'bg-green-50 text-green-700 border-green-200'
+											}`}
+										>
+											{viewingMember.membershipType}
+										</Badge>
+										{getStatusBadge(viewingMember.membershipStatus)}
+									</div>
+									<div className="space-y-1 text-sm text-gray-600">
+										<div className="flex items-center gap-2">
+											<Mail className="w-4 h-4" />
+											{viewingMember.email}
+										</div>
+										<div className="flex items-center gap-2">
+											<Phone className="w-4 h-4" />
+											{viewingMember.phone}
+										</div>
+									</div>
 								</div>
-								<h3 className="text-2xl font-bold text-gray-900 mb-1">{`${viewingMember.firstName} ${viewingMember.middleName ? viewingMember.middleName + ' ' : ''}${viewingMember.lastName}`}</h3>
-								<Badge variant="outline" className="capitalize text-sm">
-									{viewingMember.membershipType} Member
-								</Badge>
 							</div>
 
-							{/* Contact Information Card */}
-							<Card className="mb-6 border-l-4 border-l-blue-500 shadow-md hover:shadow-lg transition-shadow">
-								<CardHeader className="pb-3">
-									<CardTitle className="flex items-center gap-2 text-lg">
-										<Mail className="w-5 h-5 text-brand_primary" />
-										Contact Information
-									</CardTitle>
-								</CardHeader>
-								<CardContent>
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-										<div className="flex items-start gap-3">
-											<Mail className="w-5 h-5 text-gray-900 mt-0.5" />
-											<div>
-												<p className="text-xs text-gray-900 font-medium">Email</p>
-												<p className="text-gray-900">{viewingMember.email}</p>
-											</div>
-										</div>
-										<div className="flex items-start gap-3">
-											<Phone className="w-5 h-5 text-gray-900 mt-0.5" />
-											<div>
-												<p className="text-xs text-gray-900 font-medium">Phone</p>
-												<p className="text-gray-900">{viewingMember.phone}</p>
-											</div>
-										</div>
-										<div className="flex items-start gap-3">
-											<User className="w-5 h-5 text-gray-900 mt-0.5" />
-											<div>
-												<p className="text-xs text-gray-900 font-medium">Personal Number</p>
-												<p className="text-gray-900">{viewingMember.personalNumber || 'Not specified'}</p>
-											</div>
-										</div>
-										<div className="flex items-start gap-3">
-											<User className="w-5 h-5 text-gray-900 mt-0.5" />
-											<div>
-												<p className="text-xs text-gray-900 font-medium">Gender</p>
-												<p className="text-gray-900 capitalize">{viewingMember.gender}</p>
-											</div>
-										</div>
-									</div>
-								</CardContent>
-							</Card>
-
-							{/* Location Information Card */}
-							<Card className="mb-6 border-l-4 border-l-green-500 shadow-md hover:shadow-lg transition-shadow">
-								<CardHeader className="pb-3">
-									<CardTitle className="flex items-center gap-2 text-lg">
-										<MapPin className="w-5 h-5 text-success" />
-										Location Details
-									</CardTitle>
-								</CardHeader>
-								<CardContent>
-									<div className="space-y-4">
-										<div>
-											<p className="text-xs text-gray-900 font-medium mb-1">Norway Address</p>
-											<p className="text-gray-900">{viewingMember.address}</p>
-											<p className="text-gray-900">
-												{viewingMember.city}, {viewingMember.postalCode}
-											</p>
-										</div>
-										{(viewingMember.province || viewingMember.district) && (
-											<div className="pt-4 border-t">
-												<p className="text-xs text-gray-900 font-medium mb-1">Nepal Address</p>
-												<p className="text-gray-900">
-													{viewingMember.province && `Province: ${viewingMember.province}`}
-													{viewingMember.province && viewingMember.district && " | "}
-													{viewingMember.district && `District: ${viewingMember.district}`}
-												</p>
-											</div>
-										)}
-									</div>
-								</CardContent>
-							</Card>
-
-							{/* Membership Information Card */}
-							<Card className="mb-6 border-l-4 border-l-indigo-500 shadow-md hover:shadow-lg transition-shadow">
-								<CardHeader className="pb-3">
-									<CardTitle className="flex items-center gap-2 text-lg">
-										<Award className="w-5 h-5 text-indigo-600" />
-										Membership Information
-									</CardTitle>
-								</CardHeader>
-								<CardContent>
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-										<div>
-											<p className="text-xs text-gray-900 font-medium mb-1">Registration Date</p>
-											<p className="text-gray-900">{formatDate(viewingMember.createdAt)}</p>
-										</div>
-									</div>
-								</CardContent>
-							</Card>
+							{/* Additional Info */}
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+								<div>
+									<p className="font-medium text-gray-900 mb-1">Personal Number</p>
+									<p className="text-gray-600">{viewingMember.personalNumber || 'Not specified'}</p>
+								</div>
+								<div>
+									<p className="font-medium text-gray-900 mb-1">Gender</p>
+									<p className="text-gray-600 capitalize">{viewingMember.gender}</p>
+								</div>
+								<div>
+									<p className="font-medium text-gray-900 mb-1">Address</p>
+									<p className="text-gray-600">{viewingMember.address}</p>
+								</div>
+								<div>
+									<p className="font-medium text-gray-900 mb-1">City</p>
+									<p className="text-gray-600">{viewingMember.city}</p>
+								</div>
+								<div>
+									<p className="font-medium text-gray-900 mb-1">Postal Code</p>
+									<p className="text-gray-600">{viewingMember.postalCode}</p>
+								</div>
+								<div>
+									<p className="font-medium text-gray-900 mb-1">Registration Date</p>
+									<p className="text-gray-600">{formatDate(viewingMember.createdAt)}</p>
+								</div>
+								<div>
+									<p className="font-medium text-gray-900 mb-1">Age</p>
+									<p className="text-gray-600">
+										{(() => {
+											const age = calculateAgeFromPersonalNumber(viewingMember.personalNumber || '');
+											return age !== null ? `${age} years` : 'Unknown';
+										})()}
+									</p>
+								</div>
+							</div>
 						</div>
 
-						{/* Action Buttons Footer */}
-						<div className="border-t bg-light px-8 py-4">
-							<div className="flex gap-3">
-								{viewingMember.membershipStatus === "pending" && (
-									<>
-										<Button
-											className="flex-1 bg-success hover:bg-success shadow-md hover:shadow-lg transition-all"
-											onClick={() => {
-												handleStatusUpdate(viewingMember._id, "approved");
-												setViewingMember(null);
-											}}
-										>
-											<CheckCircle className="w-4 h-4 mr-2" />
-											Approve Membership
-										</Button>
-										<Button
-											className="flex-1 bg-red-600 hover:bg-red-700 shadow-md hover:shadow-lg transition-all"
-											onClick={() => {
-												handleStatusUpdate(viewingMember._id, "blocked");
-												setViewingMember(null);
-											}}
-										>
-											<XCircle className="w-4 h-4 mr-2" />
-											Block Membership
-										</Button>
-									</>
-								)}
-								{viewingMember.membershipStatus === "approved" && (
+						{/* Action Buttons */}
+						<div className="flex gap-3 px-6 py-4 border-t">
+							{viewingMember.membershipStatus === "pending" && (
+								<>
+									{(() => {
+										const age = calculateAgeFromPersonalNumber(viewingMember.personalNumber || '');
+										const canApprove = age !== null && age >= 15;
+										return (
+											<Button
+												className={`flex-1 ${canApprove ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed'}`}
+												onClick={() => {
+													if (canApprove) {
+														handleStatusUpdate(viewingMember._id, "approved");
+														setViewingMember(null);
+													} else {
+														toast({
+															title: "Cannot Approve",
+															description: `Member is ${age} years old. Cannot approve members under 15 years old.`,
+															variant: "destructive",
+														});
+													}
+												}}
+												disabled={!canApprove}
+											>
+												<CheckCircle className="w-4 h-4 mr-2" />
+												Approve
+											</Button>
+										);
+									})()}
 									<Button
-										className="flex-1 bg-red-600 hover:bg-red-700 shadow-md hover:shadow-lg transition-all"
+										className="flex-1 bg-red-600 hover:bg-red-700"
 										onClick={() => {
 											handleStatusUpdate(viewingMember._id, "blocked");
 											setViewingMember(null);
 										}}
 									>
 										<XCircle className="w-4 h-4 mr-2" />
-										Block Member
+										Block
 									</Button>
-								)}
-								{viewingMember.membershipStatus === "blocked" && (
-									<Button
-										className="flex-1 bg-success hover:bg-success shadow-md hover:shadow-lg transition-all"
-										onClick={() => {
-											handleStatusUpdate(viewingMember._id, "approved");
-											setViewingMember(null);
-										}}
-									>
-										<CheckCircle className="w-4 h-4 mr-2" />
-										Approve Member
-									</Button>
-								)}
-								<Button variant="outline" onClick={() => setViewingMember(null)} className="px-6">
-									Close
+								</>
+							)}
+							{viewingMember.membershipStatus === "approved" && (
+								<Button
+									className="flex-1 bg-red-600 hover:bg-red-700"
+									onClick={() => {
+										handleStatusUpdate(viewingMember._id, "blocked");
+										setViewingMember(null);
+									}}
+								>
+									<XCircle className="w-4 h-4 mr-2" />
+									Block
 								</Button>
-							</div>
+							)}
+							{viewingMember.membershipStatus === "blocked" && (
+								<Button
+									className="flex-1 bg-green-600 hover:bg-green-700"
+									onClick={() => {
+										handleStatusUpdate(viewingMember._id, "approved");
+										setViewingMember(null);
+									}}
+								>
+									<CheckCircle className="w-4 h-4 mr-2" />
+									Approve
+								</Button>
+							)}
+							<Button variant="outline" onClick={() => setViewingMember(null)}>
+								Close
+							</Button>
 						</div>
 					</div>
 				</div>
@@ -702,30 +901,9 @@ export default function MembershipsPage() {
 										/>
 									</div>
 
-									<div>
-										<label className="block text-sm font-medium text-gray-900 mb-2">Personal Number</label>
-										<input
-											type="text"
-											value={editFormData.personalNumber || ''}
-											onChange={(e) => handleEditChange('personalNumber', e.target.value)}
-											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-										/>
-									</div>
+						
 
-									<div>
-										<label className="block text-sm font-medium text-gray-900 mb-2">Gender</label>
-										<select
-											value={editFormData.gender || ''}
-											onChange={(e) => handleEditChange('gender', e.target.value)}
-											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-										>
-											<option value="">Select Gender</option>
-											<option value="male">Male</option>
-											<option value="female">Female</option>
-											<option value="other">Other</option>
-											<option value="prefer-not-to-say">Prefer not to say</option>
-										</select>
-									</div>
+								
 								</div>
 
 								{/* Location Information */}
@@ -761,71 +939,23 @@ export default function MembershipsPage() {
 											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 										/>
 									</div>
-								</div>
-							</div>
-
-							{/* Membership Information */}
-							<div className="mt-6 space-y-4">
-								<h3 className="text-lg font-semibold text-gray-900 mb-4">Membership Details</h3>
-								
-								<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 									<div>
-										<label className="block text-sm font-medium text-gray-900 mb-2">Membership Type</label>
-										<select
-											value={editFormData.membershipType || ''}
-											onChange={(e) => handleEditChange('membershipType', e.target.value)}
+										<label className="block text-sm font-medium text-gray-900 mb-2">Fylke</label>
+										<input
+											type="text"
+											value={editFormData.fylke || ''}
+											onChange={(e) => handleEditChange('fylke', e.target.value)}
 											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-										>
-											<option value="general">General</option>
-											<option value="executive">Executive</option>
-										</select>
+										/>
 									</div>
-
 									<div>
-										<label className="block text-sm font-medium text-gray-900 mb-2">Membership Status</label>
-										<select
-											value={editFormData.membershipStatus || ''}
-											onChange={(e) => handleEditChange('membershipStatus', e.target.value)}
+										<label className="block text-sm font-medium text-gray-900 mb-2">Kommune</label>
+										<input
+											type="text"
+											value={editFormData.kommune || ''}
+											onChange={(e) => handleEditChange('kommune', e.target.value)}
 											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-										>
-											<option value="pending">Pending</option>
-											<option value="approved">Approved</option>
-											<option value="blocked">Blocked</option>
-										</select>
-									</div>
-								</div>
-
-								{/* Permissions */}
-								<div className="mt-6">
-									<h3 className="text-lg font-semibold text-gray-900 mb-4">Permissions</h3>
-									<div className="space-y-3">
-										<label className="flex items-center">
-											<input
-												type="checkbox"
-												checked={editFormData.permissionPhotos || false}
-												onChange={(e) => handleEditChange('permissionPhotos', e.target.checked)}
-												className="w-4 h-4 text-blue-600 rounded"
-											/>
-											<span className="ml-2 text-gray-900">Permission to use photos</span>
-										</label>
-										<label className="flex items-center">
-											<input
-												type="checkbox"
-												checked={editFormData.permissionPhone || false}
-												onChange={(e) => handleEditChange('permissionPhone', e.target.checked)}
-												className="w-4 h-4 text-blue-600 rounded"
-											/>
-											<span className="ml-2 text-gray-900">Permission to contact by phone</span>
-										</label>
-										<label className="flex items-center">
-											<input
-												type="checkbox"
-												checked={editFormData.permissionEmail || false}
-												onChange={(e) => handleEditChange('permissionEmail', e.target.checked)}
-												className="w-4 h-4 text-blue-600 rounded"
-											/>
-											<span className="ml-2 text-gray-900">Permission to contact by email</span>
-										</label>
+										/>
 									</div>
 								</div>
 							</div>

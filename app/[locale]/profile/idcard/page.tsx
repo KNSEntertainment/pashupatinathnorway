@@ -159,7 +159,6 @@ export default function IDCardPage() {
 										profilePhoto: profilePhoto || undefined,
 										membershipType: membershipData.membershipType,
 										city: membershipData.city,
-										province: membershipData.province,
 										personalNumber: membershipData.personalNumber,
 										createdAt: membershipData.createdAt,
 									}}

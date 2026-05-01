@@ -52,7 +52,7 @@ function DashboardLayoutContent({ children }) {
 								key={item.id}
 								href={item.href}
 								className={`w-full flex items-center px-4 py-2 text-sm transition-colors duration-200
-									${isActive ? "bg-brand_primary text-white font-semibold shadow border-l-2 border-black" : "text-black hover:text-brand_primary hover:bg-light"}
+									${isActive ? "bg-brand_primary text-gray-700 font-semibold shadow border-l-2 border-black" : "text-black hover:text-brand_secondary hover:bg-light"}
 								`}
 								style={isActive ? { boxShadow: "0 2px 8px 0 rgba(0, 0, 0, 0.10)" } : {}}
 							>

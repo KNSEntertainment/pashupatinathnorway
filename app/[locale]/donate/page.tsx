@@ -1,4 +1,4 @@
-import DonatePageClient from "./DONATE_CLIENT";
+import DonatePageClient from "./DonateClient";
 
 
 export const metadata = {

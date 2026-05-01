@@ -180,7 +180,6 @@ export default function MemberDetailClient({ member }) {
 										<p className="text-gray-900">
 											{member.city}, {member.postalCode}
 										</p>
-										{member.province && <p className="text-gray-900">{member.province}</p>}
 									</div>
 								</div>
 							</div>
@@ -209,15 +208,7 @@ export default function MemberDetailClient({ member }) {
 										<p className="text-gray-900 font-medium capitalize">{member.gender}</p>
 									</div>
 								</div>
-								{member.district && (
-									<div className="flex items-start gap-3">
-										<MapPin className="text-gray-900 mt-1 flex-shrink-0" size={20} />
-										<div>
-											<p className="text-sm text-gray-900">District</p>
-											<p className="text-gray-900 font-medium">{member.district}</p>
-										</div>
-									</div>
-								)}
+						
 								{member.profession && (
 									<div className="flex items-start gap-3">
 										<Briefcase className="text-gray-900 mt-1 flex-shrink-0" size={20} />

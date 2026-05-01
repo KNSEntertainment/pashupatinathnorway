@@ -7,7 +7,8 @@
 		"build": "next build",
 		"start": "next start",
 		"lint": "next lint",
-		"test": "jest --coverage"
+		"test": "jest --coverage",
+		"init-oslo-verification": "node scripts/initialize-oslo-verification.js"
 	},
 	"dependencies": {
 		"@dnd-kit/core": "^6.3.1",
@@ -37,6 +38,7 @@
 		"cloudinary": "^2.5.1",
 		"clsx": "^2.1.1",
 		"date-fns": "^3.6.0",
+		"dotenv": "^17.4.2",
 		"framer-motion": "^11.11.17",
 		"jose": "^5.9.6",
 		"lucide-react": "^0.460.0",
@@ -55,6 +57,7 @@
 		"stripe": "^20.3.0",
 		"tailwind-merge": "^2.5.4",
 		"tailwindcss-animate": "^1.0.7",
+		"xlsx": "^0.18.5",
 		"yet-another-react-lightbox": "^3.27.0"
 	},
 	"devDependencies": {

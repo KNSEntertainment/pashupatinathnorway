@@ -12,6 +12,9 @@ const userSchema = new mongoose.Schema(
 		resetTokenExpiry: { type: Date },
 		setupToken: { type: String },
 		setupTokenExpiry: { type: Date },
+		pendingEmail: { type: String }, // For email change verification
+		emailVerificationToken: { type: String }, // For email change verification
+		emailVerificationTokenExpiry: { type: Date }, // For email change verification
 	},
 	{
 		timestamps: true,

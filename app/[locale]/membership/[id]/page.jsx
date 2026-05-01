@@ -45,7 +45,7 @@ export async function generateMetadata({ params }) {
 
 		return {
 			title: `${member.fullName} | Pashupatinath Norway Temple Membership`,
-			description: `View the membership profile of ${member.fullName} from ${member.city}, ${member.province || "Norway"}`,
+			description: `View the membership profile of ${member.fullName} from ${member.city} || "Norway"}`,
 			openGraph: {
 				title: `${member.fullName} | Pashupatinath Norway Temple`,
 				description: `Member profile: ${member.profession || member.membershipType}`,

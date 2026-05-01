@@ -2,7 +2,51 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Membership from "@/models/Membership.Model";
 import crypto from "crypto";
-import { sendWelcomeEmail } from "@/lib/email";
+import { sendActiveMemberApprovalEmail } from "@/lib/email";
+
+const calculateAgeFromPersonalNumber = (personalNumber: string): number | null => {
+	if (!personalNumber || personalNumber.length !== 11 || !/^\d{11}$/.test(personalNumber)) {
+		return null;
+	}
+
+	const day = parseInt(personalNumber.substring(0, 2));
+	const month = parseInt(personalNumber.substring(2, 4)) - 1;
+	const yearShort = parseInt(personalNumber.substring(4, 6));
+	const individualNumber = parseInt(personalNumber.substring(6, 9));
+	const currentYear = new Date().getFullYear();
+
+	let fullYear: number;
+
+	// Individual number 750–999 with year 00–39 → born 2000–2039
+	if (individualNumber >= 750 && individualNumber <= 999 && yearShort <= 39) {
+		fullYear = 2000 + yearShort;
+	} else {
+		// Everyone else in 0-99 age range → born 1900–1999
+		fullYear = 1900 + yearShort;
+	}
+
+	// Safety check: if resolved year is somehow in the future, step back
+	if (fullYear > currentYear) {
+		fullYear -= 100;
+	}
+
+	// Calculate exact age
+	const birthDate = new Date(fullYear, month, day);
+	const today = new Date();
+
+	let age = today.getFullYear() - birthDate.getFullYear();
+	const monthDiff = today.getMonth() - birthDate.getMonth();
+	if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+		age--;
+	}
+
+	// Reject if outside supported range
+	if (age < 0 || age > 99) {
+		return null;
+	}
+
+	return age;
+};
 
 export async function GET(req: NextRequest, context: { params: Promise<{ id: string }> }) {
 	const { id } = await context.params;
@@ -29,7 +73,25 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
 		return NextResponse.json({ error: "Not found" }, { status: 404 });
 	}
 
-	const membership = await Membership.findByIdAndUpdate(id, data, { new: true });
+	// Handle membership approval logic
+	const updateData = { ...data };
+
+	// If membership is being approved, check age and set membership type
+	if (data.membershipStatus === "approved" && existingMembership.membershipStatus !== "approved") {
+		const age = calculateAgeFromPersonalNumber(existingMembership.personalNumber);
+		
+		if (age !== null && age < 15) {
+			return NextResponse.json(
+				{ error: "Cannot approve membership for members under 15 years old. They must wait until they turn 15 to become an Active member." },
+				{ status: 400 }
+			);
+		}
+		
+		// Set membership type to Active for approved members 15+
+		updateData.membershipType = "Active";
+	}
+
+	const membership = await Membership.findByIdAndUpdate(id, updateData, { new: true });
 
 	// If membership is being approved for the first time
 	if (data.membershipStatus === "approved" && existingMembership.membershipStatus !== "approved") {
@@ -44,11 +106,11 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
 				passwordSetupTokenExpiry: setupTokenExpiry,
 			});
 
-			// Send welcome email with password setup link
+			// Send Active Member approval email with password setup link
 			const fullName = [membership.firstName, membership.middleName, membership.lastName]
 				.filter(Boolean)
 				.join(' ');
-			await sendWelcomeEmail({
+			await sendActiveMemberApprovalEmail({
 				name: fullName,
 				email: membership.email,
 				setupToken: setupToken,

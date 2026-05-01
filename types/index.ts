@@ -53,14 +53,11 @@ export interface Membership {
 	postalCode: string;
 	personalNumber?: string;
 	gender: string;
-	province?: string;
-	district?: string;
+	fylke?: string;
+	kommune?: string;
 	membershipType: "general" | "active" | "executive";
 	membershipStatus: "blocked" | "pending" | "approved";
 	agreeTerms: boolean;
-	permissionPhotos?: boolean;
-	permissionPhone?: boolean;
-	permissionEmail?: boolean;
 	profilePhoto?: string;
 	password?: string;
 	passwordSetupToken?: string;

@@ -41,7 +41,6 @@ interface MemberData {
   profilePhoto?: string;
   membershipType: string;
   city?: string;
-  province?: string;
   personalNumber?: string;
   membershipStatus: string;
   createdAt: string;

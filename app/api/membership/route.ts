@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Membership from "@/models/Membership.Model";
+import { sendGeneralMemberWelcomeEmail } from "@/lib/email";
+
+interface FamilyMember {
+	firstName: string;
+	middleName?: string;
+	lastName: string;
+	personalNumber: string;
+	email: string;
+	phone?: string;
+}
 
 export async function GET(req: NextRequest) {
 	await connectDB();
@@ -86,6 +96,36 @@ export async function POST(req: NextRequest) {
 				const familyMembership = await Membership.create(familyMemberData);
 				familyMemberships.push(familyMembership);
 			}
+		}
+
+		// Send General Member welcome emails to all new members
+		try {
+			// Send to main applicant
+			const mainMemberName = [mainMembership.firstName, mainMembership.middleName, mainMembership.lastName]
+				.filter(Boolean)
+				.join(' ');
+			await sendGeneralMemberWelcomeEmail({
+				name: mainMemberName,
+				email: mainMembership.email,
+				familyMembers: familyMembers.map((fm: FamilyMember) => [fm.firstName, fm.middleName, fm.lastName].filter(Boolean).join(' ')),
+			});
+
+			// Send to family members
+			for (const familyMembership of familyMemberships) {
+				const familyMemberName = [familyMembership.firstName, familyMembership.middleName, familyMembership.lastName]
+					.filter(Boolean)
+					.join(' ');
+				await sendGeneralMemberWelcomeEmail({
+					name: familyMemberName,
+					email: familyMembership.email,
+					familyMembers: [], // Family members don't have additional family members
+				});
+			}
+
+			console.log(`General Member welcome emails sent to ${1 + familyMemberships.length} members`);
+		} catch (emailError) {
+			console.error("Error sending General Member welcome emails:", emailError);
+			// Don't fail the membership creation if email fails
 		}
 		
 		return NextResponse.json({

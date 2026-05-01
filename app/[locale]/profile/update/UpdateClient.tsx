@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Lock, Eye, EyeOff, AlertTriangle, CheckCircle, User, MapPin, Loader2 } from "lucide-react";
+import { Lock, Eye, EyeOff, AlertTriangle, CheckCircle, User, MapPin, Loader2, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -67,10 +67,16 @@ interface Translations {
   address: string;
   city: string;
   postalCode: string;
-  province: string;
-  district: string;
- updating: string;
-
+  updating: string;
+  changeEmail: string;
+  currentEmail: string;
+  newEmail: string;
+  password: string;
+  sending: string;
+  emailUpdated: string;
+  emailUpdateError: string;
+  emailVerificationSent: string;
+  emailVerificationError: string;
 }
 
 interface Props {
@@ -96,6 +102,15 @@ export default function UpdateClient({ translations: t }: Props) {
   const [currentPasswordError, setCurrentPasswordError] = useState("");
   const [isValidatingCurrentPassword, setIsValidatingCurrentPassword] = useState(false);
   const [isCurrentPasswordValid, setIsCurrentPasswordValid] = useState(false);
+
+  // Email change states
+  const [newEmail, setNewEmail] = useState("");
+  const [emailPassword, setEmailPassword] = useState("");
+  const [showEmailPassword, setShowEmailPassword] = useState(false);
+  const [isChangingEmail, setIsChangingEmail] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [emailPasswordError, setEmailPasswordError] = useState("");
+  const [isPasswordVerified, setIsPasswordVerified] = useState(false);
   
   // Personal information form states
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
@@ -110,9 +125,7 @@ export default function UpdateClient({ translations: t }: Props) {
     kommune: "",
     fylke: "",
     personalNumber: "",
-    permissionPhotos: false,
-    permissionPhone: false,
-    permissionEmail: false,
+ 
     profilePhoto: "",
   });
   
@@ -159,9 +172,7 @@ export default function UpdateClient({ translations: t }: Props) {
               kommune: member.kommune || "",
               fylke: member.fylke || "",
               personalNumber: member.personalNumber || "",
-              permissionPhotos: member.permissionPhotos || false,
-              permissionPhone: member.permissionPhone || false,
-              permissionEmail: member.permissionEmail || false,
+ 
               profilePhoto: member.profilePhoto || "",
             });
             
@@ -185,6 +196,12 @@ export default function UpdateClient({ translations: t }: Props) {
     return password.length >= 8;
   };
 
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  
   const validateCurrentPassword = async (password: string) => {
     if (!password || !session?.user?.email) {
       setCurrentPasswordError("");
@@ -312,6 +329,84 @@ export default function UpdateClient({ translations: t }: Props) {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleEmailChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!session?.user?.email) {
+      toast({
+        title: "Error",
+        description: "User session not found",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!newEmail || !emailPassword) {
+      toast({
+        title: "Error",
+        description: "All email fields are required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!isValidEmail(newEmail)) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid email address",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsChangingEmail(true);
+
+    try {
+      const response = await fetch("/api/users/change-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          currentEmail: session.user.email,
+          newEmail: newEmail,
+          password: emailPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: t.emailVerificationSent || "Email verification link sent to your new email address",
+        });
+
+        // Clear email form states
+        setNewEmail("");
+        setEmailPassword("");
+        setShowEmailPassword(false);
+        setEmailError("");
+        setEmailPasswordError("");
+
+        // Sign out user and redirect to login
+        await fetch("/api/auth/signout", { method: "POST" });
+        router.push(`/${locale}/login?message=email-verification-sent`);
+      } else {
+        throw new Error(data.error || "Failed to change email");
+      }
+    } catch (error) {
+      console.error("Email change error:", error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : t.emailUpdateError || "Failed to change email",
+        variant: "destructive",
+      });
+    } finally {
+      setIsChangingEmail(false);
     }
   };
 
@@ -800,6 +895,129 @@ export default function UpdateClient({ translations: t }: Props) {
           </CardContent>
         </Card>
 
+        {/* Change Email Card */}
+        <Card className="shadow-lg border-0">
+          <CardHeader>
+            <CardTitle className="flex items-center text-2xl">
+              <Mail className="w-6 h-6 mr-2 text-blue-600" />
+              {t.changeEmail || "Change Email"}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleEmailChange} className="max-w-sm md:mx-8 space-y-6">
+              {/* Current Email */}
+              <div className="space-y-2">
+                <Label htmlFor="currentEmail" className="text-sm font-semibold text-gray-900">
+                  {t.currentEmail || "Current Email"}
+                </Label>
+                <Input
+                  id="currentEmail"
+                  type="email"
+                  value={session?.user?.email || ""}
+                  disabled
+                  className="bg-gray-100"
+                />
+              </div>
+
+              {/* New Email */}
+              <div className="space-y-2">
+                <Label htmlFor="newEmail" className="text-sm font-semibold text-gray-900">
+                  {t.newEmail || "New Email"}
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="newEmail"
+                    type="email"
+                    value={newEmail}
+                    onChange={(e) => setNewEmail(e.target.value)}
+                    className={`pr-10 ${
+                      emailError 
+                        ? 'border-red-500 focus:border-red-500' 
+                        : isValidEmail(newEmail) 
+                          ? 'border-green-500 focus:border-green-500' 
+                          : ''
+                    }`}
+                    placeholder="Enter your new email address"
+                    required
+                  />
+                </div>
+                {emailError && (
+                  <div className="text-sm text-red-600 flex items-center">
+                    <AlertTriangle className="w-3 h-3 mr-1" />
+                    {emailError}
+                  </div>
+                )}
+              </div>
+
+              {/* Password Confirmation */}
+              <div className="space-y-2">
+                <Label htmlFor="emailPassword" className="text-sm font-semibold text-gray-900">
+                  {t.password || "Current Password"}
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="emailPassword"
+                    type={showEmailPassword ? "text" : "password"}
+                    value={emailPassword}
+                    onChange={(e) => {
+                      setEmailPassword(e.target.value);
+                      setIsPasswordVerified(false);
+                      setEmailPasswordError("");
+                    }}
+                    className={`pr-10 ${
+                      emailPasswordError 
+                        ? 'border-red-500 focus:border-red-500' 
+                        : isPasswordVerified 
+                          ? 'border-green-500 focus:border-green-500'
+                          : ''
+                    }`}
+                    placeholder="Enter your current password to verify identity"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowEmailPassword(!showEmailPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  >
+                    {showEmailPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+                {emailPasswordError && (
+                  <div className="text-sm text-red-600 flex items-center">
+                    <AlertTriangle className="w-3 h-3 mr-1" />
+                    {emailPasswordError}
+                  </div>
+                )}
+                {isPasswordVerified && (
+                  <div className="text-sm text-green-600 flex items-center">
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    Password verified. You can now change your email.
+                  </div>
+                )}
+              </div>
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700"
+                disabled={isChangingEmail || !isValidEmail(newEmail) || !emailPassword || !isPasswordVerified}
+              >
+                {isChangingEmail ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
+                    {t.sending || "Sending..."}
+                  </>
+                ) : (
+                  <>
+                    <Mail className="w-4 h-4 mr-2" />
+                    {t.changeEmail || "Change Email"}
+                  </>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
         {/* Change Password Card */}
         <Card className="shadow-lg border-0">
           <CardHeader>
@@ -809,7 +1027,7 @@ export default function UpdateClient({ translations: t }: Props) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handlePasswordChange} className="max-w-sm mx-auto space-y-6">
+            <form onSubmit={handlePasswordChange} className="max-w-sm md:mx-8 space-y-6">
               {/* Current Password */}
               <div className="space-y-2">
                 <Label htmlFor="currentPassword" className="text-sm font-semibold text-gray-900">
