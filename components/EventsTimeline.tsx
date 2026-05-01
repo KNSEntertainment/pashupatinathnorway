@@ -134,7 +134,7 @@ export default function EventsTimeline() {
 				</motion.div>
 
 				{events.length > 0 ? (
-					<div className="w-full">
+					<div className="w-full md:max-w-4xl mx-auto">
 							{/* Two Events Display */}
 							<div className="container mx-auto grid grid-cols-1 gap-6 lg:gap-8 px-4">
 								{events.slice(0, 2).map((event, index) => (
@@ -162,11 +162,9 @@ export default function EventsTimeline() {
 											
 
 												{/* Event Title */}
-												<Link href={`/${locale}/updates?eventId=${event._id}`}>
-													<h3 className="text-2xl md:text-3xl font-bold text-gray-900 md:mb-4 group-hover:text-brand_primary transition-colors duration-300 cursor-pointer">
+													<h3 className="text-2xl md:text-3xl font-bold text-gray-900 md:mb-4 group-hover:text-brand_primary transition-colors duration-300 ">
 														{getLocalizedTitle(event)}
 													</h3>
-												</Link>
 
 												{/* Event Description */}
 												<p className="text-gray-600 mb-6 line-clamp-3 text-base leading-relaxed">
@@ -190,7 +188,7 @@ export default function EventsTimeline() {
 												</div>
 
 												{/* Action Buttons */}
-												<div className="flex gap-4">
+												{/* <div className="flex gap-4">
 													<Link href={`/${locale}/events?eventId=${event._id}`}>
 														<button
 															className="flex-1 bg-brand_primary text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-brand_primary/90 transition-colors duration-200"
@@ -198,14 +196,14 @@ export default function EventsTimeline() {
 															{t("view_details")}
 														</button>
 													</Link>
-												</div>
+												</div> */}
 											</div>
 										</div>
 									</motion.div>
 								))}
 							</div>
 
-							{/* View All Events Button */}
+							{/* View All Events Button
 							<motion.div
 												initial={{ opacity: 0, y: 20 }}
 												animate={{ opacity: 1, y: 0 }}
@@ -213,7 +211,7 @@ export default function EventsTimeline() {
 												className="flex justify-center pt-12"
 											>
 												<ViewAllButton href={`/${locale}/events`} label={t("view_all_events")} />
-											</motion.div>
+											</motion.div> */}
 						</div>
 					) : (
 						<div className="text-center py-12 px-4">
