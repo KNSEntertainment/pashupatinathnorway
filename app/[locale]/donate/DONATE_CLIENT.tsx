@@ -3,16 +3,17 @@
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import DonationForm from "@/components/DonationForm";
-import DonorList from "@/components/DonorList";
 import DonationModal from "@/components/DonationModal";
 import SectionHeader from "@/components/SectionHeader";
 import DonateCTA from "@/components/DonateCTA";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Heart, Building } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { formatNOK } from "@/lib/norwegianCurrency";
+import { useIsAdmin } from "@/utils/adminUtils";
 
 interface Cause {
 	_id: string;
@@ -39,8 +40,8 @@ export default function DonatePageClient({ causes, locale }: DonatePageClientPro
 	const t = useTranslations("donate");
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [selectedCause, setSelectedCause] = useState<Cause | undefined>();
-	const [refreshTrigger, setRefreshTrigger] = useState(0);
 	const [isMounted, setIsMounted] = useState(false);
+	const isAdmin = useIsAdmin();
 
 	useEffect(() => {
 		setIsMounted(true);
@@ -54,22 +55,42 @@ export default function DonatePageClient({ causes, locale }: DonatePageClientPro
 	const handleCloseModal = () => {
 		setIsModalOpen(false);
 		setSelectedCause(undefined);
-		// Trigger refresh to handle returning from Stripe or any other scenario
-		handleDonationSuccess();
-	};
-
-	const handleDonationSuccess = () => {
-		// Trigger refresh of donor list
-		setRefreshTrigger(prev => prev + 1);
 	};
 
 	return (
 		<div className="min-h-screen py-12 px-4">
 			<div className="max-w-6xl mx-auto">
 				{/* Hero Section */}
-				<header className="text-center mb-6 md:mb-8">
-					<SectionHeader heading={t("hero_title")} subtitle={t("hero_description")} />
+				<header className="text-center">
+					{/* <SectionHeader heading={t("hero_title")} subtitle={t("hero_description")} /> */}
+				{/* Quick Impact Reasons */}
+				<div className="bg-gradient-to-r from-brand_primary/5 to-brand_secondary/5 rounded-xl px-6 pb-6 mb-8 md:mb-12">
+					<div className="text-center">
+						<SectionHeader 
+							heading={t("make_an_impact") || "Make an Impact Today"}
+							subtitle={t("impact_subtitle") || "Your donation helps build our community's future"}
+						/>
+					</div>
+					<div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6">
+						<div className="flex items-center gap-2 bg-white rounded-lg px-4 py-2 shadow-sm">
+							<div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand_primary/20 to-brand_primary/10 flex items-center justify-center">
+								<Building className="w-4 h-4 text-brand_secondary" />
+							</div>
+							<span className="font-semibold text-gray-900 text-sm">{t("build_temple") || "Build Temple"}</span>
+						</div>
+						<div className="flex items-center gap-2 bg-white rounded-lg px-4 py-2 shadow-sm">
+							<div className="w-8 h-8 rounded-full bg-gradient-to-br from-success/20 to-success/10 flex items-center justify-center">
+								<Heart className="w-4 h-4 text-success" />
+							</div>
+							<span className="font-semibold text-gray-900 text-sm">{t("preserve_culture") || "Preserve Culture"}</span>
+						</div>
+						<Link href={`/${locale}/donate/why-donate`} className="bg-gradient-to-r from-brand_secondary to-brand_secondary_light hover:from-brand_secondary_light hover:to-brand_secondary text-white rounded-lg px-6 py-2 font-medium text-sm transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-[1.02]">
+							{t("learn_more") || "Learn More"} →
+						</Link>
+					</div>
+				</div>
 				</header>
+
 
 				{/* Active Causes Section */}
 				{isMounted && causes.length > 0 && (
@@ -108,7 +129,7 @@ export default function DonatePageClient({ causes, locale }: DonatePageClientPro
 														cause.urgency === 'medium' ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-white font-medium shadow-sm' :
 														'bg-gradient-to-r from-slate-500 to-slate-600 text-white font-medium shadow-sm'
 													}>
-														{cause.urgency}
+														{cause.urgency.charAt(0).toUpperCase() + cause.urgency.slice(1).toLowerCase()}
 													</Badge>
 												</div>
 												
@@ -119,7 +140,7 @@ export default function DonatePageClient({ causes, locale }: DonatePageClientPro
 													<div className="flex justify-between text-sm">
 														<span>{t("progress") || "Progress"}:</span>
 														<span className="font-semibold text-gray-900">
-															{cause.currentAmount?.toLocaleString() || 0} / {cause.goalAmount?.toLocaleString() || 0} NOK
+															{formatNOK(cause.currentAmount)} / {formatNOK(cause.goalAmount)}
 														</span>
 													</div>
 													<Progress value={progressPercentage} className="h-2" />
@@ -150,16 +171,19 @@ export default function DonatePageClient({ causes, locale }: DonatePageClientPro
 							})}
 						</div>
 						
-						<div className="text-center mt-8 mb-12 md:mt-12 md:mb-20">
-							<Link href={`/${locale}/donate/reports`}>
-								<button className="inline-flex items-center gap-2 text-brand_secondary hover:text-brand_secondary_light font-medium transition-colors duration-200">
-									{t("view_all_reports") || "View All Donation Reports"}
-									<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-									</svg>
-								</button>
-							</Link>
-						</div>
+						{/* Admin-only Reports Link */}
+						{isAdmin && (
+							<div className="text-center mt-8 mb-12 md:mt-12 md:mb-20">
+								<Link href={`/${locale}/donate/reports`}>
+									<button className="inline-flex items-center gap-2 text-brand_secondary hover:text-brand_secondary_light font-medium transition-colors duration-200">
+										{t("view_all_reports") || "View All Donation Reports"}
+										<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+										</svg>
+									</button>
+								</Link>
+							</div>
+						)}
 					</section>
 				)}
 
@@ -173,50 +197,9 @@ export default function DonatePageClient({ causes, locale }: DonatePageClientPro
 					<div className="space-y-6">
 						{/* Donate CTA Section */}
 						<DonateCTA />
+			
 						
-						{/* Donor List */}
-						<DonorList refreshTrigger={refreshTrigger} />
 						
-						{/* Impact Preview Card */}
-						<Card className="border border-gray-200 shadow-lg transition-all duration-300 cursor-pointer group">
-							<Link href={`/${locale}/donate/why-donate`}>
-								<CardContent className="pt-6">
-									<div className="flex items-center justify-between mb-4">
-										<h3 className="text-xl font-bold text-gray-900">{t("impact_title") || "Your Impact"}</h3>
-										<span className="text-brand_secondary group-hover:text-brand_secondary_light transition-colors duration-200">→</span>
-									</div>
-									<div className="space-y-3">
-										<div className="flex items-center gap-3">
-											<div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand_primary/20 to-brand_primary/10 flex items-center justify-center shadow-sm">
-												<Building className="w-5 h-5 text-brand_secondary" />
-											</div>
-											<div className="flex-1">
-												<h4 className="font-semibold text-gray-900 text-sm">{t("temple_construction") || "Temple Construction"}</h4>
-												<p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">{t("temple_construction_desc") || "Build Norway's first Nepali Hindu temple"}</p>
-											</div>
-										</div>
-										<div className="flex items-center gap-3">
-											<div className="w-10 h-10 rounded-full bg-gradient-to-br from-success/20 to-success/10 flex items-center justify-center shadow-sm">
-												<Heart className="w-5 h-5 text-success" />
-											</div>
-											<div className="flex-1">
-												<h4 className="font-semibold text-gray-900 text-sm">{t("cultural_preservation") || "Cultural Preservation"}</h4>
-												<p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">{t("cultural_preservation_desc") || "Preserve and celebrate our rich Nepali heritage"}</p>
-											</div>
-										</div>
-										<div className="mt-6 text-center">
-											<span className="inline-flex items-center gap-2 text-sm text-brand_secondary hover:underline px-4 py-1 rounded-full font-medium transition-all duration-200 ">
-												{t("learn_more_impact") || "Learn more about your impact"}
-												<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-													<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-												</svg>
-											</span>
-										</div>
-									</div>
-								</CardContent>
-							</Link>
-						</Card>
-
 					</div>
 				</div>
 			</div>
@@ -228,7 +211,6 @@ export default function DonatePageClient({ causes, locale }: DonatePageClientPro
 				isOpen={isModalOpen} 
 				onClose={handleCloseModal} 
 				cause={selectedCause} 
-				onDonationSuccess={handleDonationSuccess}
 			/>
 		</div>
 	);

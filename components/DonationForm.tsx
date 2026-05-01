@@ -9,6 +9,7 @@ import { Heart, Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { toast } from "react-hot-toast";
 import Image from "next/image";
+import { formatNOK } from "@/lib/norwegianCurrency";
 
 const PRESET_AMOUNTS = [100, 250, 500, 1000, 2500, 5000, 10000, 20000];
 
@@ -21,8 +22,8 @@ interface DonationFormProps {
 export default function DonationForm({ preselectedCause, onDonationSuccess, isInModal = false }: DonationFormProps) {
 	const t = useTranslations("donation");
 	const { data: session } = useSession();
-	const [amount, setAmount] = useState<number>(500);
-	const [customAmount, setCustomAmount] = useState<string>("500");
+	const [amount, setAmount] = useState<number>(20000);
+	const [customAmount, setCustomAmount] = useState<string>("20000");
 	const [donorName, setDonorName] = useState(session?.user?.fullName || "");
 	const [donorEmail, setDonorEmail] = useState(session?.user?.email || "");
 	const [donorPhone, setDonorPhone] = useState("");
@@ -170,7 +171,7 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 				<div className="grid grid-cols-4 gap-3">
 					{PRESET_AMOUNTS.map((presetAmount) => (
 						<button key={presetAmount} type="button" onClick={() => handlePresetClick(presetAmount)} className={`text-sm md:text-lg py-1 md:py-2 px-2 md:px-4 rounded-lg border border-1 transition-all ${amount === presetAmount ? "border-brand_primary bg-green-100 text-gray-700" : "border-gray-300 text-gray-700 hover:border-brand_primary"}`}>
-							<span className="hidden sm:inline">{presetAmount} NOK</span>
+							<span className="hidden sm:inline">{formatNOK(presetAmount)}</span>
 							<span className="sm:hidden">{presetAmount}</span>
 						</button>
 					))}
@@ -300,8 +301,7 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 						{paymentMethod === 'vipps' ? (
 							<>
 								<Image src="/Vipps.webp" alt="Vipps" width={64} height={64} className="w-12 rounded-full" />
-
-								{t("donate_button") || `Donate ${amount} NOK`}
+								{formatNOK(amount)}
 							</>
 						) : (
 							<>
@@ -309,7 +309,7 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 									<rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
 									<line x1="1" y1="10" x2="23" y2="10" />
 								</svg>
-								{t("donate_button") || `Donate ${amount} NOK`}
+								{formatNOK(amount)}
 							</>
 						)}
 					</>
@@ -330,12 +330,12 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 	// Otherwise, return the full Card wrapper
 	return (
 		<Card className="w-full max-w-3xl mx-auto shadow-xl border-0">
-			<CardHeader className="bg-gradient-to-r from-brand_primary/50 to-brand_secondary/50 text-gray-700">
+			<CardHeader className="bg-red-900 text-gray-100">
 				<div className="flex items-center gap-3">
-					<Heart className="w-8 h-8 text-brand_secondary" />
+					<Heart className="w-8 h-8 text-brand_primary" />
 					<div>
 						<CardTitle className="text-2xl">{t("title") || "Make a Donation"}</CardTitle>
-						<CardDescription className="text-gray-500">{t("description") || "Support our community with your generous contribution"}</CardDescription>
+						<CardDescription className="text-gray-200">{t("description") || "Support our community with your generous contribution"}</CardDescription>
 					</div>
 				</div>
 			</CardHeader>
@@ -351,7 +351,7 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 							</div>
 							<h3 className="text-xl font-semibold text-gray-900 mb-2">{t("vipps_success") || "Payment Successful!"}</h3>
 							<p className="text-gray-600 mb-4">
-								{t("donation_success_message") || `Your donation of ${amount} NOK has been processed successfully.`}
+								{t("donation_success_message") || `Your donation of ${formatNOK(amount)} has been processed successfully.`}
 							</p>
 							<button
 								onClick={() => setShowVippsSuccess(false)}

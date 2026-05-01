@@ -3,11 +3,9 @@
 import { motion } from "framer-motion";
 import { Calendar, MapPin, Clock } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import Link from "next/link";
 import Image from "next/image";
 import SectionHeader from "./SectionHeader";
 import { useState, useEffect } from "react";
-import ViewAllButton from "./ViewAllButton";
 
 interface Event {
 	_id: string;

@@ -2,10 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "../../../../components/ui/progress";
 import Link from "next/link";
+import { formatNOK } from "@/lib/norwegianCurrency";
 
 
 interface Cause {
@@ -98,11 +101,25 @@ async function getDonationReports(locale: string): Promise<ReportsData> {
 
 export default function DonationReportsPage({ params }: { params: Promise<{ locale: string }> }) {
 	const t = useTranslations("donate");
+	const { data: session, status } = useSession();
+	const router = useRouter();
 	const [causes, setCauses] = useState<Cause[]>([]);
 	const [donations, setDonations] = useState<Donation[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [locale, setLocale] = useState<string>("");
 
+	// Check admin access
+	useEffect(() => {
+		if (status === 'loading') return; // Wait for session to load
+		
+		if (!session || !session.user || session.user.role !== 'admin') {
+			// Redirect to home page if not admin
+			router.push('/' + (locale || 'en'));
+			return;
+		}
+	}, [session, status, router, locale]);
+
+	// Fetch data (only if admin)
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
@@ -119,8 +136,20 @@ export default function DonationReportsPage({ params }: { params: Promise<{ loca
 			}
 		};
 
-		fetchData();
-	}, [params]);
+		// Only fetch data if user is admin
+		if (session && session.user && session.user.role === 'admin') {
+			fetchData();
+		}
+	}, [params, session]);
+
+	// Don't render anything while checking auth
+	if (status === 'loading' || !session || session.user.role !== 'admin') {
+		return (
+			<div className="min-h-screen flex items-center justify-center">
+				<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand_primary"></div>
+			</div>
+		);
+	}
 
 	// Calculate totals from causes
 	const totalGoalAmount = causes.reduce((sum: number, cause: Cause) => sum + (cause.goalAmount || 0), 0);
@@ -157,8 +186,8 @@ export default function DonationReportsPage({ params }: { params: Promise<{ loca
 						</CardHeader>
 						<CardContent>
 							<div className="text-2xl font-bold text-brand_primary">
-								{totalCurrentAmount.toLocaleString()} NOK
-							</div>
+							{formatNOK(totalCurrentAmount)}
+						</div>
 							<p className="text-xs text-gray-500 mt-1">{t("across_all_causes")}</p>
 						</CardContent>
 					</Card>
@@ -169,8 +198,8 @@ export default function DonationReportsPage({ params }: { params: Promise<{ loca
 						</CardHeader>
 						<CardContent>
 							<div className="text-2xl font-bold text-gray-900">
-								{totalGoalAmount.toLocaleString()} NOK
-							</div>
+							{formatNOK(totalGoalAmount)}
+						</div>
 							<p className="text-xs text-gray-500 mt-1">{t("combined_target")}</p>
 						</CardContent>
 					</Card>
@@ -246,8 +275,8 @@ export default function DonationReportsPage({ params }: { params: Promise<{ loca
 												<div className="flex justify-between text-sm">
 													<span>{t("progress")}:</span>
 													<span className="font-semibold">
-														{cause.currentAmount?.toLocaleString() || 0} / {cause.goalAmount?.toLocaleString() || 0} NOK
-													</span>
+									{formatNOK(cause.currentAmount)} / {formatNOK(cause.goalAmount)}
+								</span>
 												</div>
 												<Progress value={progressPercentage} className="h-2" />
 												<div className="flex justify-between text-sm text-gray-500">
@@ -300,8 +329,8 @@ export default function DonationReportsPage({ params }: { params: Promise<{ loca
 														{donation.isAnonymous ? t('anonymous') : donation.donorName}
 													</td>
 													<td className="p-4 text-sm font-medium text-gray-900">
-														{donation.amount?.toLocaleString()} NOK
-													</td>
+									{formatNOK(donation.amount)}
+								</td>
 													<td className="p-4 text-sm text-gray-900">
 														<Badge variant={donation.donationType === 'general' ? 'default' : 'secondary'}>
 															{donation.donationType === 'general' ? t('general') : t('cause_specific')}
