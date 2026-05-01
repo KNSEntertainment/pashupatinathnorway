@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { use } from 'react';
 import { useCart } from '@/context/CartContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -25,11 +26,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ params }) => {
 	const [quantity, setQuantity] = useState(1);
 	const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
-	useEffect(() => {
-		fetchProduct();
-	}, [resolvedParams.slug]);
-
-	const fetchProduct = async () => {
+	const fetchProduct = useCallback(async () => {
 		try {
 			const response = await fetch(`/api/products/${resolvedParams.slug}`);
 			if (response.ok) {
@@ -46,7 +43,11 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ params }) => {
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [resolvedParams.slug, router]);
+
+	useEffect(() => {
+		fetchProduct();
+	}, [resolvedParams.slug, fetchProduct]);
 
 	const handleAddToCart = () => {
 		console.log('handleAddToCart called');

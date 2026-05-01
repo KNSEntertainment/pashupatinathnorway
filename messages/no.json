@@ -350,8 +350,7 @@
 		"personal_info": "Personlig Informasjon",
 		"address_norway": "Adresse i Norge",
 		"address_norway_ph": " Oslo",
-		"address_nepal": "Nepalsk opprinnelse (adresse)",
-		"address_nepal_ph": " Bagmati Province, Kathmandu",
+
 		"select_municipality": "Velg kommune",
 		"select_ward": "Velg ward",
 		"submit": "Send inn søknad",
@@ -385,9 +384,7 @@
 		"and": "og",
 		"privacy_policy": "personvernerklæringen",
 		"permissions_title": "Personvernstillatelser",
-		"permission_photos": "Jeg samtykker til at mine bilder og videoer blir publisert offentlig på nettsiden og sosiale medier.",
-		"permission_phone": "Jeg samtykker til at mitt telefonnummer blir publisert offentlig på nettsiden.",
-		"permission_email": "Jeg samtykker til at min e-postadresse blir publisert offentlig på nettsiden.",
+		
 		"join_now": "Bli Med Nå",
 		"welcome": "Velkommen til Pashupatinath Norway Temple!",
 		"welcome_msg": "Din medlemskapssøknad er mottatt.",
@@ -802,7 +799,16 @@
 		"profession": "Yrke",
 		"skills": "Ferdigheter",
 		"volunteerInterest": "Frivillig Interesse",
-		"updating": "Oppdaterer..."
+		"updating": "Oppdaterer...",
+		"changeEmail": "Endre E-post",
+		"currentEmail": "Nåværende E-post",
+		"newEmail": "Ny E-post",
+		"password": "Passord",
+		"sending": "Sender...",
+		"emailUpdated": "E-post oppdatert",
+		"emailUpdateError": "Kunne ikke oppdatere e-post",
+		"emailVerificationSent": "E-postbekreftelses lenke sendt til din nye e-postadresse",
+		"emailVerificationError": "Kunne ikke bekrefte e-post"
 	},
 	"store": {
 		"title": "Tempelbutikk",

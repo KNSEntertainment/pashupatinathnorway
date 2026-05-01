@@ -43,8 +43,7 @@ export default async function MembershipPage({ params }: { params: Promise<{ loc
 		female: t("female"),
 		other: t("other"),
 		prefer_not_to_say: t("prefer_not_to_say"),
-		address_nepal: t("address_nepal"),
-		address_nepal_ph: t("address_nepal_ph"),
+	
 		address_norway: t("address_norway"),
 		street_address: t("street_address"),
 		street_address_ph: t("street_address_ph"),
@@ -58,9 +57,7 @@ export default async function MembershipPage({ params }: { params: Promise<{ loc
 		and: t("and"),
 		privacy_policy: t("privacy_policy"),
 		permissions_title: t("permissions_title"),
-		permission_photos: t("permission_photos"),
-		permission_phone: t("permission_phone"),
-		permission_email: t("permission_email"),
+		
 		submit: t("submit"),
 		reset: t("reset"),
 		need_help: t("need_help"),

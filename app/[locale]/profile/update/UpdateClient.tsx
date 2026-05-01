@@ -110,7 +110,8 @@ export default function UpdateClient({ translations: t }: Props) {
   const [isChangingEmail, setIsChangingEmail] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [emailPasswordError, setEmailPasswordError] = useState("");
-  const [isPasswordVerified, setIsPasswordVerified] = useState(false);
+  const [isEmailPasswordVerified, setIsEmailPasswordVerified] = useState(false);
+  const [emailValidationTimeout, setEmailValidationTimeout] = useState<NodeJS.Timeout | null>(null);
   
   // Personal information form states
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
@@ -151,9 +152,17 @@ export default function UpdateClient({ translations: t }: Props) {
       return;
     }
 
+    // Cleanup timeout on unmount
+    return () => {
+      if (emailValidationTimeout) {
+        clearTimeout(emailValidationTimeout);
+      }
+    };
+
     // Fetch membership data to check if user has temporary password and populate profile form
-    if (session?.user?.email) {
-      fetch(`/api/membership?email=${encodeURIComponent(session.user.email)}`)
+    const userEmail = session?.user?.email;
+    if (userEmail) {
+      fetch(`/api/membership?email=${encodeURIComponent(userEmail as string)}`)
         .then((res) => res.json())
         .then((data) => {
           if (Array.isArray(data) && data.length > 0) {
@@ -190,7 +199,7 @@ export default function UpdateClient({ translations: t }: Props) {
         })
         .catch((error) => console.error("Error fetching membership data:", error));
     }
-  }, [status, session, router, locale]);
+  }, [status, session, router, locale, emailValidationTimeout]);
 
   const validatePassword = (password: string) => {
     return password.length >= 8;
@@ -240,6 +249,41 @@ export default function UpdateClient({ translations: t }: Props) {
       setIsCurrentPasswordValid(false);
     } finally {
       setIsValidatingCurrentPassword(false);
+    }
+  };
+
+  const validateEmailPassword = async (password: string) => {
+    if (!password || !session?.user?.email) {
+      setEmailPasswordError("");
+      setIsEmailPasswordVerified(false);
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/users/verify-current-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: session.user.email,
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.isValid) {
+        setIsEmailPasswordVerified(true);
+        setEmailPasswordError("");
+      } else {
+        setEmailPasswordError("Current password is incorrect");
+        setIsEmailPasswordVerified(false);
+      }
+    } catch (error) {
+      console.error("Email password validation error:", error);
+      setEmailPasswordError("Unable to verify password");
+      setIsEmailPasswordVerified(false);
     }
   };
 
@@ -929,7 +973,15 @@ export default function UpdateClient({ translations: t }: Props) {
                     id="newEmail"
                     type="email"
                     value={newEmail}
-                    onChange={(e) => setNewEmail(e.target.value)}
+                    onChange={(e) => {
+                      setNewEmail(e.target.value);
+                      setEmailError("");
+                    }}
+                    onBlur={(e) => {
+                      if (e.target.value && !isValidEmail(e.target.value)) {
+                        setEmailError("Please enter a valid email address");
+                      }
+                    }}
                     className={`pr-10 ${
                       emailError 
                         ? 'border-red-500 focus:border-red-500' 
@@ -961,13 +1013,31 @@ export default function UpdateClient({ translations: t }: Props) {
                     value={emailPassword}
                     onChange={(e) => {
                       setEmailPassword(e.target.value);
-                      setIsPasswordVerified(false);
+                      setIsEmailPasswordVerified(false);
                       setEmailPasswordError("");
+                      
+                      // Clear existing timeout
+                      if (emailValidationTimeout) {
+                        clearTimeout(emailValidationTimeout);
+                      }
+                      
+                      // Auto-validate password when user stops typing
+                      const timeoutId = setTimeout(() => {
+                        if (e.target.value.length >= 6) {
+                          validateEmailPassword(e.target.value);
+                        }
+                      }, 1000);
+                      setEmailValidationTimeout(timeoutId);
+                    }}
+                    onBlur={(e) => {
+                      if (e.target.value.length >= 6) {
+                        validateEmailPassword(e.target.value);
+                      }
                     }}
                     className={`pr-10 ${
                       emailPasswordError 
                         ? 'border-red-500 focus:border-red-500' 
-                        : isPasswordVerified 
+                        : isEmailPasswordVerified 
                           ? 'border-green-500 focus:border-green-500'
                           : ''
                     }`}
@@ -988,7 +1058,7 @@ export default function UpdateClient({ translations: t }: Props) {
                     {emailPasswordError}
                   </div>
                 )}
-                {isPasswordVerified && (
+                {isEmailPasswordVerified && (
                   <div className="text-sm text-green-600 flex items-center">
                     <CheckCircle className="w-3 h-3 mr-1" />
                     Password verified. You can now change your email.
@@ -996,11 +1066,21 @@ export default function UpdateClient({ translations: t }: Props) {
                 )}
               </div>
 
+              {/* Verifying Password Status */}
+              {!isEmailPasswordVerified && emailPassword && emailPassword.length >= 6 && !emailPasswordError && (
+                <div className="w-full mt-3 p-2 border border-blue-200 bg-blue-50 rounded text-center">
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-3 w-3 border-t-2 border-b-2 border-blue-600 mr-2"></div>
+                    <span className="text-blue-600 text-sm">Verifying password...</span>
+                  </div>
+                </div>
+              )}
+
               {/* Submit Button */}
               <Button
                 type="submit"
                 className="w-full bg-blue-600 hover:bg-blue-700"
-                disabled={isChangingEmail || !isValidEmail(newEmail) || !emailPassword || !isPasswordVerified}
+                disabled={isChangingEmail || !isValidEmail(newEmail) || !emailPassword || !isEmailPasswordVerified || !!emailError}
               >
                 {isChangingEmail ? (
                   <>

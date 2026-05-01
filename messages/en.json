@@ -801,7 +801,16 @@
 		"profession": "Profession",
 		"skills": "Skills",
 		"volunteerInterest": "Volunteer Interest",
-		"updating": "Updating..."
+		"updating": "Updating...",
+		"changeEmail": "Change Email",
+		"currentEmail": "Current Email",
+		"newEmail": "New Email",
+		"password": "Password",
+		"sending": "Sending...",
+		"emailUpdated": "Email updated successfully",
+		"emailUpdateError": "Failed to update email",
+		"emailVerificationSent": "Email verification link sent to your new email address",
+		"emailVerificationError": "Failed to verify email"
 	},
 	"store": {
 		"title": "Temple Store",

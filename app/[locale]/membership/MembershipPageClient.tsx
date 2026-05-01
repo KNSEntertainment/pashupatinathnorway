@@ -31,8 +31,7 @@ interface Translations {
 	female: string;
 	other: string;
 	prefer_not_to_say: string;
-	address_nepal: string;
-	address_nepal_ph: string;
+
 	address_norway: string;
 	street_address: string;
 	street_address_ph: string;
@@ -46,9 +45,7 @@ interface Translations {
 	and: string;
 	privacy_policy: string;
 	permissions_title: string;
-	permission_photos: string;
-	permission_phone: string;
-	permission_email: string;
+	
 	submit: string;
 	reset: string;
 	need_help: string;
@@ -1098,6 +1095,23 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 					<div>
 						<h3 className="text-xl font-semibold text-gray-900 mb-4">{t.personal_info}</h3>
 						<div className="grid md:grid-cols-2 gap-6">
+								<div>
+								<label className="block text-sm font-medium text-gray-900 mb-2">
+									{t.personal_number} <span className="text-red-500">*</span>
+								</label>
+								<input type="text" name="personalNumber" value={formData.personalNumber} onChange={handleChange} onBlur={handlePersonalNumberBlur} maxLength={11} pattern="\d{11}" className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+									personalNumberError ? "border-red-500" : 
+									personalNumberStatus === "available" ? "border-green-500" : 
+									personalNumberStatus === "exists" ? "border-red-500" : 
+									personalNumberStatus === "checking" ? "border-yellow-500" : 
+									"border-light"
+								}`} placeholder={t.personal_number_placeholder} />
+								{personalNumberError && <p className="text-red-600 text-sm mt-1">{personalNumberError}</p>}
+							
+								{personalNumberStatus === "checking" && (
+									<p className="text-yellow-600 text-sm mt-1">Checking availability...</p>
+								)}
+							</div>
 							<div>
 								<label className="block text-sm font-medium text-gray-900 mb-2">
 									{t.first_name} <span className="text-red-500">*</span>
@@ -1132,23 +1146,7 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 								<input type="tel" maxLength={8} name="phone" value={formData.phone} onChange={handleChange} className={`w-full px-4 py-2 border ${phoneError ? "border-red-500" : "border-light"} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`} placeholder={t.phone_number_placeholder} />
 								{phoneError && <p className="text-red-600 text-sm mt-1">{phoneError}</p>}
 							</div>
-							<div>
-								<label className="block text-sm font-medium text-gray-900 mb-2">
-									{t.personal_number} <span className="text-red-500">*</span>
-								</label>
-								<input type="text" name="personalNumber" value={formData.personalNumber} onChange={handleChange} onBlur={handlePersonalNumberBlur} maxLength={11} pattern="\d{11}" className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-									personalNumberError ? "border-red-500" : 
-									personalNumberStatus === "available" ? "border-green-500" : 
-									personalNumberStatus === "exists" ? "border-red-500" : 
-									personalNumberStatus === "checking" ? "border-yellow-500" : 
-									"border-light"
-								}`} placeholder={t.personal_number_placeholder} />
-								{personalNumberError && <p className="text-red-600 text-sm mt-1">{personalNumberError}</p>}
-							
-								{personalNumberStatus === "checking" && (
-									<p className="text-yellow-600 text-sm mt-1">Checking availability...</p>
-								)}
-							</div>
+						
 						
 							<div>
 							

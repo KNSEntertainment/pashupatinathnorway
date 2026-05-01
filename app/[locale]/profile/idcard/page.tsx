@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Shield, CreditCard, Loader2, Printer } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -10,34 +10,18 @@ import { Membership } from "@/types";
 import MemberIDCard from "@/components/MemberIDCard";
 import { useParams } from "next/navigation";
 
-
-
-
-
 export default function IDCardPage() {
     const { data: session, status } = useSession();
     const params = useParams();
     const locale = params.locale as string;
     
-    const [isLoading, setIsLoading] = useState(true);
     const [membershipData, setMembershipData] = useState<Membership | null>(null);
     const [profilePhoto, setProfilePhoto] = useState<string>("");
     const [logo, setLogo] = useState<string>("");
 
-    // Fetch membership data and profile photo
-    useEffect(() => {
-        if (status === "authenticated") {
-            fetchMembershipData();
-            fetchProfilePhoto();
-            fetchLogo();
-            setIsLoading(false);
-        }
-    }, [status]);
-
-
-	const handlePrint = () => {
-		window.print();
-	};
+    const handlePrint = () => {
+        window.print();
+    };
 
     const fetchMembershipData = async () => {
         try {
@@ -95,7 +79,17 @@ export default function IDCardPage() {
         }
     };
 
-
+    // Fetch membership data and profile photo
+    if (status === "authenticated") {
+        const fetchData = async () => {
+            await Promise.all([
+                fetchMembershipData(),
+                fetchProfilePhoto(),
+                fetchLogo()
+            ]);
+        };
+        fetchData();
+    }
 
     if (status === "loading") {
         return (
@@ -116,16 +110,6 @@ export default function IDCardPage() {
                         Please log in to view your ID card.
                     </AlertDescription>
                 </Alert>
-            </div>
-        );
-    }
-
-    if (isLoading) {
-        return (
-            <div className="max-w-4xl mx-auto">
-                <div className="flex items-center justify-center min-h-64">
-                    <Loader2 className="h-8 w-8 animate-spin text-brand_primary" />
-                </div>
             </div>
         );
     }

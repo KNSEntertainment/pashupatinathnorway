@@ -152,12 +152,12 @@ const StorePage: React.FC<StorePageProps> = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [pagination.page, filters.sortBy, filters.category, filters.type, filters.search]);
+	}, [pagination.page, filters.sortBy, filters.category, filters.type, filters.search, pagination.limit]);
 
 	// Fetch products
 	useEffect(() => {
 		fetchProducts();
-	}, [fetchProducts]);
+	}, [fetchProducts, pagination.limit]);
 
 	// Handle filter changes
 	const updateFilter = (key: keyof StoreFilters, value: string) => {
