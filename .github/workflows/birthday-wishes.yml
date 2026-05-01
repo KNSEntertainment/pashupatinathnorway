@@ -1,0 +1,33 @@
+name: Send Daily Birthday Wishes
+
+on:
+  schedule:
+    - cron: '0 8 * * *'  # 8:00 AM UTC every day
+  workflow_dispatch:    # Allow manual triggering for testing
+
+jobs:
+  send-birthday-wishes:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Send birthday wishes
+        run: |
+          echo "Sending daily birthday wishes..."
+          RESPONSE=$(curl -s -X POST \
+            -H "Content-Type: application/json" \
+            ${{ secrets.PRODUCTION_URL }}/api/email/send-daily-birthday-wishes)
+          
+          echo "Response: $RESPONSE"
+          
+          # Check if the request was successful
+          if echo "$RESPONSE" | grep -q '"success":true'; then
+            echo "✅ Birthday wishes sent successfully"
+          else
+            echo "❌ Failed to send birthday wishes"
+            exit 1
+          fi
+
+      - name: Log results
+        if: always()
+        run: |
+          echo "Birthday wish process completed at $(date)"

@@ -1,4 +1,4 @@
-import { BookImage, Settings, LayoutDashboard, Book, Newspaper, User, Download, Bell, Users, Mail, DollarSign, Image, Heart, QrCode, LucideIcon } from "lucide-react";
+import { BookImage, Settings, LayoutDashboard, Book, Newspaper, User, Download, Bell, Users, Mail, DollarSign, Image, Heart, QrCode, Gift, LucideIcon } from "lucide-react";
 
 export interface MenuItem {
 	id: string;
@@ -11,6 +11,7 @@ export interface MenuItem {
 export const menuItems: MenuItem[] = [
 	{ id: "dashboard", label: "Dashboard", icon: LayoutDashboard, color: "bg-yellow-800", href: "/en/dashboard" },
 	{ id: "attendance", label: "Attendance", icon: QrCode, color: "bg-blue-600", href: "/en/dashboard/attendance" },
+	{ id: "birthdays", label: "Birthdays", icon: Gift, color: "bg-pink-500", href: "/en/dashboard/birthdays" },
 	{ id: "blogs", label: "Blogs", icon: Newspaper, color: "bg-orange-600", href: "/en/dashboard/blogs" },
 	{ id: "causes", label: "Causes", icon: Heart, color: "bg-blue-600", href: "/en/dashboard/causes" },
 	{ id: "contactmessages", label: "Contact Messages", icon: Book, color: "bg-blue-600", href: "/en/dashboard/contactmessages" },
