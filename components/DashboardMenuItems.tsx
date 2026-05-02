@@ -11,7 +11,6 @@ export interface MenuItem {
 
 export const menuItems: MenuItem[] = [
 	{ id: "dashboard", label: "Dashboard", icon: LayoutDashboard, color: "bg-yellow-800", href: "/en/dashboard", role: "both" },
-	{ id: "member-donations", label: "My Donations", icon: Heart, color: "bg-red-600", href: "/en/dashboard/member-donations", role: "member" },
 	{ id: "attendance", label: "Attendance", icon: QrCode, color: "bg-blue-600", href: "/en/dashboard/attendance", role: "admin" },
 	{ id: "birthdays", label: "Birthdays", icon: Gift, color: "bg-pink-500", href: "/en/dashboard/birthdays", role: "admin" },
 	{ id: "blogs", label: "Blogs", icon: Newspaper, color: "bg-orange-600", href: "/en/dashboard/blogs", role: "admin" },

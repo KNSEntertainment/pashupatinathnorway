@@ -47,7 +47,7 @@ export default function Newsletter() {
 							setEmail(e.target.value);
 							console.log(email);
 						}}
-						className="w-72 flex-grow text-lg font-bold text-neutral-200"
+						className="w-72 flex-grow text-lg font-bold text-gray-700"
 						required
 					/>
 					<Button type="submit" variant="secondary" className="w-72 md:w-fit">

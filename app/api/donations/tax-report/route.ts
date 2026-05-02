@@ -34,30 +34,45 @@ export async function POST(request: NextRequest) {
 			return NextResponse.json({ error: "Invalid year provided" }, { status: 400 });
 		}
 
-		// Create initial audit log entry
+		// Check for duplicate audit log within last 5 minutes to prevent duplicates from popup blockers
+		const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+		const existingAuditLog = await AuditLog.findOne({
+			action: 'generate_tax_document',
+			'user.id': session.user.id,
+			'details.personalNumber': personalNumber.replace(/(\d{6})(\d{5})/, '$1*****'),
+			'details.year': reportYear,
+			timestamp: { $gte: fiveMinutesAgo }
+		});
+
+		// Create initial audit log entry only if no recent duplicate exists
 		const userAgent = request.headers.get('user-agent') || 'Unknown';
 		const ipAddress = request.headers.get('x-forwarded-for') || 
 		                 request.headers.get('x-real-ip') || 
 		                 'Unknown';
 
-		auditLog = new AuditLog({
-			action: 'generate_tax_document',
-			user: {
-				id: session.user.id,
-				name: session.user.fullName,
-				email: session.user.email,
-				role: session.user.role
-			},
-			details: {
-				personalNumber: personalNumber.replace(/(\d{6})(\d{5})/, '$1*****'), // Mask for privacy
-				year: reportYear
-			},
-			ipAddress,
-			userAgent,
-			status: 'initiated'
-		});
+		if (!existingAuditLog) {
+			auditLog = new AuditLog({
+				action: 'generate_tax_document',
+				user: {
+					id: session.user.id,
+					name: session.user.fullName,
+					email: session.user.email,
+					role: session.user.role
+				},
+				details: {
+					personalNumber: personalNumber.replace(/(\d{6})(\d{5})/, '$1*****'), // Mask for privacy
+					year: reportYear
+				},
+				ipAddress,
+				userAgent,
+				status: 'initiated'
+			});
 
-		await auditLog.save();
+			await auditLog.save();
+		} else {
+			// Use existing audit log to prevent duplicates
+			auditLog = existingAuditLog;
+		}
 
 		// First check if there are any donations with this personal number
 		console.log("Tax Report Debug: Searching for personalNumber:", personalNumber);

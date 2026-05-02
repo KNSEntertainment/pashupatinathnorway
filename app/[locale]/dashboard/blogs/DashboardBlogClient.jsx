@@ -48,7 +48,7 @@ export default function DashboardBlogClient({ blogs }) {
 		<div className="max-w-6xl">
 			<div className="flex justify-between items-center mb-4">
 				<h1 className="text-2xl font-bold">Manage Blogs</h1>
-				<button onClick={handleCreateBlog} className="bg-brand_primary text-neutral-200 font-bold px-4 py-2 rounded hover:bg-red-700 transition-colors">
+				<button onClick={handleCreateBlog} className="bg-brand_primary text-gray-700 font-bold px-4 py-2 rounded hover:bg-red-700 transition-colors">
 					{openBlogModal ? "Cancel" : "Create Blog"}
 				</button>
 			</div>

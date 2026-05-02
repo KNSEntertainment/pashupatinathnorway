@@ -197,6 +197,19 @@ const generateTaxPDF = (taxReport: {
 				newWindow.print();
 				newWindow.close();
 			}, 250);
+		} else {
+			// Handle popup blocker - provide fallback
+			alert('Popup blocked! Please allow popups for this site and try again, or use the download link below.');
+			// Create a downloadable file as fallback
+			const blob = new Blob([htmlContent], { type: 'text/html' });
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = `tax-document-${selectedYear}.html`;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			URL.revokeObjectURL(url);
 		}
 	};
 

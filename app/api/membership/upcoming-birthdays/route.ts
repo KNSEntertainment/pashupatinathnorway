@@ -70,8 +70,8 @@ export async function GET() {
 
             const daysUntilBirthday = getDaysUntilNextBirthday(birthDate);
             
-            // Only include birthdays within next 7 days
-            if (daysUntilBirthday >= 0 && daysUntilBirthday <= 7) {
+            // Only include birthdays within next 30 days
+            if (daysUntilBirthday >= 0 && daysUntilBirthday <= 30) {
                 const age = new Date().getFullYear() - birthDate.getFullYear();
                 
                 upcomingBirthdays.push({

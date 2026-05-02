@@ -131,7 +131,7 @@ export default function NoticeForm({ handleCloseNoticeModal, noticeToEdit = null
 			</div>
 
 			<div className="grid grid-cols-2 gap-2">
-				<button type="submit" disabled={submitting} className={`w-full p-1.5 rounded ${submitting ? "bg-neutral-400 cursor-not-allowed" : "bg-red-600 hover:bg-brand_primary"} text-neutral-200 font-bold`}>
+				<button type="submit" disabled={submitting} className={`w-full p-1.5 rounded ${submitting ? "bg-neutral-400 cursor-not-allowed" : "bg-red-600 hover:bg-brand_primary"} text-gray-700 font-bold`}>
 					{submitting ? `${noticeToEdit ? "Updating" : "Creating"} Notice...` : `${noticeToEdit ? "Update" : "Create"} Notice`}
 				</button>
 				<Button variant="outline" onClick={handleCloseNoticeModal}>

@@ -218,7 +218,7 @@ export default function EventForm({ handleCloseEventModal, eventToEdit = null })
 					<input type="file" id="eventvideo" onChange={(e) => setFormData({ ...formData, eventvideo: e.target.files[0] })} className="w-full p-2 border rounded" />
 				</div>
 				<div className="grid gap-2">
-					<button type="submit" disabled={submitting} className={`w-full p-1.5 rounded ${submitting ? "bg-neutral-400 cursor-not-allowed" : "bg-red-600 hover:bg-brand_primary"} text-neutral-200 font-bold`}>
+					<button type="submit" disabled={submitting} className={`w-full p-1.5 rounded ${submitting ? "bg-neutral-400 cursor-not-allowed" : "bg-red-600 hover:bg-brand_primary"} text-gray-700 font-bold`}>
 						{submitting ? `${eventToEdit ? "Updating" : "Creating"} Event...` : `${eventToEdit ? "Update" : "Create"} Event`}
 					</button>
 					<Button variant="outline" onClick={handleCloseEventModal}>

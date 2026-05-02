@@ -16,7 +16,7 @@ export default function BirthdaysPage() {
 			<div>
 				<h1 className="text-3xl font-bold text-gray-900">Upcoming Birthdays</h1>
 				<p className="text-gray-600 mt-2">
-					View and manage upcoming birthdays of approved members for the next 7 days.
+					View and manage upcoming birthdays of approved members for the next 30 days.
 				</p>
 			</div>
 			

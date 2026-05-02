@@ -119,7 +119,7 @@ export default function UsersPage() {
 						<option value="user">User</option>
 					</select>
 				</div>
-				<button onClick={() => setOpenUserModal(!openUserModal)} className="bg-brand_primary text-neutral-200 font-bold px-4 py-2">
+				<button onClick={() => setOpenUserModal(!openUserModal)} className="bg-brand_primary text-gray-700 font-bold px-4 py-2">
 					{openUserModal ? "Cancel" : "Register User"}
 				</button>
 			</div>
@@ -129,7 +129,7 @@ export default function UsersPage() {
 				<div className="flex gap-4 flex-1 items-center pl-2">
 					<input type="checkbox" checked={allSelectedOnPage} onChange={handleSelectAll} aria-label="Select all users on page" />
 					<span>Select All</span>
-					<button className="bg-brand_primary text-white px-3 py-1 rounded disabled:opacity-50" onClick={handleBulkDelete} disabled={selectedUserIds.length === 0}>
+					<button className="bg-brand_secondary text-white px-3 py-1 rounded disabled:opacity-50" onClick={handleBulkDelete} disabled={selectedUserIds.length === 0}>
 						Delete Selected
 					</button>
 					<select className="border rounded px-2 py-1" value={bulkRole} onChange={(e) => setBulkRole(e.target.value)} disabled={selectedUserIds.length === 0}>
@@ -137,7 +137,7 @@ export default function UsersPage() {
 						<option value="admin">Admin</option>
 						<option value="user">User</option>
 					</select>
-					<button className="bg-brand_primary text-white px-3 py-1 rounded disabled:opacity-50" onClick={handleBulkRoleChange} disabled={selectedUserIds.length === 0 || !bulkRole}>
+					<button className="bg-brand_primary text-gray-700 px-3 py-1 rounded disabled:opacity-50" onClick={handleBulkRoleChange} disabled={selectedUserIds.length === 0 || !bulkRole}>
 						Apply Role
 					</button>
 				</div>
@@ -175,14 +175,24 @@ export default function UsersPage() {
 					<TableBody>
 						{paginatedUsers.length > 0 ? (
 							paginatedUsers.map((user) => (
-								<TableRow key={user._id}>
-									<TableCell>
-										<input type="checkbox" checked={selectedUserIds.includes(user._id)} onChange={() => handleSelectUser(user._id)} aria-label={`Select user ${user.fullName}`} />
+								<TableRow 
+									key={user._id}
+									className={`cursor-pointer transition-colors hover:bg-gray-50 ${selectedUserIds.includes(user._id) ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''}`}
+									onClick={() => handleSelectUser(user._id)}
+								>
+									<TableCell onClick={(e) => e.stopPropagation()}>
+										<input 
+											type="checkbox" 
+											checked={selectedUserIds.includes(user._id)} 
+											onChange={() => handleSelectUser(user._id)} 
+											aria-label={`Select user ${user.fullName}`}
+											className="cursor-pointer"
+										/>
 									</TableCell>
 									<TableCell className="w-96 font-semibold">{user.fullName}</TableCell>
 									<TableCell className="w-96">{user.userName}</TableCell>
 									<TableCell className="w-96">{user.email} </TableCell>
-									<TableCell>
+									<TableCell onClick={(e) => e.stopPropagation()}>
 										<div className="flex space-x-2">
 											<Button variant="ghost" size="icon" onClick={() => handleDelete(user._id)}>
 												<Trash2 className="w-6 h-6 text-red-600" />

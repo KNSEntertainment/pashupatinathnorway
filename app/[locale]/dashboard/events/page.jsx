@@ -52,7 +52,7 @@ export default function EventsPage() {
 		<div className="w-full max-w-full px-2 sm:px-6">
 			<div className="flex flex-col sm:flex-row sm:justify-between items-stretch gap-2 mb-4">
 				<h1 className="text-2xl font-bold">Manage Events</h1>
-				<button onClick={handleCreateEvent} className="bg-brand_primary text-neutral-200 font-bold px-4 py-2 rounded w-full sm:w-auto text-center hover:bg-red-700 transition-colors">
+				<button onClick={handleCreateEvent} className="bg-brand_primary text-gray-700 font-bold px-4 py-2 rounded w-full sm:w-auto text-center hover:bg-red-700 transition-colors">
 					{openEventModal ? "Cancel" : "Create Event"}
 				</button>
 			</div>

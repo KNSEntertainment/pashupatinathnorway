@@ -121,13 +121,13 @@ export default function UpcomingBirthdays() {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Gift className="w-5 h-5" />
-                        Upcoming Birthdays (Next 7 Days)
+                        Upcoming Birthdays (Next 30 Days)
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="text-center py-8 text-gray-500">
                         <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                        <p>No upcoming birthdays in the next 7 days</p>
+                        <p>No upcoming birthdays in the next 30 days</p>
                     </div>
                 </CardContent>
             </Card>
@@ -140,7 +140,7 @@ export default function UpcomingBirthdays() {
                 <CardTitle className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <Gift className="w-5 h-5" />
-                        Upcoming Birthdays (Next 7 Days)
+                        Upcoming Birthdays (Next 30 Days)
                     </div>
                     <Badge variant="secondary">{birthdays.length} members</Badge>
                 </CardTitle>
