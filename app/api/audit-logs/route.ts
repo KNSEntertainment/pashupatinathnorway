@@ -27,7 +27,14 @@ export async function GET(request: Request) {
     const endDate = searchParams.get('endDate');
 
     // Build filter query
-    const filter: any = {};
+    const filter: {
+      action?: string;
+      status?: string;
+      timestamp?: {
+        $gte?: Date;
+        $lte?: Date;
+      };
+    } = {};
     
     if (action) {
       filter.action = action;
@@ -198,7 +205,12 @@ export async function PUT(request: Request) {
     }
 
     // Update the audit log
-    const updateData: any = {
+    const updateData: {
+      status: string;
+      updatedAt: Date;
+      errorMessage?: string;
+      details?: object;
+    } = {
       status,
       updatedAt: new Date()
     };

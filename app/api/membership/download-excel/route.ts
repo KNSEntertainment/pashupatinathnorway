@@ -100,7 +100,16 @@ export async function GET(request: NextRequest) {
     await auditLog.save();
 
     // Fetch memberships with filters
-    const query: any = {};
+    const query: {
+      membershipStatus?: string;
+      membershipType?: string;
+      $or?: Array<{
+        firstName?: { $regex: string; $options: string };
+        lastName?: { $regex: string; $options: string };
+        email?: { $regex: string; $options: string };
+        phone?: { $regex: string; $options: string };
+      }>;
+    } = {};
     
     if (statusFilter) {
       query.membershipStatus = statusFilter;

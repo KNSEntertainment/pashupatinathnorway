@@ -15,7 +15,6 @@ const InputField = memo(({ id, icon: Icon, name, value, onChange, ...props }) =>
 InputField.displayName = "Input_Fields_Edit_User_Form";
 
 const EditUserForm = ({ user, handleCloseEditModal, fetchUsers }) => {
-	const [showPassword, setShowPassword] = useState(false);
 	const [showNewPassword, setShowNewPassword] = useState(false);
 	const [error, setError] = useState("");
 	const [formData, setFormData] = useState({
@@ -90,9 +89,6 @@ const EditUserForm = ({ user, handleCloseEditModal, fetchUsers }) => {
 		if (handleCloseEditModal) handleCloseEditModal();
 	}, [handleCloseEditModal]);
 
-	const togglePasswordVisibility = useCallback(() => {
-		setShowPassword((prev) => !prev);
-	}, []);
 
 	const toggleNewPasswordVisibility = useCallback(() => {
 		setShowNewPassword((prev) => !prev);

@@ -10,7 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { 
   Search, 
   Filter, 
-  Calendar, 
   User, 
   FileText, 
   CheckCircle, 
@@ -19,7 +18,6 @@ import {
   AlertTriangle,
   ChevronLeft, 
   ChevronRight,
-  Download,
   RefreshCw
 } from "lucide-react";
 
@@ -429,7 +427,10 @@ export default function AuditLogsManagement() {
                                 )}
                                 {log.details.filters && (
                                   <div className="text-xs text-gray-500">
-                                    Filters: {Object.entries(log.details.filters).filter(([_, v]) => v).map(([k, v]) => `${k}: ${v}`).join(', ') || 'None'}
+                                    Filters: {Object.entries(log.details.filters).filter(
+                                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                      ([_unusedParam, v]) => v
+                                    ).map(([k, v]) => `${k}: ${v}`).join(', ') || 'None'}
                                   </div>
                                 )}
                               </>

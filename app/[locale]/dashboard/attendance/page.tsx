@@ -818,7 +818,7 @@ export default function AttendanceDashboard() {
           <AlertDialogHeader>
             <AlertDialogTitle>Export Attendance Data</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to export the attendance data for "{selectedEvent?.eventname}"?
+              Are you sure you want to export the attendance data for &quot;{selectedEvent?.eventname}&quot;?
               <br /><br />
               This will export {attendanceRecords.length} attendance records and this action will be logged in the audit system.
             </AlertDialogDescription>

@@ -21,7 +21,6 @@ import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { Membership } from "@/types";
 import { Link } from "@/i18n/navigation";
-import * as XLSX from 'xlsx';
 
 const calculateAgeFromPersonalNumber = (personalNumber: string): number | null => {
 	if (!personalNumber || personalNumber.length !== 11 || !/^\d{11}$/.test(personalNumber)) {
