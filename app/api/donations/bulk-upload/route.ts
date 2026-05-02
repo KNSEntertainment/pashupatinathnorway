@@ -4,6 +4,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import connectDB from "@/lib/mongodb";
 import Donation from "@/models/Donation.Model";
 import AuditLog from "@/models/AuditLog.Model";
+import { encryptPersonalNumber } from "@/lib/encryption";
 
 export async function POST(request: Request) {
   let auditLog = null;
@@ -130,6 +131,7 @@ export async function POST(request: Request) {
         const values = row.split(',').map(v => v.trim().replace(/"/g, ''));
         
         // Create donation object
+        const rawPersonalNumber = values[headers.indexOf('personalNumber')] || '';
         const donation = {
           donorName: values[headers.indexOf('donorName')] || '',
           donorEmail: values[headers.indexOf('donorEmail')] || '',
@@ -140,7 +142,7 @@ export async function POST(request: Request) {
           address: values[headers.indexOf('address')] || '',
           isAnonymous: values[headers.indexOf('isAnonymous')] === 'true',
           paymentStatus: values[headers.indexOf('paymentStatus')] || 'pending',
-          personalNumber: values[headers.indexOf('personalNumber')] || '',
+          personalNumber: rawPersonalNumber ? encryptPersonalNumber(rawPersonalNumber) : '',
         };
 
         // Validation
@@ -157,10 +159,10 @@ export async function POST(request: Request) {
           rowErrors.push('Valid email is required');
         }
 
-        // Validate personal number (11 digits)
-        if (donation.personalNumber) {
+        // Validate personal number (11 digits) - validate before encryption
+        if (rawPersonalNumber) {
           const personalNumberRegex = /^\d{11}$/;
-          if (!personalNumberRegex.test(donation.personalNumber)) {
+          if (!personalNumberRegex.test(rawPersonalNumber)) {
             rowErrors.push('Personal number must be exactly 11 digits');
           }
         }
@@ -179,7 +181,7 @@ export async function POST(request: Request) {
         if (rowErrors.length > 0) {
           errors.push({
             row: i + 2, // +2 because of header and 1-based indexing
-            errors: rowErrors
+            errorMessages: rowErrors
           });
         } else {
           donations.push(donation);
@@ -188,7 +190,7 @@ export async function POST(request: Request) {
       } catch (error) {
         errors.push({
           row: i + 2,
-          errors: [`Error parsing row: ${error instanceof Error ? error.message : 'Unknown error'}`]
+          errorMessages: [`Error parsing row: ${error instanceof Error ? error.message : 'Unknown error'}`]
         });
       }
     }

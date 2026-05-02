@@ -1,4 +1,4 @@
-import { BookImage, Settings, LayoutDashboard, Book, Newspaper, User, Download, Bell, Users, Mail, DollarSign, Image, Heart, QrCode, Gift, LucideIcon, FileText, Shield } from "lucide-react";
+import { BookImage, Settings, LayoutDashboard, Book, Newspaper, User, Download, Bell, Users, Mail, DollarSign, Image, Heart, QrCode, Gift, LucideIcon, FileText, Shield, FolderOpen } from "lucide-react";
 
 export interface MenuItem {
 	id: string;
@@ -22,6 +22,7 @@ export const menuItems: MenuItem[] = [
 	{ id: "hero", label: "Hero Section", icon: Image, color: "bg-gradient-to-r from-purple-600 to-pink-600", href: "/en/dashboard/hero", role: "admin" },
 	{ id: "memberships", label: "Memberships", icon: Users, color: "bg-purple-600", href: "/en/dashboard/memberships", role: "admin" },
 	{ id: "notices", label: "Notices", icon: Bell, color: "bg-amber-600", href: "/en/dashboard/notices", role: "admin" },
+	{ id: "publications", label: "Publications", icon: FolderOpen, color: "bg-indigo-600", href: "/en/dashboard/publications", role: "admin" },
 	{ id: "settings", label: "Profile Settings", icon: Settings, color: "bg-slate-600", href: "/en/dashboard/settings", role: "both" },
 	{ id: "subscribers", label: "Subscribers", icon: Mail, color: "bg-violet-600", href: "/en/dashboard/subscribers", role: "admin" },
 	{ id: "tax-document", label: "Tax Document", icon: FileText, color: "bg-green-600", href: "/en/dashboard/tax-document", role: "admin" },

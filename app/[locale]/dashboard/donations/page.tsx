@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { DollarSign, TrendingUp, Users, CheckCircle, Clock, XCircle, Search, Upload, ChevronLeft, ChevronRight } from "lucide-react";
+import { Users, CheckCircle, Clock, XCircle, Search, Upload, ChevronLeft, ChevronRight } from "lucide-react";
 import { formatNOK } from "@/lib/norwegianCurrency";
 import DonationChart from "@/components/DonationChart";
 
@@ -153,80 +153,29 @@ export default function DonationsManagement() {
 
 	return (
 		<div className="space-y-6">
-			<div>
-				<h1 className="text-3xl font-bold text-gray-900">Donations Management</h1>
-				<p className="text-gray-600 mt-2">Track and manage all donations</p>
+			{/* Header with Total Donation */}
+			<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+				<div>
+					<h1 className="text-3xl font-bold text-gray-900">Donations Management</h1>
+					<p className="text-gray-600 mt-2">Track and manage all donations</p>
+				</div>
+				{/* Total Donation Display */}
+				<div className="text-right">
+					<p className="text-sm text-gray-500 font-medium uppercase tracking-wide">Total Donations to Date</p>
+					<p className="text-4xl md:text-5xl font-bold text-green-700 mt-1">{formatNOK(stats.totalAmount)}</p>
+					<p className="text-sm text-gray-600 mt-1">From {stats.total} donors</p>
+				</div>
 			</div>
 
-			{/* Stats Cards */}
-			<div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-				<Card className="border-0 shadow-lg">
-					<CardContent className="pt-6">
-						<div className="flex items-center justify-between">
-							<div>
-								<p className="text-sm text-gray-500 font-medium">Total Donations</p>
-								<p className="text-3xl font-bold text-gray-900 mt-2">{stats.total}</p>
-							</div>
-							<div className="w-12 h-12 bg-brand_primary/10 rounded-full flex items-center justify-center">
-								<DollarSign className="w-6 h-6 text-brand_primary" />
-							</div>
-						</div>
-					</CardContent>
-				</Card>
 
-				<Card className="border-0 shadow-lg">
-					<CardContent className="pt-6">
-						<div className="flex items-center justify-between">
-							<div>
-								<p className="text-sm text-gray-500 font-medium">Total Amount</p>
-								<p className="text-3xl font-bold text-gray-900 mt-2">{formatNOK(stats.totalAmount)}</p>
-							</div>
-							<div className="w-12 h-12 bg-success/10 rounded-full flex items-center justify-center">
-								<TrendingUp className="w-6 h-6 text-success" />
-							</div>
-						</div>
-					</CardContent>
-				</Card>
-
-				<Card className="border-0 shadow-lg">
-					<CardContent className="pt-6">
-						<div className="flex items-center justify-between">
-							<div>
-								<p className="text-sm text-gray-500 font-medium">Completed</p>
-								<p className="text-3xl font-bold text-gray-900 mt-2">{stats.completed}</p>
-							</div>
-							<div className="w-12 h-12 bg-success/10 rounded-full flex items-center justify-center">
-								<CheckCircle className="w-6 h-6 text-success" />
-							</div>
-						</div>
-					</CardContent>
-				</Card>
-
-				<Card className="border-0 shadow-lg">
-					<CardContent className="pt-6">
-						<div className="flex items-center justify-between">
-							<div>
-								<p className="text-sm text-gray-500 font-medium">Pending</p>
-								<p className="text-3xl font-bold text-gray-900 mt-2">{stats.pending}</p>
-							</div>
-							<div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-								<Clock className="w-6 h-6 text-yellow-600" />
-							</div>
-						</div>
-					</CardContent>
-				</Card>
-			</div>
-
-			{/* Donation Patterns Chart */}
-			<DonationChart className="w-full" />
-
+		
 			{/* Donations Table */}
 			<Card className="border-0 shadow-lg">
 				<CardHeader>
 					<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 						<CardTitle className="flex items-center gap-2">
 							<Users className="w-5 h-5" />
-							Recent Donations
+							 Donations Record
 						</CardTitle>
 						<div className="flex flex-col sm:flex-row gap-4">
 							<div className="relative">
@@ -387,6 +336,9 @@ export default function DonationsManagement() {
 					)}
 				</CardContent>
 			</Card>
+				{/* Donation Patterns Chart */}
+			<DonationChart className="w-full" />
+
 		</div>
 	);
 }

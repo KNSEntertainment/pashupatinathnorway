@@ -89,6 +89,8 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
 		
 		// Set membership type to Active for approved members 15+
 		updateData.membershipType = "Active";
+		// Set activeMemberSince when approving a member
+		updateData.activeMemberSince = new Date().toISOString();
 	}
 
 	const membership = await Membership.findByIdAndUpdate(id, updateData, { new: true });

@@ -557,7 +557,6 @@ export default function AttendanceDashboard() {
                 </div>
                 <div className="flex items-center gap-4 text-xs text-gray-500">
                   <span>📱 {member.phone || "N/A"}</span>
-                  <span>🆔 {member.personalNumber || "N/A"}</span>
                 </div>
               </div>
             ))}

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Donation from "@/models/Donation.Model";
 import Cause from "@/models/Cause.Model";
+import { encryptPersonalNumber } from "@/lib/encryption";
 
 export async function POST(request: Request) {
 	try {
@@ -19,12 +20,15 @@ export async function POST(request: Request) {
 			return NextResponse.json({ error: "Name and email are required for non-anonymous donations" }, { status: 400 });
 		}
 
+		// Encrypt personal number if provided
+		const encryptedPersonalNumber = personalNumber ? encryptPersonalNumber(personalNumber) : undefined;
+
 		// Create donation record with completed status (simulated Vipps payment)
 		const donation = await Donation.create({
 			donorName: isAnonymous ? "Anonymous" : donorName,
 			donorEmail: isAnonymous ? "anonymous@rspnorway.org" : donorEmail,
 			donorPhone,
-			personalNumber: personalNumber || undefined,
+			personalNumber: encryptedPersonalNumber,
 			address: address || undefined,
 			amount,
 			currency: "NOK",

@@ -14,13 +14,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { FileText, Download, AlertTriangle } from "lucide-react";
+import { FileText, Download, AlertTriangle, Users } from "lucide-react";
 import { useState } from "react";
 
 export default function GenerateTaxDocument() {
     const [personalNumber, setPersonalNumber] = useState("");
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
     const [taxDocumentLoading, setTaxDocumentLoading] = useState(false);
+    const [bulkTaxDocumentLoading, setBulkTaxDocumentLoading] = useState(false);
 
 
 	const generateTaxDocument = async () => {
@@ -58,6 +59,37 @@ export default function GenerateTaxDocument() {
 			alert((error as Error).message || "Failed to generate tax document");
 		} finally {
 			setTaxDocumentLoading(false);
+		}
+	};
+
+	const generateBulkTaxDocument = async () => {
+		setBulkTaxDocumentLoading(true);
+		try {
+			const response = await fetch("/api/donations/bulk-tax-report", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					year: parseInt(selectedYear),
+				}),
+			});
+
+			const data = await response.json();
+
+			if (!response.ok) {
+				throw new Error(data.error || "Failed to generate bulk tax document");
+			}
+
+			// Create and download bulk PDF
+			const bulkPDFContent = data.bulkPDFContent;
+			downloadBulkPDF(bulkPDFContent, selectedYear);
+			
+		} catch (error) {
+			console.error("Error generating bulk tax document:", error);
+			alert((error as Error).message || "Failed to generate bulk tax document");
+		} finally {
+			setBulkTaxDocumentLoading(false);
 		}
 	};
 
@@ -213,95 +245,199 @@ const generateTaxPDF = (taxReport: {
 		}
 	};
 
+	const downloadBulkPDF = (htmlContent: string, year: string) => {
+		const newWindow = window.open('', '_blank');
+		if (newWindow) {
+			newWindow.document.write(htmlContent);
+			newWindow.document.close();
+			newWindow.focus();
+			setTimeout(() => {
+				newWindow.print();
+				newWindow.close();
+			}, 250);
+		} else {
+			// Handle popup blocker - provide fallback
+			alert('Popup blocked! Please allow popups for this site and try again, or use the download link below.');
+			// Create a downloadable file as fallback
+			const blob = new Blob([htmlContent], { type: 'text/html' });
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = `bulk-tax-documents-${year}.html`;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			URL.revokeObjectURL(url);
+		}
+	};
+
     return (
        	<Card className="border-0 shadow-lg">
 				<CardHeader>
 					<CardTitle className="flex items-center gap-2">
 						<FileText className="w-5 h-5" />
-						Generate Tax Document
+						Generate Tax Documents
 					</CardTitle>
 				</CardHeader>
 				<CardContent>
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-						<div>
-							<Label htmlFor="personalNumber">Personal Number</Label>
-							<Input
-								id="personalNumber"
-								type="text"
-								placeholder="Enter 11-digit personal number"
-								value={personalNumber}
-								onChange={(e) => setPersonalNumber(e.target.value)}
-								maxLength={11}
-							/>
-						</div>
-						<div>
-							<Label htmlFor="year">Year</Label>
-							<Input
-								id="year"
-								type="number"
-								value={selectedYear}
-								onChange={(e) => setSelectedYear(e.target.value)}
-								min="2000"
-								max={new Date().getFullYear() + 1}
-							/>
-						</div>
-						<div>
-							<AlertDialog>
-								<AlertDialogTrigger asChild>
-									<Button
-										disabled={taxDocumentLoading || !personalNumber}
-										className="w-full"
-									>
-										{taxDocumentLoading ? (
-											<>
-												<div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
-												Generating...
-											</>
-										) : (
-											<>
-												<Download className="w-4 h-4 mr-2" />
-												Generate Tax Document
-											</>
-										)}
-									</Button>
-								</AlertDialogTrigger>
-								<AlertDialogContent>
-									<AlertDialogHeader>
-										<AlertDialogTitle className="flex items-center gap-2">
-											<AlertTriangle className="w-5 h-5 text-orange-600" />
-											Confirm Generate Tax Document
-										</AlertDialogTitle>
-										<AlertDialogDescription>
-											<div className="space-y-3">
-												<p>
-													You are about to generate a tax document for personal number ending in 
-													<strong>{personalNumber.slice(-4)}</strong> for the year {selectedYear}.
-												</p>
-												<div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-													<p className="text-sm text-orange-800">
-														<strong>Important:</strong> This action will be recorded with your user information and timestamp. 
-														The system will log who generated this tax document and when it occurred.
+					{/* Individual Tax Document Generation */}
+					<div className="mb-8">
+						<h3 className="text-lg font-semibold mb-4">Individual Tax Document</h3>
+						<div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+							<div>
+								<Label htmlFor="personalNumber">Personal Number</Label>
+								<Input
+									id="personalNumber"
+									type="text"
+									placeholder="Enter 11-digit personal number"
+									value={personalNumber}
+									onChange={(e) => setPersonalNumber(e.target.value)}
+									maxLength={11}
+								/>
+							</div>
+							<div>
+								<Label htmlFor="year">Year</Label>
+								<Input
+									id="year"
+									type="number"
+									value={selectedYear}
+									onChange={(e) => setSelectedYear(e.target.value)}
+									min="2000"
+									max={new Date().getFullYear() + 1}
+								/>
+							</div>
+							<div>
+								<AlertDialog>
+									<AlertDialogTrigger asChild>
+										<Button
+											disabled={taxDocumentLoading || !personalNumber}
+											className="w-full"
+										>
+											{taxDocumentLoading ? (
+												<>
+													<div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
+													Generating...
+												</>
+											) : (
+												<>
+													<Download className="w-4 h-4 mr-2" />
+													Generate Individual
+												</>
+											)}
+										</Button>
+									</AlertDialogTrigger>
+									<AlertDialogContent>
+										<AlertDialogHeader>
+											<AlertDialogTitle className="flex items-center gap-2">
+												<AlertTriangle className="w-5 h-5 text-orange-600" />
+												Confirm Generate Tax Document
+											</AlertDialogTitle>
+											<AlertDialogDescription>
+												<div className="space-y-3">
+													<p>
+														You are about to generate a tax document for personal number ending in 
+														<strong>{personalNumber.slice(-4)}</strong> for the year {selectedYear}.
+													</p>
+													<div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+														<p className="text-sm text-orange-800">
+															<strong>Important:</strong> This action will be recorded with your user information and timestamp. 
+															The system will log who generated this tax document and when it occurred.
+														</p>
+													</div>
+													<p className="text-sm text-gray-600">
+														Do you want to proceed with generating the tax document?
 													</p>
 												</div>
-												<p className="text-sm text-gray-600">
-													Do you want to proceed with generating the tax document?
-												</p>
-											</div>
-										</AlertDialogDescription>
-									</AlertDialogHeader>
+											</AlertDialogDescription>
+										</AlertDialogHeader>
+										<AlertDialogFooter>
+											<AlertDialogCancel>Cancel</AlertDialogCancel>
+											<AlertDialogAction onClick={generateTaxDocument}>
+												Yes, Generate Tax Document
+											</AlertDialogAction>
+										</AlertDialogFooter>
+									</AlertDialogContent>
+								</AlertDialog>
+							</div>
+						</div>
+					</div>
+
+					{/* Bulk Tax Document Generation */}
+					<div className="border-t pt-6">
+						<h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+							<Users className="w-5 h-5" />
+							Bulk Tax Documents
+						</h3>
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+							<div>
+								<Label htmlFor="bulkYear">Year</Label>
+								<Input
+									id="bulkYear"
+									type="number"
+									value={selectedYear}
+									onChange={(e) => setSelectedYear(e.target.value)}
+									min="2000"
+									max={new Date().getFullYear() + 1}
+								/>
+							</div>
+							<div>
+								<AlertDialog>
+									<AlertDialogTrigger asChild>
+										<Button
+											disabled={bulkTaxDocumentLoading}
+											variant="outline"
+											className="w-full"
+										>
+											{bulkTaxDocumentLoading ? (
+												<>
+													<div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-blue-600 mr-2"></div>
+													Generating...
+												</>
+											) : (
+												<>
+													<Users className="w-4 h-4 mr-2" />
+													Generate All Tax Documents
+												</>
+											)}
+										</Button>
+									</AlertDialogTrigger>
+									<AlertDialogContent>
+										<AlertDialogHeader>
+											<AlertDialogTitle className="flex items-center gap-2">
+												<AlertTriangle className="w-5 h-5 text-orange-600" />
+												Confirm Generate Bulk Tax Documents
+											</AlertDialogTitle>
+											<AlertDialogDescription>
+												<div className="space-y-3">
+													<p>
+														You are about to generate tax documents for <strong>all members and non-members</strong> 
+														with personal numbers who have donations in the year {selectedYear}.
+													</p>
+													<div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+														<p className="text-sm text-orange-800">
+															<strong>Important:</strong> This will generate a single PDF with multiple pages, 
+															one for each donor. This action will be recorded with your user information and timestamp.
+														</p>
+													</div>
+													<p className="text-sm text-gray-600">
+														This may take some time if there are many donors. Do you want to proceed?
+													</p>
+												</div>
+											</AlertDialogDescription>
+										</AlertDialogHeader>
 									<AlertDialogFooter>
 										<AlertDialogCancel>Cancel</AlertDialogCancel>
-										<AlertDialogAction onClick={generateTaxDocument}>
-											Yes, Generate Tax Document
+										<AlertDialogAction onClick={generateBulkTaxDocument}>
+											Yes, Generate All Documents
 										</AlertDialogAction>
 									</AlertDialogFooter>
 								</AlertDialogContent>
 							</AlertDialog>
+							</div>
 						</div>
 					</div>
-					<p className="text-sm text-gray-500 mt-4">
-						Generate official tax documents for members based on their donation history for a specific year.
-					</p>
+
+			
 				</CardContent>
 			</Card>
     );

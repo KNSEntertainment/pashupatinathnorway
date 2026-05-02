@@ -34,7 +34,7 @@ function DashboardLayoutContent({ children }) {
 
 	return (
 		<div
-			className="flex flex-col pl-4 md:flex-row min-h-screen"
+			className="container mx-auto flex flex-col pl-4 md:flex-row min-h-screen"
 			onClick={(e) => {
 				if (profileOpen && !(e.target.closest && e.target.closest("#admin-profile-menu"))) {
 					setProfileOpen(false);

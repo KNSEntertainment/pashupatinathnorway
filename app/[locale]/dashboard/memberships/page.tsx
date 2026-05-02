@@ -66,6 +66,33 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 	return age;
 };
 
+const getGenderFromPersonalNumber = (personalNumber: string): string | null => {
+	if (!personalNumber || personalNumber.length !== 11 || !/^\d{11}$/.test(personalNumber)) {
+		return null;
+	}
+
+	// In Norwegian personal numbers, the 9th digit (index 8) indicates gender
+	// Odd numbers = male, even numbers = female
+	const genderDigit = parseInt(personalNumber.charAt(8));
+	
+	if (isNaN(genderDigit)) {
+		return null;
+	}
+
+	return genderDigit % 2 === 0 ? 'female' : 'male';
+};
+
+const maskPersonalNumber = (personalNumber: string): string => {
+	if (!personalNumber || personalNumber.length < 5) {
+		return personalNumber || 'Not specified';
+	}
+	
+	// Show first 6 digits, mask last 5 with asterisks
+	const visiblePart = personalNumber.substring(0, 6);
+	const maskedPart = '*****';
+	return `${visiblePart}${maskedPart}`;
+};
+
 export default function MembershipsPage() {
 	const [search, setSearch] = useState("");
 	const [statusFilter, setStatusFilter] = useState("");
@@ -295,7 +322,7 @@ export default function MembershipsPage() {
 		if (bulkStatus === "approved") {
 			for (const id of selectedMemberIds) {
 				const member = paginatedMemberships.find((m: Membership) => m._id === id) as Membership | undefined;
-				if (member?.membershipType === "general") {
+				if (member?.membershipType === "General") {
 					toast({
 						title: "Cannot Approve",
 						description: "General members cannot be approved. Please change their membership type to Active first.",
@@ -466,6 +493,16 @@ export default function MembershipsPage() {
 			year: "numeric",
 			month: "short",
 			day: "numeric",
+		});
+	};
+
+	const formatDateTime = (date: string) => {
+		return new Date(date).toLocaleString("en-US", {
+			year: "numeric",
+			month: "short",
+			day: "numeric",
+			hour: "2-digit",
+			minute: "2-digit",
 		});
 	};
 
@@ -684,7 +721,7 @@ export default function MembershipsPage() {
 										<Badge 
 											variant="outline" 
 											className={`capitalize ${
-												member.membershipType === 'general'
+												member.membershipType === 'General'
 													? 'bg-blue-50 text-blue-700 border-blue-200' 
 													: 'bg-green-50 text-green-700 border-green-200'
 											}`}
@@ -814,7 +851,7 @@ export default function MembershipsPage() {
 										<Badge 
 											variant="outline" 
 											className={`capitalize ${
-												viewingMember.membershipType === 'general'
+												viewingMember.membershipType === 'General'
 													? 'bg-blue-50 text-blue-700 border-blue-200' 
 													: 'bg-green-50 text-green-700 border-green-200'
 											}`}
@@ -840,11 +877,16 @@ export default function MembershipsPage() {
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
 								<div>
 									<p className="font-medium text-gray-900 mb-1">Personal Number</p>
-									<p className="text-gray-600">{viewingMember.personalNumber || 'Not specified'}</p>
+									<p className="text-gray-600">{maskPersonalNumber(viewingMember.personalNumber || '')}</p>
 								</div>
 								<div>
 									<p className="font-medium text-gray-900 mb-1">Gender</p>
-									<p className="text-gray-600 capitalize">{viewingMember.gender}</p>
+									<p className="text-gray-600 capitalize">
+										{(() => {
+											const genderFromPersonalNumber = getGenderFromPersonalNumber(viewingMember.personalNumber || '');
+											return genderFromPersonalNumber || viewingMember.gender || 'Unknown';
+										})()}
+									</p>
 								</div>
 								<div>
 									<p className="font-medium text-gray-900 mb-1">Address</p>
@@ -858,10 +900,30 @@ export default function MembershipsPage() {
 									<p className="font-medium text-gray-900 mb-1">Postal Code</p>
 									<p className="text-gray-600">{viewingMember.postalCode}</p>
 								</div>
+							
 								<div>
-									<p className="font-medium text-gray-900 mb-1">Registration Date</p>
-									<p className="text-gray-600">{formatDate(viewingMember.createdAt)}</p>
+									<p className="font-medium text-gray-900 mb-1">Registered as a General Member Since</p>
+									<p className="text-gray-600">
+										{viewingMember.generalMemberSince 
+											? formatDateTime(viewingMember.generalMemberSince)
+											: viewingMember.createdAt 
+												? formatDateTime(viewingMember.createdAt)
+												: 'Not specified'
+										}
+									</p>
 								</div>
+								{viewingMember.membershipType === 'Active' && (
+									<div>
+										<p className="font-medium text-gray-900 mb-1">Active Member Since</p>
+										<p className="text-gray-600">
+											{viewingMember.activeMemberSince 
+												? formatDateTime(viewingMember.activeMemberSince)
+												: 'Not approved yet'
+											}
+										</p>
+								
+									</div>
+								)}
 								<div>
 									<p className="font-medium text-gray-900 mb-1">Age</p>
 									<p className="text-gray-600">

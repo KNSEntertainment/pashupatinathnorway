@@ -3,6 +3,23 @@ import { useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+// Norwegian fylke (county) mapping - moved outside component to prevent recreation
+const fylkeMapping: Record<string, string> = {
+	'NO-03': 'Oslo',
+	'NO-11': 'Rogaland',
+	'NO-15': 'Møre og Romsdal',
+	'NO-18': 'Nordland',
+	'NO-30': 'Viken',
+	'NO-34': 'Innlandet',
+	'NO-38': 'Vestfold og Telemark',
+	'NO-42': 'Agder',
+	'NO-46': 'Vestland',
+	'NO-50': 'Trøndelag',
+	'NO-54': 'Troms og Finnmark',
+	'NO-56': 'Vestland', 
+	'NO-57': 'Vestland', 
+};
 import { LocateIcon } from "lucide-react";
 
 
@@ -138,6 +155,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 	const [termsError, setTermsError] = useState("");
 	const [addressSuggestions, setAddressSuggestions] = useState<AddressSuggestion[]>([]);
 	const [addressLoading, setAddressLoading] = useState(false);
+	const [postalCodeLoading, setPostalCodeLoading] = useState(false);
 	const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
 	const [locating, setLocating] = useState(false);
 	const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -202,23 +220,6 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 		}
 
 		return true;
-	};
-
-	// Norwegian fylke (county) mapping
-	const fylkeMapping: Record<string, string> = {
-		'NO-03': 'Oslo',
-		'NO-11': 'Rogaland',
-		'NO-15': 'Møre og Romsdal',
-		'NO-18': 'Nordland',
-		'NO-30': 'Viken',
-		'NO-34': 'Innlandet',
-		'NO-38': 'Vestfold og Telemark',
-		'NO-42': 'Agder',
-		'NO-46': 'Vestland',
-		'NO-50': 'Trøndelag',
-		'NO-54': 'Troms og Finnmark',
-		'NO-56': 'Vestland', 
-		'NO-57': 'Vestland', 
 	};
 
 const calculateAgeFromPersonalNumber = (personalNumber: string): number | null => {
@@ -401,6 +402,20 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 			}
 		}
 
+		// Handle postal code validation
+		if (name === "postalCode") {
+			// Only allow digits
+			value = value.replace(/\D/g, '');
+			// Limit to 4 digits
+			if (value.length > 4) {
+				value = value.slice(0, 4);
+			}
+			// Clear postal code error when user edits the field
+			if (postalCodeError) {
+				setPostalCodeError("");
+			}
+		}
+
 		if (target instanceof HTMLInputElement && target.type === "checkbox") {
 			setFormData({ ...formData, [name]: target.checked });
 		} else {
@@ -414,6 +429,62 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 		setAddressError("");
 		setActiveSuggestionIndex(-1);
 	};
+
+	const lookupPostalCode = async (postalCode: string) => {
+		// Norwegian postal codes are 4 digits
+		if (!postalCode || !/^\d{4}$/.test(postalCode)) {
+			return;
+		}
+
+		setPostalCodeLoading(true);
+		try {
+			const response = await fetch(
+				`https://api.geoapify.com/v1/geocode/autocomplete?text=${postalCode}%20Norway&apiKey=${geoapifyKey}&limit=1&countrycode=no`
+			);
+			
+			if (!response.ok) return;
+			
+			const data = await response.json();
+			const feature = data.features?.[0];
+			if (!feature) return;
+			
+			const props = feature.properties || {};
+			const city = props.city || props.town || props.village || props.municipality || "";
+			const kommune = props.suburb || props.municipality || props.county || "";
+			const fylkeCode = props.iso3166_2 || "";
+			const fylke = fylkeMapping[fylkeCode] || "";
+			
+			// Only update if we found a Norwegian result
+			if (props.country_code === 'no') {
+				// Update form with extracted information
+				setFormData(prev => ({
+					...prev,
+					city: city || prev.city,
+					kommune: kommune || prev.kommune,
+					fylke: fylke || prev.fylke,
+				}));
+				
+				// Clear any existing errors for these fields
+				setCityError("");
+			}
+			
+		} catch (error) {
+			console.error("Postal code lookup error:", error);
+		} finally {
+			setPostalCodeLoading(false);
+		}
+	};
+
+	// Trigger postal code lookup when postal code changes
+	useEffect(() => {
+		if (formData.postalCode && /^\d{4}$/.test(formData.postalCode)) {
+			const timeoutId = setTimeout(() => {
+				lookupPostalCode(formData.postalCode);
+			}, 500); // Debounce to avoid too many API calls
+			
+			return () => clearTimeout(timeoutId);
+		}
+	}, [formData.postalCode]);
 
 	useEffect(() => {
 		if (!geoapifyKey) {
@@ -475,7 +546,7 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 			clearTimeout(timer);
 			controller.abort();
 		};
-	}, [formData.address, geoapifyKey, fylkeMapping]);
+	}, [formData.address, geoapifyKey]);
 
 	const applySuggestion = (item: AddressSuggestion) => {
 		const newAddress = item.addressLine || item.label;
@@ -1320,6 +1391,24 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 									)}
 								</div>
 							</div>
+									<div>
+								<label className="block text-sm font-medium text-gray-900 mb-2">
+									{t.postal_code} <span className="text-red-500">*</span>
+								</label>
+								<div className="relative">
+									<input type="text" name="postalCode" value={formData.postalCode} onChange={handleChange} className={`w-full px-4 py-2 border ${postalCodeError ? "border-red-500" : "border-light"} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`} placeholder={t.postal_code_ph} />
+									{postalCodeLoading && (
+										<div className="absolute right-3 top-2.5">
+											<svg className="w-4 h-4 animate-spin text-gray-400" fill="none" viewBox="0 0 24 24">
+												<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+												<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+											</svg>
+										</div>
+									)}
+								</div>
+						{postalCodeError && <p className="text-red-600 text-sm mt-1">{postalCodeError}</p>}
+								{!postalCodeError && <p className="text-xs text-gray-500 mt-1">Enter a 4-digit postal code to auto-fill city and district</p>}
+					</div>
 							<div>
 								<label className="block text-sm font-medium text-gray-900 mb-2">
 									{t.city} <span className="text-red-500">*</span>
@@ -1327,13 +1416,7 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 								<input type="text" name="city" value={formData.city} onChange={handleChange} className={`w-full px-4 py-2 border ${cityError ? "border-red-500" : "border-light"} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`} placeholder={t.city_ph} />
 								{cityError && <p className="text-red-600 text-sm mt-1">{cityError}</p>}
 							</div>
-							<div>
-								<label className="block text-sm font-medium text-gray-900 mb-2">
-									{t.postal_code} <span className="text-red-500">*</span>
-								</label>
-								<input type="text" name="postalCode" value={formData.postalCode} onChange={handleChange} className={`w-full px-4 py-2 border ${postalCodeError ? "border-red-500" : "border-light"} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`} placeholder={t.postal_code_ph} />
-						{postalCodeError && <p className="text-red-600 text-sm mt-1">{postalCodeError}</p>}
-					</div>
+
 					<div>
 						<label className="block text-sm font-medium text-gray-900 mb-2">
 							Kommune (District)
@@ -1346,7 +1429,6 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 								onChange={handleChange} 
 								className="w-full px-4 py-2 border border-light rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 text-gray-700" 
 								placeholder="e.g., Ammerud" 
-								readOnly 
 							/>
 							<div className="absolute right-3 top-2.5 text-gray-400">
 								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

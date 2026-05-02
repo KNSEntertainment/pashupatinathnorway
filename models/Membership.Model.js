@@ -33,6 +33,8 @@ const MembershipSchema = new mongoose.Schema({
 	pendingEmail: { type: String }, // For email change verification
 	emailVerificationToken: { type: String }, // For email change verification
 	emailVerificationTokenExpiry: { type: Date }, // For email change verification
+	generalMemberSince: { type: Date },
+	activeMemberSince: { type: Date },
 	createdAt: { type: Date, default: Date.now },
 });
 

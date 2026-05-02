@@ -56,8 +56,12 @@ export async function POST(req: NextRequest) {
 			throw new Error('Phone number must be exactly 8 digits');
 		}
 		
-		// Create membership for main applicant
-		const mainMembership = await Membership.create(mainApplicantData);
+		// Create membership for main applicant with generalMemberSince
+		const mainMembershipData = {
+			...mainApplicantData,
+			generalMemberSince: new Date().toISOString(),
+		};
+		const mainMembership = await Membership.create(mainMembershipData);
 		
 		// Create separate membership records for each family member
 		const familyMemberships = [];
@@ -95,6 +99,7 @@ export async function POST(req: NextRequest) {
 					email: familyMember.email,
 					phone: familyMember.phone || mainApplicantData.phone,
 					familyMembers: [], // Don't include nested family members
+					generalMemberSince: new Date().toISOString(),
 				};
 				
 				const familyMembership = await Membership.create(familyMemberData);

@@ -272,7 +272,7 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 
 			{/* Donor Information */}
 			{!isAnonymous && (
-				<div className="space-y-4 p-4 bg-light rounded-lg">
+				<div className="space-y-4 p-4 rounded-lg">
 					<h3 className="font-semibold text-gray-900">{t("donor_information") || "Your Information"}</h3>
 
 					<div>
@@ -407,7 +407,7 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 
 	// Otherwise, return the full Card wrapper
 	return (
-		<Card className="w-full max-w-3xl mx-auto shadow-xl border-0">
+		<Card className="w-full max-w-3xl mx-auto shadow-xl border-0 bg-brand_primary/20">
 			<CardHeader className="bg-red-900 text-gray-100">
 				<div className="flex items-center gap-3">
 					<Heart className="w-8 h-8 text-brand_primary" />

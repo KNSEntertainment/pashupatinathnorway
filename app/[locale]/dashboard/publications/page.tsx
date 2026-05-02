@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Download, Eye, Calendar, FileText, Filter, ChevronDown } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Filter, FileText, Calendar } from "lucide-react";
+import PublicationForm from "@/components/dashboard/PublicationForm";
 
-interface AnnualReport {
+interface Publication {
   id: string;
   title: string;
   year: number;
@@ -15,11 +16,11 @@ interface AnnualReport {
   downloadUrl: string;
   previewUrl: string;
   language: "en" | "ne" | "no";
+  createdAt: string;
+  updatedAt: string;
 }
 
-
 const reportTypes = [
-  { value: "all", label: "All Reports" },
   { value: "financial", label: "Financial Reports" },
   { value: "activity", label: "Activity Reports" },
   { value: "membership", label: "Membership Reports" },
@@ -27,24 +28,24 @@ const reportTypes = [
 ];
 
 const languages = [
-  { value: "all", label: "All Languages" },
   { value: "en", label: "English" },
   { value: "ne", label: "नेपाली" },
   { value: "no", label: "Norsk" }
 ];
 
-
-export default function PublicationClient() {
-  const [publications, setPublications] = useState<AnnualReport[]>([]);
-  const [filteredPublications, setFilteredPublications] = useState<AnnualReport[]>([]);
+export default function PublicationsPage() {
+  const [publications, setPublications] = useState<Publication[]>([]);
+  const [filteredPublications, setFilteredPublications] = useState<Publication[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [editingPublication, setEditingPublication] = useState<Publication | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("all");
   const [selectedLanguage, setSelectedLanguage] = useState("all");
   const [selectedYear, setSelectedYear] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
 
-  // Fetch publications from API
+  // Fetch publications
   const fetchPublications = async () => {
     try {
       setLoading(true);
@@ -67,22 +68,22 @@ export default function PublicationClient() {
     let filtered = [...publications];
     
     if (searchTerm) {
-      filtered = filtered.filter((report: AnnualReport) => 
-        report.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        report.description.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(pub => 
+        pub.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        pub.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
     
     if (selectedType !== "all") {
-      filtered = filtered.filter((report: AnnualReport) => report.type === selectedType);
+      filtered = filtered.filter(pub => pub.type === selectedType);
     }
     
     if (selectedLanguage !== "all") {
-      filtered = filtered.filter((report: AnnualReport) => report.language === selectedLanguage);
+      filtered = filtered.filter(pub => pub.language === selectedLanguage);
     }
     
     if (selectedYear !== "all") {
-      filtered = filtered.filter((report: AnnualReport) => report.year.toString() === selectedYear);
+      filtered = filtered.filter(pub => pub.year.toString() === selectedYear);
     }
     
     setFilteredPublications(filtered);
@@ -90,6 +91,33 @@ export default function PublicationClient() {
 
   // Get available years
   const availableYears = Array.from(new Set(publications.map(pub => pub.year))).sort((a, b) => b - a);
+
+  // Handle delete
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this publication?")) return;
+    
+    try {
+      const response = await fetch(`/api/publications/${id}`, {
+        method: "DELETE",
+      });
+      
+      if (response.ok) {
+        fetchPublications();
+      } else {
+        alert("Failed to delete publication");
+      }
+    } catch (error) {
+      console.error("Error deleting publication:", error);
+      alert("Failed to delete publication");
+    }
+  };
+
+  // Handle form submission
+  const handleFormSubmit = () => {
+    setShowForm(false);
+    setEditingPublication(null);
+    fetchPublications();
+  };
 
   const getTypeColor = (type: string) => {
     switch (type) {
@@ -110,32 +138,50 @@ export default function PublicationClient() {
     }
   };
 
+  if (showForm) {
+    return (
+      <PublicationForm
+        publication={editingPublication}
+        onSubmit={handleFormSubmit}
+        onCancel={() => {
+          setShowForm(false);
+          setEditingPublication(null);
+        }}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-gradient-to-b from-red-50 to-red-100 text-gray-700">
-        
-        <div className="container mx-auto px-4 py-12">
-          <div className="max-w-4xl">
-            <h1 className="text-4xl font-bold mb-4">Annual Reports</h1>
-            <p className="text-xl text-gray-600">
-              Access our comprehensive collection of annual reports, including financial statements, 
-              activity summaries, membership statistics, and audit reports.
-            </p>
+      <div className="bg-white border-b">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Publications</h1>
+              <p className="text-gray-600 mt-1">Manage annual reports and publications</p>
+            </div>
+            <button
+              onClick={() => setShowForm(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Add Publication
+            </button>
           </div>
         </div>
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-white border-b sticky top-0 z-10 shadow-sm">
-        <div className="container mx-auto px-4 py-8">
+      <div className="bg-white border-b">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Search Bar */}
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search reports by title or description..."
+                placeholder="Search publications..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
@@ -149,7 +195,9 @@ export default function PublicationClient() {
             >
               <Filter className="w-4 h-4" />
               Filters
-              <ChevronDown className={`w-4 h-4 transform transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+              <span className="text-xs bg-gray-200 px-2 py-1 rounded-full">
+                {[selectedType, selectedLanguage, selectedYear].filter(v => v !== "all").length}
+              </span>
             </button>
           </div>
 
@@ -161,6 +209,7 @@ export default function PublicationClient() {
                 onChange={(e) => setSelectedType(e.target.value)}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
               >
+                <option value="all">All Types</option>
                 {reportTypes.map(type => (
                   <option key={type.value} value={type.value}>{type.label}</option>
                 ))}
@@ -171,6 +220,7 @@ export default function PublicationClient() {
                 onChange={(e) => setSelectedLanguage(e.target.value)}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
               >
+                <option value="all">All Languages</option>
                 {languages.map(lang => (
                   <option key={lang.value} value={lang.value}>{lang.label}</option>
                 ))}
@@ -182,7 +232,7 @@ export default function PublicationClient() {
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
               >
                 <option value="all">All Years</option>
-                {availableYears.map((year: number) => (
+                {availableYears.map(year => (
                   <option key={year} value={year}>{year}</option>
                 ))}
               </select>
@@ -191,13 +241,13 @@ export default function PublicationClient() {
 
           {/* Results Count */}
           <div className="mt-4 text-sm text-gray-600">
-            Found {filteredPublications.length} report{filteredPublications.length !== 1 ? 's' : ''}
+            {filteredPublications.length} of {publications.length} publications
           </div>
         </div>
       </div>
 
-      {/* Reports Grid */}
-      <div className="container mx-auto px-4 py-8">
+      {/* Publications List */}
+      <div className="container mx-auto px-4 py-6">
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
@@ -205,62 +255,76 @@ export default function PublicationClient() {
         ) : filteredPublications.length === 0 ? (
           <div className="text-center py-12">
             <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">No reports found</h3>
-            <p className="text-gray-500">Try adjusting your search criteria or filters.</p>
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">No publications found</h3>
+            <p className="text-gray-500 mb-4">
+              {publications.length === 0 ? "Start by adding your first publication." : "Try adjusting your search criteria or filters."}
+            </p>
+            {publications.length === 0 && (
+              <button
+                onClick={() => setShowForm(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                Add First Publication
+              </button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredPublications.map((report: AnnualReport) => (
-              <div key={report.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200">
+            {filteredPublications.map((publication) => (
+              <div key={publication.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200">
                 <div className="p-6">
                   {/* Header */}
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
-                      <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full border ${getTypeColor(report.type)}`}>
-                        {report.type.charAt(0).toUpperCase() + report.type.slice(1)}
+                      <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full border ${getTypeColor(publication.type)}`}>
+                        {publication.type.charAt(0).toUpperCase() + publication.type.slice(1)}
                       </span>
                     </div>
-                    <span className="text-2xl">{getLanguageFlag(report.language)}</span>
+                    <span className="text-2xl">{getLanguageFlag(publication.language)}</span>
                   </div>
 
                   {/* Title */}
                   <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-                    {report.title}
+                    {publication.title}
                   </h3>
 
                   {/* Description */}
                   <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                    {report.description}
+                    {publication.description}
                   </p>
 
                   {/* Meta Information */}
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center text-sm text-gray-500">
                       <Calendar className="w-4 h-4 mr-2" />
-                      Published: {new Date(report.publishedDate).toLocaleDateString()}
+                      {new Date(publication.publishedDate).toLocaleDateString()}
                     </div>
                     <div className="flex items-center justify-between text-sm text-gray-500">
-                      <span>Year: {report.year}</span>
-                      <span>{report.pages} pages</span>
-                      <span>{report.fileSize}</span>
+                      <span>{publication.year}</span>
+                      <span>{publication.pages} pages</span>
+                      <span>{publication.fileSize}</span>
                     </div>
                   </div>
 
                   {/* Action Buttons */}
                   <div className="flex gap-2">
                     <button
-                      onClick={() => window.open(report.downloadUrl, '_blank')}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                      onClick={() => {
+                        setEditingPublication(publication);
+                        setShowForm(true);
+                      }}
+                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
                     >
-                      <Download className="w-4 h-4" />
-                      Download
+                      <Edit className="w-4 h-4" />
+                      Edit
                     </button>
                     <button
-                      onClick={() => window.open(report.previewUrl, '_blank')}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                      onClick={() => handleDelete(publication.id)}
+                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors text-sm"
                     >
-                      <Eye className="w-4 h-4" />
-                      Preview
+                      <Trash2 className="w-4 h-4" />
+                      Delete
                     </button>
                   </div>
                 </div>

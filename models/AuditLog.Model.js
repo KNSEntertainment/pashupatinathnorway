@@ -18,7 +18,7 @@ const auditLogSchema = new mongoose.Schema(
 			fileSize: { type: Number },
 			validationErrors: [{ 
 				row: { type: Number }, 
-				errors: [{ type: String }] 
+				errorMessages: [{ type: String }] 
 			}],
 			verifiedCount: { type: Number },
 			unverifiedCount: { type: Number },

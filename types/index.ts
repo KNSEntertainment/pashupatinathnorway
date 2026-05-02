@@ -55,7 +55,7 @@ export interface Membership {
 	gender: string;
 	fylke?: string;
 	kommune?: string;
-	membershipType: "general" | "active" | "executive";
+	membershipType: "General" | "Active" | "executive";
 	membershipStatus: "blocked" | "pending" | "approved";
 	agreeTerms: boolean;
 	profilePhoto?: string;
@@ -65,6 +65,8 @@ export interface Membership {
 	passwordResetToken?: string;
 	passwordResetTokenExpiry?: Date;
 	createdAt: string;
+	generalMemberSince?: string;
+	activeMemberSince?: string;
 }
 
 export interface LocalizedString {

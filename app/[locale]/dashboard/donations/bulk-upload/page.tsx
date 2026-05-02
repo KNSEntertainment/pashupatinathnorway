@@ -25,7 +25,7 @@ export default function BulkUploadDonations() {
     success: boolean;
     message?: string;
     error?: string;
-    validationErrors?: Array<{ row: number; errors: string[] }>;
+    validationErrors?: Array<{ row: number; errorMessages: string[] }>;
     totalRows?: number;
     validRows?: number;
     insertedRows?: number;
@@ -347,9 +347,9 @@ Anonymous User,anonymous@temple.no,,250,NOK,Anonymous donation,,true,completed,`
                     <div className="mt-4">
                       <h4 className="font-semibold text-red-900 mb-2">Validation Errors:</h4>
                       <div className="max-h-60 overflow-y-auto space-y-1">
-                        {uploadResult.validationErrors.map((error: { row: number; errors: string[] }, index: number) => (
+                        {uploadResult.validationErrors.map((error: { row: number; errorMessages: string[] }, index: number) => (
                           <div key={index} className="text-sm bg-red-100 p-2 rounded">
-                            <span className="font-medium">Row {error.row}:</span> {error.errors.join(', ')}
+                            <span className="font-medium">Row {error.row}:</span> {error.errorMessages.join(', ')}
                           </div>
                         ))}
                       </div>

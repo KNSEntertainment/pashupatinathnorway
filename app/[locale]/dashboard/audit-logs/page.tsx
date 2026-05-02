@@ -37,7 +37,7 @@ interface AuditLog {
     skippedRows?: number;
     fileName?: string;
     fileSize?: number;
-    validationErrors?: Array<{ row: number; errors: string[] }>;
+    validationErrors?: Array<{ row: number; errorMessages: string[] }>;
     verifiedCount?: number;
     unverifiedCount?: number;
     verificationFileRows?: number;

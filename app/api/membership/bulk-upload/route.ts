@@ -313,7 +313,7 @@ export async function POST(request: NextRequest) {
       'details.skippedRows': results.failed,
       'details.validationErrors': results.errors.map((error, index) => ({
         row: index + 2, // +2 because of header and 1-based indexing
-        errors: [error]
+        errorMessages: [error]
       }))
     });
 

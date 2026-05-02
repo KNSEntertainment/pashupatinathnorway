@@ -222,11 +222,6 @@ export default function AddressAutocomplete({
           </div>
         </div>
       )}
-
-      {/* Info text */}
-      <p className="text-xs text-gray-500 mt-1">
-        Enter your address for tax documentation. Include street, postal code, and city.
-      </p>
     </div>
   );
 }

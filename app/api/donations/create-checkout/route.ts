@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import connectDB from "@/lib/mongodb";
 import Donation from "@/models/Donation.Model";
+import { encryptPersonalNumber } from "@/lib/encryption";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 	apiVersion: "2026-02-25.clover",
@@ -23,12 +24,15 @@ export async function POST(request: Request) {
 			return NextResponse.json({ error: "Name and email are required for non-anonymous donations" }, { status: 400 });
 		}
 
+		// Encrypt personal number if provided
+		const encryptedPersonalNumber = personalNumber ? encryptPersonalNumber(personalNumber) : undefined;
+
 		// Create donation record
 		const donation = await Donation.create({
 			donorName: isAnonymous ? "Anonymous" : donorName,
 			donorEmail: isAnonymous ? "anonymous@rspnorway.org" : donorEmail,
 			donorPhone,
-			personalNumber: personalNumber || undefined,
+			personalNumber: encryptedPersonalNumber,
 			address: address || undefined,
 			amount,
 			currency: "NOK",
