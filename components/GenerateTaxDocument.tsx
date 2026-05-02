@@ -3,7 +3,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { FileText, Download } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { FileText, Download, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 
 export default function GenerateTaxDocument() {
@@ -222,23 +233,57 @@ const generateTaxPDF = (taxReport: {
 							/>
 						</div>
 						<div>
-							<Button
-								onClick={generateTaxDocument}
-								disabled={taxDocumentLoading || !personalNumber}
-								className="w-full"
-							>
-								{taxDocumentLoading ? (
-									<>
-										<div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
-										Generating...
-									</>
-								) : (
-									<>
-										<Download className="w-4 h-4 mr-2" />
-										Generate Tax Document
-									</>
-								)}
-							</Button>
+							<AlertDialog>
+								<AlertDialogTrigger asChild>
+									<Button
+										disabled={taxDocumentLoading || !personalNumber}
+										className="w-full"
+									>
+										{taxDocumentLoading ? (
+											<>
+												<div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
+												Generating...
+											</>
+										) : (
+											<>
+												<Download className="w-4 h-4 mr-2" />
+												Generate Tax Document
+											</>
+										)}
+									</Button>
+								</AlertDialogTrigger>
+								<AlertDialogContent>
+									<AlertDialogHeader>
+										<AlertDialogTitle className="flex items-center gap-2">
+											<AlertTriangle className="w-5 h-5 text-orange-600" />
+											Confirm Generate Tax Document
+										</AlertDialogTitle>
+										<AlertDialogDescription>
+											<div className="space-y-3">
+												<p>
+													You are about to generate a tax document for personal number ending in 
+													<strong>{personalNumber.slice(-4)}</strong> for the year {selectedYear}.
+												</p>
+												<div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+													<p className="text-sm text-orange-800">
+														<strong>Important:</strong> This action will be recorded with your user information and timestamp. 
+														The system will log who generated this tax document and when it occurred.
+													</p>
+												</div>
+												<p className="text-sm text-gray-600">
+													Do you want to proceed with generating the tax document?
+												</p>
+											</div>
+										</AlertDialogDescription>
+									</AlertDialogHeader>
+									<AlertDialogFooter>
+										<AlertDialogCancel>Cancel</AlertDialogCancel>
+										<AlertDialogAction onClick={generateTaxDocument}>
+											Yes, Generate Tax Document
+										</AlertDialogAction>
+									</AlertDialogFooter>
+								</AlertDialogContent>
+							</AlertDialog>
 						</div>
 					</div>
 					<p className="text-sm text-gray-500 mt-4">

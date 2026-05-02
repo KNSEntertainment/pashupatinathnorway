@@ -3,8 +3,19 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Upload, Download, FileText, CheckCircle, AlertCircle, UploadCloud } from "lucide-react";
+import { Upload, Download, FileText, CheckCircle, AlertCircle, UploadCloud, AlertTriangle } from "lucide-react";
 import { useRouter } from "next/navigation";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function BulkUploadDonations() {
   const router = useRouter();
@@ -224,23 +235,57 @@ Anonymous User,anonymous@temple.no,,250,NOK,Anonymous donation,,true,completed,`
               )}
 
               <div className="flex gap-4">
-                <Button
-                  onClick={handleUpload}
-                  disabled={!file || uploading}
-                  className="flex-1"
-                >
-                  {uploading ? (
-                    <>
-                      <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Uploading...
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="w-4 h-4 mr-2" />
-                      Upload Donations
-                    </>
-                  )}
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      disabled={!file || uploading}
+                      className="flex-1"
+                    >
+                      {uploading ? (
+                        <>
+                          <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          Uploading...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-4 h-4 mr-2" />
+                          Upload Donations
+                        </>
+                      )}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="flex items-center gap-2">
+                        <AlertTriangle className="w-5 h-5 text-orange-600" />
+                        Confirm Bulk Upload
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        <div className="space-y-3">
+                          <p>
+                            You are about to upload donations from <strong>{file?.name}</strong> 
+                            ({file ? (file.size / 1024).toFixed(1) : 0} KB).
+                          </p>
+                          <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                            <p className="text-sm text-orange-800">
+                              <strong>Important:</strong> This action will be recorded with your user information and timestamp. 
+                              The system will log who performed this bulk upload and when it occurred.
+                            </p>
+                          </div>
+                          <p className="text-sm text-gray-600">
+                            Do you want to proceed with the upload?
+                          </p>
+                        </div>
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleUpload}>
+                        Yes, Upload Donations
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
                 
                 {file && (
                   <Button

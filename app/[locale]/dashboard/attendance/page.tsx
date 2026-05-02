@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Loader2, Users, Calendar, CheckCircle, Download, Search, Upload, Camera } from "lucide-react";
 
 interface Event {
@@ -29,6 +30,8 @@ interface AttendanceRecord {
   memberEmail: string;
   checkInTime: string;
   markedBy: string;
+  scannerName?: string;
+  scannerRole?: string;
   notes?: string;
   createdAt: string;
 }
@@ -47,7 +50,7 @@ interface MemberData {
 }
 
 export default function AttendanceDashboard() {
-  const { status } = useSession();
+  const { data: session, status } = useSession();
   
   const [events, setEvents] = useState<Event[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -55,6 +58,8 @@ export default function AttendanceDashboard() {
   const [loading, setLoading] = useState(true);
   const [updatingEvent, setUpdatingEvent] = useState<string | null>(null);
   const [error, setError] = useState<string>("");
+  const [showExportModal, setShowExportModal] = useState<boolean>(false);
+  const [exporting, setExporting] = useState<boolean>(false);
   
   // Search states
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -64,6 +69,20 @@ export default function AttendanceDashboard() {
   
   // QR upload states
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Get current user information for scanner details
+  const getCurrentScannerInfo = () => {
+    if (session?.user) {
+      return {
+        scannerName: session.user.name || session.user.email || "Unknown User",
+        scannerRole: session.user.role || "User"
+      };
+    }
+    return {
+      scannerName: "Attendance Scanner",
+      scannerRole: "System"
+    };
+  };
 
   // Handle QR file upload
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -125,6 +144,7 @@ export default function AttendanceDashboard() {
       }
 
       // Mark attendance via API
+      const scannerInfo = getCurrentScannerInfo();
       const response = await fetch(`/api/verify/${parsedData.personalNumber}`, {
         method: "POST",
         headers: {
@@ -132,7 +152,9 @@ export default function AttendanceDashboard() {
         },
         body: JSON.stringify({
           eventId: selectedEvent._id,
-          markedBy: "attendance-scanner",
+          markedBy: session?.user?.id || "attendance-scanner",
+          scannerName: scannerInfo.scannerName,
+          scannerRole: scannerInfo.scannerRole,
           notes: `QR check-in at ${selectedEvent.eventname}`
         }),
       });
@@ -254,6 +276,7 @@ export default function AttendanceDashboard() {
     }
 
     try {
+      const scannerInfo = getCurrentScannerInfo();
       const response = await fetch(`/api/verify/${member.personalNumber}`, {
         method: "POST",
         headers: {
@@ -261,7 +284,9 @@ export default function AttendanceDashboard() {
         },
         body: JSON.stringify({
           eventId: selectedEvent._id,
-          markedBy: "attendance-scanner",
+          markedBy: session?.user?.id || "attendance-scanner",
+          scannerName: scannerInfo.scannerName,
+          scannerRole: scannerInfo.scannerRole,
           notes: `Manual check-in at ${selectedEvent.eventname}`
         }),
       });
@@ -345,27 +370,102 @@ export default function AttendanceDashboard() {
 
   const exportAttendance = () => {
     if (!selectedEvent || attendanceRecords.length === 0) return;
+    setShowExportModal(true);
+  };
 
-    const csvContent = [
-      ["Name", "Email", "Personal Number", "Check-in Time", "Notes"],
-      ...attendanceRecords.map(record => [
-        record.memberName,
-        record.memberEmail,
-        record.memberPersonalNumber,
-        new Date(record.checkInTime).toLocaleString(),
-        record.notes || ""
-      ])
-    ].map(row => row.join(",")).join("\n");
+  const confirmExport = async () => {
+    if (!selectedEvent || attendanceRecords.length === 0) return;
+    
+    setExporting(true);
+    setShowExportModal(false);
 
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `attendance-${selectedEvent.eventname.replace(/\s+/g, "-")}-${new Date().toISOString().split('T')[0]}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
+    try {
+      // Record audit log first
+      const auditResponse = await fetch('/api/audit-logs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'export_attendance',
+          details: {
+            eventId: selectedEvent._id,
+            eventName: selectedEvent.eventname,
+            recordCount: attendanceRecords.length,
+            eventDate: selectedEvent.eventdate
+          }
+        }),
+      });
+
+      if (!auditResponse.ok) {
+        console.error('Failed to record audit log');
+      }
+
+      // Generate and download CSV
+      const csvContent = [
+        ["Name", "Email", "Personal Number", "Check-in Time", "Checked In By", "Scanner Role", "Notes"],
+        ...attendanceRecords.map(record => [
+          record.memberName,
+          record.memberEmail,
+          record.memberPersonalNumber,
+          new Date(record.checkInTime).toLocaleString(),
+          record.scannerName || "Unknown",
+          record.scannerRole || "",
+          record.notes || ""
+        ])
+      ].map(row => row.join(",")).join("\n");
+
+      const blob = new Blob([csvContent], { type: "text/csv" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `attendance-${selectedEvent.eventname.replace(/\s+/g, "-")}-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      // Update audit log to completed
+      await fetch('/api/audit-logs', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'export_attendance',
+          status: 'completed',
+          details: {
+            eventId: selectedEvent._id,
+            eventName: selectedEvent.eventname,
+            recordCount: attendanceRecords.length,
+            eventDate: selectedEvent.eventdate
+          }
+        }),
+      });
+
+    } catch (error) {
+      console.error('Export failed:', error);
+      setError('Failed to export attendance data');
+      
+      // Update audit log to failed
+      await fetch('/api/audit-logs', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'export_attendance',
+          status: 'failed',
+          errorMessage: error instanceof Error ? error.message : 'Unknown error',
+          details: {
+            eventId: selectedEvent._id,
+            eventName: selectedEvent.eventname
+          }
+        }),
+      });
+    } finally {
+      setExporting(false);
+    }
   };
 
   if (status === "loading" || loading) {
@@ -377,7 +477,9 @@ export default function AttendanceDashboard() {
   }
 
   return (
-    <div className="max-w-lg min-h-screen bg-gray-50">
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      
+    <div className="bg-gray-50">
       {/* Mobile Header */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="px-4 py-3">
@@ -625,49 +727,7 @@ export default function AttendanceDashboard() {
         </div>
       )}
 
-      {/* Mobile Attendance Records */}
-      {selectedEvent && attendanceRecords.length > 0 && (
-        <div className="px-4 py-3 bg-white">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-sm text-gray-900">
-              Recent Check-ins ({attendanceRecords.length})
-            </h3>
-            {attendanceRecords.length > 0 && (
-              <Button
-                onClick={exportAttendance}
-                variant="outline"
-                size="sm"
-                className="text-xs h-6"
-              >
-                <Download className="w-3 h-3 mr-1" />
-                Export
-              </Button>
-            )}
-          </div>
-          
-          <div className="space-y-2 max-h-64 overflow-y-auto">
-            {attendanceRecords.slice(0, 10).map((record) => (
-              <div key={record._id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
-                <div className="flex-1">
-                  <div className="font-medium text-sm text-gray-900">{record.memberName}</div>
-                  <div className="text-xs text-gray-500">
-                    {new Date(record.checkInTime).toLocaleTimeString()}
-                  </div>
-                </div>
-                <CheckCircle className="w-4 h-4 text-green-600" />
-              </div>
-            ))}
-          </div>
-          
-          {attendanceRecords.length > 10 && (
-            <div className="text-center mt-2">
-              <p className="text-xs text-gray-500">
-                Showing 10 of {attendanceRecords.length} check-ins
-              </p>
-            </div>
-          )}
-        </div>
-      )}
+  
 
       {/* Empty State */}
       {selectedEvent && attendanceRecords.length === 0 && (
@@ -694,5 +754,95 @@ export default function AttendanceDashboard() {
         className="hidden"
       />
     </div>
+ 
+      
+      <div>
+       {/* Mobile Attendance Records */}
+      {selectedEvent && attendanceRecords.length > 0 && (
+        <div className="px-4 py-3 bg-brand_primary/20 text-white">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-sm text-gray-800">
+              Recent Check-ins ({attendanceRecords.length})
+            </h3>
+            {attendanceRecords.length > 0 && (
+              <Button
+                onClick={exportAttendance}
+                disabled={exporting}
+                variant="outline"
+                size="sm"
+                className="text-xs h-6"
+              >
+                {exporting ? (
+                  <Loader2 className="text-gray-700 w-3 h-3 mr-1 animate-spin" />
+                ) : (
+                  <Download className="text-gray-700 w-3 h-3 mr-1" />
+                )}
+                <p className="text-gray-700">{exporting ? "Exporting..." : "Export"}</p>
+              </Button>
+            )}
+          </div>
+          
+          <div className="space-y-2 overflow-y-auto">
+            {attendanceRecords.slice(0, 10).map((record) => (
+              <div key={record._id} className="flex items-center justify-between p-2 bg-white rounded-lg">
+                <div className="flex-1">
+                  <div className="font-medium text-sm text-gray-900">{record.memberName}</div>
+                  <div className="text-xs text-gray-500">
+                    {new Date(record.checkInTime).toLocaleTimeString()}
+                    {record.scannerName && (
+                      <span className="ml-2 text-blue-600">
+                        • Checked in by {record.scannerName}
+                        {record.scannerRole && ` (${record.scannerRole})`}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <CheckCircle className="w-4 h-4 text-green-600" />
+              </div>
+            ))}
+          </div>
+          
+          {attendanceRecords.length > 10 && (
+            <div className="text-center mt-2">
+              <p className="text-xs text-gray-500">
+                Showing 10 of {attendanceRecords.length} check-ins
+              </p>
+            </div>
+          )}
+        </div>
+      )}      
+
+      {/* Export Confirmation Modal */}
+      <AlertDialog open={showExportModal} onOpenChange={setShowExportModal}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Export Attendance Data</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to export the attendance data for "{selectedEvent?.eventname}"?
+              <br /><br />
+              This will export {attendanceRecords.length} attendance records and this action will be logged in the audit system.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={exporting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmExport}
+              disabled={exporting}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {exporting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Exporting...
+                </>
+              ) : (
+                "Export Data"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      </div>
+  </div>
   );
 }

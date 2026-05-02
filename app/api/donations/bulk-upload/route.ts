@@ -1,10 +1,24 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import connectDB from "@/lib/mongodb";
 import Donation from "@/models/Donation.Model";
+import AuditLog from "@/models/AuditLog.Model";
 
 export async function POST(request: Request) {
+  let auditLog = null;
+  
   try {
     await connectDB();
+
+    // Check authentication and admin role
+    const session = await getServerSession(authOptions);
+    if (!session?.user || session.user.role !== 'admin') {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized. Admin access required." },
+        { status: 401 }
+      );
+    }
 
     const formData = await request.formData();
     const file = formData.get('file') as File;
@@ -16,11 +30,42 @@ export async function POST(request: Request) {
       );
     }
 
+    // Create initial audit log entry
+    const userAgent = request.headers.get('user-agent') || 'Unknown';
+    const ipAddress = request.headers.get('x-forwarded-for') || 
+                     request.headers.get('x-real-ip') || 
+                     'Unknown';
+
+    auditLog = new AuditLog({
+      action: 'bulk_upload_donations',
+      user: {
+        id: session.user.id,
+        name: session.user.fullName,
+        email: session.user.email,
+        role: session.user.role
+      },
+      details: {
+        fileName: file.name,
+        fileSize: file.size
+      },
+      ipAddress,
+      userAgent,
+      status: 'initiated'
+    });
+
+    await auditLog.save();
+
     // Read and parse CSV file
     const text = await file.text();
     const lines = text.split('\n').filter(line => line.trim());
     
     if (lines.length < 1) {
+      // Update audit log for empty file error
+      await AuditLog.findByIdAndUpdate(auditLog._id, {
+        status: 'failed',
+        errorMessage: 'CSV file is empty or invalid'
+      });
+
       return NextResponse.json(
         { success: false, error: "CSV file is empty or invalid" },
         { status: 400 }
@@ -54,6 +99,12 @@ export async function POST(request: Request) {
       );
       
       if (missingHeaders.length > 0) {
+        // Update audit log for missing headers error
+        await AuditLog.findByIdAndUpdate(auditLog._id, {
+          status: 'failed',
+          errorMessage: `Missing required columns: ${missingHeaders.join(', ')}`
+        });
+
         return NextResponse.json(
           { 
             success: false, 
@@ -142,13 +193,25 @@ export async function POST(request: Request) {
       }
     }
 
-    if (errors.length > 0) {
+    // Handle validation errors - allow partial success if there are valid rows
+    if (errors.length > 0 && donations.length === 0) {
+      // All rows failed validation
+      await AuditLog.findByIdAndUpdate(auditLog._id, {
+        status: 'failed',
+        errorMessage: `All rows failed validation: ${errors.length} errors`,
+        'details.totalRows': dataRows.length,
+        'details.validRows': 0,
+        'details.insertedRows': 0,
+        'details.skippedRows': errors.length,
+        'details.validationErrors': errors
+      });
+
       return NextResponse.json({
         success: false,
-        error: "Validation errors found",
+        error: "All rows failed validation",
         validationErrors: errors,
         totalRows: dataRows.length,
-        validRows: donations.length,
+        validRows: 0,
         errorRows: errors.length
       }, { status: 400 });
     }
@@ -156,17 +219,64 @@ export async function POST(request: Request) {
     // Insert valid donations into database
     const insertedDonations = await Donation.insertMany(donations);
 
+    // Determine status based on results
+    let uploadStatus: string;
+    let message: string;
+    let errorMessage: string | undefined;
+
+    if (insertedDonations.length === 0 && errors.length > 0) {
+      // All rows failed
+      uploadStatus = 'failed';
+      message = `All ${errors.length} rows failed to upload`;
+      errorMessage = `All ${errors.length} rows had validation errors`;
+    } else if (errors.length > 0) {
+      // Some rows succeeded, some failed
+      uploadStatus = 'partial_success';
+      message = `Partially uploaded: ${insertedDonations.length} successful, ${errors.length} failed`;
+      errorMessage = `${errors.length} rows had validation errors`;
+    } else {
+      // All rows succeeded
+      uploadStatus = 'completed';
+      message = `Successfully uploaded ${insertedDonations.length} donations`;
+      errorMessage = undefined;
+    }
+
+    // Update audit log with results
+    await AuditLog.findByIdAndUpdate(auditLog._id, {
+      status: uploadStatus,
+      errorMessage,
+      'details.totalRows': dataRows.length,
+      'details.validRows': donations.length,
+      'details.insertedRows': insertedDonations.length,
+      'details.skippedRows': errors.length,
+      ...(errors.length > 0 && { 'details.validationErrors': errors })
+    });
+
     return NextResponse.json({
       success: true,
-      message: `Successfully uploaded ${donations.length} donations`,
+      message,
       totalRows: dataRows.length,
       validRows: donations.length,
       insertedRows: insertedDonations.length,
-      skippedRows: errors.length
+      skippedRows: errors.length,
+      validationErrors: errors.length > 0 ? errors : undefined
     });
 
   } catch (error) {
     console.error("Bulk upload donations error:", error);
+    
+    // Update audit log with error details if audit log exists
+    try {
+      if (auditLog && auditLog._id) {
+        await AuditLog.findByIdAndUpdate(auditLog._id, {
+          status: 'failed',
+          errorMessage: error instanceof Error ? error.message : "Unknown error"
+        });
+      }
+    } catch (auditError) {
+      console.error("Failed to update audit log:", auditError);
+    }
+    
     return NextResponse.json(
       { 
         success: false, 

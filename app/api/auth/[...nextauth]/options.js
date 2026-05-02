@@ -153,7 +153,7 @@ export const authOptions = {
 		async session({ session, token }) {
 			if (token) {
 				session.user = {
-					_id: token._id,
+					id: token._id,
 					email: token.email,
 					isVerified: token.isVerified,
 					isAcceptingMessages: token.isAcceptingMessages,

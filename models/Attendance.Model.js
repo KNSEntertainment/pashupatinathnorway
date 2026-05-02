@@ -9,6 +9,8 @@ const AttendanceSchema = new mongoose.Schema({
   checkInTime: { type: Date, default: Date.now },
   checkOutTime: { type: Date },
   markedBy: { type: String, required: true }, // User ID who marked attendance
+  scannerName: { type: String }, // Name of the person who scanned (for display)
+  scannerRole: { type: String }, // Role of the scanner (admin, volunteer, etc.)
   notes: { type: String },
   createdAt: { type: Date, default: Date.now }
 });

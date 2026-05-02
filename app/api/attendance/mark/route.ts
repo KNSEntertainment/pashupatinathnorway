@@ -6,7 +6,7 @@ import Attendance from '@/models/Attendance.Model';
 
 export async function POST(request: NextRequest) {
   try {
-    const { personalNumber, eventId, markedBy, notes } = await request.json();
+    const { personalNumber, eventId, markedBy, notes, scannerName, scannerRole } = await request.json();
 
     if (!personalNumber || !eventId || !markedBy) {
       return NextResponse.json(
@@ -102,6 +102,8 @@ export async function POST(request: NextRequest) {
       memberName: `${member.firstName} ${member.middleName || ''} ${member.lastName}`.trim(),
       memberEmail: member.email,
       markedBy: markedBy,
+      scannerName: scannerName,
+      scannerRole: scannerRole,
       notes: notes || ''
     });
 

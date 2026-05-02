@@ -1,8 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import Membership from '@/models/Membership.Model';
+import AuditLog from '@/models/AuditLog.Model';
+import connectDB from '@/lib/mongodb';
 
 export async function POST(request: NextRequest) {
+  let auditLog = null;
+  
   try {
+    await connectDB();
+
+    // Check authentication and admin role
+    const session = await getServerSession(authOptions);
+    if (!session?.user || session.user.role !== 'admin') {
+      return NextResponse.json(
+        { error: "Unauthorized. Admin access required." },
+        { status: 401 }
+      );
+    }
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
 
@@ -21,11 +38,42 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Create initial audit log entry
+    const userAgent = request.headers.get('user-agent') || 'Unknown';
+    const ipAddress = request.headers.get('x-forwarded-for') || 
+                     request.headers.get('x-real-ip') || 
+                     'Unknown';
+
+    auditLog = new AuditLog({
+      action: 'crosscheck_personal_numbers',
+      user: {
+        id: session.user.id,
+        name: session.user.fullName,
+        email: session.user.email,
+        role: session.user.role
+      },
+      details: {
+        fileName: file.name,
+        fileSize: file.size
+      },
+      ipAddress,
+      userAgent,
+      status: 'initiated'
+    });
+
+    await auditLog.save();
+
     // Read and parse CSV file
     const text = await file.text();
     const lines = text.split('\n').filter(line => line.trim());
     
     if (lines.length < 2) {
+      // Update audit log for empty file error
+      await AuditLog.findByIdAndUpdate(auditLog._id, {
+        status: 'failed',
+        errorMessage: 'CSV file must contain headers and at least one data row'
+      });
+
       return NextResponse.json(
         { error: 'CSV file must contain headers and at least one data row' },
         { status: 400 }
@@ -44,6 +92,12 @@ export async function POST(request: NextRequest) {
     );
 
     if (!personalNumberColumn) {
+      // Update audit log for missing column error
+      await AuditLog.findByIdAndUpdate(auditLog._id, {
+        status: 'failed',
+        errorMessage: 'CSV file must contain a personal number column'
+      });
+
       return NextResponse.json(
         { error: 'CSV file must contain a personal number column (headers like: personalNumber, personal number, personnummer, fødselsnummer)' },
         { status: 400 }
@@ -68,6 +122,12 @@ export async function POST(request: NextRequest) {
     }
 
     if (verifiedPersonalNumbers.size === 0) {
+      // Update audit log for no valid personal numbers error
+      await AuditLog.findByIdAndUpdate(auditLog._id, {
+        status: 'failed',
+        errorMessage: 'No valid personal numbers (11 digits) found in the verification file'
+      });
+
       return NextResponse.json(
         { error: 'No valid personal numbers (11 digits) found in the verification file' },
         { status: 400 }
@@ -80,6 +140,12 @@ export async function POST(request: NextRequest) {
     }).select('firstName lastName personalNumber email');
 
     if (allGeneralMembers.length === 0) {
+      // Update audit log for no members error
+      await AuditLog.findByIdAndUpdate(auditLog._id, {
+        status: 'failed',
+        errorMessage: 'No General members found in the database'
+      });
+
       return NextResponse.json(
         { error: 'No General members found in the database' },
         { status: 404 }
@@ -124,6 +190,18 @@ export async function POST(request: NextRequest) {
       unverifiedList
     };
 
+    // Update audit log with successful results
+    await AuditLog.findByIdAndUpdate(auditLog._id, {
+      status: 'completed',
+      'details.totalRows': allGeneralMembers.length,
+      'details.validRows': verifiedList.length,
+      'details.insertedRows': verifiedList.length,
+      'details.skippedRows': unverifiedList.length,
+      'details.verifiedCount': verifiedList.length,
+      'details.unverifiedCount': unverifiedList.length,
+      'details.verificationFileRows': dataRows.length
+    });
+
     return NextResponse.json({
       success: true,
       results,
@@ -132,6 +210,19 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Verification crosscheck error:', error);
+    
+    // Update audit log with error details if audit log exists
+    try {
+      if (auditLog && auditLog._id) {
+        await AuditLog.findByIdAndUpdate(auditLog._id, {
+          status: 'failed',
+          errorMessage: error instanceof Error ? error.message : "Unknown error"
+        });
+      }
+    } catch (auditError) {
+      console.error("Failed to update audit log:", auditError);
+    }
+    
     return NextResponse.json(
       { error: 'Internal server error during verification crosscheck' },
       { status: 500 }

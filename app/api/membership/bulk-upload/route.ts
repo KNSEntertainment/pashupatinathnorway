@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import Membership from '@/models/Membership.Model';
+import AuditLog from '@/models/AuditLog.Model';
 import connectDB from '@/lib/mongodb';
 
 interface FamilyMemberData {
@@ -39,8 +42,19 @@ interface ProcessedMember {
 }
 
 export async function POST(request: NextRequest) {
+  let auditLog = null;
+  
   try {
     await connectDB();
+
+    // Check authentication and admin role
+    const session = await getServerSession(authOptions);
+    if (!session?.user || session.user.role !== 'admin') {
+      return NextResponse.json(
+        { error: "Unauthorized. Admin access required." },
+        { status: 401 }
+      );
+    }
     
     const formData = await request.formData();
     const file = formData.get('file') as File;
@@ -59,11 +73,42 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Create initial audit log entry
+    const userAgent = request.headers.get('user-agent') || 'Unknown';
+    const ipAddress = request.headers.get('x-forwarded-for') || 
+                     request.headers.get('x-real-ip') || 
+                     'Unknown';
+
+    auditLog = new AuditLog({
+      action: 'bulk_upload_memberships',
+      user: {
+        id: session.user.id,
+        name: session.user.fullName,
+        email: session.user.email,
+        role: session.user.role
+      },
+      details: {
+        fileName: file.name,
+        fileSize: file.size
+      },
+      ipAddress,
+      userAgent,
+      status: 'initiated'
+    });
+
+    await auditLog.save();
+
     // Read CSV content
     const csvText = await file.text();
     const lines = csvText.split('\n').filter(line => line.trim());
     
     if (lines.length < 2) {
+      // Update audit log for empty file error
+      await AuditLog.findByIdAndUpdate(auditLog._id, {
+        status: 'failed',
+        errorMessage: 'CSV file must contain headers and at least one data row'
+      });
+
       return NextResponse.json(
         { error: 'CSV file must contain headers and at least one data row' },
         { status: 400 }
@@ -241,6 +286,37 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Update audit log with final results
+    let uploadStatus: string;
+    let errorMessage: string | undefined;
+
+    if (results.success === 0 && results.failed > 0) {
+      // All rows failed
+      uploadStatus = 'failed';
+      errorMessage = `${results.failed} members failed to process`;
+    } else if (results.failed > 0) {
+      // Some rows succeeded, some failed
+      uploadStatus = 'partial_success';
+      errorMessage = `${results.failed} members failed to process`;
+    } else {
+      // All rows succeeded
+      uploadStatus = 'completed';
+      errorMessage = undefined;
+    }
+
+    await AuditLog.findByIdAndUpdate(auditLog._id, {
+      status: uploadStatus,
+      errorMessage,
+      'details.totalRows': dataRows.length,
+      'details.validRows': results.success,
+      'details.insertedRows': results.success,
+      'details.skippedRows': results.failed,
+      'details.validationErrors': results.errors.map((error, index) => ({
+        row: index + 2, // +2 because of header and 1-based indexing
+        errors: [error]
+      }))
+    });
+
     return NextResponse.json({
       message: `Bulk upload completed. Success: ${results.success}, Failed: ${results.failed}`,
       results
@@ -248,6 +324,19 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Bulk upload error:', error);
+    
+    // Update audit log with error details if audit log exists
+    try {
+      if (auditLog && auditLog._id) {
+        await AuditLog.findByIdAndUpdate(auditLog._id, {
+          status: 'failed',
+          errorMessage: error instanceof Error ? error.message : "Unknown error"
+        });
+      }
+    } catch (auditError) {
+      console.error("Failed to update audit log:", auditError);
+    }
+    
     return NextResponse.json(
       { error: 'Internal server error during bulk upload' },
       { status: 500 }

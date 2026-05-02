@@ -118,7 +118,7 @@ export async function POST(
 ) {
   try {
     const { membershipNumber } = await context.params;
-    const { eventId, markedBy, notes } = await request.json();
+    const { eventId, markedBy, notes, scannerName, scannerRole } = await request.json();
 
     if (!membershipNumber) {
       return NextResponse.json(
@@ -226,6 +226,8 @@ export async function POST(
       memberName: `${member.firstName} ${member.middleName || ''} ${member.lastName}`.trim(),
       memberEmail: member.email,
       markedBy: markedBy,
+      scannerName: scannerName,
+      scannerRole: scannerRole,
       notes: notes || ''
     });
 

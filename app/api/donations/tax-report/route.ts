@@ -1,11 +1,25 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import connectDB from "@/lib/mongodb";
 import Donation from "@/models/Donation.Model";
 import Membership from "@/models/Membership.Model";
+import AuditLog from '@/models/AuditLog.Model';
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+	let auditLog = null;
+	
 	try {
 		await connectDB();
+
+		// Check authentication and admin role
+		const session = await getServerSession(authOptions);
+		if (!session?.user || session.user.role !== 'admin') {
+			return NextResponse.json(
+				{ error: "Unauthorized. Admin access required." },
+				{ status: 401 }
+			);
+		}
 
 		const { personalNumber, year } = await request.json();
 
@@ -19,6 +33,31 @@ export async function POST(request: Request) {
 		if (!reportYear || reportYear < 2000 || reportYear > new Date().getFullYear() + 1) {
 			return NextResponse.json({ error: "Invalid year provided" }, { status: 400 });
 		}
+
+		// Create initial audit log entry
+		const userAgent = request.headers.get('user-agent') || 'Unknown';
+		const ipAddress = request.headers.get('x-forwarded-for') || 
+		                 request.headers.get('x-real-ip') || 
+		                 'Unknown';
+
+		auditLog = new AuditLog({
+			action: 'generate_tax_document',
+			user: {
+				id: session.user.id,
+				name: session.user.fullName,
+				email: session.user.email,
+				role: session.user.role
+			},
+			details: {
+				personalNumber: personalNumber.replace(/(\d{6})(\d{5})/, '$1*****'), // Mask for privacy
+				year: reportYear
+			},
+			ipAddress,
+			userAgent,
+			status: 'initiated'
+		});
+
+		await auditLog.save();
 
 		// First check if there are any donations with this personal number
 		console.log("Tax Report Debug: Searching for personalNumber:", personalNumber);
@@ -37,6 +76,12 @@ export async function POST(request: Request) {
 		console.log("Tax Report Debug: Donations found:", donations.length);
 		
 		if (donations.length === 0) {
+			// Update audit log for no donations found
+			await AuditLog.findByIdAndUpdate(auditLog._id, {
+				status: 'failed',
+				errorMessage: 'No completed donations found for this personal number in the specified year'
+			});
+
 			return NextResponse.json({ 
 				error: "No completed donations found for this personal number in the specified year",
 				debug: {
@@ -101,6 +146,17 @@ export async function POST(request: Request) {
 			}
 		};
 
+		// Update audit log with successful results
+		const updateData = {
+			status: 'completed',
+			'details.memberName': memberInfo.name,
+			'details.totalDonated': totalDonated,
+			'details.donationCount': donationCount,
+			'details.membershipStatus': memberInfo.membershipStatus
+		};
+		
+		await AuditLog.findByIdAndUpdate(auditLog._id, updateData);
+
 		return NextResponse.json({
 			success: true,
 			taxReport
@@ -108,6 +164,19 @@ export async function POST(request: Request) {
 
 	} catch (error) {
 		console.error("Error generating tax report:", error);
+		
+		// Update audit log with error details if audit log exists
+		try {
+			if (auditLog && auditLog._id) {
+				await AuditLog.findByIdAndUpdate(auditLog._id, {
+					status: 'failed',
+					errorMessage: error instanceof Error ? error.message : "Unknown error"
+				});
+			}
+		} catch (auditError) {
+			console.error("Failed to update audit log:", auditError);
+		}
+		
 		return NextResponse.json({ error: "Failed to generate tax report" }, { status: 500 });
 	}
 }

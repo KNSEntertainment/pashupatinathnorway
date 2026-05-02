@@ -5,7 +5,18 @@ import useFetchData from "@/hooks/useFetchData";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Eye, CheckCircle, XCircle, Clock, User, Mail, Phone, X, Edit, Download, Upload, ChevronLeft, ChevronRight } from "lucide-react";
+import { Trash2, Eye, CheckCircle, XCircle, Clock, User, Mail, Phone, X, Edit, Download, Upload, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { Membership } from "@/types";
@@ -323,97 +334,100 @@ export default function MembershipsPage() {
 		mutate();
 	};
 
-	const downloadExcel = () => {
-		// Prepare data for Excel
-		const excelData = filteredMemberships.map((member: Membership) => {
-			const age = calculateAgeFromPersonalNumber(member.personalNumber || '');
-			return {
-				'First Name': member.firstName,
-				'Middle Name': member.middleName || '',
-				'Last Name': member.lastName,
-				'Email': member.email,
-				'Phone': member.phone,
-				'Address': member.address,
-				'City': member.city,
-				'Postal Code': member.postalCode,
-				'Fylke':member.fylke,
-				'Kommune':member.kommune,
-				'Personal Number': member.personalNumber,
-				'Gender': member.gender || '',
-				'Membership Type': member.membershipType,
-				'Membership Status': member.membershipStatus,
-				'Age': age !== null ? `${age} years` : 'Unknown',
-				'Registration Date': formatDate(member.createdAt),
+	const downloadExcel = async () => {
+		try {
+			// Build query parameters
+			const params = new URLSearchParams();
+			if (search) params.append('search', search);
+			if (statusFilter) params.append('status', statusFilter);
+			if (typeFilter) params.append('type', typeFilter);
+
+			const response = await fetch(`/api/membership/download-excel?${params}`);
 			
-			};
-		});
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || 'Failed to download Excel file');
+			}
 
-		// Create workbook and worksheet
-		const ws = XLSX.utils.json_to_sheet(excelData);
-		const wb = XLSX.utils.book_new();
-		XLSX.utils.book_append_sheet(wb, ws, "Members");
+			// Get filename from response headers or create one
+			const contentDisposition = response.headers.get('content-disposition');
+			let filename = 'members.xlsx';
+			if (contentDisposition) {
+				const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+				if (filenameMatch) filename = filenameMatch[1];
+			}
 
-		// Generate filename with timestamp
-		const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-		const filename = `members_${timestamp}.xlsx`;
+			// Create blob and download
+			const blob = await response.blob();
+			const url = window.URL.createObjectURL(blob);
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = filename;
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			window.URL.revokeObjectURL(url);
 
-		// Download the file
-		XLSX.writeFile(wb, filename);
-
-		toast({
-			title: "Success",
-			description: `Excel file "${filename}" downloaded successfully`,
-		});
+			toast({
+				title: "Success",
+				description: `Excel file "${filename}" downloaded successfully`,
+			});
+		} catch (error) {
+			console.error('Download Excel error:', error);
+			toast({
+				title: "Error",
+				description: error instanceof Error ? error.message : "Failed to download Excel file",
+				variant: "destructive",
+			});
+		}
 	};
 
-	const downloadCSV = () => {
-		// Prepare data for CSV
-		const csvData = filteredMemberships.map((member: Membership) => {
-			const age = calculateAgeFromPersonalNumber(member.personalNumber || '');
-			return {
-				'First Name': member.firstName,
-				'Middle Name': member.middleName || '',
-				'Last Name': member.lastName,
-				'Email': member.email,
-				'Phone': member.phone,
-				'Address': member.address,
-				'City': member.city,
-				'Postal Code': member.postalCode,
-				'Fylke': member.fylke || '',
-				'Kommune': member.kommune || '',
-				'Personal Number': member.personalNumber,
-				'Gender': member.gender || '',
-				'Membership Type': member.membershipType,
-				'Membership Status': member.membershipStatus,
-				'Age': age !== null ? `${age} years` : 'Unknown',
-				'Registration Date': formatDate(member.createdAt),
+	const downloadCSV = async () => {
+		try {
+			// Build query parameters
+			const params = new URLSearchParams();
+			if (search) params.append('search', search);
+			if (statusFilter) params.append('status', statusFilter);
+			if (typeFilter) params.append('type', typeFilter);
+
+			const response = await fetch(`/api/membership/download-csv?${params}`);
 			
-			};
-		});
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || 'Failed to download CSV file');
+			}
 
-		// Convert to CSV string
-		const ws = XLSX.utils.json_to_sheet(csvData);
-		const csv = XLSX.utils.sheet_to_csv(ws);
+			// Get filename from response headers or create one
+			const contentDisposition = response.headers.get('content-disposition');
+			let filename = 'members.csv';
+			if (contentDisposition) {
+				const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+				if (filenameMatch) filename = filenameMatch[1];
+			}
 
-		// Generate filename with timestamp
-		const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-		const filename = `members_${timestamp}.csv`;
+			// Create blob and download
+			const blob = await response.blob();
+			const url = window.URL.createObjectURL(blob);
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = filename;
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			window.URL.revokeObjectURL(url);
 
-		// Create blob and download
-		const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-		const link = document.createElement('a');
-		const url = URL.createObjectURL(blob);
-		link.setAttribute('href', url);
-		link.setAttribute('download', filename);
-		link.style.visibility = 'hidden';
-		document.body.appendChild(link);
-		link.click();
-		document.body.removeChild(link);
-
-		toast({
-			title: "Success",
-			description: `CSV file "${filename}" downloaded successfully`,
-		});
+			toast({
+				title: "Success",
+				description: `CSV file "${filename}" downloaded successfully`,
+			});
+		} catch (error) {
+			console.error('Download CSV error:', error);
+			toast({
+				title: "Error",
+				description: error instanceof Error ? error.message : "Failed to download CSV file",
+				variant: "destructive",
+			});
+		}
 	};
 
 	const handlePageChange = (page: number) => {
@@ -512,14 +526,88 @@ export default function MembershipsPage() {
 					})()}
 				</div>
 				<div className="flex gap-3 items-center">
-					<Button size="sm" onClick={downloadExcel} className="flex items-center gap-2">
-						<Download className="w-4 h-4" />
-						Download Excel
-					</Button>
-					<Button size="sm" onClick={downloadCSV} variant="outline" className="flex items-center gap-2">
-						<Download className="w-4 h-4" />
-						Download CSV
-					</Button>
+					<AlertDialog>
+						<AlertDialogTrigger asChild>
+							<Button size="sm" className="flex items-center gap-2">
+								<Download className="w-4 h-4" />
+								Download Excel
+							</Button>
+						</AlertDialogTrigger>
+						<AlertDialogContent>
+							<AlertDialogHeader>
+								<AlertDialogTitle className="flex items-center gap-2">
+									<AlertTriangle className="w-5 h-5 text-orange-600" />
+									Confirm Download Excel
+								</AlertDialogTitle>
+								<AlertDialogDescription>
+									<div className="space-y-3">
+										<p>
+											You are about to download an Excel file containing {filteredMemberships.length} members.
+											{search && ` Search: "${search}"`}
+											{statusFilter && ` Status: ${statusFilter}`}
+											{typeFilter && ` Type: ${typeFilter}`}
+										</p>
+										<div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+											<p className="text-sm text-orange-800">
+												<strong>Important:</strong> This action will be recorded with your user information and timestamp. 
+												The system will log who performed this download and when it occurred.
+											</p>
+										</div>
+										<p className="text-sm text-gray-600">
+											Do you want to proceed with the download?
+										</p>
+									</div>
+								</AlertDialogDescription>
+							</AlertDialogHeader>
+							<AlertDialogFooter>
+								<AlertDialogCancel>Cancel</AlertDialogCancel>
+								<AlertDialogAction onClick={downloadExcel}>
+									Yes, Download Excel
+								</AlertDialogAction>
+							</AlertDialogFooter>
+						</AlertDialogContent>
+					</AlertDialog>
+					<AlertDialog>
+						<AlertDialogTrigger asChild>
+							<Button size="sm" variant="outline" className="flex items-center gap-2">
+								<Download className="w-4 h-4" />
+								Download CSV
+							</Button>
+						</AlertDialogTrigger>
+						<AlertDialogContent>
+							<AlertDialogHeader>
+								<AlertDialogTitle className="flex items-center gap-2">
+									<AlertTriangle className="w-5 h-5 text-orange-600" />
+									Confirm Download CSV
+								</AlertDialogTitle>
+								<AlertDialogDescription>
+									<div className="space-y-3">
+										<p>
+											You are about to download a CSV file containing {filteredMemberships.length} members.
+											{search && ` Search: "${search}"`}
+											{statusFilter && ` Status: ${statusFilter}`}
+											{typeFilter && ` Type: ${typeFilter}`}
+										</p>
+										<div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+											<p className="text-sm text-orange-800">
+												<strong>Important:</strong> This action will be recorded with your user information and timestamp. 
+												The system will log who performed this download and when it occurred.
+											</p>
+										</div>
+										<p className="text-sm text-gray-600">
+											Do you want to proceed with the download?
+										</p>
+									</div>
+								</AlertDialogDescription>
+							</AlertDialogHeader>
+							<AlertDialogFooter>
+								<AlertDialogCancel>Cancel</AlertDialogCancel>
+								<AlertDialogAction onClick={downloadCSV}>
+									Yes, Download CSV
+								</AlertDialogAction>
+							</AlertDialogFooter>
+						</AlertDialogContent>
+					</AlertDialog>
 					<Link href="/dashboard/bulk-upload">
 						<Button size="sm" variant="secondary" className="flex items-center gap-2">
 							<Upload className="w-4 h-4" />

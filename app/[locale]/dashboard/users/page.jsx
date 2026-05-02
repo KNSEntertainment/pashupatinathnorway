@@ -6,9 +6,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import RegisterForm from "@/components/RegisterForm";
+import EditUserForm from "@/components/EditUserForm";
 
 export default function UsersPage() {
 	const [openUserModal, setOpenUserModal] = useState(false);
+	const [openEditModal, setOpenEditModal] = useState(false);
+	const [selectedUser, setSelectedUser] = useState(null);
 	const [search, setSearch] = useState("");
 	const [roleFilter, setRoleFilter] = useState("");
 	const [currentPage, setCurrentPage] = useState(1);
@@ -40,6 +43,17 @@ export default function UsersPage() {
 	const handleCloseUserModal = () => {
 		setOpenUserModal(false);
 		mutate();
+	};
+
+	const handleCloseEditModal = () => {
+		setOpenEditModal(false);
+		setSelectedUser(null);
+		mutate();
+	};
+
+	const handleEditUser = (user) => {
+		setSelectedUser(user);
+		setOpenEditModal(true);
 	};
 
 	const filteredUsers = users.filter((user) => {
@@ -129,6 +143,14 @@ export default function UsersPage() {
 				</div>
 			</div>
 
+			{/* Edit User Modal */}
+			{openEditModal && selectedUser && (
+				<div className="bg-white p-6 rounded-lg shadow-lg mb-6 border-2 border-brand">
+					<h2 className="text-2xl font-bold text-gray-900 mb-4">Edit User</h2>
+					<EditUserForm user={selectedUser} handleCloseEditModal={handleCloseEditModal} fetchUsers={mutate} />
+				</div>
+			)}
+
 			{/* Inline Form Section */}
 			{openUserModal && (
 				<div className="bg-white p-6 rounded-lg shadow-lg mb-6 border-2 border-brand">
@@ -165,7 +187,7 @@ export default function UsersPage() {
 											<Button variant="ghost" size="icon" onClick={() => handleDelete(user._id)}>
 												<Trash2 className="w-6 h-6 text-red-600" />
 											</Button>
-											<Button variant="outline" size="sm" onClick={() => setEditUser(user)}>
+											<Button variant="outline" size="sm" onClick={() => handleEditUser(user)}>
 												Edit
 											</Button>
 										</div>
