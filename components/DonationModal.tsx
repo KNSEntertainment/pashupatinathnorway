@@ -17,9 +17,10 @@ interface DonationModalProps {
 		currentAmount: number;
 	};
 	onDonationSuccess?: () => void;
+	locale?: string;
 }
 
-export default function DonationModal({ isOpen, onClose, cause, onDonationSuccess }: DonationModalProps) {
+export default function DonationModal({ isOpen, onClose, cause, onDonationSuccess, locale }: DonationModalProps) {
 	const t = useTranslations("donation");
 
 	return (
@@ -49,6 +50,7 @@ export default function DonationModal({ isOpen, onClose, cause, onDonationSucces
 					preselectedCause={cause?._id} 
 					onDonationSuccess={onDonationSuccess}
 					isInModal={true}
+					locale={locale}
 				/>
 			</DialogContent>
 		</Dialog>

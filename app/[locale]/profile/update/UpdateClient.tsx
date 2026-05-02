@@ -129,6 +129,12 @@ export default function UpdateClient({ translations: t }: Props) {
  
     profilePhoto: "",
   });
+
+  // Debug: Log profileForm state changes
+  useEffect(() => {
+    console.log("=== PROFILE FORM STATE CHANGED ===");
+    console.log("Current profileForm:", profileForm);
+  }, [profileForm]);
   
   // Address autocomplete states
   const [addressSuggestions, setAddressSuggestions] = useState<AddressSuggestion[]>([]);
@@ -141,36 +147,46 @@ export default function UpdateClient({ translations: t }: Props) {
   const geoapifyKey = process.env.NEXT_PUBLIC_GEOAPIFY_KEY;
 
   useEffect(() => {
+    console.log("=== UPDATE PROFILE USEEFFECT RUNNING ===");
+    console.log("Status:", status);
+    console.log("Session:", session);
+    console.log("User email:", session?.user?.email);
+    
     if (status === "unauthenticated") {
+      console.log("User not authenticated, redirecting to login");
       router.push(`/${locale}/login`);
       return;
     }
 
     // Redirect admins to dashboard
     if (session?.user?.role === "admin") {
+      console.log("Admin user, redirecting to dashboard");
       router.push(`/${locale}/dashboard`);
       return;
     }
 
-    // Cleanup timeout on unmount
-    return () => {
-      if (emailValidationTimeout) {
-        clearTimeout(emailValidationTimeout);
-      }
-    };
-
     // Fetch membership data to check if user has temporary password and populate profile form
     const userEmail = session?.user?.email;
+    console.log("=== UPDATE PROFILE FETCHING DATA ===");
+    console.log("User email:", userEmail);
+    console.log("About to check if userEmail exists...");
     if (userEmail) {
+      console.log("User email exists, starting fetch...");
       fetch(`/api/membership?email=${encodeURIComponent(userEmail as string)}`)
         .then((res) => res.json())
         .then((data) => {
+          console.log("=== UPDATE PROFILE RECEIVED DATA ===");
+          console.log("Data:", data);
+          console.log("Is array:", Array.isArray(data));
+          console.log("Data length:", Array.isArray(data) ? data.length : "N/A");
+          
           if (Array.isArray(data) && data.length > 0) {
             const member = data[0];
+            console.log("Member data:", member);
             setMembershipData(member);
             
             // Populate profile form with existing data
-            setProfileForm({
+            const formData = {
               firstName: member.firstName || "",
               middleName: member.middleName || "",
               lastName: member.lastName || "",
@@ -183,7 +199,11 @@ export default function UpdateClient({ translations: t }: Props) {
               personalNumber: member.personalNumber || "",
  
               profilePhoto: member.profilePhoto || "",
-            });
+            };
+            
+            console.log("=== POPULATING FORM DATA ===");
+            console.log("Form data:", formData);
+            setProfileForm(formData);
             
             // Check if password was recently reset (within last 24 hours)
             const lastPasswordReset = member.passwordResetTokenExpiry;
@@ -199,7 +219,14 @@ export default function UpdateClient({ translations: t }: Props) {
         })
         .catch((error) => console.error("Error fetching membership data:", error));
     }
-  }, [status, session, router, locale, emailValidationTimeout]);
+
+    // Cleanup timeout on unmount
+    return () => {
+      if (emailValidationTimeout) {
+        clearTimeout(emailValidationTimeout);
+      }
+    };
+  }, [status, session?.user?.email, router, locale, emailValidationTimeout, session]);
 
   const validatePassword = (password: string) => {
     return password.length >= 8;
@@ -697,7 +724,7 @@ export default function UpdateClient({ translations: t }: Props) {
         )}
 
         {/* Personal Information Card */}
-        <Card className="shadow-lg border-0 mb-6">
+        <Card className="shadow-lg border-0 mb-6 bg-brand_primary/10">
           <CardHeader>
             <CardTitle className="flex items-center text-2xl">
               <User className="w-6 h-6 mr-2 text-blue-600" />
@@ -1099,7 +1126,7 @@ export default function UpdateClient({ translations: t }: Props) {
         </Card>
 
         {/* Change Password Card */}
-        <Card className="shadow-lg border-0">
+        <Card className="shadow-lg border-0 bg-brand_primary/10">
           <CardHeader>
             <CardTitle className="flex items-center text-2xl">
               <Lock className="w-6 h-6 mr-2 text-blue-600" />

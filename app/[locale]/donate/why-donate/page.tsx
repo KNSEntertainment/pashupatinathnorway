@@ -1,22 +1,16 @@
-import { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+"use client";
+
+import { useTranslations } from "next-intl";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Building, Heart, Users, Sparkles } from "lucide-react";
+import ActiveCauses from "@/components/ActiveCauses";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("donate");
-  
-  return {
-    title: t("why_donate_page_title") || "Why Donate - Pashupatinath Norway Temple",
-    description: t("why_donate_page_description") || "Learn why your donation matters and how it helps build Norway's first Nepali Hindu temple.",
-  };
-}
-
-export default async function WhyDonatePage({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params;
-  const t = await getTranslations("donate");
+export default function WhyDonatePage() {
+  const { locale } = useParams() as { locale: string };
+  const t = useTranslations("donate");
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -150,6 +144,8 @@ export default async function WhyDonatePage({ params }: { params: Promise<{ loca
           </CardContent>
         </Card>
       </div>
+
+      <ActiveCauses locale={locale} />
 
       {/* Call to Action */}
       <Card className="border-0 shadow-lg bg-gradient-to-r from-brand_primary to-brand_secondary text-white text-center">

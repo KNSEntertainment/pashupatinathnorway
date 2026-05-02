@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,7 +21,7 @@ function UnsubscribeContent() {
   const [showResubscribeSuccess, setShowResubscribeSuccess] = useState(false);
   const { toast } = useToast();
 
-  const checkSubscriptionStatus = async () => {
+  const checkSubscriptionStatus = useCallback(async () => {
     try {
       const response = await fetch(`/api/public/check-subscription?email=${encodeURIComponent(email || '')}`);
       if (response.ok) {
@@ -33,7 +33,7 @@ function UnsubscribeContent() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [email]);
 
   useEffect(() => {
     if (!email) {

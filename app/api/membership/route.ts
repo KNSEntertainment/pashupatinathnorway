@@ -25,9 +25,13 @@ export async function GET(req: NextRequest) {
 	}
 
 	if (personalNumber) {
-		// Check if personal number exists
+		// Check if personal number exists and return full membership data
 		const membership = await Membership.findOne({ personalNumber });
-		return NextResponse.json({ exists: !!membership });
+		if (membership) {
+			return NextResponse.json({ membership });
+		} else {
+			return NextResponse.json({ membership: null });
+		}
 	}
 
 	// Return all memberships if no filter

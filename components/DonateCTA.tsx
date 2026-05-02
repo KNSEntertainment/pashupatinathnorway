@@ -3,7 +3,6 @@ import { Copy, Banknote, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
-
 export default function DonateCTA() {
 	const { toast } = useToast();
 	const t = useTranslations("donate");
@@ -124,8 +123,6 @@ export default function DonateCTA() {
 							</div>
 						</div>
 					</div>
-
-				
 				</CardContent>
 			</Card>
 	);

@@ -13,6 +13,19 @@ const DonationSchema = new mongoose.Schema(
 		donorPhone: {
 			type: String,
 		},
+		personalNumber: {
+			type: String,
+			validate: {
+				validator: function(v) {
+					// Optional field, but if provided must be exactly 11 digits
+					return !v || /^\d{11}$/.test(v);
+				},
+				message: 'Personal number must be exactly 11 digits'
+			}
+		},
+		address: {
+			type: String,
+		},
 		amount: {
 			type: Number,
 			required: true,

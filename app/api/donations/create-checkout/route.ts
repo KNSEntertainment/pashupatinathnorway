@@ -11,7 +11,7 @@ export async function POST(request: Request) {
 	try {
 		await connectDB();
 
-		const { amount, donorName, donorEmail, donorPhone, message, isAnonymous, causeId, donationType } = await request.json();
+		const { amount, donorName, donorEmail, donorPhone, personalNumber, address, message, isAnonymous, causeId, donationType } = await request.json();
 
 		// Validate amount
 		if (!amount || amount < 50) {
@@ -28,6 +28,8 @@ export async function POST(request: Request) {
 			donorName: isAnonymous ? "Anonymous" : donorName,
 			donorEmail: isAnonymous ? "anonymous@rspnorway.org" : donorEmail,
 			donorPhone,
+			personalNumber: personalNumber || undefined,
+			address: address || undefined,
 			amount,
 			currency: "NOK",
 			message,

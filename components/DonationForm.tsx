@@ -10,6 +10,7 @@ import { useSession } from "next-auth/react";
 import { toast } from "react-hot-toast";
 import Image from "next/image";
 import { formatNOK } from "@/lib/norwegianCurrency";
+import AddressAutocomplete from "@/components/ui/address-autocomplete";
 
 const PRESET_AMOUNTS = [100, 250, 500, 1000, 2500, 5000, 10000, 20000];
 
@@ -17,9 +18,10 @@ interface DonationFormProps {
 	preselectedCause?: string;
 	onDonationSuccess?: () => void;
 	isInModal?: boolean;
+	locale?: string;
 }
 
-export default function DonationForm({ preselectedCause, onDonationSuccess, isInModal = false }: DonationFormProps) {
+export default function DonationForm({ preselectedCause, onDonationSuccess, isInModal = false, locale }: DonationFormProps) {
 	const t = useTranslations("donation");
 	const { data: session } = useSession();
 	const [amount, setAmount] = useState<number>(20000);
@@ -27,6 +29,8 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 	const [donorName, setDonorName] = useState(session?.user?.fullName || "");
 	const [donorEmail, setDonorEmail] = useState(session?.user?.email || "");
 	const [donorPhone, setDonorPhone] = useState("");
+	const [personalNumber, setPersonalNumber] = useState("");
+	const [address, setAddress] = useState("");
 	const [message, setMessage] = useState("");
 	const [isAnonymous, setIsAnonymous] = useState(false);
 	const [loading, setLoading] = useState(false);
@@ -37,17 +41,51 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 
 	useEffect(() => {
 		fetchCauses();
+		fetchUserData();
 		if (preselectedCause) {
 			setSelectedCause(preselectedCause);
 		}
-	}, [preselectedCause]);
+	}, [preselectedCause, session?.user?.email]);
+
+	const fetchUserData = async () => {
+		// Only fetch if user is logged in
+		if (!session?.user?.email) return;
+
+		try {
+			const response = await fetch(`/api/membership/current-user`);
+			if (response.ok) {
+				const data = await response.json();
+				if (data.membership) {
+					const membership = data.membership;
+					// Auto-fill phone and personal number from membership data
+					// Use personal number as the primary identifier
+					if (membership.phone && !donorPhone) {
+						setDonorPhone(membership.phone);
+					}
+					if (membership.personalNumber && !personalNumber) {
+						setPersonalNumber(membership.personalNumber);
+					}
+				}
+			}
+		} catch (error) {
+			console.error("Failed to fetch user membership data:", error);
+			// Don't show error to user as this is optional functionality
+		}
+	};
 
 	const fetchCauses = async () => {
 		try {
-			const response = await fetch("/api/causes?status=active&limit=10");
+			const localeParam = locale || 'en';
+			const response = await fetch(`/api/causes?status=active&limit=10&locale=${localeParam}`);
 			const data = await response.json();
 			if (response.ok) {
-				setCauses(data.causes || []);
+				const fetchedCauses = data.causes || [];
+				setCauses(fetchedCauses);
+				
+				// Auto-select first cause if no preselected cause and causes are available
+				if (!preselectedCause && fetchedCauses.length > 0 && !selectedCause) {
+					setSelectedCause(fetchedCauses[0]._id);
+				}
 			}
 		} catch (error) {
 			console.error("Failed to fetch causes:", error);
@@ -67,11 +105,23 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 		}
 	};
 
+	const handlePersonalNumberChange = (value: string) => {
+		// Only allow digits and limit to 11 characters
+		const cleanValue = value.replace(/\D/g, '').slice(0, 11);
+		setPersonalNumber(cleanValue);
+	};
+
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
 		if (amount < 50) {
 			toast.error("Minimum donation amount is 50 NOK");
+			return;
+		}
+
+		// Validate personal number if provided (optional for tax purposes)
+		if (personalNumber && personalNumber.length !== 11) {
+			toast.error("Personal number must be exactly 11 digits");
 			return;
 		}
 
@@ -91,6 +141,8 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 						donorName: isAnonymous ? "Anonymous" : donorName,
 						donorEmail: isAnonymous ? "anonymous@rspnorway.org" : donorEmail,
 						donorPhone,
+						personalNumber: personalNumber || undefined,
+						address: address || undefined,
 						message,
 						isAnonymous,
 						causeId: selectedCause && selectedCause !== "general" ? selectedCause : null,
@@ -114,6 +166,8 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 						setDonorName(session?.user?.fullName || "");
 						setDonorEmail(session?.user?.email || "");
 						setDonorPhone("");
+						setPersonalNumber("");
+						setAddress("");
 						setMessage("");
 						setIsAnonymous(false);
 						// Call success callback if provided
@@ -141,6 +195,8 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 					donorName: isAnonymous ? "Anonymous" : donorName,
 					donorEmail,
 					donorPhone,
+					personalNumber: personalNumber || undefined,
+					address: address || undefined,
 					message,
 					isAnonymous,
 					causeId: selectedCause || null,
@@ -196,7 +252,6 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 						<SelectValue placeholder={t("select_cause_placeholder") || "Select a cause or donate generally"} />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value="general">{t("general_donation") || "General Donation"}</SelectItem>
 						{causes.map((cause) => (
 							<SelectItem key={cause._id} value={cause._id}>
 								{cause.title} ({cause.category})
@@ -204,11 +259,7 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 						))}
 					</SelectContent>
 				</Select>
-				{selectedCause && selectedCause !== "general" && (
-					<p className="text-xs text-gray-500 mt-1">
-						{t("support_specific_cause") || "Your donation will support this specific cause"}
-					</p>
-				)}
+		
 			</div>
 
 			{/* Anonymous Donation */}
@@ -241,6 +292,33 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 					<div>
 						<label className="block text-sm font-medium text-gray-900 mb-2">{t("phone_optional") || "Phone (Optional)"}</label>
 						<input type="tel" value={donorPhone} onChange={(e) => setDonorPhone(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-brand focus:outline-none text-gray-900" placeholder={t("phone_placeholder") || "Enter your phone number"} />
+					</div>
+
+					<div>
+						<label className="block text-sm font-medium text-gray-900 mb-2">{t("personal_number") || "Personal Number (Optional)"}</label>
+						<input 
+							type="text" 
+							value={personalNumber} 
+							onChange={(e) => handlePersonalNumberChange(e.target.value)} 
+							maxLength={11}
+							className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-brand focus:outline-none text-gray-900" 
+							placeholder={t("personal_number_placeholder") || "Enter your 11-digit personal number"} 
+						/>
+						<p className="text-xs text-gray-500 mt-1">
+							{t("personal_number_help") || "Enter your 11-digit personal identification number if you would like to receive an annual donation summary for tax purposes."}
+						</p>
+					</div>
+
+					<div>
+						<AddressAutocomplete
+							value={address}
+							onChange={setAddress}
+							label={t("address") || "Address (Optional)"}
+							placeholder={t("address_placeholder") || "Enter your address for tax documentation"}
+						/>
+						<p className="text-xs text-gray-500 mt-1">
+							{t("address_help") || "Include street address, postal code, and city for complete tax documentation."}
+						</p>
 					</div>
 				</div>
 			)}
