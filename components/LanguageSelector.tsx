@@ -30,11 +30,11 @@ const LanguageSelector = () => {
 						onClick={() => handleLocaleChange(lang.code)}
 						aria-label={`Switch to ${lang.label}`}
 						className={`
-              flex items-center px-1 md:px-1.5 py-1 rounded
-              transition-all duration-200 text-gray-900 font-medium text-xs
+              flex items-center px-1 md:px-1.5 py-1
+              transition-all duration-200 text-gray-900 text-xs
               hover:scale-105 active:scale-95
               focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand/50
-              ${lang.code === locale ? "border-1 border-brand_secondary bg-brand_secondary/25 scale-105" : "hover:bg-brand_secondary/25"}
+              ${lang.code === locale ? "font-bold scale-105" : "hover:font-msemibold"}
             `}
 					>
 						<Flag country={lang.flag} size={14} />
