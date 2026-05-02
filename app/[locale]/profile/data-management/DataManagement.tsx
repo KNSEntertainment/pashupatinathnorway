@@ -26,7 +26,22 @@ export default function DataManagement() {
         	const [isDeleting, setIsDeleting] = useState(false);
             	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-                	useEffect(() => {
+        const checkSubscriptionStatus = useCallback(async () => {
+            try {
+                const response = await fetch('/api/user/unsubscribe', {
+                    method: 'GET',
+                });
+    
+                if (response.ok) {
+                    const data = await response.json();
+                    setIsSubscribed(data.isSubscribed);
+                }
+            } catch (error) {
+                console.error('Error checking subscription status:', error);
+            }
+        }, []);
+
+        useEffect(() => {
 		if (status === "unauthenticated") {
 			router.push("/en/login");
 			return;
@@ -66,7 +81,7 @@ export default function DataManagement() {
 		}, 5000); // 5 second timeout
 
 		return () => clearTimeout(loadingTimeout);
-	}, [status, session?.user?.email, router, session?.user?.role]); 
+	}, [status, session?.user?.email, router, session?.user?.role, checkSubscriptionStatus]); 
 
     const handleDeleteAccount = async () => {
         setIsDeleting(true);
@@ -218,21 +233,7 @@ export default function DataManagement() {
 		}
 	};
 
-            const checkSubscriptionStatus = useCallback(async () => {
-                try {
-                    const response = await fetch('/api/user/unsubscribe', {
-                        method: 'GET',
-                    });
-        
-                    if (response.ok) {
-                        const data = await response.json();
-                        setIsSubscribed(data.isSubscribed);
-                    }
-                } catch (error) {
-                    console.error('Error checking subscription status:', error);
-                }
-            }, []);
-    return (
+                return (
          <>
                     <Card className="mt-6 shadow-lg border-0">
                         <CardHeader>

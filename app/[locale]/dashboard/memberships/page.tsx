@@ -5,7 +5,7 @@ import useFetchData from "@/hooks/useFetchData";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Eye, CheckCircle, XCircle, Clock, User, Mail, Phone, X, Edit, Download, Upload } from "lucide-react";
+import { Trash2, Eye, CheckCircle, XCircle, Clock, User, Mail, Phone, X, Edit, Download, Upload, ChevronLeft, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { Membership } from "@/types";
@@ -531,6 +531,39 @@ export default function MembershipsPage() {
 
 			{/* Table */}
 			<div className="bg-white rounded-lg shadow overflow-x-auto">
+				{/* Pagination Controls - Top */}
+				{totalPages > 1 && (
+					<div className="flex items-center justify-between px-4 py-3 border-b">
+						<div className="text-sm text-gray-900">
+							Showing {(currentPage - 1) * MEMBERS_PER_PAGE + 1} to {Math.min(currentPage * MEMBERS_PER_PAGE, filteredMemberships.length)} of {filteredMemberships.length} members
+						</div>
+						<div className="flex items-center gap-2">
+							<Button variant="outline" size="sm" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+								<ChevronLeft className="w-4 h-4" />
+								Previous
+							</Button>
+							
+							<div className="flex items-center gap-1">
+								{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+									<Button
+										key={page}
+										variant={currentPage === page ? "default" : "outline"}
+										size="sm"
+										onClick={() => handlePageChange(page)}
+										className="w-8 h-8 p-0"
+									>
+										{page}
+									</Button>
+								))}
+							</div>
+							
+							<Button variant="outline" size="sm" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
+								Next
+								<ChevronRight className="w-4 h-4" />
+							</Button>
+						</div>
+					</div>
+				)}
 				<Table>
 					<TableHeader>
 						<TableRow>

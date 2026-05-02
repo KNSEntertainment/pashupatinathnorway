@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -46,7 +46,7 @@ export default function ActiveCauses({ locale, onSupportCause }: ActiveCausesPro
 		setSelectedCause(undefined);
 	};
 
-	const fetchCauses = async () => {
+	const fetchCauses = useCallback(async () => {
 		try {
 			const localeParam = locale || 'en';
 			const response = await fetch(`/api/causes?status=active&limit=10&locale=${localeParam}`);
@@ -59,7 +59,7 @@ export default function ActiveCauses({ locale, onSupportCause }: ActiveCausesPro
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [locale]);
 
 	useEffect(() => {
 		setIsMounted(true);

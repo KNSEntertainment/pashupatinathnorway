@@ -84,17 +84,32 @@ export default function DonationChart({ className = "" }: DonationChartProps) {
     const { width, height, padding } = getChartDimensions();
     const { xScale, yScale } = scales;
 
+    // Validate data and ensure all amounts are valid numbers
+    const validData = data.filter(point => !isNaN(point.amount) && point.amount >= 0);
+    if (validData.length === 0) return null;
+
     // Generate path for the line
-    const linePath = data
+    const linePath = validData
       .map((point, index) => {
         const x = padding.left + xScale(index);
         const y = padding.top + yScale(point.amount);
+        
+        // Ensure x and y are valid numbers
+        if (isNaN(x) || isNaN(y)) return '';
+        
         return `${index === 0 ? 'M' : 'L'} ${x} ${y}`;
       })
+      .filter(path => path) // Remove empty strings
       .join(' ');
 
     // Generate area path (filled area under the line)
-    const areaPath = `${linePath} L ${padding.left + xScale(data.length - 1)} ${padding.top + yScale(0)} L ${padding.left} ${padding.top + yScale(0)} Z`;
+    const lastX = padding.left + xScale(validData.length - 1);
+    const zeroY = padding.top + yScale(0);
+    
+    // Ensure area path values are valid
+    if (isNaN(lastX) || isNaN(zeroY)) return null;
+    
+    const areaPath = `${linePath} L ${lastX} ${zeroY} L ${padding.left} ${zeroY} Z`;
 
     return (
       <svg width={width} height={height} className="w-full h-auto">
@@ -117,8 +132,9 @@ export default function DonationChart({ className = "" }: DonationChartProps) {
           })}
           
           {/* Vertical grid lines */}
-          {data.map((_, index) => {
+          {validData.map((_, index) => {
             const x = padding.left + xScale(index);
+            if (isNaN(x)) return null;
             return (
               <line
                 key={`v-grid-${index}`}
@@ -151,9 +167,13 @@ export default function DonationChart({ className = "" }: DonationChartProps) {
         />
 
         {/* Data points */}
-        {data.map((point, index) => {
+        {validData.map((point, index) => {
           const x = padding.left + xScale(index);
           const y = padding.top + yScale(point.amount);
+          
+          // Ensure x and y are valid numbers
+          if (isNaN(x) || isNaN(y)) return null;
+          
           return (
             <circle
               key={index}
@@ -198,8 +218,12 @@ export default function DonationChart({ className = "" }: DonationChartProps) {
 
         {/* X-axis labels */}
         <g className="text-xs text-gray-600">
-          {data.map((point, index) => {
+          {validData.map((point, index) => {
             const x = padding.left + xScale(index);
+            
+            // Ensure x is a valid number
+            if (isNaN(x)) return null;
+            
             const label = period === 'yearly' 
               ? point.label 
               : period === 'monthly'
@@ -264,18 +288,18 @@ export default function DonationChart({ className = "" }: DonationChartProps) {
       
       <CardContent>
         {loading ? (
-          <div className="flex items-center justify-center h-80">
+          <div className="flex items-center justify-center h-96">
             <Loader2 className="w-8 h-8 animate-spin text-red-600" />
           </div>
         ) : error ? (
-          <div className="flex items-center justify-center h-80 text-red-600">
+          <div className="flex items-center justify-center h-96 text-red-600">
             <div className="text-center">
               <Calendar className="w-8 h-8 mx-auto mb-2" />
               <p>{error}</p>
             </div>
           </div>
         ) : data.length === 0 ? (
-          <div className="flex items-center justify-center h-80 text-gray-500">
+          <div className="flex items-center justify-center h-96 text-gray-500">
             <div className="text-center">
               <TrendingUp className="w-8 h-8 mx-auto mb-2" />
               <p>No donation data available</p>
@@ -286,7 +310,7 @@ export default function DonationChart({ className = "" }: DonationChartProps) {
             {renderChart()}
             
             {/* Summary stats */}
-            <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
               <div className="text-center">
                 <p className="text-gray-600">Total Periods</p>
                 <p className="font-semibold text-lg">{data.length}</p>

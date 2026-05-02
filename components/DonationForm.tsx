@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -39,15 +39,7 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 	const [selectedCause, setSelectedCause] = useState<string>("");
 	const [causes, setCauses] = useState<Array<{ _id: string; title: string; category: string }>>([]);
 
-	useEffect(() => {
-		fetchCauses();
-		fetchUserData();
-		if (preselectedCause) {
-			setSelectedCause(preselectedCause);
-		}
-	}, [preselectedCause, session?.user?.email]);
-
-	const fetchUserData = async () => {
+	const fetchUserData = useCallback(async () => {
 		// Only fetch if user is logged in
 		if (!session?.user?.email) return;
 
@@ -71,9 +63,9 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 			console.error("Failed to fetch user membership data:", error);
 			// Don't show error to user as this is optional functionality
 		}
-	};
+	}, [session?.user?.email, donorPhone, personalNumber]);
 
-	const fetchCauses = async () => {
+	const fetchCauses = useCallback(async () => {
 		try {
 			const localeParam = locale || 'en';
 			const response = await fetch(`/api/causes?status=active&limit=10&locale=${localeParam}`);
@@ -90,7 +82,15 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 		} catch (error) {
 			console.error("Failed to fetch causes:", error);
 		}
-	};
+	}, [locale, preselectedCause, selectedCause]);
+
+	useEffect(() => {
+		fetchCauses();
+		fetchUserData();
+		if (preselectedCause) {
+			setSelectedCause(preselectedCause);
+		}
+	}, [preselectedCause, session?.user?.email, fetchCauses, fetchUserData]);
 
 	const handlePresetClick = (presetAmount: number) => {
 		setAmount(presetAmount);

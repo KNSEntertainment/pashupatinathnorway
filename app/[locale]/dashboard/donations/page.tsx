@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { DollarSign, TrendingUp, Users, CheckCircle, Clock, XCircle, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { DollarSign, TrendingUp, Users, CheckCircle, Clock, XCircle, Search, Upload, ChevronLeft, ChevronRight } from "lucide-react";
 import { formatNOK } from "@/lib/norwegianCurrency";
 import DonationChart from "@/components/DonationChart";
 
@@ -23,9 +25,12 @@ interface Donation {
 }
 
 export default function DonationsManagement() {
+	const router = useRouter();
 	const [donations, setDonations] = useState<Donation[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [searchTerm, setSearchTerm] = useState("");
+	const [currentPage, setCurrentPage] = useState(1);
+	const itemsPerPage = 10;
 	const [stats, setStats] = useState({
 		total: 0,
 		completed: 0,
@@ -35,22 +40,23 @@ export default function DonationsManagement() {
 	
 
 	useEffect(() => {
-		fetchDonations();
-	}, []);
+		fetchDonations(currentPage, itemsPerPage);
+	}, [currentPage, itemsPerPage]);
 
-	const fetchDonations = async () => {
+	const fetchDonations = async (page: number = 1, limit: number = 10) => {
 		try {
-			const response = await fetch("/api/donations");
+			const response = await fetch(`/api/donations?page=${page}&limit=${limit}`);
 			const data = await response.json();
-			setDonations(data);
+			setDonations(data.donations || data);
 
-			// Calculate stats
-			const completed = data.filter((d: Donation) => d.paymentStatus === "completed");
-			const pending = data.filter((d: Donation) => d.paymentStatus === "pending");
+			// Calculate stats from all donations
+			const allDonations = data.donations || data;
+			const completed = allDonations.filter((d: Donation) => d.paymentStatus === "completed");
+			const pending = allDonations.filter((d: Donation) => d.paymentStatus === "pending");
 			const totalAmount = completed.reduce((sum: number, d: Donation) => sum + d.amount, 0);
 
 			setStats({
-				total: data.length,
+				total: allDonations.length,
 				completed: completed.length,
 				pending: pending.length,
 				totalAmount,
@@ -124,6 +130,17 @@ export default function DonationsManagement() {
 			address.includes(searchLower)
 		);
 	});
+
+	// Pagination logic
+	const totalPages = Math.ceil(filteredDonations.length / itemsPerPage);
+	const startIndex = (currentPage - 1) * itemsPerPage;
+	const endIndex = startIndex + itemsPerPage;
+	const paginatedDonations = filteredDonations.slice(startIndex, endIndex);
+
+	// Reset to page 1 when search term changes
+	useEffect(() => {
+		setCurrentPage(1);
+	}, [searchTerm]);
 
 
 	if (loading) {
@@ -211,19 +228,73 @@ export default function DonationsManagement() {
 							<Users className="w-5 h-5" />
 							Recent Donations
 						</CardTitle>
-						<div className="relative">
-							<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-							<Input
-								type="text"
-								placeholder="Search donations..."
-								value={searchTerm}
-								onChange={(e) => setSearchTerm(e.target.value)}
-								className="pl-10 w-full sm:w-64"
-							/>
+						<div className="flex flex-col sm:flex-row gap-4">
+							<div className="relative">
+								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+								<Input
+									type="text"
+									placeholder="Search donations..."
+									value={searchTerm}
+									onChange={(e) => setSearchTerm(e.target.value)}
+									className="pl-10 w-full sm:w-64"
+								/>
+							</div>
+							<Button
+								onClick={() => router.push('donations/bulk-upload')}
+								variant="outline"
+								size="sm"
+								className="whitespace-nowrap"
+							>
+								<Upload className="w-4 h-4 mr-1" />
+								Bulk Upload
+							</Button>
 						</div>
 					</div>
 				</CardHeader>
 				<CardContent>
+					{/* Pagination Controls - Top */}
+					{totalPages > 1 && (
+						<div className="flex items-center justify-between mb-4">
+							<div className="text-sm text-gray-600">
+								Showing {startIndex + 1} to {Math.min(endIndex, filteredDonations.length)} of {filteredDonations.length} donations
+							</div>
+							<div className="flex items-center gap-2">
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+									disabled={currentPage === 1}
+								>
+									<ChevronLeft className="w-4 h-4" />
+									Previous
+								</Button>
+								
+								<div className="flex items-center gap-1">
+									{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+										<Button
+											key={page}
+											variant={currentPage === page ? "default" : "outline"}
+											size="sm"
+											onClick={() => setCurrentPage(page)}
+											className="w-8 h-8 p-0"
+										>
+											{page}
+										</Button>
+									))}
+								</div>
+								
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+									disabled={currentPage === totalPages}
+								>
+									Next
+									<ChevronRight className="w-4 h-4" />
+								</Button>
+							</div>
+						</div>
+					)}
 					{searchTerm && (
 						<div className="mb-4 text-sm text-gray-600">
 							Found {filteredDonations.length} donation{filteredDonations.length !== 1 ? 's' : ''} matching &quot;{searchTerm}&quot;
@@ -242,14 +313,14 @@ export default function DonationsManagement() {
 								</tr>
 							</thead>
 							<tbody>
-								{filteredDonations.length === 0 ? (
+								{paginatedDonations.length === 0 ? (
 									<tr>
 										<td colSpan={7} className="text-center py-8 text-gray-500">
 											{searchTerm ? "No donations found matching your search" : "No donations yet"}
 										</td>
 									</tr>
 								) : (
-									filteredDonations.map((donation) => (
+									paginatedDonations.map((donation) => (
 										<tr key={donation._id} className="border-b border-gray-100 hover:bg-light transition-colors">
 											<td className="py-3 px-4">
 												<p className="font-medium text-gray-900">{donation.isAnonymous ? "Anonymous" : donation.donorName}</p>
@@ -270,6 +341,50 @@ export default function DonationsManagement() {
 							</tbody>
 						</table>
 					</div>
+					
+					{/* Pagination Controls */}
+					{totalPages > 1 && (
+						<div className="flex items-center justify-between mt-4">
+							<div className="text-sm text-gray-600">
+								Showing {startIndex + 1} to {Math.min(endIndex, filteredDonations.length)} of {filteredDonations.length} donations
+							</div>
+							<div className="flex items-center gap-2">
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+									disabled={currentPage === 1}
+								>
+									<ChevronLeft className="w-4 h-4" />
+									Previous
+								</Button>
+								
+								<div className="flex items-center gap-1">
+									{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+										<Button
+											key={page}
+											variant={currentPage === page ? "default" : "outline"}
+											size="sm"
+											onClick={() => setCurrentPage(page)}
+											className="w-8 h-8 p-0"
+										>
+											{page}
+										</Button>
+									))}
+								</div>
+								
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+									disabled={currentPage === totalPages}
+								>
+									Next
+									<ChevronRight className="w-4 h-4" />
+								</Button>
+							</div>
+						</div>
+					)}
 				</CardContent>
 			</Card>
 		</div>

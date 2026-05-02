@@ -42,8 +42,8 @@ function DashboardLayoutContent({ children }) {
 			}}
 		>
 			{/* Sidebar */}
-			<div className="hidden py-6 md:flex w-64 bg-brand_primary/20 flex-col shadow-lg">
-				<nav className="overflow-y-hidden no-scrollbar">
+			<div className="hidden md:flex w-64 bg-brand_primary/20 flex-col shadow-lg">
+				<nav className="py-6 overflow-y-auto max-h-screen">
 					{menuItems.map((item) => {
 						const Icon = item.icon;
 						const isActive = activeMenu === item.id;
@@ -65,7 +65,7 @@ function DashboardLayoutContent({ children }) {
 			</div>
 
 			{/* Content Area */}
-			<main className="bg-brand_primary/5 flex-1 p-6">{children}</main>
+			<main className="bg-brand_primary/5 flex-1 p-6 overflow-y-auto max-h-screen">{children}</main>
 			<Toaster />
 		</div>
 	);
