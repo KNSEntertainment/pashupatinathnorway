@@ -34,7 +34,7 @@ const LanguageSelector = () => {
               transition-all duration-200 text-gray-900 text-xs
               hover:scale-105 active:scale-95
               focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand/50
-              ${lang.code === locale ? "font-bold scale-105" : "hover:font-msemibold"}
+              ${lang.code === locale ? "font-bold scale-105" : "hover:font-medium"}
             `}
 					>
 						<Flag country={lang.flag} size={14} />
