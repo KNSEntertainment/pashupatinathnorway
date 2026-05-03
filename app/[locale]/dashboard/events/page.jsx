@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Calendar, MapPin, Clock } from "lucide-react";
 import Image from "next/image";
 import EventForm from "@/components/EventForm";
 import useFetchData from "@/hooks/useFetchData";
@@ -49,67 +49,122 @@ export default function EventsPage() {
 	};
 
 	return (
-		<div className="w-full max-w-full px-2 sm:px-6">
-			<div className="flex flex-col sm:flex-row sm:justify-between items-stretch gap-2 mb-4">
-				<h1 className="text-2xl font-bold">Manage Events</h1>
-				<button onClick={handleCreateEvent} className="bg-brand_primary text-gray-700 font-bold px-4 py-2 rounded w-full sm:w-auto text-center hover:bg-red-700 transition-colors">
+		<div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			{/* Header Section */}
+			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+				<div>
+					<h1 className="text-3xl font-light text-gray-900 tracking-tight">Events</h1>
+					<p className="text-sm text-gray-500 mt-1">Manage your temple events and activities</p>
+				</div>
+				<Button 
+					onClick={handleCreateEvent} 
+					className="bg-gray-900 text-white hover:bg-gray-800 transition-colors duration-200 shadow-sm"
+				>
 					{openEventModal ? "Cancel" : "Create Event"}
-				</button>
+				</Button>
 			</div>
 
-			{/* Inline Form Section */}
+			{/* Form Section */}
 			{openEventModal && (
-				<div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg mb-6 border-2 border-brand">
-					<h2 className="text-base sm:text-lg font-bold text-white bg-brand_primary p-2 sm:p-4 mb-4 text-center rounded">{eventToEdit ? "Edit Event" : "Create Event"}</h2>
+				<div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-8">
+					<div className="border-b border-gray-200 pb-4 mb-6">
+						<h2 className="text-lg font-medium text-gray-900">
+							{eventToEdit ? "Edit Event" : "Create New Event"}
+						</h2>
+					</div>
 					<EventForm handleCloseEventModal={handleCloseEventModal} eventToEdit={eventToEdit} />
 				</div>
 			)}
-			<div className="bg-white rounded-lg shadow overflow-x-auto">
-				<Table className="min-w-[700px]">
-					<TableHeader>
-						<TableRow>
-							<TableHead>Event Name</TableHead>
-							<TableHead>Event Description</TableHead>
-							<TableHead>Event Venue</TableHead>
-							<TableHead>Event Date</TableHead>
-							<TableHead>Event Time</TableHead>
-							<TableHead>Poster</TableHead>
-							<TableHead>Actions</TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{events.length > 0 ? (
-							events.map((event) => (
-								<TableRow key={event._id}>
-									<TableCell className="font-semibold max-w-40 truncate whitespace-normal break-words">{event.eventname}</TableCell>
-									<TableCell className="max-w-40 truncate whitespace-normal break-words">{event.eventdescription}</TableCell>
-									<TableCell>{event.eventvenue}</TableCell>
-									<TableCell className="w-24">{event.eventdate}</TableCell>
-									<TableCell className="w-28">{event.eventtime}</TableCell>
-									<TableCell>
-										<Image src={event.eventposterUrl || "/pashupatinath.png"} width={100} height={100} alt={event.eventname || "alt"} className="w-16 h-20 object-cover rounded" />
-									</TableCell>
-									<TableCell>
-										<div className="flex flex-col sm:flex-row gap-2">
-											<Button variant="ghost" size="icon" onClick={() => handleEdit(event)} className="w-8 h-8">
-												<Pencil className="w-5 h-5 text-brand_primary" />
-											</Button>
-											<Button variant="ghost" size="icon" onClick={() => handleDelete(event._id)} className="w-8 h-8">
-												<Trash2 className="w-5 h-5 text-red-600" />
-											</Button>
+
+			{/* Events Table */}
+			<div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+				<div className="overflow-x-auto">
+					<Table>
+						<TableHeader>
+							<TableRow className="border-b border-gray-100 bg-gray-50/50">
+								<TableHead className="font-medium text-gray-700 py-4 px-6">Event</TableHead>
+								<TableHead className="font-medium text-gray-700 py-4 px-6">Details</TableHead>
+								<TableHead className="font-medium text-gray-700 py-4 px-6 text-right">Actions</TableHead>
+							</TableRow>
+						</TableHeader>
+						<TableBody>
+							{events.length > 0 ? (
+								events.map((event) => (
+									<TableRow key={event._id} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
+										<TableCell className="py-4 px-6">
+											<div className="flex items-start gap-4">
+												<div className="relative">
+													<Image 
+														src={event.eventposterUrl || "/pashupatinath.png"} 
+														width={80} 
+														height={80} 
+														alt={event.eventname || "Event"} 
+														className="w-20 h-20 object-cover rounded-lg shadow-sm"
+													/>
+												</div>
+												<div className="flex-1 min-w-0">
+													<h3 className="font-medium text-gray-900 text-lg leading-tight mb-1">
+														{event.eventname}
+													</h3>
+													<div className="flex items-center gap-4 text-sm text-gray-500">
+														<div className="flex items-center gap-1">
+															<Calendar className="w-4 h-4" />
+															{event.eventdate}
+														</div>
+														<div className="flex items-center gap-1">
+															<Clock className="w-4 h-4" />
+															{event.eventtime}
+														</div>
+													</div>
+												</div>
+											</div>
+										</TableCell>
+										<TableCell className="py-4 px-6">
+											<div className="flex items-center gap-2 text-sm text-gray-600">
+												<MapPin className="w-4 h-4 text-gray-400" />
+												<span>{event.eventvenue}</span>
+											</div>
+										</TableCell>
+										<TableCell className="py-4 px-6">
+											<div className="flex items-center justify-end gap-2">
+												<Button 
+													variant="ghost" 
+													size="sm" 
+													onClick={() => handleEdit(event)}
+													className="h-8 px-3 text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+												>
+													<Pencil className="w-4 h-4 mr-1" />
+													Edit
+												</Button>
+												<Button 
+													variant="ghost" 
+													size="sm" 
+													onClick={() => handleDelete(event._id)}
+													className="h-8 px-3 text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
+												>
+													<Trash2 className="w-4 h-4 mr-1" />
+													Delete
+												</Button>
+											</div>
+										</TableCell>
+									</TableRow>
+								))
+							) : (
+								<TableRow>
+									<TableCell colSpan={3} className="text-center py-12">
+										<div className="text-center">
+											<div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+												<Calendar className="w-8 h-8 text-gray-400" />
+											</div>
+											<h3 className="text-lg font-medium text-gray-900 mb-1">No events found</h3>
+											<p className="text-sm text-gray-500">Get started by creating your first event</p>
 										</div>
 									</TableCell>
 								</TableRow>
-							))
-						) : (
-							<TableRow>
-								<TableCell colSpan={7} className="text-center">
-									No events found.
-								</TableCell>
-							</TableRow>
-						)}
-					</TableBody>
-				</Table>
+							)}
+						</TableBody>
+					</Table>
+				</div>
 			</div>
 		</div>
 	);

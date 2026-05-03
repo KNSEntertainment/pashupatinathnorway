@@ -60,7 +60,7 @@ export default function EventsPage() {
 												<Trash2 className="w-6 h-6 text-red-600" />
 											</Button>
 											<Button variant="ghost" size="icon" onClick={() => handleReplyEmail(message.email)}>
-												<MessageCircleReply className="w-6 h-6 text-brand_primary" />
+												<MessageCircleReply className="w-6 h-6 text-green-700" />
 											</Button>
 										</div>
 									</TableCell>
