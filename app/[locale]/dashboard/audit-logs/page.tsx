@@ -85,8 +85,8 @@ export default function AuditLogsManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState({
-    action: "",
-    status: "",
+    action: "all",
+    status: "all",
     startDate: "",
     endDate: ""
   });
@@ -111,8 +111,8 @@ export default function AuditLogsManagement() {
       });
 
       // Add filters to params
-      if (filters.action) params.append("action", filters.action);
-      if (filters.status) params.append("status", filters.status);
+      if (filters.action && filters.action !== "all") params.append("action", filters.action);
+      if (filters.status && filters.status !== "all") params.append("status", filters.status);
       if (filters.startDate) params.append("startDate", filters.startDate);
       if (filters.endDate) params.append("endDate", filters.endDate);
 
@@ -184,8 +184,8 @@ export default function AuditLogsManagement() {
 
   const resetFilters = () => {
     setFilters({
-      action: "",
-      status: "",
+      action: "all",
+      status: "all",
       startDate: "",
       endDate: ""
     });
@@ -256,7 +256,7 @@ export default function AuditLogsManagement() {
                       <SelectValue placeholder="All Actions" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Actions</SelectItem>
+                      <SelectItem value="all">All Actions</SelectItem>
                       <SelectItem value="bulk_upload_donations">Bulk Upload Donations</SelectItem>
                       <SelectItem value="bulk_upload_memberships">Bulk Upload Memberships</SelectItem>
                       <SelectItem value="crosscheck_personal_numbers">Crosscheck Personal Numbers</SelectItem>
@@ -276,7 +276,7 @@ export default function AuditLogsManagement() {
                       <SelectValue placeholder="All Statuses" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Statuses</SelectItem>
+                      <SelectItem value="all">All Statuses</SelectItem>
                       <SelectItem value="completed">Completed</SelectItem>
                       <SelectItem value="failed">Failed</SelectItem>
                       <SelectItem value="partial_success">Partial Success</SelectItem>

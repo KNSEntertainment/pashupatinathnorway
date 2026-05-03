@@ -47,10 +47,16 @@ export async function GET(request: Request) {
     if (startDate || endDate) {
       filter.timestamp = {};
       if (startDate) {
-        filter.timestamp.$gte = new Date(startDate);
+        // Set the start date to the beginning of the day (00:00:00)
+        const startDateTime = new Date(startDate);
+        startDateTime.setHours(0, 0, 0, 0);
+        filter.timestamp.$gte = startDateTime;
       }
       if (endDate) {
-        filter.timestamp.$lte = new Date(endDate);
+        // Set the end date to the end of the day (23:59:59)
+        const endDateTime = new Date(endDate);
+        endDateTime.setHours(23, 59, 59, 999);
+        filter.timestamp.$lte = endDateTime;
       }
     }
 
