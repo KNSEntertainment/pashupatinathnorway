@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Membership from "@/models/Membership.Model";
+import Subscriber from "@/models/Subscriber.Model";
 import { sendGeneralMemberWelcomeEmail } from "@/lib/email";
 
 interface FamilyMember {
@@ -10,6 +11,20 @@ interface FamilyMember {
 	personalNumber: string;
 	email: string;
 	phone?: string;
+}
+
+// Helper function to add subscriber if not already exists
+async function addSubscriberIfNotExists(email: string) {
+	try {
+		const existingSubscriber = await Subscriber.findOne({ subscriber: email });
+		if (!existingSubscriber) {
+			await Subscriber.create({ subscriber: email });
+			console.log(`New subscriber added: ${email}`);
+		}
+	} catch (error) {
+		console.error(`Error adding subscriber ${email}:`, error);
+		// Don't fail the membership creation if subscriber creation fails
+	}
 }
 
 export async function GET(req: NextRequest) {
@@ -63,6 +78,9 @@ export async function POST(req: NextRequest) {
 		};
 		const mainMembership = await Membership.create(mainMembershipData);
 		
+		// Add main applicant as subscriber
+		await addSubscriberIfNotExists(mainApplicantData.email);
+		
 		// Create separate membership records for each family member
 		const familyMemberships = [];
 		
@@ -104,6 +122,9 @@ export async function POST(req: NextRequest) {
 				
 				const familyMembership = await Membership.create(familyMemberData);
 				familyMemberships.push(familyMembership);
+				
+				// Add family member as subscriber
+				await addSubscriberIfNotExists(familyMember.email);
 			}
 		}
 

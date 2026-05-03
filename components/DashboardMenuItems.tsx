@@ -1,4 +1,4 @@
-import { BookImage, Settings, LayoutDashboard, Book, Newspaper, User, Download, Bell, Users, Mail, DollarSign, Image, Heart, QrCode, Gift, LucideIcon, FileText, Shield, FolderOpen } from "lucide-react";
+import { BookImage, Settings, LayoutDashboard, Book, Newspaper, User, Bell, Users, Mail, DollarSign, Image, Heart, QrCode, Gift, LucideIcon, FileText, Shield, FolderOpen } from "lucide-react";
 
 export interface MenuItem {
 	id: string;

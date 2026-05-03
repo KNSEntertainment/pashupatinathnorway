@@ -65,27 +65,31 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 	return age;
 };
 
-// const getGenderFromPersonalNumber = (personalNumber: string): string | null => {
-// 	if (!personalNumber || personalNumber.length !== 11 || !/^\d{11}$/.test(personalNumber)) {
-// 		return null;
-// 	}
+// const determineGenderFromPersonalNumber = (personalNumber: string): string | null => {
+  if (!personalNumber || personalNumber.length !== 11 || !/^\d{11}$/.test(personalNumber)) {
+    return null;
+  }
 
-// 	// In Norwegian personal numbers, the 9th digit (index 8) indicates gender
-// 	// Odd numbers = male, even numbers = female
-// 	const genderDigit = parseInt(personalNumber.charAt(8));
-	
-// 	if (isNaN(genderDigit)) {
-// 		return null;
-// 	}
+  // In Norwegian personal numbers, the 9th digit (index 8) indicates gender
+  // Odd numbers = male, even numbers = female
+  const genderDigit = parseInt(personalNumber.charAt(8));
+  
+  if (isNaN(genderDigit)) {
+    return null;
+  }
 
-// 	return genderDigit % 2 === 0 ? 'female' : 'male';
-// };
+  return genderDigit % 2 === 0 ? 'female' : 'male';
+};
 
 const maskPersonalNumber = (personalNumber: string): string => {
-	if (!personalNumber || personalNumber.length < 5) {
-		return personalNumber || 'Not specified';
-	}
-	
+  if (!personalNumber || personalNumber.length < 11) {
+    return personalNumber || 'Not specified';
+  }
+  
+  // Show first 6 digits, mask last 5 with asterisks
+  const visiblePart = personalNumber.substring(0, 6);
+  const maskedPart = '*****';
+  return `${visiblePart}${maskedPart}`;
 	// Show first 6 digits, mask last 5 with asterisks
 	const visiblePart = personalNumber.substring(0, 6);
 	const maskedPart = '*****';
@@ -109,31 +113,7 @@ export default function MembershipsPage() {
 	if (loading) return <p>Loading...</p>;
 	if (error) return <p>Error: {error}</p>;
 
-	// const handleDelete = async (id: string) => {
-	// 	if (window.confirm("Are you sure you want to delete this membership?")) {
-	// 		try {
-	// 			const response = await fetch(`/api/membership/${id}`, {
-	// 				method: "DELETE",
-	// 			});
-	// 			if (!response.ok) {
-	// 				throw new Error("Failed to delete membership");
-	// 			}
-	// 			toast({
-	// 				title: "Success",
-	// 				description: "Membership deleted successfully",
-	// 			});
-	// 			mutate();
-	// 		} catch (error) {
-	// 			console.error("Error deleting membership:", error);
-	// 			toast({
-	// 				title: "Error",
-	// 				description: "Failed to delete membership. Please try again.",
-	// 				variant: "destructive",
-	// 			});
-	// 		}
-	// 	}
-	// };
-
+	
 	const handleStatusUpdate = async (id: string, newStatus: string) => {
 		try {
 			const response = await fetch(`/api/membership/${id}`, {

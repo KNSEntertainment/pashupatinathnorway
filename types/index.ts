@@ -65,6 +65,7 @@ export interface Membership {
 	passwordResetToken?: string;
 	passwordResetTokenExpiry?: Date;
 	createdAt: string;
+	updatedAt: string;
 	generalMemberSince?: string;
 	activeMemberSince?: string;
 }
