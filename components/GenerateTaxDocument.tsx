@@ -18,15 +18,15 @@ import { FileText, Download, AlertTriangle, Users } from "lucide-react";
 import { useState } from "react";
 
 export default function GenerateTaxDocument() {
-    const [personalNumber, setPersonalNumber] = useState("");
+    const [membershipId, setMembershipId] = useState("");
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
     const [taxDocumentLoading, setTaxDocumentLoading] = useState(false);
     const [bulkTaxDocumentLoading, setBulkTaxDocumentLoading] = useState(false);
 
 
 	const generateTaxDocument = async () => {
-		if (!personalNumber || !/^\d{11}$/.test(personalNumber)) {
-			alert("Please enter a valid 11-digit personal number");
+		if (!membershipId || !/^MEM-\d{4}-\d{6}$/.test(membershipId)) {
+			alert("Please enter a valid membership ID (format: MEM-YYYY-XXXXXX)");
 			return;
 		}
 
@@ -38,7 +38,7 @@ export default function GenerateTaxDocument() {
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
-					personalNumber,
+					membershipId,
 					year: parseInt(selectedYear),
 				}),
 			});
@@ -285,14 +285,14 @@ const generateTaxPDF = (taxReport: {
 						<h3 className="text-lg font-semibold mb-4">Individual Tax Document</h3>
 						<div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
 							<div>
-								<Label htmlFor="personalNumber">Personal Number</Label>
+								<Label htmlFor="membershipId">Membership ID</Label>
 								<Input
-									id="personalNumber"
+									id="membershipId"
 									type="text"
-									placeholder="Enter 11-digit personal number"
-									value={personalNumber}
-									onChange={(e) => setPersonalNumber(e.target.value)}
-									maxLength={11}
+									placeholder="Enter membership ID (e.g., MEM-2024-000001)"
+									value={membershipId}
+									onChange={(e) => setMembershipId(e.target.value)}
+									maxLength={17}
 								/>
 							</div>
 							<div>
@@ -310,7 +310,7 @@ const generateTaxPDF = (taxReport: {
 								<AlertDialog>
 									<AlertDialogTrigger asChild>
 										<Button
-											disabled={taxDocumentLoading || !personalNumber}
+											disabled={taxDocumentLoading || !membershipId}
 											className="w-full"
 										>
 											{taxDocumentLoading ? (
@@ -335,8 +335,8 @@ const generateTaxPDF = (taxReport: {
 											<AlertDialogDescription>
 												<div className="space-y-3">
 													<p>
-														You are about to generate a tax document for personal number ending in 
-														<strong>{personalNumber.slice(-4)}</strong> for the year {selectedYear}.
+														You are about to generate a tax document for membership ID 
+														<strong>{membershipId}</strong> for the year {selectedYear}.
 													</p>
 													<div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
 														<p className="text-sm text-orange-800">

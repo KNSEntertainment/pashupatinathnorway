@@ -21,11 +21,11 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		const { personalNumber, year } = await request.json();
+		const { membershipId, year } = await request.json();
 
-		// Validate personal number
-		if (!personalNumber || !/^\d{11}$/.test(personalNumber)) {
-			return NextResponse.json({ error: "Personal number must be exactly 11 digits" }, { status: 400 });
+		// Validate membershipId
+		if (!membershipId || !/^MEM-\d{4}-\d{6}$/.test(membershipId)) {
+			return NextResponse.json({ error: "Valid membership ID required (format: MEM-YYYY-XXXXXX)" }, { status: 400 });
 		}
 
 		// Validate year
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
 		const existingAuditLog = await AuditLog.findOne({
 			action: 'generate_tax_document',
 			'user.id': session.user.id,
-			'details.personalNumber': personalNumber.replace(/(\d{6})(\d{5})/, '$1*****'),
+			'details.membershipId': membershipId,
 			'details.year': reportYear,
 			timestamp: { $gte: fiveMinutesAgo }
 		});
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
 					role: session.user.role
 				},
 				details: {
-					personalNumber: personalNumber.replace(/(\d{6})(\d{5})/, '$1*****'), // Mask for privacy
+					membershipId: membershipId,
 					year: reportYear
 				},
 				ipAddress,
@@ -74,16 +74,34 @@ export async function POST(request: NextRequest) {
 			auditLog = existingAuditLog;
 		}
 
-		// First check if there are any donations with this personal number
-		console.log("Tax Report Debug: Searching for personalNumber:", personalNumber);
-		console.log("Tax Report Debug: Length:", personalNumber?.length);
+		// First find the membership by membershipId
+		console.log("Tax Report Debug: Searching for membershipId:", membershipId);
 		
-		// Find all completed donations for the specified year first
+		const membership = await Membership.findOne({ membershipId });
+		if (!membership) {
+			// Update audit log for no membership found
+			await AuditLog.findByIdAndUpdate(auditLog._id, {
+				status: 'failed',
+				errorMessage: 'No membership found with this membership ID'
+			});
+
+			return NextResponse.json({ 
+				error: "No membership found with this membership ID",
+				debug: {
+					searchedMembershipId: membershipId
+				}
+			}, { status: 404 });
+		}
+
+		console.log("Tax Report Debug: Membership found:", !!membership);
+		console.log("Tax Report Debug: Member personalNumber:", membership.personalNumber.replace(/(\d{6})(\d{5})/, '$1*****'));
+		
+		// Now check if there are any donations with this member's personal number
 		const startDate = new Date(reportYear, 0, 1); // January 1st of the year
 		const endDate = new Date(reportYear, 11, 31, 23, 59, 59); // December 31st of the year
 
 		const donations = await Donation.find({ 
-			personalNumber,
+			personalNumber: membership.personalNumber,
 			paymentStatus: "completed",
 			createdAt: { $gte: startDate, $lte: endDate }
 		}).sort({ createdAt: 1 });
@@ -94,45 +112,37 @@ export async function POST(request: NextRequest) {
 			// Update audit log for no donations found
 			await AuditLog.findByIdAndUpdate(auditLog._id, {
 				status: 'failed',
-				errorMessage: 'No completed donations found for this personal number in the specified year'
+				errorMessage: 'No completed donations found for this member in the specified year'
 			});
 
 			return NextResponse.json({ 
-				error: "No completed donations found for this personal number in the specified year",
+				error: "No completed donations found for this member in the specified year",
 				debug: {
-					searchedNumber: personalNumber,
+					searchedMembershipId: membershipId,
+					memberName: `${membership.firstName} ${membership.lastName}`,
 					year: reportYear,
 					dateRange: `${startDate.toISOString()} to ${endDate.toISOString()}`
 				}
 			}, { status: 404 });
 		}
 
-		// Now try to find membership (optional - for additional member info)
-		const membership = await Membership.findOne({ personalNumber });
-		console.log("Tax Report Debug: Membership found:", !!membership);
-
 		// Calculate total and generate report data
 		const totalDonated = donations.reduce((sum, donation) => sum + donation.amount, 0);
 		const donationCount = donations.length;
 
 		// Generate tax report data - handle both members and non-members
-		const firstDonation = donations[0];
+		// const firstDonation = donations[0];
 		
 		// For non-members, find the most recent donation that has an address
-		const donationWithAddress = donations.find(d => d.address && d.address.trim() !== "");
+		// const donationWithAddress = donations.find(d => d.address && d.address.trim() !== "");
 		
-		const memberInfo = membership ? {
+		const memberInfo = {
 			name: `${membership.firstName} ${membership.lastName}`,
 			personalNumber: membership.personalNumber,
 			email: membership.email,
 			address: `${membership.address}, ${membership.postalCode} ${membership.city}`,
-			membershipStatus: membership.membershipStatus
-		} : {
-			name: firstDonation.donorName || "Anonymous Donor",
-			personalNumber: personalNumber,
-			email: firstDonation.donorEmail || "Not provided",
-			address: donationWithAddress?.address || "Not provided",
-			membershipStatus: "Non-member"
+			membershipStatus: membership.membershipStatus,
+			membershipId: membership.membershipId
 		};
 
 		const taxReport = {
@@ -164,6 +174,7 @@ export async function POST(request: NextRequest) {
 		// Update audit log with successful results
 		const updateData = {
 			status: 'completed',
+			'details.membershipId': membershipId,
 			'details.memberName': memberInfo.name,
 			'details.totalDonated': totalDonated,
 			'details.donationCount': donationCount,

@@ -1,10 +1,25 @@
 import mongoose from "mongoose";
 
+const generateMembershipId = async () => {
+  const year = new Date().getFullYear();
+
+  const counter = await mongoose.models.Counter.findOneAndUpdate(
+    { year },
+    { $inc: { seq: 1 } },
+    { new: true, upsert: true }
+  );
+
+  const seq = String(counter.seq).padStart(6, '0');
+
+  return `MEM-${year}-${seq}`;
+};
+
 const MembershipSchema = new mongoose.Schema({
 	firstName: { type: String, required: true },
 	middleName: { type: String },
 	lastName: { type: String, required: true },
 	email: { type: String, required: true },
+	membershipId: { type: String, unique: true, default: generateMembershipId },
 	phone: { type: String, required: true },
 	address: { type: String, required: true },
 	city: { type: String, required: true },
