@@ -263,15 +263,15 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 			</div>
 
 			{/* Anonymous Donation */}
-			<div className="flex items-center gap-3 p-4 bg-light rounded-lg">
+			{/* <div className="flex items-center gap-3 p-4 bg-light rounded-lg">
 				<input type="checkbox" id="anonymous" checked={isAnonymous} onChange={(e) => setIsAnonymous(e.target.checked)} className="w-4 h-4 text-brand_primary rounded focus:ring-brand" />
 				<label htmlFor="anonymous" className="text-sm text-gray-900 cursor-pointer">
 					{t("anonymous_donation") || "Donate anonymously"}
 				</label>
-			</div>
+			</div> */}
 
 			{/* Donor Information */}
-			{!isAnonymous && (
+			{/* {!isAnonymous && ( */}
 				<div className="space-y-4 p-4 rounded-lg">
 					<h3 className="font-semibold text-gray-900">{t("donor_information") || "Your Information"}</h3>
 
@@ -321,7 +321,7 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 						</p>
 					</div>
 				</div>
-			)}
+			{/* )} */}
 
 			{/* Payment Method Selection */}
 			<div>

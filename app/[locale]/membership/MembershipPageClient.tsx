@@ -1093,58 +1093,56 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 	};
 
 	// Success Modal Component
-	const SuccessModal = () => {
-		if (!showSuccessModal) return null;
+const SuccessModal = () => {
+  if (!showSuccessModal) return null;
 
-		return (
-			<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-				<div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full transform transition-all max-h-[90vh] overflow-y-auto">
-					<div className="bg-gradient-to-r from-green-400 to-blue-500 p-6 rounded-t-2xl">
-						<div className="flex items-center justify-center">
-							<div className="bg-white rounded-full p-3">
-								<svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-								</svg>
-							</div>
-						</div>
-					</div>
-					
-					<div className="p-6 text-center">
-						<h3 className="text-2xl font-bold text-gray-900 mb-4">Registration Successful!</h3>
-						<p className="text-gray-600 mb-6">{successMessage}</p>
-						
-						{/* Welcome Message */}
-						<div className="bg-blue-50 rounded-lg p-4 mb-6">
-							<h4 className="text-lg font-semibold text-gray-900 mb-2">{t.welcome}</h4>
-							<p className="text-gray-700 text-sm">{t.welcome_msg}</p>
-						</div>
-						
-						<div className="flex flex-col sm:flex-row gap-3">
-							<button
-								onClick={() => {
-									setShowSuccessModal(false);
-									resetForm();
-								}}
-								className="flex-1 bg-gradient-to-r from-brand_primary to-brand_secondary text-gray-700 px-6 py-3 rounded-lg hover:opacity-90 transition-all font-medium shadow-lg"
-							>
-								{t.submit_another}
-							</button>
-							<button
-								onClick={() => {
-									setShowSuccessModal(false);
-									// Navigate to home or dashboard if needed
-									window.location.href = '/';
-								}}
-								className="flex-1 bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors font-medium"
-							>
-								Go to Homepage
-							</button>
-						</div>
-					</div>
-				</div>
-			</div>
-		);
-	};
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-6">
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm max-w-[460px] w-full max-h-[90vh] overflow-y-auto">
+
+        {/* Header */}
+        <div className="px-8 pt-8 pb-6 border-b border-gray-100 flex flex-col items-center gap-4">
+          <div className="w-13 h-13 rounded-full bg-green-50 flex items-center justify-center">
+            <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <div className="text-center">
+            <p className="text-xs font-medium tracking-widest uppercase text-green-600 mb-1.5">
+              Registration complete
+            </p>
+            <h3 className="text-xl font-medium text-gray-900">You&apos;re all set</h3>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="px-8 py-6">
+          <p className="text-sm text-gray-500 text-center leading-relaxed mb-5">
+            {successMessage}
+          </p>
+
+
+          {/* Actions */}
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={() => { setShowSuccessModal(false); resetForm(); }}
+              className="w-full py-2.5 px-4 text-sm font-medium bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              {t.submit_another}
+            </button>
+            <button
+              onClick={() => { setShowSuccessModal(false); window.location.href = '/'; }}
+              className="w-full py-2.5 px-4 text-sm font-medium text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Go to homepage
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+};
 
 	return (
 		<>
@@ -1153,7 +1151,7 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 				{/* Membership Form */}
 			<div className="md:col-span-2 md:mt-8 md:shadow-md p-8 md:px-12 bg-brand_primary relative overflow-hidden">
-				<div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-50" style={{ backgroundImage: "url('/nepalipaper.jpg')" }} />
+				<div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-50"/>
 				<div className="relative z-10flex flex-col md:items-center md:justify-center">
 					<h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{t.title}</h2>
 					<p className="text-gray-900 mb-8"> {t.subtitle}</p>

@@ -1,14 +1,8 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import { addEmailFooter } from "./emailUtils";
 
-// Create nodemailer transporter
-const transporter = nodemailer.createTransport({
-	service: "gmail",
-	auth: {
-		user: process.env.EMAIL_USER,
-		pass: process.env.EMAIL_APP_PASS,
-	},
-});
+// Create Resend client
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Contact form email sender
 type sendContactEmail = {
@@ -31,7 +25,23 @@ export async function sendContactEmail({ name, email, message }: sendContactEmai
 		`,
 	};
 	try {
-		await transporter.sendMail(mailOptions);
+		// Add unsubscribe footer if user is subscribed
+		const htmlContentWithFooter = await addEmailFooter(email, mailOptions.html);
+		mailOptions.html = htmlContentWithFooter;
+		
+		const { error } = await resend.emails.send({
+			from: `"Contact Form" <${process.env.EMAIL_USER!}>`,
+			to: [process.env.EMAIL_USER!],
+			subject: mailOptions.subject,
+			text: mailOptions.text,
+			html: mailOptions.html,
+		});
+		
+		if (error) {
+			console.error("Error sending contact form email:", error);
+			throw new Error("Failed to send contact form email");
+		}
+		
 		console.log("Contact form email sent");
 	} catch (error) {
 		console.error("Error sending contact form email:", error);
@@ -130,7 +140,19 @@ export async function sendGeneralMemberWelcomeEmail({ name, email, membershipId,
 		const htmlContentWithFooter = await addEmailFooter(email, mailOptions.html);
 		mailOptions.html = htmlContentWithFooter;
 		
-		await transporter.sendMail(mailOptions);
+		const { error } = await resend.emails.send({
+			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER!}>`,
+			to: [email],
+			subject: mailOptions.subject,
+			text: mailOptions.text,
+			html: mailOptions.html,
+		});
+		
+		if (error) {
+			console.error("Error sending General Member welcome email:", error);
+			throw new Error("Failed to send General Member welcome email");
+		}
+		
 		console.log("General Member welcome email sent to:", email);
 	} catch (error) {
 		console.error("Error sending General Member welcome email:", error);
@@ -250,7 +272,19 @@ export async function sendActiveMemberApprovalEmailEnglish({ name, email, setupT
 		const htmlContentWithFooter = await addEmailFooter(email, mailOptions.html);
 		mailOptions.html = htmlContentWithFooter;
 		
-		await transporter.sendMail(mailOptions);
+		const { error } = await resend.emails.send({
+			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER!}>`,
+			to: [email],
+			subject: mailOptions.subject,
+			text: mailOptions.text,
+			html: mailOptions.html,
+		});
+		
+		if (error) {
+			console.error("Error sending Active Member approval email:", error);
+			throw new Error("Failed to send Active Member approval email");
+		}
+		
 		console.log("Active Member approval email sent to:", email);
 	} catch (error) {
 		console.error("Error sending Active Member approval email:", error);
@@ -370,7 +404,19 @@ export async function sendActiveMemberApprovalEmail({ name, email, setupToken, f
 		const htmlContentWithFooter = await addEmailFooter(email, mailOptions.html);
 		mailOptions.html = htmlContentWithFooter;
 		
-		await transporter.sendMail(mailOptions);
+		const { error } = await resend.emails.send({
+			from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER!}>`,
+			to: [email],
+			subject: mailOptions.subject,
+			text: mailOptions.text,
+			html: mailOptions.html,
+		});
+		
+		if (error) {
+			console.error("Error sending Nepali Active Member approval email:", error);
+			throw new Error("Failed to send Nepali Active Member approval email");
+		}
+		
 		console.log("Nepali Active Member approval email sent to:", email);
 	} catch (error) {
 		console.error("Error sending Nepali Active Member approval email:", error);
@@ -483,7 +529,19 @@ export async function sendNonMemberDonationThankYouEmail({ name, email, amount, 
 		const htmlContentWithFooter = await addEmailFooter(email, mailOptions.html);
 		mailOptions.html = htmlContentWithFooter;
 		
-		await transporter.sendMail(mailOptions);
+		const { error } = await resend.emails.send({
+			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER!}>`,
+			to: [email],
+			subject: mailOptions.subject,
+			text: mailOptions.text,
+			html: mailOptions.html,
+		});
+		
+		if (error) {
+			console.error("Error sending non-member donation thank you email:", error);
+			throw new Error("Failed to send non-member donation thank you email");
+		}
+		
 		console.log("Non-member donation thank you email with Tax ID sent to:", email);
 	} catch (error) {
 		console.error("Error sending non-member donation thank you email:", error);
@@ -555,7 +613,19 @@ export async function sendVerificationFollowupEmail({ name, email, personalNumbe
 		const htmlContentWithFooter = await addEmailFooter(email, mailOptions.html);
 		mailOptions.html = htmlContentWithFooter;
 		
-		await transporter.sendMail(mailOptions);
+		const { error } = await resend.emails.send({
+			from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER!}>`,
+			to: [email],
+			subject: mailOptions.subject,
+			text: mailOptions.text,
+			html: mailOptions.html,
+		});
+		
+		if (error) {
+			console.error("Error sending verification follow-up email:", error);
+			throw new Error("Failed to send verification follow-up email");
+		}
+		
 		console.log("Verification follow-up email sent to:", email);
 	} catch (error) {
 		console.error("Error sending verification follow-up email:", error);
@@ -642,7 +712,19 @@ export async function sendOsloVerificationApprovalEmail({ name, email, setupToke
 		const htmlContentWithFooter = await addEmailFooter(email, mailOptions.html);
 		mailOptions.html = htmlContentWithFooter;
 		
-		await transporter.sendMail(mailOptions);
+		const { error } = await resend.emails.send({
+			from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER!}>`,
+			to: [email],
+			subject: mailOptions.subject,
+			text: mailOptions.text,
+			html: mailOptions.html,
+		});
+		
+		if (error) {
+			console.error("Error sending Oslo verification approval email:", error);
+			throw new Error("Failed to send Oslo verification approval email");
+		}
+		
 		console.log("Oslo verification approval email sent to:", email);
 	} catch (error) {
 		console.error("Error sending Oslo verification approval email:", error);
@@ -728,7 +810,19 @@ export async function sendWelcomeEmail({ name, email, setupToken, familyMembers 
 	};
 
 	try {
-		await transporter.sendMail(mailOptions);
+		const { error } = await resend.emails.send({
+			from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER!}>`,
+			to: [email],
+			subject: mailOptions.subject,
+			text: mailOptions.text,
+			html: mailOptions.html,
+		});
+		
+		if (error) {
+			console.error("Error sending welcome email:", error);
+			throw new Error("Failed to send welcome email");
+		}
+		
 		console.log("Welcome email sent to:", email);
 	} catch (error) {
 		console.error("Error sending welcome email:", error);
@@ -812,7 +906,19 @@ export async function sendDonationThankYouEmail({ name, email, amount, currency,
 	};
 
 	try {
-		await transporter.sendMail(mailOptions);
+		const { error } = await resend.emails.send({
+			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER!}>`,
+			to: [email],
+			subject: mailOptions.subject,
+			text: mailOptions.text,
+			html: mailOptions.html,
+		});
+		
+		if (error) {
+			console.error("Error sending donation thank you email:", error);
+			throw new Error("Failed to send donation thank you email");
+		}
+		
 		console.log("Donation thank you email sent to:", email);
 	} catch (error) {
 		console.error("Error sending donation thank you email:", error);
@@ -918,7 +1024,19 @@ export async function sendSubscriptionThankYouEmail(email: string) {
 	};
 
 	try {
-		await transporter.sendMail(mailOptions);
+		const { error } = await resend.emails.send({
+			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER!}>`,
+			to: [email],
+			subject: mailOptions.subject,
+			text: mailOptions.text,
+			html: mailOptions.html,
+		});
+		
+		if (error) {
+			console.error("Error sending subscription thank you email:", error);
+			throw new Error("Failed to send subscription thank you email");
+		}
+		
 		console.log("Subscription thank you email sent to:", email);
 	} catch (error) {
 		console.error("Error sending subscription thank you email:", error);
@@ -937,7 +1055,7 @@ export async function sendEmailVerificationEmail({ name, email, verificationToke
 	console.log("Sending to:", email);
 	console.log("Name:", name);
 	console.log("Verification URL:", `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/en/verify-email?token=${verificationToken}`);
-	console.log("Transporter configured:", !!transporter);
+	console.log("Resend configured:", !!resend);
 	console.log("EMAIL_USER:", process.env.EMAIL_USER);
 	
 	const verificationUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/en/verify-email?token=${verificationToken}`;
@@ -997,8 +1115,20 @@ export async function sendEmailVerificationEmail({ name, email, verificationToke
 		console.log("To:", mailOptions.to);
 		console.log("Subject:", mailOptions.subject);
 		
-		const result = await transporter.sendMail(mailOptions);
-		console.log("Email verification email sent successfully:", result.messageId);
+		const { error } = await resend.emails.send({
+			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER!}>`,
+			to: [email],
+			subject: mailOptions.subject,
+			text: mailOptions.text,
+			html: mailOptions.html,
+		});
+		
+		if (error) {
+			console.error("Error sending email verification email:", error);
+			throw new Error("Failed to send email verification email");
+		}
+		
+		console.log("Email verification email sent successfully");
 		console.log("Email verification email sent to:", email);
 	} catch (error) {
 		console.error("Error sending email verification email:", error);
@@ -1070,7 +1200,19 @@ export async function sendPasswordResetEmail({ name, email, resetUrl, userType }
 	};
 
 	try {
-		await transporter.sendMail(mailOptions);
+		const { error } = await resend.emails.send({
+			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER!}>`,
+			to: [email],
+			subject: mailOptions.subject,
+			text: mailOptions.text,
+			html: mailOptions.html,
+		});
+		
+		if (error) {
+			console.error("Error sending password reset email:", error);
+			throw new Error("Failed to send password reset email");
+		}
+		
 		console.log("Password reset email sent to:", email);
 	} catch (error) {
 		console.error("Error sending password reset email:", error);
@@ -1145,7 +1287,19 @@ export async function sendBirthdayWishEmail({ name, email, age }: sendBirthdayWi
     };
 
     try {
-        await transporter.sendMail(mailOptions);
+        const { error } = await resend.emails.send({
+            from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER!}>`,
+            to: [email],
+            subject: mailOptions.subject,
+            text: mailOptions.text,
+            html: mailOptions.html,
+        });
+        
+        if (error) {
+            console.error("Error sending birthday wish email:", error);
+            throw new Error("Failed to send birthday wish email");
+        }
+        
         console.log("Birthday wish email sent to:", email);
     } catch (error) {
         console.error("Error sending birthday wish email:", error);
