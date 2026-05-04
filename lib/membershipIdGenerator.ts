@@ -4,7 +4,7 @@ const generateMembershipId = async () => {
   const year = new Date().getFullYear();
 
   const counter = await Counter.findOneAndUpdate(
-    { year, type: { $in: ['membership', undefined, null] } }, // Handle both types for backward compatibility
+    { year, type: 'membership' },
     { $inc: { seq: 1 } },
     { new: true, upsert: true }
   );
