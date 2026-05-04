@@ -347,8 +347,6 @@ function generateBulkTaxPDF(bulkTaxReports: any[], year: number): string {
 					<tr>
 						<th>Navn</th>
 						<th>Personnummer</th>
-						<th>Status</th>
-						<th>Antall gaver</th>
 						<th>Totalbeløp (NOK)</th>
 					</tr>
 				</thead>
@@ -363,8 +361,6 @@ function generateBulkTaxPDF(bulkTaxReports: any[], year: number): string {
 						<tr>
 							<td>${report.member.name}</td>
 							<td>${maskedPersonalNumber}</td>
-							<td>${report.member.membershipStatus}</td>
-							<td>${report.report.donationCount}</td>
 							<td style="text-align: right;">${report.report.totalDonated.toLocaleString('nb-NO')},00</td>
 						</tr>
 					`;

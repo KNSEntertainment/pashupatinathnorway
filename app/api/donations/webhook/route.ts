@@ -4,6 +4,7 @@ import Stripe from "stripe";
 import connectDB from "@/lib/mongodb";
 import Donation from "@/models/Donation.Model";
 import Cause from "@/models/Cause.Model";
+import { sendNonMemberDonationThankYouEmail } from "@/lib/email";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 	apiVersion: "2026-02-25.clover",
@@ -57,6 +58,26 @@ export async function POST(request: Request) {
 				console.log("Donation updated:", updatedDonation?._id);
 				console.log("Payment completed for session:", session.id);
 
+				// Send tax ID email to non-members for successful Stripe payments
+				if (updatedDonation && updatedDonation.taxId && 
+					updatedDonation.donorEmail && 
+					updatedDonation.donorEmail !== "anonymous@rspnorway.org" &&
+					!updatedDonation.membershipId) {
+					try {
+						await sendNonMemberDonationThankYouEmail({
+							name: updatedDonation.donorName || "Valued Supporter",
+							email: updatedDonation.donorEmail,
+							amount: updatedDonation.amount,
+							taxId: updatedDonation.taxId,
+							donationDate: updatedDonation.createdAt
+						});
+						console.log("Tax ID email sent to non-member after Stripe payment:", updatedDonation.donorEmail);
+					} catch (emailError) {
+						console.error("Error sending tax ID email after Stripe payment:", emailError);
+						// Don't fail the webhook if email fails
+					}
+				}
+
 				// Update cause amounts if this is a cause-specific donation
 				if (updatedDonation && updatedDonation.causeId && updatedDonation.donationType === "cause_specific") {
 					await Cause.findByIdAndUpdate(
@@ -87,6 +108,26 @@ export async function POST(request: Request) {
 					);
 
 					console.log("Donation updated via charge:", updatedDonation?._id);
+
+					// Send tax ID email to non-members for successful charge payments
+					if (updatedDonation && updatedDonation.taxId && 
+						updatedDonation.donorEmail && 
+						updatedDonation.donorEmail !== "anonymous@rspnorway.org" &&
+						!updatedDonation.membershipId) {
+						try {
+							await sendNonMemberDonationThankYouEmail({
+								name: updatedDonation.donorName || "Valued Supporter",
+								email: updatedDonation.donorEmail,
+								amount: updatedDonation.amount,
+								taxId: updatedDonation.taxId,
+								donationDate: updatedDonation.createdAt
+							});
+							console.log("Tax ID email sent to non-member after charge:", updatedDonation.donorEmail);
+						} catch (emailError) {
+							console.error("Error sending tax ID email after charge:", emailError);
+							// Don't fail the webhook if email fails
+						}
+					}
 
 					// Update cause amounts if this is a cause-specific donation
 					if (updatedDonation && updatedDonation.causeId && updatedDonation.donationType === "cause_specific") {

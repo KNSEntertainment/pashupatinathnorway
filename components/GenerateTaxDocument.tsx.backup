@@ -14,8 +14,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { FileText, Download, AlertTriangle, Users } from "lucide-react";
-import { useState, useEffect, useCallback } from "react";
+import { FileText, Download, AlertTriangle, Users, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
 
 export default function GenerateTaxDocument() {
     const [membershipId, setMembershipId] = useState("");
@@ -29,19 +29,30 @@ export default function GenerateTaxDocument() {
         valid: boolean;
         message?: string;
         error?: string;
-        memberInfo?: {
-            name: string;
-            email: string;
-            membershipStatus: string;
-        };
-        donorInfo?: {
-            name: string;
-            donationCount: number;
-            totalDonated: number;
-        };
+        memberInfo?: any;
+        donorInfo?: any;
     } | null>(null);
 
-	const validateId = useCallback(async () => {
+	// Trigger validation when ID changes or ID type changes
+	useEffect(() => {
+		const currentId = idType === "membership" ? membershipId : taxId;
+		const idPattern = idType === "membership" ? /^MEM-\d{4}-\d{6}$/ : /^TAX-\d{4}-\d{6}$/;
+		
+		// Clear validation when ID is empty or doesn't match pattern
+		if (!currentId || !idPattern.test(currentId)) {
+			setValidationResult(null);
+			return;
+		}
+		
+		// Debounce validation
+		const timeoutId = setTimeout(() => {
+			validateId();
+		}, 500);
+		
+		return () => clearTimeout(timeoutId);
+	}, [membershipId, taxId, idType]);
+
+	const validateId = async () => {
 		const currentId = idType === "membership" ? membershipId : taxId;
 		const idPattern = idType === "membership" ? /^MEM-\d{4}-\d{6}$/ : /^TAX-\d{4}-\d{6}$/;
 		const idLabel = idType === "membership" ? "membership ID" : "tax ID";
@@ -94,26 +105,7 @@ export default function GenerateTaxDocument() {
 		} finally {
 			setIsValidating(false);
 		}
-	}, [membershipId, taxId, idType]);
-
-	// Trigger validation when ID changes or ID type changes
-	useEffect(() => {
-		const currentId = idType === "membership" ? membershipId : taxId;
-		const idPattern = idType === "membership" ? /^MEM-\d{4}-\d{6}$/ : /^TAX-\d{4}-\d{6}$/;
-		
-		// Clear validation when ID is empty or doesn't match pattern
-		if (!currentId || !idPattern.test(currentId)) {
-			setValidationResult(null);
-			return;
-		}
-		
-		// Debounce validation
-		const timeoutId = setTimeout(() => {
-			validateId();
-		}, 500);
-		
-		return () => clearTimeout(timeoutId);
-	}, [membershipId, taxId, idType, validateId]);
+	};
 
 	const generateTaxDocument = async () => {
 		const currentId = idType === "membership" ? membershipId : taxId;
