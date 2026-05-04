@@ -3,6 +3,7 @@ import connectDB from "@/lib/mongodb";
 import Membership from "@/models/Membership.Model";
 import Subscriber from "@/models/Subscriber.Model";
 import { sendGeneralMemberWelcomeEmail } from "@/lib/email";
+import generateMembershipId from "@/lib/membershipIdGenerator";
 
 interface FamilyMember {
 	firstName: string;
@@ -71,9 +72,13 @@ export async function POST(req: NextRequest) {
 			throw new Error('Phone number must be exactly 8 digits');
 		}
 		
+		// Generate membership ID for main applicant
+		const mainMembershipId = await generateMembershipId();
+		
 		// Create membership for main applicant with generalMemberSince
 		const mainMembershipData = {
 			...mainApplicantData,
+			membershipId: mainMembershipId,
 			generalMemberSince: new Date().toISOString(),
 		};
 		const mainMembership = await Membership.create(mainMembershipData);
@@ -107,9 +112,13 @@ export async function POST(req: NextRequest) {
 					throw new Error(`Family member ${familyMember.firstName} ${familyMember.lastName} phone number must be exactly 8 digits: ${familyMember.phone}`);
 				}
 				
+				// Generate membership ID for family member
+				const familyMembershipId = await generateMembershipId();
+				
 				// Create family member record with same address, permissions, and other shared data
 				const familyMemberData = {
 					...mainApplicantData,
+					membershipId: familyMembershipId,
 					firstName: familyMember.firstName,
 					middleName: familyMember.middleName || "",
 					lastName: familyMember.lastName,
