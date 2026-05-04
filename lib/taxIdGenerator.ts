@@ -1,9 +1,9 @@
-import mongoose from "mongoose";
+import Counter from "@/models/Counter.Model";
 
 const generateTaxId = async () => {
   const year = new Date().getFullYear();
 
-  const counter = await mongoose.models.Counter.findOneAndUpdate(
+  const counter = await Counter.findOneAndUpdate(
     { year, type: 'tax' },
     { $inc: { seq: 1 } },
     { new: true, upsert: true }
