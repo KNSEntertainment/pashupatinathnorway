@@ -4,7 +4,7 @@ import connectDB from "@/lib/mongodb";
 import Donation from "@/models/Donation.Model";
 import { encryptPersonalNumber } from "@/lib/encryption";
 import generateTaxId from "@/lib/taxIdGenerator";
-import { sendNonMemberDonationThankYouEmail } from "@/lib/email";
+import { sendDonationThankYouEmail } from "@/lib/email";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 	apiVersion: "2026-02-25.clover",
@@ -100,12 +100,14 @@ export async function POST(request: Request) {
 		// Send tax ID email to non-members (only if they have a tax ID and valid email)
 		if (taxId && donorEmail && donorEmail !== "anonymous@rspnorway.org") {
 			try {
-				await sendNonMemberDonationThankYouEmail({
+				await sendDonationThankYouEmail({
 					name: donorName || "Valued Supporter",
 					email: donorEmail,
 					amount: amount,
-					taxId: taxId,
-					donationDate: new Date()
+					currency: "NOK",
+					transactionId: "pending-" + Date.now(),
+					date: new Date().toISOString(),
+					message: message || undefined
 				});
 				console.log("Tax ID email sent to non-member:", donorEmail);
 			} catch (emailError) {

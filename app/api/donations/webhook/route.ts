@@ -4,7 +4,7 @@ import Stripe from "stripe";
 import connectDB from "@/lib/mongodb";
 import Donation from "@/models/Donation.Model";
 import Cause from "@/models/Cause.Model";
-import { sendNonMemberDonationThankYouEmail } from "@/lib/email";
+import { sendDonationThankYouEmail } from "@/lib/email";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 	apiVersion: "2026-02-25.clover",
@@ -58,23 +58,23 @@ export async function POST(request: Request) {
 				console.log("Donation updated:", updatedDonation?._id);
 				console.log("Payment completed for session:", session.id);
 
-				// Send tax ID email to non-members for successful Stripe payments
-				if (updatedDonation && updatedDonation.taxId && 
-					updatedDonation.donorEmail && 
-					updatedDonation.donorEmail !== "anonymous@rspnorway.org" &&
-					!updatedDonation.membershipId) {
+				// Send thank you email to all donors (members and non-members)
+				if (updatedDonation && updatedDonation.donorEmail && 
+					updatedDonation.donorEmail !== "anonymous@rspnorway.org") {
 					try {
-						await sendNonMemberDonationThankYouEmail({
+						await sendDonationThankYouEmail({
 							name: updatedDonation.donorName || "Valued Supporter",
 							email: updatedDonation.donorEmail,
 							amount: updatedDonation.amount,
-							taxId: updatedDonation.taxId,
-							donationDate: updatedDonation.createdAt
+							currency: "NOK",
+							transactionId: updatedDonation.stripePaymentIntentId || updatedDonation.stripeSessionId,
+							date: updatedDonation.createdAt.toISOString(),
+							membershipId: updatedDonation.membershipId || undefined
 						});
-						console.log("Tax ID email sent to non-member after Stripe payment:", updatedDonation.donorEmail);
+						console.log("Donation thank you email sent to:", updatedDonation.donorEmail);
 					} catch (emailError) {
-						console.error("Error sending tax ID email after Stripe payment:", emailError);
-						// Don't fail the webhook if email fails
+						console.error("Error sending donation thank you email after Stripe payment:", emailError);
+						// Don't fail webhook if email fails
 					}
 				}
 
@@ -109,23 +109,23 @@ export async function POST(request: Request) {
 
 					console.log("Donation updated via charge:", updatedDonation?._id);
 
-					// Send tax ID email to non-members for successful charge payments
-					if (updatedDonation && updatedDonation.taxId && 
-						updatedDonation.donorEmail && 
-						updatedDonation.donorEmail !== "anonymous@rspnorway.org" &&
-						!updatedDonation.membershipId) {
+					// Send thank you email to all donors for successful charge payments
+					if (updatedDonation && updatedDonation.donorEmail && 
+						updatedDonation.donorEmail !== "anonymous@rspnorway.org") {
 						try {
-							await sendNonMemberDonationThankYouEmail({
+							await sendDonationThankYouEmail({
 								name: updatedDonation.donorName || "Valued Supporter",
 								email: updatedDonation.donorEmail,
 								amount: updatedDonation.amount,
-								taxId: updatedDonation.taxId,
-								donationDate: updatedDonation.createdAt
+								currency: "NOK",
+								transactionId: updatedDonation.stripePaymentIntentId || updatedDonation.stripeSessionId,
+								date: updatedDonation.createdAt.toISOString(),
+								membershipId: updatedDonation.membershipId || undefined
 							});
-							console.log("Tax ID email sent to non-member after charge:", updatedDonation.donorEmail);
+							console.log("Donation thank you email sent to:", updatedDonation.donorEmail);
 						} catch (emailError) {
-							console.error("Error sending tax ID email after charge:", emailError);
-							// Don't fail the webhook if email fails
+							console.error("Error sending donation thank you email after charge:", emailError);
+							// Don't fail webhook if email fails
 						}
 					}
 

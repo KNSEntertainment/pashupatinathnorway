@@ -164,6 +164,16 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 	const fylkeInputRef = useRef<HTMLInputElement>(null);
 	const geoapifyKey = process.env.NEXT_PUBLIC_GEOAPIFY_KEY;
 
+	// OTP verification states
+	const [showOTPModal, setShowOTPModal] = useState(false);
+	const [otpCode, setOtpCode] = useState("");
+	const [otpSent, setOtpSent] = useState(false);
+	const [phoneVerified, setPhoneVerified] = useState(false);
+	const [otpError, setOtpError] = useState("");
+	const [otpSending, setOtpSending] = useState(false);
+	const [countdown, setCountdown] = useState(0);
+	const [verifying, setVerifying] = useState(false);
+
 	
 
 	const validatePhoneNumber = (phone: string) => {
@@ -690,6 +700,146 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 		}
 	};
 
+	const handlePhoneBlur = async () => {
+		if (!formData.phone) {
+			setPhoneError("Phone number is required.");
+			return;
+		}
+
+		if (!validatePhoneNumber(formData.phone)) {
+			setPhoneError("Phone number must be exactly 8 digits.");
+			return;
+		}
+
+		// OTP will be sent when form is submitted, not on focus out
+	};
+
+	const sendOTPCode = async () => {
+		if (!validatePhoneNumber(formData.phone)) {
+			setPhoneError("Please enter a valid 8-digit Norwegian phone number first.");
+			return;
+		}
+
+		setOtpSending(true);
+		setOtpError("");
+
+		try {
+			const response = await fetch("/api/send-otp", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ phoneNumber: formData.phone }),
+			});
+
+			const data = await response.json();
+
+			if (!response.ok) {
+				throw new Error(data.error || "Failed to send OTP");
+			}
+
+			// Only show OTP modal if SMS was actually sent successfully
+			setOtpSent(true);
+			setShowOTPModal(false); // Don't show modal yet, wait for form submission
+		} catch (error) {
+			setOtpError(error instanceof Error ? error.message : "Failed to send verification code");
+			// Don't show OTP modal if SMS failed
+			setShowOTPModal(false);
+		} finally {
+			setOtpSending(false);
+		}
+	};
+
+	const verifyOTPCode = async () => {
+		// Prevent multiple simultaneous verification attempts
+		if (verifying || phoneVerified) {
+			return;
+		}
+
+		console.log("verifyOTPCode called with:", { otpCode, phone: formData.phone });
+		
+		// Clear previous error immediately
+		setOtpError("");
+		
+		if (!otpCode || otpCode.length !== 4) {
+			console.log("OTP validation failed:", { otpCode, length: otpCode.length });
+			setOtpError("Please enter a 4-digit verification code");
+			return;
+		}
+
+		setVerifying(true);
+
+		try {
+			console.log("Sending verification request:", { phone: formData.phone, code: otpCode });
+			const response = await fetch("/api/verify-otp", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ 
+					phoneNumber: formData.phone,
+					code: otpCode 
+				}),
+			});
+
+			const data = await response.json();
+			console.log("Verification response:", { status: response.status, data });
+
+			if (!response.ok) {
+				throw new Error(data.error || "Failed to verify OTP");
+			}
+
+			// Clear error immediately on success
+			setOtpError("");
+			setPhoneVerified(true);
+			setShowOTPModal(false);
+			setOtpCode("");
+			
+			// Continue with form submission after successful verification
+			await submitForm();
+		} catch (error) {
+			console.error("Verification error:", error);
+			setOtpError(error instanceof Error ? error.message : "Failed to verify code");
+		} finally {
+			setVerifying(false);
+		}
+	};
+
+	const resendOTP = () => {
+		setOtpSent(false);
+		setOtpCode("");
+		setOtpError("");
+		setCountdown(0); // Reset countdown
+		sendOTPCode();
+	};
+
+	// Countdown timer effect
+	useEffect(() => {
+		let interval: NodeJS.Timeout;
+		
+		if (countdown > 0) {
+			interval = setInterval(() => {
+				setCountdown(prev => prev - 1);
+			}, 1000);
+		}
+		
+		return () => clearInterval(interval);
+	}, [countdown]);
+
+	// Start countdown when OTP is sent
+	useEffect(() => {
+		if (otpSent) {
+			setCountdown(120); // 2 minutes countdown
+		}
+	}, [otpSent]);
+
+	// Clear error when OTP modal is hidden or phone is verified
+	useEffect(() => {
+		if (!showOTPModal || phoneVerified) {
+			setOtpError("");
+		}
+	}, [showOTPModal, phoneVerified]);
+
 	const isFormValid = (): boolean => {
 		// Check main applicant required fields
 		if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || 
@@ -715,9 +865,15 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 
 		// Check for other field errors
 		if (firstNameError || lastNameError || addressError || 
-			cityError || postalCodeError || phoneError || termsError) {
+			cityError || postalCodeError || phoneError || termsError || otpError) {
 			return false;
 		}
+
+		// Check if phone is verified - remove this requirement from form validation
+		// Phone verification will be handled in submit flow
+		// if (!phoneVerified) {
+		// 	return false;
+		// }
 
 		// Validate main applicant is over 15
 		if (!isMainApplicantOver15()) {
@@ -884,7 +1040,94 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 		});
 	};
 
-	
+	const submitForm = async () => {
+		// Validate family members
+		for (const member of formData.familyMembers) {
+			if (!member.firstName || !member.lastName || !member.personalNumber || !member.email) {
+				// Set error for the specific family member field
+				setFamilyMemberErrors(prev => ({
+					...prev,
+					[`${member.id}-required`]: "Please fill in all required fields for family members."
+				}));
+				return;
+			}
+			
+			// Validate family member personal number
+			if (member.personalNumber) {
+				const familyMemberError = validateFamilyMemberPersonalNumber(member.personalNumber);
+				if (familyMemberError) {
+					setFamilyMemberErrors(prev => ({
+						...prev,
+						[`${member.id}-personalNumber`]: familyMemberError
+					}));
+					return;
+				}
+			}
+			
+			// Validate family member phone number (optional but if provided must be 8 digits)
+			if (member.phone && !validatePhoneNumber(member.phone)) {
+				setFamilyMemberErrors(prev => ({
+					...prev,
+					[`${member.id}-phone`]: "Phone number must be exactly 8 digits."
+				}));
+				return;
+			}
+			
+			// Basic email validation
+			const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+			if (member.email && !emailRegex.test(member.email)) {
+				setFamilyMemberErrors(prev => ({
+					...prev,
+					[`${member.id}-email`]: "Email address is not valid."
+				}));
+				return;
+			}
+		}
+		
+		try {
+			const res = await fetch("/api/membership", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(formData),
+			});
+			if (!res.ok) {
+				const errorData = await res.json();
+				throw new Error(errorData.error || "Failed to submit application");
+			}
+			
+			const responseData = await res.json();
+			const totalMembers = responseData.totalMembers || 1;
+			const message = totalMembers > 1 
+				? `Successfully registered ${totalMembers} family members!` 
+				: "Successfully registered!";
+			
+			setSuccessMessage(message);
+			setShowSuccessModal(true);
+			setFormData({
+				firstName: "",
+				middleName: "",
+				lastName: "",
+				email: "",
+				phone: "",
+				address: "",
+				city: "",
+				postalCode: "",
+				kommune: "",
+				fylke: "",
+				personalNumber: "",
+				membershipStatus: "pending",
+				membershipType: "General",
+				agreeTerms: false,
+			
+				familyMembers: [],
+			});
+		} catch (error) {
+			alert("There was an error submitting your application. Please try again." + error);
+		}
+	};
+
 	const handleSubmit = async (e: React.FormEvent<HTMLButtonElement | HTMLFormElement>) => {
 		e.preventDefault();
 		
@@ -966,6 +1209,14 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 			return;
 		}
 
+		// Check if phone is verified, if not send OTP and show modal
+		if (!phoneVerified) {
+			// Send OTP and show modal when form is submitted
+			await sendOTPCode();
+			setShowOTPModal(true);
+			return;
+		}
+
 		// Validate family members
 		for (const member of formData.familyMembers) {
 			if (!member.firstName || !member.lastName || !member.personalNumber || !member.email) {
@@ -1014,48 +1265,8 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 			return;
 		}
 		
-		try {
-			const res = await fetch("/api/membership", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(formData),
-			});
-			if (!res.ok) {
-				const errorData = await res.json();
-				throw new Error(errorData.error || "Failed to submit application");
-			}
-			
-			const responseData = await res.json();
-			const totalMembers = responseData.totalMembers || 1;
-			const message = totalMembers > 1 
-				? `Successfully registered ${totalMembers} family members!` 
-				: "Successfully registered!";
-			
-			setSuccessMessage(message);
-			setShowSuccessModal(true);
-			setFormData({
-				firstName: "",
-				middleName: "",
-				lastName: "",
-				email: "",
-				phone: "",
-				address: "",
-				city: "",
-				postalCode: "",
-				kommune: "",
-				fylke: "",
-				personalNumber: "",
-				membershipStatus: "pending",
-				membershipType: "General",
-				agreeTerms: false,
-			
-				familyMembers: [],
-			});
-		} catch (error) {
-			alert("There was an error submitting your application. Please try again." + error);
-		}
+		// Call submitForm to handle the actual submission
+		await submitForm();
 	};
 
 	const resetForm = () => {
@@ -1090,13 +1301,128 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 		setCityError("");
 		setPostalCodeError("");
 		setTermsError("");
+		
+		// Reset OTP states
+		setShowOTPModal(false);
+		setOtpCode("");
+		setOtpSent(false);
+		setPhoneVerified(false);
+		setOtpError("");
+		setOtpSending(false);
+		setCountdown(0);
+		setVerifying(false);
 	};
 
-	// Success Modal Component
-const SuccessModal = () => {
-  if (!showSuccessModal) return null;
+	// OTP Modal Component
+	const OTPModal = () => {
+		if (!showOTPModal) return null;
 
-  return (
+		return (
+			<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-6">
+				<div className="bg-white rounded-2xl border border-gray-200 shadow-sm max-w-[460px] w-full max-h-[90vh] overflow-y-auto">
+					{/* Header */}
+					<div className="px-8 pt-8 pb-6 border-b border-gray-100 flex flex-col items-center gap-4">
+						<div className="w-13 h-13 rounded-full bg-blue-50 flex items-center justify-center">
+							<svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+							</svg>
+						</div>
+						<div className="text-center">
+							<p className="text-xs font-medium tracking-widest uppercase text-blue-600 mb-1.5">
+								Phone Verification
+							</p>
+							<h3 className="text-xl font-medium text-gray-900">Verify your phone number</h3>
+						</div>
+					</div>
+
+					{/* Body */}
+					<div className="px-8 py-6">
+						<p className="text-sm text-gray-500 text-center leading-relaxed mb-5">
+							{otpSent ? `Enter the 4-digit verification code sent to +47 ${formData.phone}:` : "Sending verification code..."}
+						</p>
+
+						{otpSent && (
+							<div className="space-y-4">
+								<div className="flex gap-2">
+									<input
+										type="text"
+										maxLength={4}
+										value={otpCode}
+										onChange={(e) => {
+											const value = e.target.value.replace(/\D/g, '');
+											setOtpCode(value);
+											// Only verify when exactly 4 digits and not already verified
+											if (value.length === 4 && !phoneVerified) {
+												verifyOTPCode();
+											}
+										}}
+										className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-lg font-mono"
+										placeholder="0000"
+										autoFocus
+									/>
+									<button
+										type="button"
+										onClick={verifyOTPCode}
+										disabled={otpCode.length !== 4}
+										className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+									>
+										{verifying ? "Verifying..." : "Verify"}
+									</button>
+								</div>
+								{otpError && <p className="text-red-600 text-sm mt-2">{otpError}</p>}
+								<div className="mt-4 flex justify-between items-center">
+									<button
+										type="button"
+										onClick={resendOTP}
+										disabled={countdown > 0}
+										className={`text-sm transition-colors ${
+											countdown > 0 
+												? "text-gray-400 cursor-not-allowed" 
+												: "text-blue-600 hover:text-blue-800"
+										}`}
+									>
+										{countdown > 0 ? `Resend code (${countdown}s)` : "Resend code"}
+									</button>
+									<button
+										type="button"
+										onClick={() => {
+											setShowOTPModal(false);
+											setOtpCode("");
+											setOtpError("");
+											setCountdown(0);
+										}}
+										className="text-sm text-gray-600 hover:text-gray-800 transition-colors"
+									>
+										Cancel
+									</button>
+								</div>
+							</div>
+						)}
+
+						{/* Actions */}
+						<div className="flex flex-col gap-2 mt-6">
+							<button
+								onClick={() => {
+									setShowOTPModal(false);
+									setOtpCode("");
+									setOtpError("");
+									setCountdown(0);
+								}}
+								className="w-full py-2.5 px-4 text-sm font-medium text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+							>
+								Back to form
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		);
+	};
+	// Success Modal Component
+	const SuccessModal = () => {
+		if (!showSuccessModal) return null;
+
+		return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-6">
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm max-w-[460px] w-full max-h-[90vh] overflow-y-auto">
 
@@ -1146,6 +1472,7 @@ const SuccessModal = () => {
 
 	return (
 		<>
+			<OTPModal />
 			<SuccessModal />
 			<div className="container mx-auto md:px-4 md:py-12">
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -1212,8 +1539,42 @@ const SuccessModal = () => {
 								<label className="block text-sm font-medium text-gray-900 mb-2">
 									{t.phone_number} <span className="text-red-500">*</span>
 								</label>
-								<input type="tel" maxLength={8} name="phone" value={formData.phone} onChange={handleChange} className={`w-full px-4 py-2 border ${phoneError ? "border-red-500" : "border-light"} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`} placeholder={t.phone_number_placeholder} />
+								<div className="relative">
+									<input 
+										type="tel" 
+										maxLength={8} 
+										name="phone" 
+										value={formData.phone} 
+										onChange={handleChange} 
+										onBlur={handlePhoneBlur}
+										readOnly={phoneVerified}
+										className={`w-full px-4 py-2 border ${
+											phoneError ? "border-red-500" : 
+											phoneVerified ? "border-green-500 bg-gray-50" : 
+											"border-light"
+										} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+											phoneVerified ? "cursor-not-allowed" : ""
+										}`} 
+										placeholder={t.phone_number_placeholder} 
+									/>
+									{phoneVerified && (
+										<div className="absolute right-3 top-2.5 text-green-600">
+											<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+											</svg>
+										</div>
+									)}
+									{otpSending && (
+										<div className="absolute right-3 top-2.5">
+											<svg className="w-5 h-5 animate-spin text-gray-400" fill="none" viewBox="0 0 24 24">
+												<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+												<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+											</svg>
+										</div>
+									)}
+								</div>
 								{phoneError && <p className="text-red-600 text-sm mt-1">{phoneError}</p>}
+								{phoneVerified && <p className="text-green-600 text-sm mt-1">Phone number verified</p>}
 							</div>
 						
 						

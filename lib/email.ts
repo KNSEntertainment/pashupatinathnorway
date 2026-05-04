@@ -432,26 +432,38 @@ type sendVerificationFollowupEmail = {
 };
 
 // Non-member donation thank you email with tax ID
-type sendNonMemberDonationThankYouEmail = {
+// type sendNonMemberDonationThankYouEmail = {
+// 	name: string;
+// 	email: string;
+// 	amount: number;
+// 	taxId: string;
+// 	donationDate: Date;
+// };
+
+// General donation thank you email for all donors (members and non-members)
+type sendDonationThankYouEmail = {
 	name: string;
 	email: string;
 	amount: number;
-	taxId: string;
-	donationDate: Date;
+	currency: string;
+	transactionId: string;
+	date: string;
+	message?: string;
+	membershipId?: string; // Optional - for members
 };
 
-export async function sendNonMemberDonationThankYouEmail({ name, email, amount, taxId, donationDate }: sendNonMemberDonationThankYouEmail) {
-	const formattedDate = donationDate.toLocaleDateString('en-US', { 
+export async function sendDonationThankYouEmail({ name, email, amount, currency = "NOK", transactionId, date, message, membershipId }: sendDonationThankYouEmail) {
+	const formattedDate = new Date(date).toLocaleDateString('en-US', { 
 		year: 'numeric', 
 		month: 'long', 
-		day: 'numeric' 
+		'day': 'numeric' 
 	});
 
 	const mailOptions = {
-		from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER}>`,
+		from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER!}>`,
 		to: email,
-		subject: "Thank You for Your Donation! - Your Tax ID Information",
-		text: `Dear ${name},\n\nThank you for your generous donation of ${amount} NOK to Pashupatinath Norway Temple! Your contribution helps us continue our sacred mission to build the first Nepali Hindu temple in Norway and serve our community.\n\nYour Tax ID: ${taxId}\nPlease save this Tax ID for your records. You will need it for tax document generation and to track your future donations.\n\nWhat happens next:\n• Your Tax ID will be used for all your future donations to the temple\n• You can request tax documents at any time using this Tax ID\n• Our admin team can generate annual tax reports for your donations\n• You don't need to be a member to receive tax documentation\n\nYour donation details:\n• Amount: ${amount} NOK\n• Date: ${formattedDate}\n• Tax ID: ${taxId}\n\nIf you have any questions or need assistance with tax document generation, please don't hesitate to contact our admin team.\n\nWith heartfelt gratitude,\nPashupatinath Norway Temple Team`,
+		subject: "Thank You for Your Donation! - Pashupatinath Norway Temple",
+		text: `Dear ${name},\n\nThank you for your generous donation of ${amount} ${currency} to Pashupatinath Norway Temple! Your contribution helps us continue our sacred mission to build the first Nepali Hindu temple in Norway and serve our community.\n\nYour donation details:\n• Amount: ${amount} ${currency}\n• Date: ${formattedDate}\n• Transaction ID: ${transactionId}\n${message ? `• Message: ${message}` : ''}${membershipId ? `\n• Membership ID: ${membershipId}` : ''}\n\nYour generosity makes a real difference in the lives of many. We are deeply grateful for your support and trust in our mission.\n\nWhat happens next:\n• You will receive a separate email with your tax receipt if applicable\n• Your contribution will be used to support temple construction and community programs\n• You may receive updates about our progress and upcoming events\n\nIf you have any questions about your donation or need additional information, please don't hesitate to contact our admin team.\n\nWith heartfelt gratitude,\nPashupatinath Temple Norway Team`,
 		html: `
 			<!DOCTYPE html>
 			<html>
@@ -461,9 +473,9 @@ export async function sendNonMemberDonationThankYouEmail({ name, email, amount, 
 					.container { max-width: 600px; margin: 0 auto; padding: 20px; }
 					.header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
 					.content { background: #ffffff; padding: 30px; border-radius: 0 0 10px 10px; }
-					.tax-id-box { background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 20px; margin: 20px 0; border-radius: 5px; }
-					.donation-details { background: #f9fafb; padding: 20px; margin: 20px 0; border-radius: 5px; }
-					.next-steps { background: #ffffff; padding: 20px; margin: 20px 0; border-radius: 5px; }
+					.donation-details { background: #f9fafb; border-left: 4px solid #10b981; padding: 20px; margin: 20px 0; border-radius: 5px; }
+					.detail-item { margin: 10px 0; }
+					.detail-label { font-weight: bold; color: #374151; }
 					.footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
 				</style>
 			</head>
@@ -475,48 +487,52 @@ export async function sendNonMemberDonationThankYouEmail({ name, email, amount, 
 					</div>
 					<div class="content">
 						<p>Dear <strong>${name}</strong>,</p>
-						<p>Thank you for your generous donation of <strong>${amount} NOK</strong> to Pashupatinath Norway Temple! Your contribution helps us continue our sacred mission to build the first Nepali Hindu temple in Norway and serve our community.</p>
-						
-						<div class="tax-id-box">
-							<h3 style="margin: 0 0 10px 0; color: #0ea5e9; font-weight: bold;">🎫 Your Tax ID</h3>
-							<p style="margin: 0; font-size: 18px; font-weight: bold; font-family: monospace;">${taxId}</p>
-							<p style="margin: 10px 0 0 0; color: #666; font-size: 14px;">Please save this Tax ID for your records. You'll need it for tax document generation and to track your future donations.</p>
-						</div>
-						
-						<div class="next-steps">
-							<h4 style="margin: 0 0 15px 0;">What Happens Next:</h4>
-							<ul style="margin: 20px 0; padding-left: 20px;">
-								<li style="margin: 10px 0;">Your Tax ID will be used for all your future donations to the temple</li>
-								<li style="margin: 10px 0;">You can request tax documents at any time using this Tax ID</li>
-								<li style="margin: 10px 0;">Our admin team can generate annual tax reports for your donations</li>
-								<li style="margin: 10px 0;">You don't need to be a member to receive tax documentation</li>
-							</ul>
-						</div>
+						<p>Thank you for your generous donation of <strong>${amount} ${currency}</strong> to Pashupatinath Norway Temple! Your contribution helps us continue our sacred mission to build the first Nepali Hindu temple in Norway and serve our community.</p>
 						
 						<div class="donation-details">
-							<h4 style="margin: 0 0 15px 0;">Donation Details:</h4>
-							<table style="width: 100%; border-collapse: collapse;">
-								<tr>
-									<td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><strong>Amount:</strong></td>
-									<td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${amount} NOK</td>
-								</tr>
-								<tr>
-									<td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><strong>Date:</strong></td>
-									<td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${formattedDate}</td>
-								</tr>
-								<tr>
-									<td style="padding: 8px;"><strong>Tax ID:</strong></td>
-									<td style="padding: 8px; font-family: monospace; font-weight: bold;">${taxId}</td>
-								</tr>
-							</table>
+							<h4 style="margin: 0 0 15px 0; color: #10b981;">📋 Donation Details</h4>
+							<div class="detail-item">
+								<span class="detail-label">Amount:</span>
+								<span>${amount} ${currency}</span>
+							</div>
+							<div class="detail-item">
+								<span class="detail-label">Date:</span>
+								<span>${formattedDate}</span>
+							</div>
+							<div class="detail-item">
+								<span class="detail-label">Transaction ID:</span>
+								<span>${transactionId}</span>
+							</div>
+							${message ? `
+							<div class="detail-item">
+								<span class="detail-label">Message:</span>
+								<span>${message}</span>
+							</div>
+							` : ''}
+							${membershipId ? `
+							<div class="detail-item">
+								<span class="detail-label">Membership ID:</span>
+								<span>${membershipId}</span>
+							</div>
+							` : ''}
 						</div>
 						
-						<p>If you have any questions or need assistance with tax document generation, please don't hesitate to contact our admin team.</p>
+						<p>Your generosity makes a real difference in the lives of many. We are deeply grateful for your support and trust in our mission.</p>
 						
-						<p>With heartfelt gratitude,<br><strong>Pashupatinath Norway Temple Team</strong></p>
+						<p><strong>What happens next:</strong></p>
+						<ul style="margin: 20px 0; padding-left: 20px;">
+							<li>You will receive a separate email with your tax receipt if applicable</li>
+							<li>Your contribution will be used to support temple construction and community programs</li>
+							<li>You may receive updates about our progress and upcoming events</li>
+						</ul>
+						
+						<p>If you have any questions about your donation or need additional information, please don't hesitate to contact our admin team.</p>
+						
+						<p>With heartfelt gratitude,<br><strong>Pashupatinath Temple Norway Team</strong></p>
 					</div>
 					<div class="footer">
-						<p>This is an automated email. Please do not reply to this message.</p>
+						<p>This is an automated receipt. Please keep it for your records.</p>
+						<p style="color: #999; margin-top: 10px;">Questions? Contact us at ${process.env.EMAIL_USER}</p>
 					</div>
 				</div>
 			</body>
@@ -525,10 +541,6 @@ export async function sendNonMemberDonationThankYouEmail({ name, email, amount, 
 	};
 
 	try {
-		// Add unsubscribe footer if user is subscribed
-		const htmlContentWithFooter = await addEmailFooter(email, mailOptions.html);
-		mailOptions.html = htmlContentWithFooter;
-		
 		const { error } = await resend.emails.send({
 			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER!}>`,
 			to: [email],
@@ -538,16 +550,17 @@ export async function sendNonMemberDonationThankYouEmail({ name, email, amount, 
 		});
 		
 		if (error) {
-			console.error("Error sending non-member donation thank you email:", error);
-			throw new Error("Failed to send non-member donation thank you email");
+			console.error("Error sending donation thank you email:", error);
+			throw new Error("Failed to send donation thank you email");
 		}
 		
-		console.log("Non-member donation thank you email with Tax ID sent to:", email);
+		console.log("Donation thank you email sent to:", email);
 	} catch (error) {
-		console.error("Error sending non-member donation thank you email:", error);
-		throw new Error("Failed to send non-member donation thank you email");
+		console.error("Error sending donation thank you email:", error);
+		throw new Error("Failed to send donation thank you email");
 	}
 }
+
 
 export async function sendVerificationFollowupEmail({ name, email, personalNumber }: sendVerificationFollowupEmail) {
 	const mailOptions = {
@@ -830,106 +843,10 @@ export async function sendWelcomeEmail({ name, email, setupToken, familyMembers 
 	}
 }
 
-// Donation thank you email
-type sendDonationThankYouEmail = {
-	name: string;
-	email: string;
-	amount: number;
-	currency: string;
-	transactionId: string;
-	date: string;
-	message?: string;
-};
-export async function sendDonationThankYouEmail({ name, email, amount, currency, transactionId, date, message }: sendDonationThankYouEmail) {
-	const mailOptions = {
-		from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER}>`,
-		to: email,
-		subject: "Thank You for Your Generous Donation - Pashupatinath Norway Temple",
-		text: `Dear ${name},\n\nThank you for your generous donation of ${amount} ${currency} to Pashupatinath Norway Temple!\n\nYour support helps us make a positive impact in the Nepali community in Norway and support democratic values in Nepal.\n\nDonation Details:\nAmount: ${amount} ${currency}\nTransaction ID: ${transactionId}\nDate: ${date}\n${message ? `\nYour Message: ${message}` : ""}\n\nYour contribution will be used to support:\n- Community events and cultural programs\n- Political advocacy and awareness campaigns\n- Organizational growth and outreach\n- Member support and resources\n\nWe will send you a detailed receipt shortly for your records.\n\nWith gratitude,\nPashupatinath Temple Norway Team`,
-		html: `
-			<!DOCTYPE html>
-			<html>
-			<head>
-				<style>
-					body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-					.container { max-width: 600px; margin: 0 auto; padding: 20px; }
-					.header { background: linear-gradient(135deg, #0094da 0%, #0070a8 100%); color: white; padding: 40px; text-align: center; border-radius: 10px 10px 0 0; }
-					.header h1 { margin: 0; font-size: 28px; }
-					.content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-					.donation-box { background: white; border-left: 4px solid #10b981; padding: 20px; margin: 20px 0; border-radius: 5px; }
-					.donation-amount { font-size: 32px; font-weight: bold; color: #0094da; margin: 10px 0; }
-					.details { background: white; padding: 15px; border-radius: 5px; margin: 15px 0; }
-					.details-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
-					.details-row:last-child { border-bottom: none; }
-					.impact-section { margin: 20px 0; }
-					.impact-item { background: white; padding: 15px; margin: 10px 0; border-radius: 5px; display: flex; align-items: center; }
-					.impact-icon { width: 40px; height: 40px; background: #0094da; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; margin-right: 15px; flex-shrink: 0; }
-					.footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #eee; color: #666; font-size: 12px; }
-					.heart { color: #ef4444; font-size: 20px; }
-				</style>
-			</head>
-			<body>
-				<div class="container">
-					<div class="header">
-						<div class="heart">❤️</div>
-						<h1>Thank You for Your Donation!</h1>
-					</div>
-					<div class="content">
-						<p>Dear <strong>${name}</strong>,</p>
-						
-						<div class="donation-box">
-							<p style="margin: 0; color: #666;">Your Generous Contribution</p>
-							<div class="donation-amount">${amount} ${currency}</div>
-							<p style="margin: 0; color: #10b981; font-weight: bold;">✓ Payment Successful</p>
-						</div>
-
-						<p>Your support makes a real difference in our mission to serve the Nepali community in Norway and support democratic values in Nepal. We are incredibly grateful for your generosity.</p>
-							<a href="${process.env.NEXTAUTH_URL || "http://localhost:3000"}/en/membership" style="display: inline-block; background: white; color: #0094da; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 5px;">Join as Member</a>
-						</div>
-
-						<p>This email serves as your donation receipt. Please keep it for your records. If you need any additional documentation, please don't hesitate to contact us.</p>
-
-						<p>With deep appreciation and gratitude,</p>
-						<p><strong>Pashupatinath Norway Temple Team</strong><br>
-						<a href="mailto:${process.env.EMAIL_USER}" style="color: #0094da;">nepalihindusamfunn@gmail.com</a><br>
-						<a href="${process.env.NEXTAUTH_URL || "http://localhost:3000"}" style="color: #0094da;">http://pashupatinathnorway.vercel.app/</a></p>
-					</div>
-					<div class="footer">
-						<p>Pashupatinath Norway Temple</p>
-						<p>This is an automated receipt. Please keep it for your records.</p>
-						<p style="color: #999; margin-top: 10px;">Questions? Contact us at ${process.env.EMAIL_USER}</p>
-					</div>
-				</div>
-			</body>
-			</html>
-		`,
-	};
-
-	try {
-		const { error } = await resend.emails.send({
-			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER!}>`,
-			to: [email],
-			subject: mailOptions.subject,
-			text: mailOptions.text,
-			html: mailOptions.html,
-		});
-		
-		if (error) {
-			console.error("Error sending donation thank you email:", error);
-			throw new Error("Failed to send donation thank you email");
-		}
-		
-		console.log("Donation thank you email sent to:", email);
-	} catch (error) {
-		console.error("Error sending donation thank you email:", error);
-		throw new Error("Failed to send donation thank you email");
-	}
-}
-
 // Newsletter subscription thank you email
 export async function sendSubscriptionThankYouEmail(email: string) {
 	const mailOptions = {
-		from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER}>`,
+		from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER}>`,
 		to: email,
 		subject: "Thank You for Subscribing to Pashupatinath Norway Temple Newsletter!",
 		text: `Thank you for subscribing to the Pashupatinath Norway Temple newsletter!\n\nWe're excited to keep you updated with our latest news, events, and community activities.\n\nWhat you can expect:\n- Latest news and updates from Pashupatinath Norway Temple\n- Information about upcoming events\n- Community initiatives and opportunities\n- Ways to get involved and make a difference\n\nYou can unsubscribe at any time by clicking the unsubscribe link in our emails.\n\nBest regards,\nPashupatinath Temple Norway Team`,
