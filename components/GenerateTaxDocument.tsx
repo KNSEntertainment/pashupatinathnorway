@@ -19,28 +19,37 @@ import { useState } from "react";
 
 export default function GenerateTaxDocument() {
     const [membershipId, setMembershipId] = useState("");
+    const [taxId, setTaxId] = useState("");
+    const [idType, setIdType] = useState<"membership" | "tax">("membership");
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
     const [taxDocumentLoading, setTaxDocumentLoading] = useState(false);
     const [bulkTaxDocumentLoading, setBulkTaxDocumentLoading] = useState(false);
 
 
 	const generateTaxDocument = async () => {
-		if (!membershipId || !/^MEM-\d{4}-\d{6}$/.test(membershipId)) {
-			alert("Please enter a valid membership ID (format: MEM-YYYY-XXXXXX)");
+		const currentId = idType === "membership" ? membershipId : taxId;
+		const idPattern = idType === "membership" ? /^MEM-\d{4}-\d{6}$/ : /^TAX-\d{4}-\d{6}$/;
+		const idLabel = idType === "membership" ? "membership ID" : "tax ID";
+		const idFormat = idType === "membership" ? "MEM-YYYY-XXXXXX" : "TAX-YYYY-XXXXXX";
+		
+		if (!currentId || !idPattern.test(currentId)) {
+			alert(`Please enter a valid ${idLabel} (format: ${idFormat})`);
 			return;
 		}
 
 		setTaxDocumentLoading(true);
 		try {
-			const response = await fetch("/api/donations/tax-report", {
+			const endpoint = idType === "membership" ? "/api/donations/tax-report" : "/api/donations/non-member-tax-report";
+			const payload = idType === "membership" 
+				? { membershipId: currentId, year: parseInt(selectedYear) }
+				: { taxId: currentId, year: parseInt(selectedYear) };
+
+			const response = await fetch(endpoint, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify({
-					membershipId,
-					year: parseInt(selectedYear),
-				}),
+				body: JSON.stringify(payload),
 			});
 
 			const data = await response.json();
@@ -283,15 +292,55 @@ const generateTaxPDF = (taxReport: {
 					{/* Individual Tax Document Generation */}
 					<div className="mb-8">
 						<h3 className="text-lg font-semibold mb-4">Individual Tax Document</h3>
+						
+						{/* ID Type Selection */}
+						<div className="mb-4">
+							<Label className="text-sm font-medium text-gray-700 mb-2 block">Select ID Type</Label>
+							<div className="flex gap-4">
+								<label className="flex items-center">
+									<input
+										type="radio"
+										name="idType"
+										value="membership"
+										checked={idType === "membership"}
+										onChange={(e) => setIdType(e.target.value as "membership")}
+										className="mr-2"
+									/>
+									<span className="text-sm">Member (Membership ID)</span>
+								</label>
+								<label className="flex items-center">
+									<input
+										type="radio"
+										name="idType"
+										value="tax"
+										checked={idType === "tax"}
+										onChange={(e) => setIdType(e.target.value as "tax")}
+										className="mr-2"
+									/>
+									<span className="text-sm">Non-Member (Tax ID)</span>
+								</label>
+							</div>
+						</div>
+						
 						<div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
 							<div>
-								<Label htmlFor="membershipId">Membership ID</Label>
+								<Label htmlFor="idInput">
+									{idType === "membership" ? "Membership ID" : "Tax ID"}
+								</Label>
 								<Input
-									id="membershipId"
+									id="idInput"
 									type="text"
-									placeholder="Enter membership ID (e.g., MEM-2024-000001)"
-									value={membershipId}
-									onChange={(e) => setMembershipId(e.target.value)}
+									placeholder={
+										idType === "membership" 
+											? "Enter membership ID (e.g., MEM-2024-000001)"
+											: "Enter tax ID (e.g., TAX-2024-000001)"
+									}
+									value={idType === "membership" ? membershipId : taxId}
+									onChange={(e) => 
+										idType === "membership" 
+											? setMembershipId(e.target.value)
+											: setTaxId(e.target.value)
+									}
 									maxLength={17}
 								/>
 							</div>
@@ -310,7 +359,7 @@ const generateTaxPDF = (taxReport: {
 								<AlertDialog>
 									<AlertDialogTrigger asChild>
 										<Button
-											disabled={taxDocumentLoading || !membershipId}
+											disabled={taxDocumentLoading || !(idType === "membership" ? membershipId : taxId)}
 											className="w-full"
 										>
 											{taxDocumentLoading ? (
@@ -335,8 +384,8 @@ const generateTaxPDF = (taxReport: {
 											<AlertDialogDescription>
 												<div className="space-y-3">
 													<p>
-														You are about to generate a tax document for membership ID 
-														<strong>{membershipId}</strong> for the year {selectedYear}.
+														You are about to generate a tax document for {idType === "membership" ? "membership" : "tax"} ID 
+														<strong>{idType === "membership" ? membershipId : taxId}</strong> for the year {selectedYear}.
 													</p>
 													<div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
 														<p className="text-sm text-orange-800">

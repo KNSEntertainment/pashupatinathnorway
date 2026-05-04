@@ -151,13 +151,17 @@ export async function POST(request: NextRequest) {
 				personalNumber: getDecryptedAndMaskedPersonalNumber(membership.personalNumber),
 				email: membership.email,
 				address: `${membership.address}, ${membership.postalCode} ${membership.city}`,
-				membershipStatus: membership.membershipStatus
+				membershipStatus: membership.membershipStatus,
+				membershipId: membership.membershipId,
+				taxId: null
 			} : {
 				name: firstDonation.donorName || "Anonymous Donor",
 				personalNumber: maskedPersonalNumber,
 				email: firstDonation.donorEmail || "Not provided",
 				address: donationWithAddress?.address || "Not provided",
-				membershipStatus: "Non-member"
+				membershipStatus: "Non-member",
+				membershipId: null,
+				taxId: firstDonation.taxId || null
 			};
 
 			const taxReport = {

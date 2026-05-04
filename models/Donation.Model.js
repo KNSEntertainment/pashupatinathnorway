@@ -32,6 +32,26 @@ const DonationSchema = new mongoose.Schema(
 				message: 'Personal number must be exactly 11 digits or in encrypted format'
 			}
 		},
+		membershipId: {
+			type: String,
+			validate: {
+				validator: function(v) {
+					if (!v) return true; // Optional for non-members
+					return /^MEM-\d{4}-\d{6}$/.test(v);
+				},
+				message: 'Invalid membership ID format. Expected format: MEM-YYYY-XXXXXX'
+			}
+		},
+		taxId: {
+			type: String,
+			validate: {
+				validator: function(v) {
+					if (!v) return true; // Optional for members
+					return /^TAX-\d{4}-\d{6}$/.test(v);
+				},
+				message: 'Invalid tax ID format. Expected format: TAX-YYYY-XXXXXX'
+			}
+		},
 		address: {
 			type: String,
 		},

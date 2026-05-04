@@ -3,12 +3,14 @@ import connectDB from "@/lib/mongodb";
 import Donation from "@/models/Donation.Model";
 import Cause from "@/models/Cause.Model";
 import { encryptPersonalNumber } from "@/lib/encryption";
+import generateTaxId from "@/lib/taxIdGenerator";
+import { sendNonMemberDonationThankYouEmail } from "@/lib/email";
 
 export async function POST(request: Request) {
 	try {
 		await connectDB();
 
-		const { amount, donorName, donorEmail, donorPhone, personalNumber, address, message, isAnonymous, causeId, donationType } = await request.json();
+		const { amount, donorName, donorEmail, donorPhone, personalNumber, membershipId, address, message, isAnonymous, causeId, donationType } = await request.json();
 
 		// Validate amount
 		if (!amount || amount < 50) {
@@ -23,12 +25,32 @@ export async function POST(request: Request) {
 		// Encrypt personal number if provided
 		const encryptedPersonalNumber = personalNumber ? encryptPersonalNumber(personalNumber) : undefined;
 
+		// Generate tax ID for non-members (those without membershipId)
+		let taxId = undefined;
+		if (!membershipId && personalNumber) {
+			// Check if this non-member already has donations with a tax ID
+			const existingDonation = await Donation.findOne({
+				personalNumber: encryptedPersonalNumber,
+				taxId: { $exists: true }
+			});
+			
+			if (existingDonation) {
+				// Use existing tax ID
+				taxId = existingDonation.taxId;
+			} else {
+				// Generate new tax ID
+				taxId = await generateTaxId();
+			}
+		}
+
 		// Create donation record with completed status (simulated Vipps payment)
 		const donation = await Donation.create({
 			donorName: isAnonymous ? "Anonymous" : donorName,
 			donorEmail: isAnonymous ? "anonymous@rspnorway.org" : donorEmail,
 			donorPhone,
 			personalNumber: encryptedPersonalNumber,
+			membershipId: membershipId || undefined,
+			taxId: taxId || undefined,
 			address: address || undefined,
 			amount,
 			currency: "NOK",
@@ -52,6 +74,23 @@ export async function POST(request: Request) {
 					}
 				}
 			);
+		}
+
+		// Send tax ID email to non-members (only if they have a tax ID and valid email)
+		if (taxId && donorEmail && donorEmail !== "anonymous@rspnorway.org") {
+			try {
+				await sendNonMemberDonationThankYouEmail({
+					name: donorName || "Valued Supporter",
+					email: donorEmail,
+					amount: amount,
+					taxId: taxId,
+					donationDate: new Date()
+				});
+				console.log("Tax ID email sent to non-member:", donorEmail);
+			} catch (emailError) {
+				console.error("Error sending tax ID email:", emailError);
+				// Don't fail the donation creation if email fails
+			}
 		}
 
 		return NextResponse.json({ 

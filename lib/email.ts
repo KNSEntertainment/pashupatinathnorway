@@ -43,9 +43,10 @@ export async function sendContactEmail({ name, email, message }: sendContactEmai
 type sendGeneralMemberWelcomeEmail = {
 	name: string;
 	email: string;
+	membershipId: string;
 	familyMembers?: string[]; // Array of family member names
 };
-export async function sendGeneralMemberWelcomeEmail({ name, email, familyMembers }: sendGeneralMemberWelcomeEmail) {
+export async function sendGeneralMemberWelcomeEmail({ name, email, membershipId, familyMembers }: sendGeneralMemberWelcomeEmail) {
 	const familyMembersText = familyMembers && familyMembers.length > 0 
 		? `\n\nFamily Members Registered: ${familyMembers.join(', ')}`
 		: '';
@@ -54,7 +55,7 @@ export async function sendGeneralMemberWelcomeEmail({ name, email, familyMembers
 		from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER}>`,
 		to: email,
 		subject: "Welcome to Pashupatinath Norway Temple - General Member Registration Received",
-		text: `Hello ${name},\n\nThank you for registering as a General Member with Pashupatinath Norway Temple! Your membership application has been successfully received.${familyMembersText}\n\nYou are now part of our sacred mission to build the first Nepali Hindu temple in Norway and unite our community. Together, we are creating a spiritual home where our cultural heritage and religious traditions can thrive for generations to come.\n\nWhat happens next:\n• Your application is currently under review by our admin team\n• Once approved, you will become an Active Member with full access to member benefits\n• If you are 15 years or older, you will be eligible for Active Member status upon approval\n• Members under 15 will remain as General Members until they turn 15\n\nAs a General Member, you are already part of our community and will receive updates about temple events and activities.\n\nBest regards,\nPashupatinath Temple Norway Team`,
+		text: `Hello ${name},\n\nThank you for registering as a General Member with Pashupatinath Norway Temple! Your membership application has been successfully received.${familyMembersText}\n\nYour Membership ID: ${membershipId}\nPlease save this ID for your records. You'll need it for tax document generation and membership verification.\n\nYou are now part of our sacred mission to build the first Nepali Hindu temple in Norway and unite our community. Together, we are creating a spiritual home where our cultural heritage and religious traditions can thrive for generations to come.\n\nWhat happens next:\n• Your application is currently under review by our admin team\n• Once approved, you will become an Active Member with full access to member benefits\n• If you are 15 years or older, you will be eligible for Active Member status upon approval\n• Members under 15 will remain as General Members until they turn 15\n\nAs a General Member, you are already part of our community and will receive updates about temple events and activities.\n\nBest regards,\nPashupatinath Temple Norway Team`,
 		html: `
 			<!DOCTYPE html>
 			<html>
@@ -80,6 +81,12 @@ export async function sendGeneralMemberWelcomeEmail({ name, email, familyMembers
 					<div class="content">
 						<p>Hello <strong>${name}</strong>,</p>
 						<p>Thank you for registering as a <strong>General Member</strong> with Pashupatinath Norway Temple! Your membership application has been successfully received and you are now part of our sacred community.</p>
+						
+						<div style="background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 20px; margin: 20px 0; border-radius: 5px;">
+							<h3 style="margin: 0 0 10px 0; color: #0ea5e9; font-weight: bold;">🎫 Your Membership ID</h3>
+							<p style="margin: 0; font-size: 18px; font-weight: bold; font-family: monospace;">${membershipId}</p>
+							<p style="margin: 10px 0 0 0; color: #666; font-size: 14px;">Please save this ID for your records. You'll need it for tax document generation and membership verification.</p>
+						</div>
 						
 						${familyMembers && familyMembers.length > 0 ? `
 						<div style="background: #ffffff; border-left: 4px solid #ffc445; padding: 20px; margin: 20px 0; border-radius: 5px;">
@@ -377,6 +384,112 @@ type sendVerificationFollowupEmail = {
 	email: string;
 	personalNumber: string;
 };
+
+// Non-member donation thank you email with tax ID
+type sendNonMemberDonationThankYouEmail = {
+	name: string;
+	email: string;
+	amount: number;
+	taxId: string;
+	donationDate: Date;
+};
+
+export async function sendNonMemberDonationThankYouEmail({ name, email, amount, taxId, donationDate }: sendNonMemberDonationThankYouEmail) {
+	const formattedDate = donationDate.toLocaleDateString('en-US', { 
+		year: 'numeric', 
+		month: 'long', 
+		day: 'numeric' 
+	});
+
+	const mailOptions = {
+		from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER}>`,
+		to: email,
+		subject: "Thank You for Your Donation! - Your Tax ID Information",
+		text: `Dear ${name},\n\nThank you for your generous donation of ${amount} NOK to Pashupatinath Norway Temple! Your contribution helps us continue our sacred mission to build the first Nepali Hindu temple in Norway and serve our community.\n\nYour Tax ID: ${taxId}\nPlease save this Tax ID for your records. You will need it for tax document generation and to track your future donations.\n\nWhat happens next:\n• Your Tax ID will be used for all your future donations to the temple\n• You can request tax documents at any time using this Tax ID\n• Our admin team can generate annual tax reports for your donations\n• You don't need to be a member to receive tax documentation\n\nYour donation details:\n• Amount: ${amount} NOK\n• Date: ${formattedDate}\n• Tax ID: ${taxId}\n\nIf you have any questions or need assistance with tax document generation, please don't hesitate to contact our admin team.\n\nWith heartfelt gratitude,\nPashupatinath Norway Temple Team`,
+		html: `
+			<!DOCTYPE html>
+			<html>
+			<head>
+				<style>
+					body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+					.container { max-width: 600px; margin: 0 auto; padding: 20px; }
+					.header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+					.content { background: #ffffff; padding: 30px; border-radius: 0 0 10px 10px; }
+					.tax-id-box { background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 20px; margin: 20px 0; border-radius: 5px; }
+					.donation-details { background: #f9fafb; padding: 20px; margin: 20px 0; border-radius: 5px; }
+					.next-steps { background: #ffffff; padding: 20px; margin: 20px 0; border-radius: 5px; }
+					.footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+				</style>
+			</head>
+			<body>
+				<div class="container">
+					<div class="header">
+						<h1>🙏 Thank You for Your Donation!</h1>
+						<p style="margin: 10px 0 0 0; font-size: 18px;">Your generosity supports our temple mission</p>
+					</div>
+					<div class="content">
+						<p>Dear <strong>${name}</strong>,</p>
+						<p>Thank you for your generous donation of <strong>${amount} NOK</strong> to Pashupatinath Norway Temple! Your contribution helps us continue our sacred mission to build the first Nepali Hindu temple in Norway and serve our community.</p>
+						
+						<div class="tax-id-box">
+							<h3 style="margin: 0 0 10px 0; color: #0ea5e9; font-weight: bold;">🎫 Your Tax ID</h3>
+							<p style="margin: 0; font-size: 18px; font-weight: bold; font-family: monospace;">${taxId}</p>
+							<p style="margin: 10px 0 0 0; color: #666; font-size: 14px;">Please save this Tax ID for your records. You'll need it for tax document generation and to track your future donations.</p>
+						</div>
+						
+						<div class="next-steps">
+							<h4 style="margin: 0 0 15px 0;">What Happens Next:</h4>
+							<ul style="margin: 20px 0; padding-left: 20px;">
+								<li style="margin: 10px 0;">Your Tax ID will be used for all your future donations to the temple</li>
+								<li style="margin: 10px 0;">You can request tax documents at any time using this Tax ID</li>
+								<li style="margin: 10px 0;">Our admin team can generate annual tax reports for your donations</li>
+								<li style="margin: 10px 0;">You don't need to be a member to receive tax documentation</li>
+							</ul>
+						</div>
+						
+						<div class="donation-details">
+							<h4 style="margin: 0 0 15px 0;">Donation Details:</h4>
+							<table style="width: 100%; border-collapse: collapse;">
+								<tr>
+									<td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><strong>Amount:</strong></td>
+									<td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${amount} NOK</td>
+								</tr>
+								<tr>
+									<td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><strong>Date:</strong></td>
+									<td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${formattedDate}</td>
+								</tr>
+								<tr>
+									<td style="padding: 8px;"><strong>Tax ID:</strong></td>
+									<td style="padding: 8px; font-family: monospace; font-weight: bold;">${taxId}</td>
+								</tr>
+							</table>
+						</div>
+						
+						<p>If you have any questions or need assistance with tax document generation, please don't hesitate to contact our admin team.</p>
+						
+						<p>With heartfelt gratitude,<br><strong>Pashupatinath Norway Temple Team</strong></p>
+					</div>
+					<div class="footer">
+						<p>This is an automated email. Please do not reply to this message.</p>
+					</div>
+				</div>
+			</body>
+			</html>
+		`,
+	};
+
+	try {
+		// Add unsubscribe footer if user is subscribed
+		const htmlContentWithFooter = await addEmailFooter(email, mailOptions.html);
+		mailOptions.html = htmlContentWithFooter;
+		
+		await transporter.sendMail(mailOptions);
+		console.log("Non-member donation thank you email with Tax ID sent to:", email);
+	} catch (error) {
+		console.error("Error sending non-member donation thank you email:", error);
+		throw new Error("Failed to send non-member donation thank you email");
+	}
+}
 
 export async function sendVerificationFollowupEmail({ name, email, personalNumber }: sendVerificationFollowupEmail) {
 	const mailOptions = {

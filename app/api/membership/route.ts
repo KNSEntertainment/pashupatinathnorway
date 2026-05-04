@@ -137,6 +137,7 @@ export async function POST(req: NextRequest) {
 			await sendGeneralMemberWelcomeEmail({
 				name: mainMemberName,
 				email: mainMembership.email,
+				membershipId: mainMembership.membershipId,
 				familyMembers: familyMembers.map((fm: FamilyMember) => [fm.firstName, fm.middleName, fm.lastName].filter(Boolean).join(' ')),
 			});
 
@@ -148,6 +149,7 @@ export async function POST(req: NextRequest) {
 				await sendGeneralMemberWelcomeEmail({
 					name: familyMemberName,
 					email: familyMembership.email,
+					membershipId: familyMembership.membershipId,
 					familyMembers: [], // Family members don't have additional family members
 				});
 			}
