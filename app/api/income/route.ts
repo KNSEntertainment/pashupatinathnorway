@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Income from "@/models/Income.Model";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import User from "@/models/User.Model";
 import mongoose from "mongoose";
+
+// Import User model to ensure schema registration for populate operations
 
 export async function GET(request: Request) {
 	try {
