@@ -28,11 +28,6 @@ const IncomeSchema = new mongoose.Schema(
 		reference: {
 			type: String,
 		},
-		createdBy: {
-			type: mongoose.Schema.Types.ObjectId,
-			ref: "User",
-			required: true,
-		},
 		budgetId: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "Budget",

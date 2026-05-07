@@ -1,16 +1,11 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Budget from "@/models/Budget.Model";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import User from "@/models/User.Model";
-import mongoose from "mongoose";
-
-// Import User model to ensure schema registration for populate operations
 
 export async function GET() {
 	try {
 		await connectDB();
-		const budgets = await Budget.find().populate('createdBy', 'name email').sort({ createdAt: -1 });
+		const budgets = await Budget.find().sort({ createdAt: -1 });
 		return NextResponse.json(budgets, { status: 200 });
 	} catch (error) {
 		console.error("Error fetching budgets:", error);
@@ -22,18 +17,6 @@ export async function POST(request: Request) {
 	try {
 		await connectDB();
 		const body = await request.json();
-		
-		// Convert createdBy string to ObjectId if present
-		if (body.createdBy && typeof body.createdBy === 'string') {
-			try {
-				body.createdBy = new mongoose.Types.ObjectId(body.createdBy);
-			} catch {
-				console.error("Invalid createdBy ObjectId:", body.createdBy);
-				return NextResponse.json({ error: "Invalid createdBy format" }, { status: 400 });
-			}
-		} else if (!body.createdBy) {
-			return NextResponse.json({ error: "createdBy is required" }, { status: 400 });
-		}
 		
 		const budget = await Budget.create(body);
 		return NextResponse.json(budget, { status: 201 });
@@ -51,16 +34,6 @@ export async function PUT(request: Request) {
 		
 		if (!id) {
 			return NextResponse.json({ error: "Budget ID is required" }, { status: 400 });
-		}
-		
-		// Convert createdBy string to ObjectId if present
-		if (updateData.createdBy && typeof updateData.createdBy === 'string') {
-			try {
-				updateData.createdBy = new mongoose.Types.ObjectId(updateData.createdBy);
-			} catch {
-				console.error("Invalid createdBy ObjectId:", updateData.createdBy);
-				return NextResponse.json({ error: "Invalid createdBy format" }, { status: 400 });
-			}
 		}
 		
 		const budget = await Budget.findByIdAndUpdate(

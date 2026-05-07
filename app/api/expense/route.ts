@@ -1,11 +1,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Expense from "@/models/Expense.Model";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import User from "@/models/User.Model";
 import mongoose from "mongoose";
-
-// Import User model to ensure schema registration for populate operations
 
 export async function GET(request: Request) {
 	try {
@@ -36,7 +32,7 @@ export async function GET(request: Request) {
 			}
 		}
 		
-		const expenses = await Expense.find(query).populate('createdBy', 'name email').populate('budgetId', 'name').sort({ date: -1 });
+		const expenses = await Expense.find(query).populate('budgetId', 'name').sort({ date: -1 });
 		return NextResponse.json(expenses, { status: 200 });
 	} catch (error) {
 		console.error("Error fetching expenses:", error);
@@ -48,18 +44,6 @@ export async function POST(request: Request) {
 	try {
 		await connectDB();
 		const body = await request.json();
-		
-		// Convert createdBy string to ObjectId if present
-		if (body.createdBy && typeof body.createdBy === 'string') {
-			try {
-				body.createdBy = new mongoose.Types.ObjectId(body.createdBy);
-			} catch {
-				console.error("Invalid createdBy ObjectId:", body.createdBy);
-				return NextResponse.json({ error: "Invalid createdBy format" }, { status: 400 });
-			}
-		} else if (!body.createdBy) {
-			return NextResponse.json({ error: "createdBy is required" }, { status: 400 });
-		}
 		
 		// Convert budgetId string to ObjectId if present
 		if (body.budgetId && typeof body.budgetId === 'string') {
@@ -87,16 +71,6 @@ export async function PUT(request: Request) {
 		
 		if (!id) {
 			return NextResponse.json({ error: "Expense ID is required" }, { status: 400 });
-		}
-		
-		// Convert createdBy string to ObjectId if present
-		if (updateData.createdBy && typeof updateData.createdBy === 'string') {
-			try {
-				updateData.createdBy = new mongoose.Types.ObjectId(updateData.createdBy);
-			} catch {
-				console.error("Invalid createdBy ObjectId:", updateData.createdBy);
-				return NextResponse.json({ error: "Invalid createdBy format" }, { status: 400 });
-			}
 		}
 		
 		// Convert budgetId string to ObjectId if present
