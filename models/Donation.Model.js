@@ -8,7 +8,6 @@ const DonationSchema = new mongoose.Schema(
 		},
 		donorEmail: {
 			type: String,
-			required: true,
 		},
 		donorPhone: {
 			type: String,

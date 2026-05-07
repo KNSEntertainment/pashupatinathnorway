@@ -16,6 +16,7 @@ interface MemberIDCardProps {
 		membershipType: string;
 		city?: string;
 		personalNumber?: string;
+		membershipId?: string;
 		createdAt: string;
 	};
 	logo?: string;
@@ -31,33 +32,8 @@ export default function MemberIDCard({ memberData }: MemberIDCardProps) {
 	// Generate membership number from last 6 digits of _id
 	const membershipNumber = memberData._id.slice(-6).toUpperCase();
 
-	// Generate enhanced QR code data with structured member information
-	const baseUrl = process.env.NEXTAUTH_URL || "https://pashupatinathnorway.vercel.app/";
-	const issuedDate = new Date(memberData.createdAt).toISOString().split('T')[0];
-	const expiryDate = new Date(new Date(memberData.createdAt).setFullYear(new Date(memberData.createdAt).getFullYear() + 1)).toISOString().split('T')[0];
-
-	// Get personal number from member data (will be passed from parent component)
-	const personalNumber = memberData.personalNumber || "";
-
-	const qrData = JSON.stringify({
-		type: "member_card",
-		version: "1.0",
-		memberId: memberData._id,
-		membershipNumber: membershipNumber,
-		personalNumber: personalNumber,
-		fullName: memberData.fullName,
-		phone: memberData.phone || "",
-		email: memberData.email,
-		membershipStatus: "approved",
-		issuedDate: issuedDate,
-		expiryDate: expiryDate,
-		verificationUrl: `${baseUrl}/api/verify/${personalNumber}`,
-		organization: {
-			name: "Pashupatinath Norway Temple",
-			location: "Oslo, Norway",
-			contact: "nepalihindusamfunn@gmail.com"
-		}
-	});
+	// QR code now only contains the member ID
+	const qrData = memberData.membershipId || membershipNumber;
 
 
 	// Format membership date
@@ -106,6 +82,11 @@ export default function MemberIDCard({ memberData }: MemberIDCardProps) {
 						</div>
 					</div>
 					<div className="relative grid grid-cols-1 ml-8 gap-2">
+							{/* Member ID */}
+							<div>
+								<p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wide">Member ID</p>
+								<p className="text-sm font-bold text-brand_primary">{memberData.membershipId || membershipNumber}</p>
+							</div>
 							{/* Name */}
 							<div>
 								<p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wide">Full Name</p>

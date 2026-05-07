@@ -94,7 +94,7 @@ export async function POST(request: Request) {
       dataRows = lines.slice(1);
       
       // Validate required headers
-      const requiredHeaders = ['donorName', 'donorEmail', 'amount', 'paymentStatus'];
+      const requiredHeaders = ['donorName', 'amount', 'paymentStatus'];
       const missingHeaders = requiredHeaders.filter(header => 
         !headers.some(h => h.toLowerCase() === header.toLowerCase())
       );
@@ -153,10 +153,12 @@ export async function POST(request: Request) {
           rowErrors.push('Donor name is required');
         }
 
-        // Validate email
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!donation.donorEmail || !emailRegex.test(donation.donorEmail)) {
-          rowErrors.push('Valid email is required');
+        // Validate email (optional)
+        if (donation.donorEmail) {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(donation.donorEmail)) {
+            rowErrors.push('Email must be valid if provided');
+          }
         }
 
         // Validate personal number (11 digits) - validate before encryption

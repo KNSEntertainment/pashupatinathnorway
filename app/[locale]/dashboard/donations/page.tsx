@@ -161,7 +161,7 @@ export default function DonationsManagement() {
 				</div>
 				{/* Total Donation Display */}
 				<div className="text-right">
-					<p className="text-sm text-gray-500 font-medium uppercase tracking-wide">Total Donations to Date</p>
+					<p className="text-sm text-gray-500 font-medium uppercase tracking-wide">Total Donations till Date</p>
 					<p className="text-4xl md:text-5xl font-bold text-green-700 mt-1">{formatNOK(stats.totalAmount)}</p>
 					<p className="text-sm text-gray-600 mt-1">From {stats.total} donors</p>
 				</div>

@@ -82,10 +82,10 @@ export default function AuthFormContent() {
 			const response = await fetch("/api/auth/session");
 			const session = await response.json();
 
-			// Redirect based on role
+			// Redirect based on role using current locale
 			if (session?.user?.role === "admin") {
 				console.log("Redirecting admin to dashboard");
-				window.location.href = `/en/dashboard`;
+				window.location.href = `/${locale}/dashboard`;
 			} else {
 				window.location.href = `/${locale}/profile`;
 			}

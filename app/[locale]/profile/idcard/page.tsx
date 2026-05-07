@@ -161,6 +161,7 @@ export default function IDCardPage() {
 										membershipType: membershipData.membershipType,
 										city: membershipData.city,
 										personalNumber: membershipData.personalNumber,
+										membershipId: membershipData.membershipId,
 										createdAt: membershipData.createdAt,
 									}}
 									logo={logo}

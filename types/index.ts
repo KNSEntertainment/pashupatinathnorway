@@ -47,6 +47,7 @@ export interface Membership {
 	middleName?: string;
 	lastName: string;
 	email: string;
+	membershipId: string;
 	phone: string;
 	address: string;
 	city: string;
