@@ -11,8 +11,8 @@ export default {
 
 				// PRIMARY: Main brand color - buttons, links, active states
 				brand_primary: "#ffc445",
-				brand_primary_light: "#FF7722",
 				brand_secondary: "#CC0000",
+				brand_primary_light: "#FF7722",
 				brand_secondary_light: "#E32636",
 
 				// SUCCESS: Greenish accent - success states, highlights

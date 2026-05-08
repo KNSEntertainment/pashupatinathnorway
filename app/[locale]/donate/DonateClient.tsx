@@ -67,8 +67,8 @@ export default function DonatePageClient({ locale }: DonatePageClientProps) {
 					</div>
 					
 					{/* Total Donations Display */}
-					<div className="text-center mb-8">
-						<div className="-mt-12 bg-white rounded-xl shadow-lg p-6 max-w-md mx-auto border border-gray-100">
+					<div className="text-center mb-0 md:mb-8">
+						<div className="mt-0 md:-mt-12 bg-white rounded-xl shadow-lg p-6 max-w-md mx-auto border border-gray-100">
 							<h3 className="text-lg font-semibold text-gray-700 mb-1">
 								{t("total_donations") || "Total Donations till now"}
 							</h3>
@@ -92,7 +92,7 @@ export default function DonatePageClient({ locale }: DonatePageClientProps) {
 						</div>
 					</div>
 					
-					<div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6">
+					<div className="hidden md:flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6">
 						<div className="flex items-center gap-2 bg-white rounded-lg px-4 py-2 shadow-sm">
 							<div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand_primary/20 to-brand_primary/10 flex items-center justify-center">
 								<Building className="w-4 h-4 text-brand_secondary" />

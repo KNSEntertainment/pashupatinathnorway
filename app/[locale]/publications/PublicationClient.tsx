@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Search, Download, Eye, Calendar, FileText, Filter, ChevronDown } from "lucide-react";
+import SectionHeader from "@/components/SectionHeader";
 
 interface AnnualReport {
   id: string;
@@ -115,14 +116,11 @@ export default function PublicationClient() {
       {/* Header */}
       <div className="bg-gradient-to-b from-red-50 to-red-100 text-gray-700">
         
-        <div className="container mx-auto px-4 py-12">
-          <div className="max-w-4xl">
-            <h1 className="text-4xl font-bold mb-4">Annual Reports</h1>
-            <p className="text-xl text-gray-600">
-              Access our comprehensive collection of annual reports, including financial statements, 
-              activity summaries, membership statistics, and audit reports.
-            </p>
-          </div>
+        <div className="container mx-auto px-4 pt-12 pb-1">
+            <SectionHeader 
+              heading="Annual Reports"
+              subtitle="Access our comprehensive collection of annual reports, including financial statements, activity summaries, membership statistics, and audit reports."
+            />
         </div>
       </div>
 

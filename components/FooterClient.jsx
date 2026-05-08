@@ -210,7 +210,7 @@ export default function FooterClient({ settings }) {
 			<div className="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 pt-14 pb-8">
 
 				{/* ── Top: Logo + tagline centred on mobile, left on desktop ── */}
-				<div className="flex flex-col items-center sm:items-start mb-12">
+				<div className="flex flex-col mb-12">
 					<Link href="/" locale={locale} className="flex items-center gap-3 group mb-4">
 						<Image
 							src="/pashupatinath.png"
@@ -226,7 +226,7 @@ export default function FooterClient({ settings }) {
 							<span className="text-stone-500 text-xs mt-0.5">Org nr. 926499211</span>
 						</div>
 					</Link>
-					<p className="text-stone-400 text-sm leading-relaxed text-center sm:text-left max-w-xs">
+					<p className="text-stone-400 ml-2 text-sm leading-relaxed max-w-xs">
 						{t("tagline")}
 					</p>
 				</div>
