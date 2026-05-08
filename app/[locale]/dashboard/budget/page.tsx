@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -98,8 +98,7 @@ export default function BudgetManagement() {
 	const [income, setIncome] = useState<Income[]>([]);
 	const [expenses, setExpenses] = useState<Expense[]>([]);
 	const [budgets, setBudgets] = useState<Budget[]>([]);
-	const [loading, setLoading] = useState(true);
-	const [filter, setFilter] = useState("1month");
+		const [filter, setFilter] = useState("1month");
 	const [showIncomeDialog, setShowIncomeDialog] = useState(false);
 	const [showExpenseDialog, setShowExpenseDialog] = useState(false);
 	const [showBudgetDialog, setShowBudgetDialog] = useState(false);
@@ -136,11 +135,7 @@ export default function BudgetManagement() {
 	const [editingIncome, setEditingIncome] = useState<string | null>(null);
 	const [editingExpense, setEditingExpense] = useState<string | null>(null);
 
-	useEffect(() => {
-		fetchData();
-	}, [filter]);
-
-	const fetchData = async () => {
+	const fetchData = useCallback(async () => {
 		try {
 			const [summaryRes, incomeRes, expenseRes, budgetRes] = await Promise.all([
 				fetch(`/api/financial-summary?filter=${filter}`),
@@ -149,23 +144,27 @@ export default function BudgetManagement() {
 				fetch(`/api/budget`)
 			]);
 
-			const [summaryData, incomeData, expenseData, budgetData] = await Promise.all([
+			const [summary, income, expenses, budget] = await Promise.all([
 				summaryRes.json(),
 				incomeRes.json(),
 				expenseRes.json(),
 				budgetRes.json()
 			]);
 
-			setSummary(summaryData);
-			setIncome(incomeData);
-			setExpenses(expenseData);
-			setBudgets(budgetData);
+			if (summary.success && income.success && expenses.success && budget.success) {
+				setSummary(summary.data);
+				setIncome(income.data);
+				setExpenses(expenses.data);
+				setBudgets(budget.data);
+			}
 		} catch (error) {
-			console.error("Error fetching data:", error);
-		} finally {
-			setLoading(false);
+			console.error("Error fetching budget data:", error);
 		}
-	};
+	}, [filter]);
+
+	useEffect(() => {
+		fetchData();
+	}, [filter, fetchData]);
 
 	const handleIncomeSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -516,14 +515,7 @@ export default function BudgetManagement() {
 		});
 	};
 
-	if (loading) {
-		return (
-			<div className="flex items-center justify-center min-h-screen">
-				<div className="animate-spin rounded-full h-12 w-12 border-t-4 border-brand"></div>
-			</div>
-		);
-	}
-
+	
 	return (
 		<div className="space-y-6">
 			{/* Header */}

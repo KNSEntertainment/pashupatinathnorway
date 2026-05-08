@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { LogIn } from "lucide-react";
 
 const LoggedInUser = dynamic(() => import("@/components/LoggedInUser"), {
 	ssr: false,
@@ -19,7 +20,8 @@ export default function AuthSection() {
 	if (user) return <LoggedInUser user={user} />;
 
 	return (
-		<Link href="/login" className="flex btn-white">
+		<Link href="/login" className="flex items-center gap-1 bg-brand_secondary/10 py-1 px-2 hover:bg-brand_secondary/30 rounded-md text-sm">
+			<LogIn size={16} />
 			{t("login")}
 		</Link>
 	);

@@ -310,7 +310,7 @@ export default function FooterClient({ settings }) {
 				{/* ── Bottom bar ── */}
 				<div className="h-px w-full bg-stone-800 mb-6" />
 
-				<div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-stone-500">
+				<div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-stone-400">
 					<span>© {new Date().getFullYear()} Pashupatinath Norway Temple</span>
 					<span>
 						{t("developed_by")}{" "}
@@ -318,7 +318,7 @@ export default function FooterClient({ settings }) {
 							href="https://harisanjel.com.np"
 							target="_blank"
 							rel="noopener noreferrer"
-							className="text-amber-400 hover:text-amber-300 transition-colors font-medium"
+							className="text-stone-300 hover:text-amber-300 transition-colors font-medium"
 						>
 							{t("developer")}
 						</a>

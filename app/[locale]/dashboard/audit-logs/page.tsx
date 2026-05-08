@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -66,17 +66,17 @@ interface AuditLog {
   updatedAt: string;
 }
 
-interface PaginatedResponse {
-  success: boolean;
-  data: AuditLog[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    pages: number;
-  };
-  error?: string;
-}
+// interface PaginatedResponse {
+//   success: boolean;
+//   data: AuditLog[];
+//   pagination: {
+//     page: number;
+//     limit: number;
+//     total: number;
+//     pages: number;
+//   };
+//   error?: string;
+// }
 
 export default function AuditLogsManagement() {
   const router = useRouter();
@@ -98,11 +98,7 @@ export default function AuditLogsManagement() {
     pages: 0
   });
 
-  useEffect(() => {
-    fetchAuditLogs();
-  }, [currentPage, filters]);
-
-  const fetchAuditLogs = async () => {
+  const fetchAuditLogs = useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -117,20 +113,27 @@ export default function AuditLogsManagement() {
       if (filters.endDate) params.append("endDate", filters.endDate);
 
       const response = await fetch(`/api/audit-logs?${params}`);
-      const data: PaginatedResponse = await response.json();
-
-      if (data.success) {
-        setAuditLogs(data.data);
-        setPagination(data.pagination);
-      } else {
-        console.error("Failed to fetch audit logs:", data.error);
+      if (!response.ok) {
+        throw new Error("Failed to fetch audit logs");
       }
+
+      const data = await response.json();
+      setAuditLogs(data.logs || []);
+      setPagination(prev => ({
+        ...prev,
+        total: data.total || 0,
+        pages: Math.ceil((data.total || 0) / 20)
+      }));
     } catch (error) {
       console.error("Error fetching audit logs:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, filters]);
+
+  useEffect(() => {
+    fetchAuditLogs();
+  }, [currentPage, filters, fetchAuditLogs]);
 
   const getStatusBadge = (status: string) => {
     const variants = {

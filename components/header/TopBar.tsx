@@ -3,6 +3,8 @@
 import { Phone, Mail } from "lucide-react";
 import LanguageSelector from "@/components/LanguageSelector";
 import { useTranslations } from "next-intl";
+import AuthSection from "@/components/header/AuthSection";
+
 
 export default function TopBar() {
 	const t = useTranslations("footer");
@@ -23,7 +25,11 @@ export default function TopBar() {
 
 				</div>
 
-				<LanguageSelector />
+				<div className="flex items-center gap-4">
+					<LanguageSelector />
+					<AuthSection />
+				</div>
+
 			</div>
 		</section>
 	);

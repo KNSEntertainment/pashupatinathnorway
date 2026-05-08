@@ -3,19 +3,25 @@
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { useSession } from "next-auth/react";
 import DesktopNav from "@/components/header/DesktopNav";
-import AuthSection from "@/components/header/AuthSection";
 // import SearchButton from "@/components/header/SearchButton";
 import MobileMenu from "@/components/MobileMenu";
 import CartButton from "@/components/CartButton";
 
 export default function MainHeader() {
 	const t = useTranslations("navigation");
+	const { data: session } = useSession();
+	const user = session?.user;
 
 	const navItems = [
 		{
 			title: t("home"),
 			href: "/",
+			dropdown: [
+				{ title: t("about"), href: "/about-us" },
+				{ title: t("management"), href: "/management" },
+			],
 			
 		},
 		{
@@ -28,7 +34,6 @@ export default function MainHeader() {
 		
 		},
 		
-		{ title: t("management"), href: "/management" },
 		{ title: t("publication"), href: "/publications" },
 		{ title: t("store"), href: "/store" },
 		{ title: t("contact"), href: "/contact" },
@@ -52,15 +57,20 @@ export default function MainHeader() {
 				{/* Right Side */}
 				<div className="flex items-center gap-2">
 					{/* <SearchButton /> */}
-					<CartButton />
-					<Link href="/membership" className="!hidden md:!flex btn-member">
-						{t("become_member") || "Become a Member"}
-					</Link>
-					<Link href="/donate" className="!hidden md:!flex btn-success">
+			
+					
+					{!user && (
+						<Link href="/membership" className="!hidden md:!flex text-yellow-100 border border-1 border-yellow-100 px-3 py-1 rounded hover:bg-yellow-100 hover:text-red-700" title={t("become_member") || "Become a Member"}>
+							{/* <UserPlus className="w-4 h-4" /> */}
+							{t("become_member")}
+						</Link>
+					)}
+				
+					<Link href="/donate" className="!hidden md:!flex border border-1 border-yellow-100 px-3 py-1 rounded bg-yellow-100 text-red-700 hover:bg-red-700 hover:text-yellow-100">
 						{t("donate")}
 					</Link>
+					<CartButton />
 
-					<AuthSection />
 
 					<MobileMenu navItems={navItems} />
 				</div>
