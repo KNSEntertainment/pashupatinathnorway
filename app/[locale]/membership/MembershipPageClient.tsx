@@ -21,6 +21,7 @@ const fylkeMapping: Record<string, string> = {
 	'NO-57': 'Vestland', 
 };
 import { LocateIcon } from "lucide-react";
+import SimpleMemberStats from "@/components/membership/SimpleMemberStats";
 
 
 interface Translations {
@@ -1474,7 +1475,8 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 		<>
 			<OTPModal />
 			<SuccessModal />
-			<div className="container mx-auto md:px-4 md:py-12">
+			<SimpleMemberStats />
+			<div className="container mx-auto md:px-4 md:pb-12">
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 				{/* Membership Form */}
 			<div className="md:col-span-2 md:mt-8 md:shadow-md p-8 md:px-12 bg-brand_primary relative overflow-hidden">

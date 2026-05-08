@@ -53,6 +53,9 @@ export default function MainHeader() {
 				<div className="flex items-center gap-2">
 					{/* <SearchButton /> */}
 					<CartButton />
+					<Link href="/membership" className="!hidden md:!flex btn-member">
+						{t("become_member") || "Become a Member"}
+					</Link>
 					<Link href="/donate" className="!hidden md:!flex btn-success">
 						{t("donate")}
 					</Link>
