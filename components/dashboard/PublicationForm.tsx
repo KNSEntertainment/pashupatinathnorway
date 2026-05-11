@@ -9,8 +9,6 @@ interface Publication {
   year: number;
   type: "financial" | "activity" | "membership" | "audit";
   description: string;
-  fileSize: string;
-  pages: number;
   publishedDate: string;
   downloadUrl: string;
   previewUrl: string;
@@ -42,8 +40,6 @@ export default function PublicationForm({ publication, onSubmit, onCancel }: Pub
     year: new Date().getFullYear(),
     type: "financial",
     description: "",
-    fileSize: "",
-    pages: 0,
     publishedDate: new Date().toISOString().split('T')[0],
     downloadUrl: "",
     previewUrl: "",
@@ -63,7 +59,7 @@ export default function PublicationForm({ publication, onSubmit, onCancel }: Pub
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === "year" || name === "pages" ? parseInt(value) || 0 : value
+      [name]: name === "year" ? parseInt(value) || 0 : value
     }));
     
     // Clear error for this field
@@ -299,36 +295,6 @@ export default function PublicationForm({ publication, onSubmit, onCancel }: Pub
                 )}
               </div>
 
-              {/* Pages */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Pages
-                </label>
-                <input
-                  type="number"
-                  name="pages"
-                  value={formData.pages}
-                  onChange={handleChange}
-                  min="0"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                />
-              </div>
-
-              {/* File Size */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  File Size
-                </label>
-                <input
-                  type="text"
-                  name="fileSize"
-                  value={formData.fileSize}
-                  onChange={handleChange}
-                  placeholder="e.g., 2.4 MB"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                />
-              </div>
-
               {/* Download URL */}
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -344,10 +310,10 @@ export default function PublicationForm({ publication, onSubmit, onCancel }: Pub
                 />
               </div>
 
-              {/* Preview URL */}
+              {/* Read More URL */}
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Preview URL
+                  Read More URL
                 </label>
                 <input
                   type="url"

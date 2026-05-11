@@ -3,9 +3,8 @@
 import { useTranslations } from "next-intl";
 import { useState, useEffect } from "react";
 import DonationForm from "@/components/DonationForm";
-import SectionHeader from "@/components/SectionHeader";
 import DonateCTA from "@/components/DonateCTA";
-import { Heart, Building } from "lucide-react";
+import { Heart, Building, Star } from "lucide-react";
 import Link from "next/link";
 
 interface Cause {
@@ -52,27 +51,27 @@ export default function DonatePageClient({ locale }: DonatePageClientProps) {
 		fetchTotalDonations();
 	}, []);
 	return (
-		<div className="min-h-screen py-12 px-4">
+		<div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50 py-12 px-4">
 			<div className="max-w-6xl mx-auto">
 				{/* Hero Section */}
 				<header className="text-center">
 					{/* <SectionHeader heading={t("hero_title")} subtitle={t("hero_description")} /> */}
 				{/* Quick Impact Reasons */}
-				<div className="bg-gradient-to-r from-brand_primary/5 to-brand_secondary/5 rounded-xl px-6 pb-6 mb-8 md:mb-12">
-					<div className="text-center">
+				<div className="px-6 pb-6 mb-8 md:mb-12">
+					{/* <div className="text-center">
 						<SectionHeader 
 							heading={t("make_an_impact") || "Make an Impact Today"}
 							subtitle={t("impact_subtitle") || "Your donation helps build our community's future"}
 						/>
-					</div>
+					</div> */}
 					
 					{/* Total Donations Display */}
-					<div className="text-center mb-0 md:mb-8">
-						<div className="mt-0 md:-mt-12 bg-white rounded-xl shadow-lg p-6 max-w-md mx-auto border border-gray-100">
+					<div className="text-center my-0 md:my-8">
+						<div className="mt-0 md:-mt-12 p-6 max-w-lg mx-auto">
 							<h3 className="text-lg font-semibold text-gray-700 mb-1">
 								{t("total_donations") || "Total Donations till now"}
 							</h3>
-							<div className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-brand_primary to-brand_secondary bg-clip-text text-transparent mb-2">
+							<div className="text-4xl md:text-8xl font-bold bg-gradient-to-r from-brand_primary to-brand_secondary bg-clip-text text-transparent mb-2">
 								{loading ? (
 									<div className="flex items-center justify-center">
 										<svg className="animate-spin h-8 w-8 text-brand_primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -92,23 +91,7 @@ export default function DonatePageClient({ locale }: DonatePageClientProps) {
 						</div>
 					</div>
 					
-					<div className="hidden md:flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6">
-						<div className="flex items-center gap-2 bg-white rounded-lg px-4 py-2 shadow-sm">
-							<div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand_primary/20 to-brand_primary/10 flex items-center justify-center">
-								<Building className="w-4 h-4 text-brand_secondary" />
-							</div>
-							<span className="font-semibold text-gray-900 text-sm">{t("build_temple") || "Build Temple"}</span>
-						</div>
-						<div className="flex items-center gap-2 bg-white rounded-lg px-4 py-2 shadow-sm">
-							<div className="w-8 h-8 rounded-full bg-gradient-to-br from-success/20 to-success/10 flex items-center justify-center">
-								<Heart className="w-4 h-4 text-success" />
-							</div>
-							<span className="font-semibold text-gray-900 text-sm">{t("preserve_culture") || "Preserve Culture"}</span>
-						</div>
-						<Link href={`/${locale}/donate/why-donate`} className="bg-gradient-to-r from-brand_secondary to-brand_secondary_light hover:from-brand_secondary_light hover:to-brand_secondary text-white rounded-lg px-6 py-2 font-medium text-sm transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-[1.02]">
-							{t("learn_more") || "Learn More"} →
-						</Link>
-					</div>
+			
 				</div>
 				</header>
 
@@ -125,6 +108,73 @@ export default function DonatePageClient({ locale }: DonatePageClientProps) {
 					<div className="space-y-6">
 						{/* Donate CTA Section */}
 						<DonateCTA />
+					<div className="bg-gradient-to-r from-orange-100 to-amber-100 rounded-2xl p-8 border border-orange-100">
+						<h3 className="text-2xl font-bold text-center mb-8 text-brand_secondary">
+							{t("why_donate_title") || "Why Build Pashupatinath Temple in Norway?"}
+						</h3>
+						
+						<div className="grid grid-cols-1 gap-2 mb-6">
+							<div className="rounded-xl p-6 shadow-sm border border-orange-50">
+								<div className="flex items-start gap-4">
+									<div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand_primary/20 to-brand_primary/10 flex items-center justify-center flex-shrink-0">
+										<Building className="w-5 h-5 text-brand_secondary" />
+									</div>
+									<div>
+										<h4 className="font-bold text-gray-900 mb-2">{t("spiritual_home") || "Spiritual Home"}</h4>
+										<p className="text-sm text-gray-600">{t("spiritual_home_desc") || "Create a sacred space for Nepali Hindus in Norway to connect with their faith and traditions."}</p>
+									</div>
+								</div>
+							</div>
+							
+							<div className="rounded-xl p-6 shadow-sm border border-orange-50">
+								<div className="flex items-start gap-4">
+									<div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand_secondary/20 to-brand_secondary/10 flex items-center justify-center flex-shrink-0">
+										<Heart className="w-5 h-5 text-brand_secondary" />
+									</div>
+									<div>
+										<h4 className="font-bold text-gray-900 mb-2">{t("cultural_preservation") || "Cultural Heritage"}</h4>
+										<p className="text-sm text-gray-600">{t("cultural_preservation_desc") || "Preserve and share our rich Nepali Hindu culture with future generations in Norway."}</p>
+									</div>
+								</div>
+							</div>
+							
+							<div className="rounded-xl p-6 shadow-sm border border-orange-50">
+								<div className="flex items-start gap-4">
+									<div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500/20 to-amber-400/10 flex items-center justify-center flex-shrink-0">
+										<Star className="w-5 h-5 text-amber-600" />
+									</div>
+									<div>
+										<h4 className="font-bold text-gray-900 mb-2">{t("community_center") || "Community Hub"}</h4>
+										<p className="text-sm text-gray-600">{t("community_center_desc") || "Build a vibrant community center for festivals, education, and social gatherings."}</p>
+									</div>
+								</div>
+							</div>
+							
+							{/* <div className="bg-white rounded-xl p-6 shadow-sm border border-orange-50">
+								<div className="flex items-start gap-4">
+									<div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500/20 to-green-400/10 flex items-center justify-center flex-shrink-0">
+										<Users className="w-5 h-5 text-green-600" />
+									</div>
+									<div>
+										<h4 className="font-bold text-gray-900 mb-2">{t("legacy_building") || "Build Our Legacy"}</h4>
+										<p className="text-sm text-gray-600">{t("legacy_building_desc") || "Leave a lasting legacy for our children and the Nepali diaspora in Scandinavia."}</p>
+									</div>
+								</div>
+							</div> */}
+						</div>
+						
+						<div className="text-center">
+							{/* <div className="bg-gradient-to-r from-brand_primary to-brand_secondary rounded-xl p-6 mb-6">
+								<p className="text-white text-lg font-semibold mb-2">
+									{t("temple_vision") || "Together, we can build the first Pashupatinath Temple in Norway - a beacon of faith and culture for generations to come."}
+								</p>
+							</div> */}
+							
+							<Link href={`/${locale}/donate/why-donate`} className="inline-flex items-center gap-2 bg-gradient-to-r from-brand_secondary to-brand_secondary_light hover:from-brand_secondary_light hover:to-brand_secondary text-white rounded-lg px-8 py-3 font-semibold transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-[1.02]">
+								{t("learn_more") || "Learn More About Our Vision"} →
+							</Link>
+						</div>
+					</div>
 			
 						
 						

@@ -486,7 +486,7 @@ const StorePage: React.FC<StorePageProps> = () => {
 
 			{/* Products Grid */}
 			{loading ? (
-				<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+				<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 					{[...Array(8)].map((_, i) => (
 						<div key={i} className="animate-pulse">
 							<div className="bg-gray-200 aspect-square rounded-sm mb-4"></div>
@@ -512,7 +512,7 @@ const StorePage: React.FC<StorePageProps> = () => {
 						{t('showing')} {products.length} {t('of')} {pagination.total} {t('products')}
 					</div>
 					
-					<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-6">
+					<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4  gap-2 md:gap-6">
 						{products.map(product => (
 							<ProductCard 
 								key={product._id} 

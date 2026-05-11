@@ -407,7 +407,7 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 
 	// Otherwise, return the full Card wrapper
 	return (
-		<Card className="w-full max-w-3xl mx-auto shadow-xl border-0 bg-brand_primary/20">
+		<Card className="w-full max-w-3xl mx-auto shadow-xl border-0 bg-light">
 			<CardHeader className="bg-red-900 text-gray-100">
 				<div className="flex items-center gap-3">
 					<Heart className="w-8 h-8 text-brand_primary" />

@@ -10,8 +10,6 @@ interface Publication {
   year: number;
   type: "financial" | "activity" | "membership" | "audit";
   description: string;
-  fileSize: string;
-  pages: number;
   publishedDate: string;
   downloadUrl: string;
   previewUrl: string;
@@ -300,10 +298,8 @@ export default function PublicationsPage() {
                       <Calendar className="w-4 h-4 mr-2" />
                       {new Date(publication.publishedDate).toLocaleDateString()}
                     </div>
-                    <div className="flex items-center justify-between text-sm text-gray-500">
+                    <div className="flex items-center text-sm text-gray-500">
                       <span>{publication.year}</span>
-                      <span>{publication.pages} pages</span>
-                      <span>{publication.fileSize}</span>
                     </div>
                   </div>
 

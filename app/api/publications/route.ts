@@ -2,93 +2,66 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import User from "@/models/User.Model";
-
-// Temporary in-memory storage until we create the Publication model
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const publications: any[] = [
-  {
-    id: "1",
-    title: "Annual Financial Report 2024",
-    year: 2024,
-    type: "financial",
-    description: "Comprehensive financial statement including income, expenses, and balance sheet for the fiscal year 2024.",
-    fileSize: "2.4 MB",
-    pages: 45,
-    publishedDate: "2024-03-15",
-    downloadUrl: "/reports/financial-2024.pdf",
-    previewUrl: "/reports/financial-2024-preview.pdf",
-    language: "en",
-    createdAt: new Date("2024-03-15"),
-    updatedAt: new Date("2024-03-15")
-  },
-  {
-    id: "2",
-    title: "Annual Activity Summary 2024",
-    year: 2024,
-    type: "activity",
-    description: "Complete overview of all temple activities, festivals, and community events conducted in 2024.",
-    fileSize: "5.1 MB",
-    pages: 78,
-    publishedDate: "2024-04-20",
-    downloadUrl: "/reports/activity-2024.pdf",
-    previewUrl: "/reports/activity-2024-preview.pdf",
-    language: "en",
-    createdAt: new Date("2024-04-20"),
-    updatedAt: new Date("2024-04-20")
-  },
-  {
-    id: "3",
-    title: "Membership Statistics 2024",
-    year: 2024,
-    type: "membership",
-    description: "Detailed membership growth analysis, demographic breakdown, and engagement metrics for 2024.",
-    fileSize: "1.8 MB",
-    pages: 32,
-    publishedDate: "2024-02-10",
-    downloadUrl: "/reports/membership-2024.pdf",
-    previewUrl: "/reports/membership-2024-preview.pdf",
-    language: "en",
-    createdAt: new Date("2024-02-10"),
-    updatedAt: new Date("2024-02-10")
-  }
-];
+import Publication from "@/models/Publication.Model";
+import connectDB from "@/lib/mongodb";
+import mongoose from "mongoose";
 
 // GET all publications
 export async function GET(request: NextRequest) {
   try {
+    await connectDB();
+    
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type');
     const language = searchParams.get('language');
     const year = searchParams.get('year');
     const search = searchParams.get('search');
     
-    let filteredPublications = [...publications];
+        
+    // Build query
+    const query: Record<string, unknown> = {};
     
-    // Apply filters
     if (type && type !== 'all') {
-      filteredPublications = filteredPublications.filter(pub => pub.type === type);
+      query.type = type;
     }
     
     if (language && language !== 'all') {
-      filteredPublications = filteredPublications.filter(pub => pub.language === language);
+      query.language = language;
     }
     
     if (year && year !== 'all') {
-      filteredPublications = filteredPublications.filter(pub => pub.year.toString() === year);
+      query.year = parseInt(year);
     }
     
     if (search) {
-      const searchLower = search.toLowerCase();
-      filteredPublications = filteredPublications.filter(pub => 
-        pub.title.toLowerCase().includes(searchLower) ||
-        pub.description.toLowerCase().includes(searchLower)
-      );
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
+      ];
     }
     
-    // Sort by most recent first
-    filteredPublications.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    // Fetch publications from database
+    const publications = await Publication.find(query)
+      .populate('createdBy', 'name email')
+      .sort({ createdAt: -1 })
+      .lean();
     
-    return NextResponse.json({ publications: filteredPublications });
+    // Transform the data to match the expected format
+    const formattedPublications = publications.map((pub) => ({
+      id: (pub._id as mongoose.Types.ObjectId).toString(),
+      title: pub.title,
+      year: pub.year,
+      type: pub.type,
+      description: pub.description,
+      publishedDate: pub.publishedDate.toISOString().split('T')[0],
+      downloadUrl: pub.downloadUrl,
+      previewUrl: pub.previewUrl,
+      language: pub.language,
+      createdAt: pub.createdAt,
+      updatedAt: pub.updatedAt
+    }));
+    
+    return NextResponse.json({ publications: formattedPublications });
   } catch (error) {
     console.error("Error fetching publications:", error);
     return NextResponse.json(
@@ -98,9 +71,12 @@ export async function GET(request: NextRequest) {
   }
 }
 
+
 // POST - Create new publication
 export async function POST(request: NextRequest) {
   try {
+    await connectDB();
+    
     // Check authentication and admin role
     const session = await getServerSession(authOptions);
     if (!session || !session.user?.role || session.user.role !== 'admin') {
@@ -125,8 +101,6 @@ export async function POST(request: NextRequest) {
       year, 
       type, 
       description, 
-      fileSize, 
-      pages, 
       publishedDate, 
       downloadUrl, 
       previewUrl, 
@@ -142,28 +116,41 @@ export async function POST(request: NextRequest) {
     }
     
     // Create new publication
-    const newPublication = {
-      id: Date.now().toString(),
+    const newPublication = new Publication({
       title,
       year: parseInt(year),
       type,
       description,
-      fileSize: fileSize || "Unknown",
-      pages: pages || 0,
-      publishedDate: publishedDate || new Date().toISOString().split('T')[0],
+      publishedDate: publishedDate || new Date(),
       downloadUrl: downloadUrl || "",
       previewUrl: previewUrl || "",
       language,
-      createdBy: user._id,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
+      createdBy: user._id
+    });
     
-    publications.push(newPublication);
+    await newPublication.save();
+    
+    // Populate createdBy field for response
+    await newPublication.populate('createdBy', 'name email');
+    
+    // Format response to match expected format
+    const formattedPublication = {
+      id: newPublication._id.toString(),
+      title: newPublication.title,
+      year: newPublication.year,
+      type: newPublication.type,
+      description: newPublication.description,
+      publishedDate: newPublication.publishedDate.toISOString().split('T')[0],
+      downloadUrl: newPublication.downloadUrl,
+      previewUrl: newPublication.previewUrl,
+      language: newPublication.language,
+      createdAt: newPublication.createdAt,
+      updatedAt: newPublication.updatedAt
+    };
     
     return NextResponse.json({
       message: "Publication created successfully",
-      publication: newPublication
+      publication: formattedPublication
     }, { status: 201 });
     
   } catch (error) {

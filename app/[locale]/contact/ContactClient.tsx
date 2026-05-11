@@ -80,7 +80,7 @@ export default function ContactPageClient({ settings, translations: t }: Props) 
 					<SectionHeader heading={t.title} subtitle={t.description} />
 				</header>
 
-				<div className="bg-white rounded-3xl shadow-md md:shadow-2xl overflow-hidden flex flex-col lg:flex-row border border-light">
+				<div className="bg-white rounded-3xl border border-2 border-brand_primary overflow-hidden flex flex-col lg:flex-row">
 					{/* Left: Contact Information (The "Official" Sidebar) */}
 					<aside className="lg:w-1/3 bg-brand_primary/90 p-6 md:p-12 text-gray-700 relative overflow-hidden">
 						{/* Decorative Circle */}

@@ -10,8 +10,6 @@ interface AnnualReport {
   year: number;
   type: "financial" | "activity" | "membership" | "audit";
   description: string;
-  fileSize: string;
-  pages: number;
   publishedDate: string;
   downloadUrl: string;
   previewUrl: string;
@@ -129,7 +127,7 @@ export default function PublicationClient() {
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Search Bar */}
-            <div className="flex-1 relative">
+            <div className="flex max-w-md relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
@@ -237,11 +235,7 @@ export default function PublicationClient() {
                       <Calendar className="w-4 h-4 mr-2" />
                       Published: {new Date(report.publishedDate).toLocaleDateString()}
                     </div>
-                    <div className="flex items-center justify-between text-sm text-gray-500">
-                      <span>Year: {report.year}</span>
-                      <span>{report.pages} pages</span>
-                      <span>{report.fileSize}</span>
-                    </div>
+                
                   </div>
 
                   {/* Action Buttons */}
@@ -258,7 +252,7 @@ export default function PublicationClient() {
                       className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
                     >
                       <Eye className="w-4 h-4" />
-                      Preview
+                      Read More
                     </button>
                   </div>
                 </div>
