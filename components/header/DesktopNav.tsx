@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { usePathname } from "@/i18n/navigation";
 import { ChevronDown } from "lucide-react";
 import { Link } from "@/i18n/navigation";
@@ -23,18 +23,44 @@ type DesktopNavProps = {
 export default function DesktopNav({ navItems }: DesktopNavProps) {
 	const pathname = usePathname();
 	const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+	const navRef = useRef<HTMLDivElement>(null);
+
+	// Close dropdown when clicking outside
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (navRef.current && !navRef.current.contains(event.target as Node)) {
+				setActiveDropdown(null);
+			}
+		};
+
+		if (activeDropdown) {
+			document.addEventListener("mousedown", handleClickOutside);
+		}
+
+		return () => {
+			document.removeEventListener("mousedown", handleClickOutside);
+		};
+	}, [activeDropdown]);
+
+	const toggleDropdown = (href: string) => {
+		setActiveDropdown(activeDropdown === href ? null : href);
+	};
 
 	return (
-		<nav className="hidden lg:flex items-center gap-2 flex-1 justify-center">
+		<nav ref={navRef} className="hidden lg:flex items-center gap-2 flex-1 justify-center">
 			{navItems.map((item: NavItem) => {
 				const isActive = pathname === item.href || pathname.endsWith(item.href);
 				const hasDropdown = !!item.dropdown;
 				const isOpen = activeDropdown === item.href;
 
 				return (
-					<div key={item.href} className="relative" onMouseEnter={() => hasDropdown && setActiveDropdown(item.href)} onMouseLeave={() => setActiveDropdown(null)}>
+					<div key={item.href} className="relative">
 						{hasDropdown ? (
-							<button className={`px-3 py-2 rounded-lg font-semibold flex items-center justify-center gap-1 min-w-fit ${isActive ? "bg-white text-brand_secondary" : "text-white/90 hover:bg-white hover:text-brand_secondary"}`}>
+							<button 
+								onClick={() => toggleDropdown(item.href)}
+								className={`px-3 py-2 rounded-lg font-semibold flex items-center justify-center gap-1 min-w-fit ${isActive ? "bg-white text-brand_secondary" : "text-white/90 hover:bg-white hover:text-brand_secondary"}`}
+								aria-expanded={isOpen}
+							>
 								{item.title}
 								<ChevronDown size={16} className={`transition-transform ${isOpen ? "rotate-180" : ""}`} />
 							</button>
