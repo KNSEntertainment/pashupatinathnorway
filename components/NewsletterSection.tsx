@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Mail, Send, CheckCircle } from "lucide-react";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
@@ -64,10 +63,8 @@ export default function NewsletterSection() {
 				<div className="max-w-6xl mx-auto">
 					<div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 						{/* Left Content */}
-						<motion.div
-							initial={{ opacity: 0, x: -20 }}
-							animate={{ opacity: 1, x: 0 }}
-							transition={{ duration: 0.6 }}
+						<div
+							
 							className="text-center lg:text-left"
 						>
 							<div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full mb-6">
@@ -82,21 +79,17 @@ export default function NewsletterSection() {
 								{t("description")}
 							</p>
 
-							<motion.p
-								initial={{ opacity: 0 }}
-								animate={{ opacity: 1 }}
-								transition={{ duration: 0.6, delay: 0.4 }}
+							<p
+								suppressHydrationWarning
 								className="text-white/70 text-sm"
 							>
 								{t("footer_text")}
-							</motion.p>
-						</motion.div>
+							</p>
+						</div>
 
 						{/* Right Form */}
-						<motion.div
-							initial={{ opacity: 0, x: 20 }}
-							animate={{ opacity: 1, x: 0 }}
-							transition={{ duration: 0.6, delay: 0.2 }}
+						<div
+							
 						>
 							<form
 								onSubmit={handleSubmit}
@@ -141,19 +134,16 @@ export default function NewsletterSection() {
 
 							{/* Success Message */}
 							{isSubmitted && (
-								<motion.div
-									initial={{ opacity: 0, scale: 0.8 }}
-									animate={{ opacity: 1, scale: 1 }}
-									exit={{ opacity: 0, scale: 0.8 }}
+								<div
 									className="mt-4 p-4 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30"
 								>
 									<div className="flex items-center justify-center gap-2 text-white">
 										<CheckCircle className="w-5 h-5" />
 										<span>{t("success_message")}</span>
 									</div>
-								</motion.div>
+								</div>
 							)}
-						</motion.div>
+						</div>
 					</div>
 				</div>
 			</div>

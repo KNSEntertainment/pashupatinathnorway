@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Calendar, MapPin, Clock } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
@@ -27,9 +26,7 @@ export default function EventsTimeline() {
 	const [events, setEvents] = useState<Event[]>([]);
 	const [loading, setLoading] = useState(true);
 
-	// Function to get most recent events (regardless of date)
 	const getRecentEvents = (allEvents: Event[]) => {
-		// Sort events by date (newest first) and take the latest 4
 		return allEvents
 			.sort((a, b) => new Date(b.eventdate).getTime() - new Date(a.eventdate).getTime())
 			.slice(0, 4);
@@ -89,10 +86,6 @@ export default function EventsTimeline() {
 		return event.eventdescription || "";
 	};
 
-	// const getEventTypeColor = (type?: string) => {
-	// 	return "from-blue-500 to-blue-600";
-	// };
-
 	if (loading) {
 			return (
 				<section className="py-20 bg-white w-full">
@@ -117,10 +110,7 @@ export default function EventsTimeline() {
 
 			<section className="py-12 md:py-20 bg-brand_primary/20 w-full">
 				{/* Section Header */}
-				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.6 }}
+				<div
 					className="text-center mb-16 px-4"
 				>
 					<SectionHeader 
@@ -129,18 +119,16 @@ export default function EventsTimeline() {
 						seeAllText={t("see_all")}
 					/>
 			
-				</motion.div>
+				</div>
 
 				{events.length > 0 ? (
 					<div className="w-full md:max-w-4xl mx-auto">
 							{/* Two Events Display */}
 							<div className="container mx-auto grid grid-cols-1 gap-6 lg:gap-8 px-4">
-								{events.slice(0, 2).map((event, index) => (
-									<motion.div
+								{events.slice(0, 2).map((event) => (
+									<div
 										key={event._id}
-										initial={{ opacity: 0, y: 20 }}
-										animate={{ opacity: 1, y: 0 }}
-										transition={{ duration: 0.6, delay: index * 0.1 }}
+										
 									>
 										<div className="flex flex-col md:flex-row bg-gray-50 transition-all duration-300 overflow-hidden h-full">
 											{/* Event Poster */}
@@ -185,31 +173,14 @@ export default function EventsTimeline() {
 													</div>
 												</div>
 
-												{/* Action Buttons */}
-												{/* <div className="flex gap-4">
-													<Link href={`/${locale}/events?eventId=${event._id}`}>
-														<button
-															className="flex-1 bg-brand_primary text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-brand_primary/90 transition-colors duration-200"
-														>
-															{t("view_details")}
-														</button>
-													</Link>
-												</div> */}
+												
 											</div>
 										</div>
-									</motion.div>
+									</div>
 								))}
 							</div>
 
-							{/* View All Events Button
-							<motion.div
-												initial={{ opacity: 0, y: 20 }}
-												animate={{ opacity: 1, y: 0 }}
-												transition={{ duration: 0.6, delay: 0.4 }}
-												className="flex justify-center pt-12"
-											>
-												<ViewAllButton href={`/${locale}/events`} label={t("view_all_events")} />
-											</motion.div> */}
+							
 						</div>
 					) : (
 						<div className="text-center py-12 px-4">

@@ -1,5 +1,6 @@
+
+
 "use client";
-import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { useCallback, useState, useEffect } from "react";
@@ -54,8 +55,7 @@ export default function FullWidthHero() {
 		<div className="relative w-screen left-1/2 right-1/2 -translate-x-1/2 overflow-hidden bg-white">
 			<section className="relative h-[82vh] w-full flex items-center">
 				{/* Background Layer */}
-				<AnimatePresence mode="wait">
-					<motion.div key={currentSlide} className="absolute inset-0 z-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
+					<div key={currentSlide} className="absolute inset-0 z-0">
 						<Image 
 							src={slides[currentSlide]?.image || "/pashupatinath.png"} 
 							alt="Background" 
@@ -69,8 +69,7 @@ export default function FullWidthHero() {
 							loading="eager"
 						/>
 						<div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/80 z-10" />
-					</motion.div>
-				</AnimatePresence>
+					</div>
 
 				{/* OM Symbol */}
 				<div className="absolute top-36 right-[34.5%] z-15 pointer-events-none">
@@ -108,8 +107,7 @@ export default function FullWidthHero() {
 				{/* Content Layer */}
 				<div className="container relative z-20 mx-auto px-6 md:px-12">
 					<div className="max-w-3xl">
-						<AnimatePresence mode="wait">
-							<motion.div key={currentSlide} initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 30 }} transition={{ duration: 0.4, ease: "easeOut" }}>
+								<div key={currentSlide}>
 								<h1 className="text-2xl md:text-5xl font-black text-white mb-2 md:mb-6 leading-tight tracking-tighter">{slides[currentSlide]?.title || ""}</h1>
 								<p className="text-xl md:text-2xl text-white/80 mb-6 md:mb-10 md:leading-relaxed font-light">{slides[currentSlide]?.description || ""}</p>
 
@@ -123,8 +121,7 @@ export default function FullWidthHero() {
 										</Button>
 									</Link>
 								</div>
-							</motion.div>
-						</AnimatePresence>
+							</div>
 					</div>
 				</div>
 

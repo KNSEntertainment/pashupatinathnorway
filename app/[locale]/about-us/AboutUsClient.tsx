@@ -4,7 +4,6 @@ import { Globe, Landmark, MessageCirclePlusIcon, Users } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import SectionHeader from "@/components/SectionHeader";
-import { motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 
 export default function AboutUsClient() {
@@ -220,7 +219,7 @@ export default function AboutUsClient() {
 					</div>
 				</div>
 			</section>
-			<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4 }} className="mb-16">
+			<div className="mb-16">
 				<header className="text-center mb-6 md:mb-8">
 					<SectionHeader heading={t("values_title")} />
 				</header>
@@ -228,13 +227,13 @@ export default function AboutUsClient() {
 				<div ref={scrollContainerRef} className="overflow-x-auto pb-4 no-scrollbar -mx-4 px-4 md:overflow-visible md:mx-0 md:px-0">
 					<div className="flex gap-6 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6" style={{ minWidth: "fit-content" }}>
 						{values.map((value, index) => (
-							<motion.div key={index} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }} className="bg-light rounded-xl p-6 hover:bg-white hover:shadow-lg transition-all duration-300 w-[85vw] sm:w-[45vw] md:w-full flex-shrink-0">
+							<div key={index} className="bg-light rounded-xl p-6 hover:bg-white hover:shadow-lg transition-all duration-300 w-[85vw] sm:w-[45vw] md:w-full flex-shrink-0">
 								<div className="w-12 h-12 mb-4 bg-brand_primary rounded-lg flex items-center justify-center">
 									<value.icon className="w-6 h-6 text-white" />
 								</div>
 								<h4 className="text-lg font-semibold text-gray-900 mb-2">{value.title}</h4>
 								<p className="text-gray-600 text-sm">{value.description}</p>
-							</motion.div>
+							</div>
 						))}
 					</div>
 				</div>
@@ -245,7 +244,7 @@ export default function AboutUsClient() {
 						<div key={index} className={`w-2 h-2 rounded-full transition-colors duration-300 ${index === activeIndex ? "bg-brand_primary" : "bg-gray-300"}`} />
 					))}
 				</div>
-			</motion.div>
+			</div>
 		</main>
 	);
 }

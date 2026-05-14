@@ -5,7 +5,6 @@ import { useSession } from "next-auth/react";
 import { usePathname, Link } from "@/i18n/navigation";
 import { Menu, X, ChevronDown, Heart, LogOut, UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { motion, AnimatePresence } from "framer-motion";
 import { completeSignOut } from "@/utils/authUtils";
 import Image from "next/image";
 
@@ -49,12 +48,11 @@ export default function MobileMenu({ navItems }: MobileMenuProps) {
 			</button>
 
 			{/* Overlay */}
-			<AnimatePresence>{isOpen && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={handleMenuClose} className="fixed inset-0 bg-black/40 z-40 lg:hidden" />}</AnimatePresence>
+			{isOpen && <div onClick={handleMenuClose} className="fixed inset-0 bg-black/40 z-40 lg:hidden" />}
 
 			{/* SlideOut Menu */}
-			<AnimatePresence>
-				{isOpen && (
-					<motion.div initial={{ x: 1000, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: 1000, opacity: 0 }} transition={{ type: "spring", stiffness: 300, damping: 30 }} className="fixed top-0 right-0 h-screen w-72 bg-white shadow-2xl z-50 overflow-y-auto flex flex-col rounded-b-2xl">
+			{isOpen && (
+				<div className="fixed top-0 right-0 h-screen w-72 bg-white shadow-2xl z-50 overflow-y-auto flex flex-col rounded-b-2xl">
 						{/* Header Section with Gradient Background */}
 						<div className="bg-gradient-to-r from-brand_primary via-brand_primary to-brand_primary text-gray-700 p-6 mb-2 sticky top-0 z-10">
 							<div className="relative flex items-start justify-between mb-4">
@@ -121,9 +119,9 @@ export default function MobileMenu({ navItems }: MobileMenuProps) {
 													className={`w-full flex items-center justify-between px-6 py-4 text-left  transition-all duration-300 text-lg font-medium ${isActive ? "bg-white text-brand_secondary shadow-md border-l-4 border-brand_secondary" : "text-gray-700 hover:bg-white hover:shadow-sm"}`}
 												>
 													<span>{item.title}</span>
-													<motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.3 }}>
+													<div>
 														<ChevronDown size={20} />
-													</motion.div>
+													</div>
 												</button>
 											) : (
 												<Link 
@@ -136,9 +134,8 @@ export default function MobileMenu({ navItems }: MobileMenuProps) {
 											)}
 
 											{/* Dropdown Items */}
-											<AnimatePresence>
-												{hasDropdown && isExpanded && (
-													<motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.3 }} className="ml-4 mt-2 space-y-1 overflow-hidden">
+											{hasDropdown && isExpanded && (
+												<div className="ml-4 mt-2 space-y-1 overflow-hidden">
 														{item.dropdown?.map((dropdownItem) => {
 															const normalizedDropdownPathname = normalizePath(pathname);
 															const normalizedDropdownHref = normalizePath(dropdownItem.href);
@@ -156,9 +153,8 @@ export default function MobileMenu({ navItems }: MobileMenuProps) {
 																</Link>
 															);
 														})}
-													</motion.div>
+													</div>
 												)}
-											</AnimatePresence>
 										</div>
 									);
 								})}
@@ -179,9 +175,8 @@ export default function MobileMenu({ navItems }: MobileMenuProps) {
 								<p className="text-xs px-6 text-gray-600 text-center">Sign in to access exclusive member features</p>
 							)}
 						</div>
-					</motion.div>
+					</div>
 				)}
-			</AnimatePresence>
 		</>
 	);
 }

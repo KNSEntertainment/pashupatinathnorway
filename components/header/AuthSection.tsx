@@ -1,15 +1,10 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import dynamic from "next/dynamic";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { LogIn } from "lucide-react";
-
-const LoggedInUser = dynamic(() => import("@/components/LoggedInUser"), {
-	ssr: false,
-	loading: () => null,
-});
+import LoggedInUser from "@/components/LoggedInUser";
 
 export default function AuthSection() {
 	const { data: session } = useSession();

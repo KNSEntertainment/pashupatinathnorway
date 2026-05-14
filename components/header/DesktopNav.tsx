@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { usePathname } from "@/i18n/navigation";
-import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 
@@ -45,17 +44,15 @@ export default function DesktopNav({ navItems }: DesktopNavProps) {
 							</Link>
 						)}
 
-						<AnimatePresence>
-							{hasDropdown && isOpen && (
-								<motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="absolute left-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg">
+						{hasDropdown && isOpen && (
+								<div className="absolute left-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg">
 									{item.dropdown!.map((sub: NavDropdownItem) => (
 										<Link key={sub.href} href={sub.href} className="block px-4 py-2 text-sm hover:bg-brand_secondary/20">
 											{sub.title}
 										</Link>
 									))}
-								</motion.div>
+								</div>
 							)}
-						</AnimatePresence>
 					</div>
 				);
 			})}

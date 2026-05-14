@@ -43,15 +43,7 @@ const nextConfig = withNextIntl({
 		contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
 	},
 	
-	// Performance optimizations
-	experimental: {
-		turbo: {
-			resolveAlias: {
-				// Reduce bundle size by aliasing to smaller packages
-				'framer-motion': 'framer-motion/dist/framer-motion.min.js',
-			},
-		},
-	},
+
 	
 	// Compression and caching
 	compress: true,
@@ -114,12 +106,7 @@ const nextConfig = withNextIntl({
 						priority: 20,
 						chunks: 'all',
 					},
-					framer: {
-						test: /[\\/]node_modules[\\/]framer-motion[\\/]/,
-						name: 'framer',
-						priority: 15,
-						chunks: 'all',
-					},
+				
 				},
 			};
 		}

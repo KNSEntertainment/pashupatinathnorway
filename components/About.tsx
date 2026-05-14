@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { Users, Heart, ArrowRight, HandHeart } from "lucide-react";
@@ -26,10 +25,7 @@ export default function About() {
 			
 			<div className="relative container mx-auto px-6">
 				{/* Section Header */}
-				<motion.div 
-					initial={{ opacity: 0, y: 20 }}
-					whileInView={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.6 }}
+				<div 
 					className="text-center mb-16"
 				>
 					<h2 id="about-heading" className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
@@ -38,17 +34,14 @@ export default function About() {
 					<p className="text-xl text-gray-600 max-w-2xl mx-auto">
 						Join our community and help us preserve and share our rich cultural heritage
 					</p>
-				</motion.div>
+				</div>
 
 				{/* Call to Actions */}
 				<div className="max-w-6xl mx-auto">
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-8" role="list">
 						{ctas.map((cta, index) => (
-							<motion.div
+							<div
 								key={index}
-								initial={{ opacity: 0, y: 30 }}
-								whileInView={{ opacity: 1, y: 0 }}
-								transition={{ duration: 0.6, delay: index * 0.1 }}
 								role="listitem"
 							>
 								<Link 
@@ -75,7 +68,7 @@ export default function About() {
 											<p className="text-gray-600 leading-relaxed mb-6">
 												{cta.description}
 											</p>
-											
+
 											{/* Arrow Indicator */}
 											<div className="flex items-center text-brand_secondary font-semibold group-hover:text-brand_secondary_light transition-colors duration-300">
 												<span className="mr-2">Learn More</span>
@@ -87,16 +80,14 @@ export default function About() {
 										<div className={`absolute top-0 right-0 w-20 h-20 ${cta.color} opacity-10 rounded-bl-full`} aria-hidden="true" />
 									</div>
 								</Link>
-							</motion.div>
+							</div>
 						))}
 					</div>
 				</div>
 
 				{/* Bottom Decorative Element */}
-				<motion.div
-					initial={{ opacity: 0, scale: 0.8 }}
-					whileInView={{ opacity: 1, scale: 1 }}
-					transition={{ duration: 0.8, delay: 0.4 }}
+				<div
+				
 					className="mt-20 text-center"
 					aria-hidden="true"
 				>
@@ -105,7 +96,7 @@ export default function About() {
 						<span className="text-sm text-gray-600">Community Driven • Culturally Rich • Future Focused</span>
 						<div className="w-2 h-2 bg-brand_secondary rounded-full animate-pulse" />
 					</div>
-				</motion.div>
+				</div>
 			</div>
 		</section>
 	);

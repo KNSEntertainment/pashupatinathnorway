@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import { motion } from "framer-motion";
 import { Users, RefreshCcw, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
@@ -31,54 +30,41 @@ export default function AboutPreview() {
 			
 			<div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				{/* Enhanced Section Header */}
-				<motion.div
-					initial={{ opacity: 0, y: 40 }}
-					whileInView={{ opacity: 1, y: 0 }}
-					transition={{ duration: 1, ease: "easeOut" }}
+				<div
+					
 					className="text-center mb-12 sm:mb-16 lg:mb-24 px-4"
 				>
 					{/* Badge */}
-					<motion.div
-						initial={{ opacity: 0, scale: 0.8 }}
-						whileInView={{ opacity: 1, scale: 1 }}
-						transition={{ duration: 0.6, delay: 0.1 }}
+					<div
 						className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-orange-100 to-red-100 rounded-full mb-4 sm:mb-6"
 					>
 						<Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-600" />
 						<span className="text-xs sm:text-sm font-medium text-orange-800">Our Mission</span>
-					</motion.div>
+					</div>
 					
 					<h1 id="about-preview-heading" className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold bg-gradient-to-r from-gray-900 via-orange-800 to-red-800 bg-clip-text text-transparent mb-4 sm:mb-6 leading-tight px-2">
 						{t("title")}
 					</h1>
 					
-					<motion.div
-						initial={{ opacity: 0, y: 20 }}
-						whileInView={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.8, delay: 0.2 }}
+					<div
 						className="max-w-4xl mx-auto px-4"
 					>
 						<p className="text-lg sm:text-xl md:text-2xl text-gray-600 leading-relaxed font-light">
 							{t("subtitle")}
 						</p>
-					</motion.div>
-				</motion.div>
+					</div>
+				</div>
 
 				{/* Main Content Layout */}
 				<div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-20 items-center mb-16 lg:mb-20">
 					{/* Enhanced Text Content */}
-					<motion.div 
-						initial={{ opacity: 0, x: -50 }}
-						whileInView={{ opacity: 1, x: 0 }}
-						transition={{ duration: 1, ease: "easeOut" }}
+					<div 
 						className="space-y-6 sm:space-y-8 lg:space-y-10"
 					>
 						{/* Mission Cards */}
 						<div className="space-y-4">
-							<motion.div 
-								initial={{ opacity: 0, y: 30 }}
-								whileInView={{ opacity: 1, y: 0 }}
-								transition={{ duration: 0.8, delay: 0.3 }}
+							<div 
+						
 								className="group relative bg-white/60 backdrop-blur-sm p-6 sm:p-8"
 							>
 								{/* <div className="absolute inset-0 bg-gradient-to-br from-orange-50/50 to-red-50/50 rounded-2xl sm:rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" /> */}
@@ -91,23 +77,19 @@ export default function AboutPreview() {
 										{t("about_description_2")}
 									</p>
 								</div>
-							</motion.div>
+							</div>
 							
 					
 						</div>
 
 						{/* Enhanced Statistics */}
-						<motion.div 
-							initial={{ opacity: 0, y: 30 }}
-							whileInView={{ opacity: 1, y: 0 }}
-							transition={{ duration: 0.8, delay: 0.5 }}
+						<div 
 							className="grid grid-cols-2 gap-4 sm:gap-6"
 							role="list"
 							aria-label="Organization statistics"
 						>
-							<motion.div 
-								whileHover={{ scale: 1.05 }}
-								transition={{ duration: 0.3 }}
+							<div 
+								
 								className="group bg-gradient-to-br from-orange-500 to-orange-600 p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300"
 								role="listitem"
 							>
@@ -116,28 +98,23 @@ export default function AboutPreview() {
 										<Users className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
 									</div>
 									<div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white/10 flex items-center justify-center">
-										<motion.div
-											animate={{ rotate: 360 }}
-											transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+										<div
+											
 										>
 											<Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-white/60" />
-										</motion.div>
+										</div>
 									</div>
 								</div>
-								<motion.div
-									initial={{ opacity: 0, scale: 0.5 }}
-									whileInView={{ opacity: 1, scale: 1 }}
-									transition={{ duration: 0.6, delay: 0.7 }}
+								<div
 									className="space-y-1"
 								>
 									<p className="text-2xl sm:text-3xl font-bold text-white">200+</p>
 									<p className="text-orange-100 text-xs sm:text-sm font-medium">Active Members</p>
-								</motion.div>
-							</motion.div>
+								</div>
+							</div>
 							
-							<motion.div 
-								whileHover={{ scale: 1.05 }}
-								transition={{ duration: 0.3 }}
+							<div 
+								
 								className="group bg-gradient-to-br from-red-500 to-red-600 p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300"
 								role="listitem"
 							>
@@ -146,32 +123,25 @@ export default function AboutPreview() {
 										<RefreshCcw className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
 									</div>
 									<div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white/10 flex items-center justify-center">
-										<motion.div
-											animate={{ rotate: 360 }}
-											transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+										<div
+											
 										>
 											<Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-white/60" />
-										</motion.div>
+										</div>
 									</div>
 								</div>
-								<motion.div
-									initial={{ opacity: 0, scale: 0.5 }}
-									whileInView={{ opacity: 1, scale: 1 }}
-									transition={{ duration: 0.6, delay: 0.8 }}
+								<div
 									className="space-y-1"
 								>
 									<p className="text-2xl sm:text-3xl font-bold text-white">6+</p>
 									<p className="text-red-100 text-xs sm:text-sm font-medium">Months Active</p>
-								</motion.div>
-							</motion.div>
-						</motion.div>
-					</motion.div>
+								</div>
+							</div>
+						</div>
+					</div>
 
 					{/* Enhanced Image Section */}
-					<motion.div 
-						initial={{ opacity: 0, x: 50 }}
-						whileInView={{ opacity: 1, x: 0 }}
-						transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
+					<div
 						className="relative order-first lg:order-last mb-8 lg:mb-0"
 					>
 						{/* Floating Card Design */}
@@ -200,46 +170,26 @@ export default function AboutPreview() {
 							</div>
 
 							{/* Floating Decorative Elements */}
-							<motion.div
-								animate={{ 
-									y: [0, -15, 0],
-									rotate: [0, 3, 0]
-								}}
-								transition={{ 
-									duration: 6, 
-									repeat: Infinity, 
-									ease: "easeInOut"
-								}}
+							<div
+								
 								className="absolute -bottom-4 -right-4 sm:-bottom-6 sm:-right-6 w-12 h-12 sm:w-20 sm:h-20 bg-gradient-to-br from-orange-400 to-red-400 rounded-xl sm:rounded-2xl opacity-20 blur-lg sm:blur-xl"
 								aria-hidden="true"
 							/>
-							<motion.div
-								animate={{ 
-									y: [0, 10, 0],
-									rotate: [0, -3, 0]
-								}}
-								transition={{ 
-									duration: 8, 
-									repeat: Infinity, 
-									ease: "easeInOut",
-									delay: 2
-								}}
+							<div
+								
 								className="absolute top-1/3 -left-4 sm:-left-8 w-10 h-10 sm:w-16 sm:h-16 bg-gradient-to-br from-red-400 to-orange-400 rounded-xl sm:rounded-2xl opacity-20 blur-lg sm:blur-xl"
 								aria-hidden="true"
 							/>
 						</div>
-					</motion.div>
+					</div>
 				</div>
 
 				{/* Enhanced Call to Action */}
-				<motion.div
-					initial={{ opacity: 0, y: 30 }}
-					whileInView={{ opacity: 1, y: 0 }}
-					transition={{ duration: 1, delay: 0.6 }}
+				<div
 					className="flex justify-center pt-8"
 				>
 					<ViewAllButton href={`/${locale}/about-us`} label={t("more_about_us") || "More About Us"} />
-				</motion.div>
+				</div>
 			</div>
 		</section>
 	);

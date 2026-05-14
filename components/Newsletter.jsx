@@ -1,6 +1,5 @@
 "use client";
 import React, { useState } from "react";
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import toast from "react-hot-toast";
@@ -37,7 +36,7 @@ export default function Newsletter() {
 
 	return (
 		<div>
-			<motion.div className="lg:max-w-2xl max-w-sm md:mx-auto mt-6  md:text-center" initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+			<div className="lg:max-w-2xl max-w-sm md:mx-auto mt-6  md:text-center">
 				<form onSubmit={handleSubmit} className="md:mx-auto flex flex-1 flex-col md:flex-row gap-4">
 					<Input
 						type="email"
@@ -54,7 +53,7 @@ export default function Newsletter() {
 						Subscribe
 					</Button>
 				</form>
-			</motion.div>
+			</div>
 		</div>
 	);
 }
