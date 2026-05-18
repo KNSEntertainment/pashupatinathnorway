@@ -2,9 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { 
-  FileText,
   Lightbulb,
-  Download
 } from "lucide-react";
 import SectionHeader from "./SectionHeader";
 
@@ -12,12 +10,6 @@ interface BoardMember {
   name: string;
   position: string;
   type: "executive" | "member" | "advisor";
-}
-
-interface Report {
-  year: string;
-  title: string;
-  url: string;
 }
 
 export default function Management() {
@@ -57,13 +49,7 @@ export default function Management() {
     { name: "Deependra Acharya", position: t("advisor"), type: "advisor" }
   ];
 
-  const annualReports: Report[] = [
-    { 
-      year: "2025", 
-      title: t("annual_report_2025"),
-      url: "https://drive.google.com/file/d/1G175qOtMsbTG1qL6CDLfKLa7YcHheNCQ/view"
-    }
-  ];
+
 
   // const missionItems = [
   //   {
@@ -184,45 +170,6 @@ export default function Management() {
         </div>
       </div> */}
 
-      {/* Annual Reports Section */}
-      <div className="bg-gray-50 py-16">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-3">
-              <FileText className="w-8 h-8 text-brand_primary" />
-              {t("annual_reports_title")}
-            </h2>
-          </div>
-
-          <div className="max-w-2xl mx-auto">
-            {annualReports.map((report, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-6 border border-gray-200 flex items-center justify-between group cursor-pointer"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-brand_primary/10 rounded-lg flex items-center justify-center group-hover:bg-brand_primary/20 transition-colors">
-                    <FileText className="w-6 h-6 text-brand_primary" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-900">{report.title}</h3>
-                    <p className="text-sm text-gray-600">{t("year")}: {report.year}</p>
-                  </div>
-                </div>
-                <a 
-                  href={report.url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-brand_secondary hover:text-brand_secondary/60 transition-colors"
-                >
-                  <span className="hidden md:block text-sm font-medium">{t("download")}</span>
-                  <Download className="w-4 h-4" />
-                </a>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

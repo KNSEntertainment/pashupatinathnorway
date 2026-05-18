@@ -99,6 +99,7 @@ export default function MembershipsPage() {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([]);
 	const [bulkStatus, setBulkStatus] = useState("");
+	const [bulkType, setBulkType] = useState("");
 	const [viewingMember, setViewingMember] = useState<Membership | null>(null);
 	const [editingMember, setEditingMember] = useState<Membership | null>(null);
 	const [editFormData, setEditFormData] = useState<Partial<Membership>>({});
@@ -359,6 +360,51 @@ export default function MembershipsPage() {
 		mutate();
 	};
 
+	const handleBulkTypeChange = async () => {
+		if (!selectedMemberIds.length || !bulkType) return;
+
+		// Check if trying to change non-active members to Executive
+		if (bulkType === "Executive") {
+			for (const id of selectedMemberIds) {
+				const member = paginatedMemberships.find((m: Membership) => m._id === id) as Membership | undefined;
+				if (member?.membershipType !== "Active") {
+					toast({
+						title: "Cannot Change to Executive",
+						description: "Only Active members can be changed to Executive. Please change their membership type to Active first.",
+						variant: "destructive",
+					});
+					return; // Stop execution
+				}
+			}
+		}
+
+		for (const id of selectedMemberIds) {
+			try {
+				const response = await fetch(`/api/membership/${id}`, {
+					method: "PUT",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ membershipType: bulkType }),
+				});
+				
+				if (!response.ok) {
+					throw new Error("Failed to update membership type");
+				}
+			} catch (error) {
+				console.error("Error updating member type:", id, error);
+			}
+		}
+		
+		setSelectedMemberIds([]);
+		setBulkType("");
+
+		toast({
+			title: "Success",
+			description: `Selected memberships updated to ${bulkType} successfully`,
+		});
+		
+		mutate();
+	};
+
 	const downloadExcel = async () => {
 		try {
 			// Build query parameters
@@ -595,7 +641,7 @@ export default function MembershipsPage() {
 							</AlertDialogFooter>
 						</AlertDialogContent>
 					</AlertDialog>
-					<Link href="/en/dashboard/membership/bulk-upload">
+					<Link href="/dashboard/bulk-upload">
 						<Button size="sm" className="flex items-center gap-2">
 							<Upload className="w-4 h-4" />
 							Bulk Upload
@@ -636,6 +682,7 @@ export default function MembershipsPage() {
 							<option value="">All Types</option>
 							<option value="General">General Member</option>
 							<option value="Active">Active Member</option>
+							<option value="Executive">Executive Member</option>
 						</select>
 					</div>
 				</div>
@@ -667,6 +714,19 @@ export default function MembershipsPage() {
 							</select>
 							<Button size="sm" onClick={handleBulkStatusChange} disabled={!bulkStatus}>
 								Apply
+							</Button>
+							<select 
+								className="px-3 py-1 text-sm border border-gray-300 rounded" 
+								value={bulkType} 
+								onChange={(e) => setBulkType(e.target.value)}
+							>
+								<option value="">Change Type</option>
+								<option value="General">General Member</option>
+								<option value="Active">Active Member</option>
+								<option value="Executive">Executive Member</option>
+							</select>
+							<Button size="sm" onClick={handleBulkTypeChange} disabled={!bulkType}>
+								Apply Type
 							</Button>
 							{(() => {
 								const hasActiveMemberSelected = selectedMemberIds.some(id => {
@@ -787,6 +847,8 @@ export default function MembershipsPage() {
 											className={`capitalize ${
 												member.membershipType === 'General'
 													? 'bg-blue-50 text-blue-700 border-blue-200' 
+													: member.membershipType === 'Executive'
+													? 'bg-purple-50 text-purple-700 border-purple-200'
 													: 'bg-green-50 text-green-700 border-green-200'
 											}`}
 										>
@@ -943,6 +1005,8 @@ export default function MembershipsPage() {
 												className={`capitalize ${
 													viewingMember.membershipType === 'General'
 														? 'bg-blue-50 text-blue-700 border-blue-200' 
+														: viewingMember.membershipType === 'Executive'
+														? 'bg-purple-50 text-purple-700 border-purple-200'
 														: 'bg-green-50 text-green-700 border-green-200'
 												}`}
 											>

@@ -4,8 +4,10 @@ import { useTranslations } from "next-intl";
 import { useState, useEffect } from "react";
 import DonationForm from "@/components/DonationForm";
 import DonateCTA from "@/components/DonateCTA";
+import ScrollingDonorList from "@/components/ScrollingDonorList";
 import { Heart, Building, Star } from "lucide-react";
 import Link from "next/link";
+import SectionHeader from "@/components/SectionHeader";
 
 interface Cause {
 	_id: string;
@@ -32,46 +34,48 @@ export default function DonatePageClient({ locale }: DonatePageClientProps) {
 	const t = useTranslations("donate");
 	const [totalAmount, setTotalAmount] = useState<number>(0);
 	const [loading, setLoading] = useState<boolean>(true);
+	const [donors, setDonors] = useState<Array<{name: string; amount: number; isAnonymous: boolean; date: string}>>([]); // Added donors state
 
 	useEffect(() => {
-		const fetchTotalDonations = async () => {
+		const fetchData = async () => {
 			try {
-				const response = await fetch('/api/donations/total');
-				if (response.ok) {
-					const data = await response.json();
-					setTotalAmount(data.totalAmount);
+				// Fetch total donations
+				const totalResponse = await fetch('/api/donations/total');
+				if (totalResponse.ok) {
+					const totalData = await totalResponse.json();
+					setTotalAmount(totalData.totalAmount);
+				}
+
+				// Fetch donors
+				const donorsResponse = await fetch('/api/donations/donors');
+				if (donorsResponse.ok) {
+					const donorsData = await donorsResponse.json();
+					setDonors(donorsData);
 				}
 			} catch (error) {
-				console.error('Error fetching total donations:', error);
+				console.error('Error fetching data:', error);
 			} finally {
 				setLoading(false);
 			}
 		};
 
-		fetchTotalDonations();
+		fetchData();
 	}, []);
 	return (
 		<div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50 py-12 px-4">
 			<div className="max-w-6xl mx-auto">
 				{/* Hero Section */}
-				<header className="text-center">
-					{/* <SectionHeader heading={t("hero_title")} subtitle={t("hero_description")} /> */}
-				{/* Quick Impact Reasons */}
-				<div className="px-6 pb-6 mb-8 md:mb-12">
-					{/* <div className="text-center">
-						<SectionHeader 
-							heading={t("make_an_impact") || "Make an Impact Today"}
-							subtitle={t("impact_subtitle") || "Your donation helps build our community's future"}
-						/>
-					</div> */}
-					
-					{/* Total Donations Display */}
-					<div className="text-center my-0 md:my-8">
-						<div className="mt-0 md:-mt-12 p-6 max-w-lg mx-auto">
-							<h3 className="text-lg font-semibold text-gray-700 mb-1">
+					<SectionHeader heading={t("hero_title")} subtitle={t("hero_description")} />
+		
+					{/* Total Donations Display with Auto-Scrolling Donors */}
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
+						{/* Left Side - Total Donations */}
+						<div className="p-6 col-span-1 md:col-span-2 flex justify-center items-center">
+						<div className="text-center">
+								<h3 className="text-lg font-semibold text-gray-700 mb-4">
 								{t("total_donations") || "Total Donations till now"}
 							</h3>
-							<div className="text-4xl md:text-8xl font-bold bg-gradient-to-r from-brand_primary to-brand_secondary bg-clip-text text-transparent mb-2">
+							<div className="text-3xl md:text-8xl font-bold bg-gradient-to-r from-brand_primary to-brand_secondary bg-clip-text text-transparent mb-4">
 								{loading ? (
 									<div className="flex items-center justify-center">
 										<svg className="animate-spin h-8 w-8 text-brand_primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -89,15 +93,26 @@ export default function DonatePageClient({ locale }: DonatePageClientProps) {
 								)}
 							</div>
 						</div>
+						
+						</div>
+
+						{/* Right Side - Auto-Scrolling Donors */}
+						<div className="p-2 col-span-1 md:col-span-1">
+							<div className="flex justify-between items-center mb-4">
+								<h3 className="text-lg font-semibold text-gray-700">
+									{t("recent_donors") || "All Donors"}
+								</h3>
+								<Link 
+									href={`/${locale}/donors`} 
+									className="text-sm text-brand_secondary/70 hover:text-brand_secondary underline font-medium transition-colors"
+								>
+									View All Donors
+								</Link>
+							</div>
+							<ScrollingDonorList donors={donors} />
+						</div>
 					</div>
-					
 			
-				</div>
-				</header>
-
-
-		
-
 				<div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
 					{/* Donation Form */}
 					<div className="lg:col-span-2">
@@ -108,13 +123,15 @@ export default function DonatePageClient({ locale }: DonatePageClientProps) {
 					<div className="space-y-6">
 						{/* Donate CTA Section */}
 						<DonateCTA />
-					<div className="bg-gradient-to-r from-orange-100 to-amber-100 rounded-2xl p-8 border border-orange-100">
+						
+						{/* <DonorList /> */}
+					<div className="bg-gradient-to-r from-orange-100 to-amber-100 rounded-2xl py-8 ">
 						<h3 className="text-2xl font-bold text-center mb-8 text-brand_secondary">
 							{t("why_donate_title") || "Why Build Pashupatinath Temple in Norway?"}
 						</h3>
 						
 						<div className="grid grid-cols-1 gap-2 mb-6">
-							<div className="rounded-xl p-6 shadow-sm border border-orange-50">
+							<div className="rounded-xl p-6">
 								<div className="flex items-start gap-4">
 									<div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand_primary/20 to-brand_primary/10 flex items-center justify-center flex-shrink-0">
 										<Building className="w-5 h-5 text-brand_secondary" />
@@ -126,7 +143,7 @@ export default function DonatePageClient({ locale }: DonatePageClientProps) {
 								</div>
 							</div>
 							
-							<div className="rounded-xl p-6 shadow-sm border border-orange-50">
+							<div className="rounded-xl p-6">
 								<div className="flex items-start gap-4">
 									<div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand_secondary/20 to-brand_secondary/10 flex items-center justify-center flex-shrink-0">
 										<Heart className="w-5 h-5 text-brand_secondary" />
@@ -138,7 +155,7 @@ export default function DonatePageClient({ locale }: DonatePageClientProps) {
 								</div>
 							</div>
 							
-							<div className="rounded-xl p-6 shadow-sm border border-orange-50">
+							<div className="rounded-xl p-6">
 								<div className="flex items-start gap-4">
 									<div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500/20 to-amber-400/10 flex items-center justify-center flex-shrink-0">
 										<Star className="w-5 h-5 text-amber-600" />
@@ -150,7 +167,7 @@ export default function DonatePageClient({ locale }: DonatePageClientProps) {
 								</div>
 							</div>
 							
-							{/* <div className="bg-white rounded-xl p-6 shadow-sm border border-orange-50">
+							{/* <div className="bg-white rounded-xl p-6">
 								<div className="flex items-start gap-4">
 									<div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500/20 to-green-400/10 flex items-center justify-center flex-shrink-0">
 										<Users className="w-5 h-5 text-green-600" />
@@ -181,10 +198,6 @@ export default function DonatePageClient({ locale }: DonatePageClientProps) {
 					</div>
 				</div>
 			</div>
-
-	
-
-			
 		</div>
 	);
 }

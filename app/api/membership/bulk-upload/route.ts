@@ -4,6 +4,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import Membership from '@/models/Membership.Model';
 import AuditLog from '@/models/AuditLog.Model';
 import connectDB from '@/lib/mongodb';
+import generateMembershipId from '@/lib/membershipIdGenerator';
 
 interface FamilyMemberData {
   firstName?: string;
@@ -169,7 +170,7 @@ export async function POST(request: NextRequest) {
               }
               break;
             case 'membershipType':
-              if (['General', 'Active'].includes(value)) {
+              if (['General', 'Active', 'Executive'].includes(value)) {
                 memberData.membershipType = value;
               }
               break;
@@ -269,6 +270,9 @@ export async function POST(request: NextRequest) {
         memberData.membershipType = memberData.membershipType || 'General';
         memberData.membershipStatus = memberData.membershipStatus || 'pending';
         memberData.createdAt = new Date();
+
+        // Generate membership ID
+        memberData.membershipId = await generateMembershipId();
 
         // Insert member
         await Membership.create(memberData);

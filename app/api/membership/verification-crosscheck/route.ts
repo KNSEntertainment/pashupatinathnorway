@@ -134,20 +134,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get all General members from database
-    const allGeneralMembers = await Membership.find({ 
-      membershipType: 'General' 
-    }).select('firstName lastName personalNumber email');
+    // Get all General and Executive members from database
+    const allMembers = await Membership.find({ 
+      membershipType: { $in: ['General', 'Executive'] }
+    }).select('firstName lastName personalNumber email membershipType');
 
-    if (allGeneralMembers.length === 0) {
+    if (allMembers.length === 0) {
       // Update audit log for no members error
       await AuditLog.findByIdAndUpdate(auditLog._id, {
         status: 'failed',
-        errorMessage: 'No General members found in the database'
+        errorMessage: 'No General or Executive members found in the database'
       });
 
       return NextResponse.json(
-        { error: 'No General members found in the database' },
+        { error: 'No General or Executive members found in the database' },
         { status: 404 }
       );
     }
@@ -167,7 +167,7 @@ export async function POST(request: NextRequest) {
       email: string;
     }> = [];
 
-    for (const member of allGeneralMembers) {
+    for (const member of allMembers) {
       const memberData = {
         firstName: member.firstName,
         lastName: member.lastName,
@@ -183,7 +183,7 @@ export async function POST(request: NextRequest) {
     }
 
     const results = {
-      totalMembers: allGeneralMembers.length,
+      totalMembers: allMembers.length,
       verifiedMembers: verifiedList.length,
       unverifiedMembers: unverifiedList.length,
       verifiedList,
@@ -193,7 +193,7 @@ export async function POST(request: NextRequest) {
     // Update audit log with successful results
     await AuditLog.findByIdAndUpdate(auditLog._id, {
       status: 'completed',
-      'details.totalRows': allGeneralMembers.length,
+      'details.totalRows': allMembers.length,
       'details.validRows': verifiedList.length,
       'details.insertedRows': verifiedList.length,
       'details.skippedRows': unverifiedList.length,
@@ -205,7 +205,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       results,
-      message: `Crosscheck completed. Found ${verifiedList.length} verified and ${unverifiedList.length} unverified members out of ${allGeneralMembers.length} total General members.`
+      message: `Crosscheck completed. Found ${verifiedList.length} verified and ${unverifiedList.length} unverified members out of ${allMembers.length} total General and Executive members.`
     });
 
   } catch (error) {

@@ -16,13 +16,13 @@ export default function DonateCTA() {
 	};
 
 	return (
-			<Card className="shadow-lg border-0">
-				<CardHeader className="text-center bg-brand_primary/50 text-gray-700 rounded-t-lg">
+			<Card className="border-0">
+				<CardHeader className="text-center bg-brand_primary/20 text-gray-700 rounded-t-lg">
 					<CardTitle className="text-2xl font-bold">
 						{t("cta_title")}
 					</CardTitle>
 				</CardHeader>
-				<CardContent className="bg-brand_primary/20 p-8">
+				<CardContent className="bg-brand_primary/10 p-8">
 					<div className="grid grid-cols-1 gap-8">
 						{/* Bank Transfer Section */}
 						<div className="space-y-6">

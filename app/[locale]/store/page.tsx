@@ -84,7 +84,7 @@ const StorePage: React.FC<StorePageProps> = () => {
 						<span className="text-xs md:text-lg font-bold text-green-700">
 							NOK {product.price}
 						</span>
-						{!product.isDigital && product.stockQuantity !== undefined && product.stockQuantity > 0 && (
+						{!product.isDigital && product.inStock && product.stockQuantity !== undefined && product.stockQuantity > 0 && (
 							<span className="hidden md:block text-xs text-gray-500">
 								{product.stockQuantity} {t('left')}
 							</span>

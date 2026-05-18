@@ -56,7 +56,7 @@ export interface Membership {
 	gender: string;
 	fylke?: string;
 	kommune?: string;
-	membershipType: "General" | "Active" | "executive";
+	membershipType: "General" | "Active" | "Executive";
 	membershipStatus: "blocked" | "pending" | "approved";
 	agreeTerms: boolean;
 	profilePhoto?: string;

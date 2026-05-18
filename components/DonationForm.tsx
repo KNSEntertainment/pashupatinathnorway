@@ -34,7 +34,7 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 	const [message, setMessage] = useState("");
 	const [isAnonymous, setIsAnonymous] = useState(false);
 	const [loading, setLoading] = useState(false);
-	const [paymentMethod, setPaymentMethod] = useState<'card' | 'vipps'>('card');
+	const [paymentMethod, setPaymentMethod] = useState<'card' | 'vipps'>('vipps');
 	const [showVippsSuccess, setShowVippsSuccess] = useState(false);
 	const [selectedCause, setSelectedCause] = useState<string>("");
 	const [causes, setCauses] = useState<Array<{ _id: string; title: string; category: string }>>([]);
@@ -327,7 +327,7 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 			<div>
 				<label className="block text-sm font-semibold text-gray-900 mb-3">{t("payment_method") || "Payment Method"}</label>
 				<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-					<button
+					{/* <button
 						type="button"
 						onClick={() => setPaymentMethod('card')}
 						className={`p-2 rounded-lg border border-1 font-semibold transition-all ${
@@ -343,7 +343,7 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 							</svg>
 							<span>{t("card_payment") || "Card Payment"}</span>
 						</div>
-					</button>
+					</button> */}
 					<button
 						type="button"
 						onClick={() => setPaymentMethod('vipps')}
@@ -378,8 +378,8 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 					<>
 						{paymentMethod === 'vipps' ? (
 							<>
-								<Image src="/Vipps.webp" alt="Vipps" width={64} height={64} className="w-12 rounded-full" />
-								{formatNOK(amount)}
+								Donate {formatNOK(amount)} with <Image src="/Vipps.webp" alt="Vipps" width={64} height={64} className="w-12 rounded-full" />
+								
 							</>
 						) : (
 							<>
@@ -407,7 +407,7 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 
 	// Otherwise, return the full Card wrapper
 	return (
-		<Card className="w-full max-w-3xl mx-auto shadow-xl border-0 bg-light">
+		<Card className="w-full max-w-3xl mx-auto shadow-xl border-0 bg-white">
 			<CardHeader className="bg-red-900 text-gray-100">
 				<div className="flex items-center gap-3">
 					<Heart className="w-8 h-8 text-brand_primary" />

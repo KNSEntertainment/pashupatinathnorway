@@ -1,4 +1,4 @@
-import { BookImage, Settings, LayoutDashboard, Book, Newspaper, User, Bell, Users, Mail, DollarSign, Image, Heart, QrCode, Gift, LucideIcon, FileText, Shield, FolderOpen, PiggyBank } from "lucide-react";
+import { BookImage, Settings, LayoutDashboard, Book, Newspaper, User, Bell, Users, Mail, DollarSign, Image, Heart, QrCode, Gift, LucideIcon, FileText, Shield, FolderOpen, PiggyBank, ShoppingBag } from "lucide-react";
 
 export interface MenuItem {
 	id: string;
@@ -28,4 +28,5 @@ export const menuItems: MenuItem[] = [
 	{ id: "users", label: "Users", icon: User, color: "bg-success", href: "/en/dashboard/users", role: "admin" },
 	{ id: "audit-logs", label: "Audit Logs", icon: Shield, color: "bg-gray-600", href: "/en/dashboard/audit-logs", role: "admin" },
 	{ id: "budget", label: "Budget", icon: PiggyBank, color: "bg-emerald-600", href: "/en/dashboard/budget", role: "admin" },
+	{ id: "products", label: "Products", icon: ShoppingBag, color: "bg-teal-600", href: "/en/dashboard/products", role: "admin" },
 ];

@@ -15,16 +15,18 @@ export async function GET() {
       'kommune',
       'fylke',
       'personalNumber',
-      'profilePhoto'
+      'profilePhoto',
+      'membershipType',
+      'membershipStatus'
     ];
 
     // Create CSV content with headers and example data
     const csvContent = [
       headers.join(','),
       // Example row with valid data
-      'John,Doe,Smith,john.smith@example.com,+4712345678,Main Street 123,Oslo,0150,Oslo,Oslo,12345678901,',
+      'John,Doe,Smith,john.smith@example.com,+4712345678,Main Street 123,Oslo,0150,Oslo,Oslo,12345678901,,Active,pending',
       // Empty template row
-      ',,,,,,,,,,,'
+      ',,,,,,,,,,,,,,'
     ].join('\n');
 
     // Create response with CSV file

@@ -44,9 +44,19 @@ export default function DashboardProductClient({ products }) {
 		setShowForm(true);
 	};
 
-	const handleCloseForm = () => {
+	const handleCloseForm = async () => {
 		setShowForm(false);
 		setEditingProduct(null);
+		// Refresh the product list
+		try {
+			const response = await fetch('/api/products');
+			if (response.ok) {
+				const data = await response.json();
+				setProductList(data.products || []);
+			}
+		} catch (error) {
+			console.error('Error refreshing products:', error);
+		}
 	};
 
 	const handleDeleteProduct = async (product) => {
@@ -74,7 +84,7 @@ export default function DashboardProductClient({ products }) {
 
 	const handleToggleStatus = async (product) => {
 		try {
-			const response = await fetch(`/api/products/${product._id}`, {
+			const response = await fetch(`/api/products/${product._id}/status`, {
 				method: "PUT",
 				headers: {
 					"Content-Type": "application/json",
@@ -177,8 +187,6 @@ export default function DashboardProductClient({ products }) {
 						<thead>
 							<tr className="bg-gray-50 border-b">
 								<th className="px-4 py-3 text-left">Product</th>
-								<th className="px-4 py-3 text-left">Category</th>
-								<th className="px-4 py-3 text-left">Type</th>
 								<th className="px-4 py-3 text-left">Price</th>
 								<th className="px-4 py-3 text-left">Stock</th>
 								<th className="px-4 py-3 text-left">Status</th>
@@ -188,7 +196,7 @@ export default function DashboardProductClient({ products }) {
 						<tbody>
 							{filteredProducts.length === 0 ? (
 								<tr>
-									<td colSpan="7" className="px-4 py-8 text-center text-gray-500">
+									<td colSpan="5" className="px-4 py-8 text-center text-gray-500">
 										No products found
 									</td>
 								</tr>
@@ -216,12 +224,6 @@ export default function DashboardProductClient({ products }) {
 												</div>
 											</div>
 										</td>
-										<td className="px-4 py-3">
-											<Badge variant={product.category === "product" ? "default" : "secondary"}>
-												{product.category}
-											</Badge>
-										</td>
-										<td className="px-4 py-3">{product.type}</td>
 										<td className="px-4 py-3">NOK {product.price}</td>
 										<td className="px-4 py-3">
 											{product.isDigital ? (
