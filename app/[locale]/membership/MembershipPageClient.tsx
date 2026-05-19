@@ -391,7 +391,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 										</div>
 										<div className="flex items-start gap-3">
 											<div className="w-2 h-2 rounded-full bg-brand_primary mt-2 flex-shrink-0" />
-											<p className="text-gray-700 leading-relaxed text-sm"><a href="https://person.brreg.no/en/minside/tros-og-livssyn" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Click to View</a> your existing memberships with other organizations. To cancel, <a href="/utmeldingsblankett-juli2006.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">fill out this form</a> and send it to the respective temple/organization. </p>
+											<p className="text-gray-700 leading-relaxed text-sm"><a href="https://person.brreg.no/en/minside/tros-og-livssyn" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline" aria-label="View existing memberships with other organizations on Brreg website (opens in new tab)">Click to View</a> (https://person.brreg.no/en/minside) your existing memberships with other organizations. To cancel, <a href="/utmeldingsblankett-juli2006.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline" aria-label="Download membership cancellation form (PDF, opens in new tab)">fill out this form</a> and send it to the respective temple/organization. </p>
 										</div>
 										<div className="flex items-start gap-3">
 											<div className="w-2 h-2 rounded-full bg-brand_primary mt-2 flex-shrink-0" />
