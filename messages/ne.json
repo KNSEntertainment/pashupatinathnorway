@@ -99,7 +99,7 @@
 			"message": "सन्देश",
 			"name_placeholder": "तपाईंको नाम",
 			"email_placeholder": "you@email.com",
-			"message_placeholder": "यहाँ आफ्नो सन्देश टाइप गर्नुहोस्...",
+			"message_placeholder": "यहाँ आफ्नो सन्देश टाइप गर्नुहोस्... (कम्तिमा १० अक्षर)",
 			"sending": "पठाउँदै...",
 			"send": "सन्देश पठाउनुहोस्"
 		},

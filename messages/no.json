@@ -175,7 +175,7 @@
 			"message": "Melding",
 			"name_placeholder": "Ditt navn",
 			"email_placeholder": "you@email.com",
-			"message_placeholder": "Skriv din melding her...",
+			"message_placeholder": "Skriv din melding her... (minimum 10 tegn)",
 			"sending": "Sender...",
 			"send": "Send melding"
 		},

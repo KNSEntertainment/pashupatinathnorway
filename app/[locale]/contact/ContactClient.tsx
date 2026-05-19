@@ -46,6 +46,11 @@ export default function ContactPageClient({ settings, translations: t }: Props) 
 
 	const setting = settings?.[0] || {};
 
+	// Check if form is valid for submission
+	const isFormValid = form.name.trim().length >= 2 && 
+					   form.email.trim().length > 0 && 
+					   form.message.trim().length >= 10;
+
 	function handleChange(e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) {
 		setForm({ ...form, [e.target.name]: e.target.value });
 	}
@@ -61,11 +66,19 @@ export default function ContactPageClient({ settings, translations: t }: Props) 
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(form),
 			});
-			if (res.ok) {
+			const data = await res.json();
+			
+			if (res.status === 200) {
+				// Success - both message saved and email sent
 				setSuccess(t.success);
 				setForm({ name: "", email: "", message: "" });
+			} else if (res.status === 207) {
+				// Multi-Status - message saved but email failed
+				setSuccess(data.warning || t.success);
+				setForm({ name: "", email: "", message: "" });
 			} else {
-				setError(t.error);
+				// Error - show the actual error message from API
+				setError(data.error || t.error);
 			}
 		} catch {
 			setError(t.error);
@@ -154,7 +167,7 @@ export default function ContactPageClient({ settings, translations: t }: Props) 
 								<textarea id="message" name="message" value={form.message} onChange={handleChange} required rows={5} className="w-full px-4 py-3 rounded-xl border border-light focus:ring-4 focus:ring-blue-100 focus:border-blue-600 outline-none transition-all resize-none" placeholder={t.form.message_placeholder} />
 							</div>
 
-							<button type="submit" disabled={submitting} className="w-full md:w-auto px-10 py-4 bg-brand_primary text-gray-700 font-bold rounded-xl shadow-lg shadow-brand/50 hover:bg-brand_primary/90 active:scale-95 transition-all flex items-center justify-center gap-2">
+							<button type="submit" disabled={submitting || !isFormValid} className="w-full md:w-auto px-10 py-4 bg-brand_primary text-gray-700 font-bold rounded-xl shadow-lg shadow-brand/50 hover:bg-brand_primary/90 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-brand_primary">
 								{submitting ? (
 									t.form.sending
 								) : (

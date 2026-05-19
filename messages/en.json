@@ -176,7 +176,7 @@
 			"message": "Message",
 			"name_placeholder": "Your Name",
 			"email_placeholder": "you@email.com",
-			"message_placeholder": "Type your message here...",
+			"message_placeholder": "Type your message here... (minimum 10 characters)",
 			"sending": "Sending...",
 			"send": "Send Message"
 		},
