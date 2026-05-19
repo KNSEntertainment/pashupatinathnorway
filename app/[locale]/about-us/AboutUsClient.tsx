@@ -1,18 +1,110 @@
 "use client";
 
-import { Globe, Landmark, MessageCirclePlusIcon, Users } from "lucide-react";
+import { Globe, Landmark, MessageCirclePlusIcon, Target, Users } from "lucide-react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import SectionHeader from "@/components/SectionHeader";
 import { useState, useEffect, useRef } from "react";
+
+interface AboutUsData {
+	title: string;
+	subtitle: string;
+	about_description_1: string;
+	about_description_2: string;
+	more_about_us: string;
+	image: string;
+	stats: {
+		active_members: string;
+		months_active: string;
+		active_members_label: string;
+		months_active_label: string;
+	};
+}
+
+interface MissionVisionData {
+	mission: {
+		title: string;
+		description: string;
+	};
+	vision: {
+		title: string;
+		description: string;
+	};
+}
+
+interface ValueItem {
+	title: string;
+	description: string;
+	icon: string;
+	order: number;
+}
+
+interface ValuesData {
+	title: string;
+	values: ValueItem[];
+}
 
 export default function AboutUsClient() {
 	const t = useTranslations("about-us");
 	const ta = useTranslations("about");
+	const locale = useLocale();
 	const [activeIndex, setActiveIndex] = useState(0);
 	const scrollContainerRef = useRef<HTMLDivElement>(null);
+	const [aboutUsData, setAboutUsData] = useState<AboutUsData | null>(null);
+	const [missionVisionData, setMissionVisionData] = useState<MissionVisionData | null>(null);
+	const [valuesData, setValuesData] = useState<ValuesData | null>(null);
 
-	const values = [
+	// Fetch data from APIs
+	useEffect(() => {
+		const fetchData = async () => {
+			try {
+				const [aboutUsResponse, missionVisionResponse, valuesResponse] = await Promise.all([
+					fetch(`/api/about-us?locale=${locale}`),
+					fetch(`/api/mission-vision?locale=${locale}`),
+					fetch(`/api/values?locale=${locale}`)
+				]);
+
+				if (aboutUsResponse.ok) {
+					const data = await aboutUsResponse.json();
+					setAboutUsData(data);
+				}
+
+				if (missionVisionResponse.ok) {
+					const data = await missionVisionResponse.json();
+					setMissionVisionData(data);
+				}
+
+				if (valuesResponse.ok) {
+					const data = await valuesResponse.json();
+					setValuesData(data);
+				}
+			} catch (error) {
+				console.error('Failed to fetch data:', error);
+			}
+		};
+
+		fetchData();
+	}, [locale]);
+
+	// Get icon component by name
+	const getIconComponent = (iconName: string) => {
+		switch (iconName) {
+			case 'Landmark':
+				return Landmark;
+			case 'Users':
+				return Users;
+			case 'Globe':
+				return Globe;
+			default:
+				return Landmark;
+		}
+	};
+
+	const values = valuesData?.values?.map(value => ({
+		icon: getIconComponent(value.icon),
+		title: value.title,
+		description: value.description
+	})) || [
 		{ icon: Landmark, title: ta("value_cultural_preservation_title"), description: ta("value_cultural_preservation_desc") },
 		{ icon: Users, title: ta("value_community_brotherhood_title"), description: ta("value_community_brotherhood_desc") },
 		{ icon: Globe, title: ta("value_social_integration_title"), description: ta("value_social_integration_desc") },
@@ -65,7 +157,7 @@ export default function AboutUsClient() {
 
 	return (
 		<main className="container mx-auto max-w-6xl pt-12 px-4">
-			<SectionHeader heading={t("title")} subtitle={t("subtitle")} />
+			<SectionHeader heading={aboutUsData?.title || t("title")} subtitle={aboutUsData?.subtitle || t("subtitle")} />
 
 			<div className="relative">
 
@@ -76,13 +168,13 @@ export default function AboutUsClient() {
     <div className="lg:col-span-5 relative">
       {/* Clean photo frame */}
       <div className="relative rounded-2xl overflow-hidden aspect-[4/5] bg-gray-100 shadow-lg">
-        <Image
-          src="/pashupatinath.png"
-          alt="Event Experience"
-          width={600}
-          height={750}
-          className="w-full h-full object-cover"
-        />
+        		<Image
+			src={aboutUsData?.image || "/pashupatinath.png"}
+			alt="Event Experience"
+			width={600}
+			height={750}
+			className="w-full h-full object-cover"
+		/>
         {/* Subtle bottom vignette */}
         <div className="absolute inset-0 bg-gradient-to-t from-brand_primary/80 via-transparent to-transparent" />
       </div>
@@ -96,8 +188,8 @@ export default function AboutUsClient() {
             </svg>
           </div>
           <div>
-            <p className="text-lg font-bold text-gray-900 leading-none">200+</p>
-            <p className="text-xs text-gray-500 mt-0.5">Members</p>
+            				<p className="text-lg font-bold text-gray-900 leading-none">{aboutUsData?.stats?.active_members || "200+"}</p>
+				<p className="text-xs text-gray-500 mt-0.5">{aboutUsData?.stats?.active_members_label || "Members"}</p>
           </div>
         </div>
         <div className="bg-white rounded-xl shadow-lg px-4 py-3 flex items-center gap-3">
@@ -107,8 +199,8 @@ export default function AboutUsClient() {
             </svg>
           </div>
           <div>
-            <p className="text-lg font-bold text-gray-900 leading-none">6+</p>
-            <p className="text-xs text-gray-500 mt-0.5">Months Active</p>
+            				<p className="text-lg font-bold text-gray-900 leading-none">{aboutUsData?.stats?.months_active || "6+"}</p>
+				<p className="text-xs text-gray-500 mt-0.5">{aboutUsData?.stats?.months_active_label || "Months Active"}</p>
           </div>
         </div>
       </div>
@@ -137,17 +229,17 @@ export default function AboutUsClient() {
 
       {/* Paragraph blocks — left-ruled, stacked cleanly */}
       <div className="space-y-5">
-        <div className="pl-5 border-l-[3px] border-brand_secondary/20 hover:border-brand_secondary transition-colors duration-300">
-          <p className="text-gray-800 leading-relaxed text-base md:text-lg">{t("about_description_1")}</p>
-        </div>
+        				<div className="pl-5 border-l-[3px] border-brand_secondary/20 hover:border-brand_secondary transition-colors duration-300">
+					<p className="text-gray-800 leading-relaxed text-base md:text-lg">{aboutUsData?.about_description_1 || t("about_description_1")}</p>
+				</div>
 
-        <div className="pl-5 border-l-[3px] border-blue-400/20 hover:border-blue-500 transition-colors duration-300">
-          <p className="text-gray-800 leading-relaxed text-base md:text-lg">{t("about_description_2")}</p>
-        </div>
+				<div className="pl-5 border-l-[3px] border-blue-400/20 hover:border-blue-500 transition-colors duration-300">
+					<p className="text-gray-800 leading-relaxed text-base md:text-lg">{aboutUsData?.about_description_2 || t("about_description_2")}</p>
+				</div>
 
-        <div className="pl-5 border-l-[3px] border-indigo-400/20 hover:border-indigo-500 transition-colors duration-300">
-          <p className="text-gray-800 leading-relaxed text-base md:text-lg">{t("about_description_3")}</p>
-        </div>
+				<div className="pl-5 border-l-[3px] border-indigo-400/20 hover:border-indigo-500 transition-colors duration-300">
+					<p className="text-gray-800 leading-relaxed text-base md:text-lg">{t("about_description_3")}</p>
+				</div>
       </div>
 
       {/* Thin divider */}
@@ -155,15 +247,15 @@ export default function AboutUsClient() {
 
       {/* Stats row — desktop only, placed at natural bottom of text */}
       <div className="hidden md:flex items-center gap-10">
-        <div>
-          <p className="text-3xl font-bold text-gray-900">200+</p>
-          <p className="text-sm text-gray-500 mt-0.5">Members</p>
-        </div>
-        <div className="h-10 w-px bg-gray-200" />
-        <div>
-          <p className="text-3xl font-bold text-gray-900">6+</p>
-          <p className="text-sm text-gray-500 mt-0.5">Months Active</p>
-        </div>
+        				<div>
+					<p className="text-3xl font-bold text-gray-900">{aboutUsData?.stats?.active_members || "200+"}</p>
+					<p className="text-sm text-gray-500 mt-0.5">{aboutUsData?.stats?.active_members_label || "Members"}</p>
+				</div>
+				<div className="h-10 w-px bg-gray-200" />
+				<div>
+					<p className="text-3xl font-bold text-gray-900">{aboutUsData?.stats?.months_active || "6+"}</p>
+					<p className="text-sm text-gray-500 mt-0.5">{aboutUsData?.stats?.months_active_label || "Months Active"}</p>
+				</div>
       </div>
     </div>
 
@@ -187,10 +279,10 @@ export default function AboutUsClient() {
 								</div>
 							</div>
 							<h3 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-6 leading-tight">
-								{t("mission_title")}
+								{missionVisionData?.mission?.title || t("mission_title")}
 							</h3>
 							<p className="text-gray-600 leading-relaxed text-lg">
-								{t("mission_description")}
+								{missionVisionData?.mission?.description || t("mission_description")}
 							</p>
 						
 						</div>
@@ -202,17 +294,17 @@ export default function AboutUsClient() {
 						<div className="relative p-8 lg:p-10 text-white">
 							<div className="flex items-center mb-6">
 								<div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-									<MessageCirclePlusIcon className="w-8 h-8 text-white" />
+									<Target className="w-8 h-8 text-white" />
 								</div>
 								<div className="ml-4">
 									<span className="text-sm font-semibold text-white/90 uppercase tracking-wide">Vision</span>
 								</div>
 							</div>
 							<h3 className="text-2xl lg:text-3xl font-bold text-white mb-6 leading-tight">
-								{t("vision_title")}
+								{missionVisionData?.vision?.title || t("vision_title")}
 							</h3>
 							<p className="text-white/90 leading-relaxed text-lg">
-								{t("vision_description")}
+								{missionVisionData?.vision?.description || t("vision_description")}
 							</p>
 						
 						</div>
@@ -221,7 +313,7 @@ export default function AboutUsClient() {
 			</section>
 			<div className="mb-16">
 				<header className="text-center mb-6 md:mb-8">
-					<SectionHeader heading={t("values_title")} />
+					<SectionHeader heading={valuesData?.title || t("values_title")} />
 				</header>
 
 				<div ref={scrollContainerRef} className="overflow-x-auto pb-4 no-scrollbar -mx-4 px-4 md:overflow-visible md:mx-0 md:px-0">

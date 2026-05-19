@@ -16,6 +16,22 @@ export async function POST(req) {
 			return NextResponse.json({ error: "All fields are required." }, { status: 400 });
 		}
 
+		// Validate message length
+		if (message.trim().length < 10) {
+			return NextResponse.json({ error: "Message must be at least 10 characters long." }, { status: 400 });
+		}
+
+		// Validate name length
+		if (name.trim().length < 2) {
+			return NextResponse.json({ error: "Name must be at least 2 characters long." }, { status: 400 });
+		}
+
+		// Validate email format
+		const emailRegex = /^\S+@\S+\.\S+$/;
+		if (!emailRegex.test(email.trim())) {
+			return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
+		}
+
 		// Step 1: Save message to database
 		try {
 			savedMessage = await Message.create({ name, email, message });

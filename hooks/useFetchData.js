@@ -19,9 +19,12 @@ const useFetchData = (apiEndpoint, responseKey = "data") => {
 			if (Array.isArray(result)) {
 				console.log(`useFetchData: Setting data as array`);
 				setData(result);
-			} else {
+			} else if (responseKey && result[responseKey]) {
 				console.log(`useFetchData: Setting data from result[${responseKey}]:`, result[responseKey]);
-				setData(result[responseKey] || []);
+				setData(result[responseKey]);
+			} else {
+				console.log(`useFetchData: Setting data as direct object:`, result);
+				setData(result);
 			}
 		} catch (err) {
 			console.error(`useFetchData: Error:`, err);

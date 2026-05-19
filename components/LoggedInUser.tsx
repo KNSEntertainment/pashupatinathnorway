@@ -86,17 +86,17 @@ const LoggedInUser = ({ user }: { user: SessionUser }) => {
 
 	return (
 		<div ref={userRef} className="relative">
-			<button onClick={() => setShowUserDropdown((v) => !v)} aria-label="User menu" aria-expanded={showUserDropdown} className="h-8 w-8 p-1 rounded-full border border-1 border-white bg-gradient-to-br from-brand to-emerald-500 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 text-sm md:text-base overflow-hidden flex items-center justify-center">
+			<button onClick={() => setShowUserDropdown((v) => !v)} aria-label="User menu" aria-expanded={showUserDropdown} className="h-8 w-8 p-1 rounded-full border border-1 border-gray-600 text-gray-500 hover:text-gray-700 font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 text-sm md:text-base overflow-hidden flex items-center justify-center">
 				{memberPhoto ? <Image src={memberPhoto} alt={user.name || "User avatar"} width={44} height={44} className="w-full h-full object-cover" /> : avatarInitial}
 			</button>
 				{showUserDropdown && (
-					<div className="absolute right-0 mt-2 w-64 bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.12)] ring-1 ring-black/5 overflow-hidden">
+					<div className="absolute right-0 mt-2 w-64 bg-white backdrop-blur-xl rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.12)] ring-1 ring-black/5 overflow-hidden">
 						<div className="px-5 py-4 border-b border-neutral-100">
 							<p className="font-semibold text-gray-900 truncate">{user.email}</p>
 							<p className="text-xs text-gray-900 mt-1">{getUserRoleText()}</p>
 						</div>
 						{user.role === "admin" || user.isMember ? (
-							<Link href="/en/dashboard" onClick={() => setShowUserDropdown(false)} className="flex items-center gap-3 px-5 py-3.5 text-gray-700 bg-brand_secondary/10 hover:text-white w-full transition-all duration-200 font-medium">
+							<Link href="/en/dashboard" onClick={() => setShowUserDropdown(false)} className="flex items-center gap-3 px-5 py-3.5 text-gray-700 hover:bg-red-50 w-full transition-all duration-200 font-medium">
 								<LayoutDashboard size={18} />
 								{user.role === "admin" ? "Admin Dashboard" : "Member Dashboard"}
 							</Link>

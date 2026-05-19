@@ -14,7 +14,7 @@ const MembershipSchema = new mongoose.Schema({
 	fylke: { type: String },
 	personalNumber: { type: String, required: true, validate: { validator: function(v) { return /^\d{11}$/.test(v); }, message: 'Personal number must be exactly 11 digits' } },
 	membershipStatus: { type: String, enum: ["blocked", "pending", "approved"], required: true },
-	membershipType: { type: String, enum: ["General", "Active", "Executive"], default: "General" },
+	membershipType: { type: String, enum: ["General", "Active", "Executive", "Advisor"], default: "General" },
 	osloVerificationStatus: { type: String, enum: ["pending", "verified", "rejected", "follow_up_needed"], default: "pending" },
 	agreeTerms: { type: Boolean, required: false, default: true },
 	profilePhoto: { type: String },

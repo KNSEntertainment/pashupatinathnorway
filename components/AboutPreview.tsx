@@ -1,13 +1,71 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Users, RefreshCcw, Sparkles } from "lucide-react";
 import Image from "next/image";
-import { useTranslations, useLocale } from "next-intl";
+import { useLocale } from "next-intl";
 import ViewAllButton from "@/components/ViewAllButton";
 
+interface AboutUsData {
+	title: string;
+	subtitle: string;
+	about_description_1: string;
+	about_description_2: string;
+	more_about_us: string;
+	image: string;
+	stats: {
+		active_members: string;
+		months_active: string;
+		active_members_label: string;
+		months_active_label: string;
+	};
+}
+
 export default function AboutPreview() {
-	const t = useTranslations("about-us");
 	const locale = useLocale();
+	const [aboutData, setAboutData] = useState<AboutUsData | null>(null);
+	const [loading, setLoading] = useState(true);
+
+	useEffect(() => {
+		const fetchAboutData = async () => {
+			try {
+				const response = await fetch(`/api/about-us?locale=${locale}`);
+				if (response.ok) {
+					const data = await response.json();
+					setAboutData(data);
+				}
+			} catch (error) {
+				console.error("Error fetching About Us data:", error);
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchAboutData();
+	}, [locale]);
+
+	if (loading) {
+		return (
+			<section className="relative min-h-screen py-12 lg:py-20 bg-gradient-to-br from-slate-50 via-white to-orange-50/30 overflow-hidden">
+				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+					<div className="text-center">
+						<p>Loading...</p>
+					</div>
+				</div>
+			</section>
+		);
+	}
+
+	if (!aboutData) {
+		return (
+			<section className="relative min-h-screen py-12 lg:py-20 bg-gradient-to-br from-slate-50 via-white to-orange-50/30 overflow-hidden">
+				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+					<div className="text-center">
+						<p>Unable to load About Us content.</p>
+					</div>
+				</div>
+			</section>
+		);
+	}
 
 	return (
 		<section className="relative min-h-screen py-12 lg:py-20 bg-gradient-to-br from-slate-50 via-white to-orange-50/30 overflow-hidden" aria-labelledby="about-preview-heading">
@@ -43,14 +101,14 @@ export default function AboutPreview() {
 					</div>
 					
 					<h1 id="about-preview-heading" className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold bg-gradient-to-r from-gray-900 via-orange-800 to-red-800 bg-clip-text text-transparent mb-4 sm:mb-6 leading-tight px-2">
-						{t("title")}
+						{aboutData.title}
 					</h1>
 					
 					<div
 						className="max-w-4xl mx-auto px-4"
 					>
 						<p className="text-lg sm:text-xl md:text-2xl text-gray-600 leading-relaxed font-light">
-							{t("subtitle")}
+							{aboutData.subtitle}
 						</p>
 					</div>
 				</div>
@@ -71,10 +129,10 @@ export default function AboutPreview() {
 								<div className="relative z-10">
 								
 									<p className="text-gray-800 leading-relaxed text-base sm:text-lg font-medium">
-										{t("about_description_1")}
+										{aboutData.about_description_1}
 									</p> <br/>
 									<p className="text-gray-800 leading-relaxed text-base sm:text-lg font-medium">
-										{t("about_description_2")}
+										{aboutData.about_description_2}
 									</p>
 								</div>
 							</div>
@@ -108,8 +166,8 @@ export default function AboutPreview() {
 								<div
 									className="space-y-1"
 								>
-									<p className="text-2xl sm:text-3xl font-bold text-white">200+</p>
-									<p className="text-orange-100 text-xs sm:text-sm font-medium">Active Members</p>
+									<p className="text-2xl sm:text-3xl font-bold text-white">{aboutData.stats.active_members}</p>
+									<p className="text-orange-100 text-xs sm:text-sm font-medium">{aboutData.stats.active_members_label}</p>
 								</div>
 							</div>
 							
@@ -133,8 +191,8 @@ export default function AboutPreview() {
 								<div
 									className="space-y-1"
 								>
-									<p className="text-2xl sm:text-3xl font-bold text-white">6+</p>
-									<p className="text-red-100 text-xs sm:text-sm font-medium">Months Active</p>
+									<p className="text-2xl sm:text-3xl font-bold text-white">{aboutData.stats.months_active}</p>
+									<p className="text-red-100 text-xs sm:text-sm font-medium">{aboutData.stats.months_active_label}</p>
 								</div>
 							</div>
 						</div>
@@ -157,7 +215,7 @@ export default function AboutPreview() {
 								{/* Image */}
 								<div className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl sm:shadow-2xl border-2 sm:border-4 border-white/80 backdrop-blur-sm">
 									<Image 
-										src="/pashupatinath.png" 
+										src={aboutData.image} 
 										alt="Pashupatinath Norway Temple - Community gathering and spiritual center" 
 										width={600} 
 										height={600} 
@@ -188,7 +246,7 @@ export default function AboutPreview() {
 				<div
 					className="flex justify-center pt-8"
 				>
-					<ViewAllButton href={`/${locale}/about-us`} label={t("more_about_us") || "More About Us"} />
+					<ViewAllButton href={`/${locale}/about-us`} label={aboutData.more_about_us || "More About Us"} />
 				</div>
 			</div>
 		</section>

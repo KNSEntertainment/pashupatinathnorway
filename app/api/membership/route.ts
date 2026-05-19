@@ -33,6 +33,7 @@ export async function GET(req: NextRequest) {
 	const { searchParams } = new URL(req.url);
 	const email = searchParams.get("email");
 	const personalNumber = searchParams.get("personalNumber");
+	const type = searchParams.get("type");
 
 	if (email) {
 		// Check if email exists
@@ -50,8 +51,15 @@ export async function GET(req: NextRequest) {
 		}
 	}
 
-	// Return all memberships if no filter
-	const memberships = await Membership.find().sort({ createdAt: -1 });
+	const query: { membershipType?: { $in: string[] } } = {};
+	if (type) {
+		// Support comma-separated types (e.g., "Executive,Advisor")
+		const types = type.split(',').map(t => t.trim());
+		query.membershipType = { $in: types };
+	}
+
+	// Return filtered memberships if type filter provided, otherwise all memberships
+	const memberships = await Membership.find(query).sort({ createdAt: -1 });
 	return NextResponse.json(memberships);
 }
 

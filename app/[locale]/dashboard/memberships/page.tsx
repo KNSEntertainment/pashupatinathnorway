@@ -683,6 +683,7 @@ export default function MembershipsPage() {
 							<option value="General">General Member</option>
 							<option value="Active">Active Member</option>
 							<option value="Executive">Executive Member</option>
+							<option value="Advisor">Advisor</option>
 						</select>
 					</div>
 				</div>
@@ -724,6 +725,7 @@ export default function MembershipsPage() {
 								<option value="General">General Member</option>
 								<option value="Active">Active Member</option>
 								<option value="Executive">Executive Member</option>
+								<option value="Advisor">Advisor</option>
 							</select>
 							<Button size="sm" onClick={handleBulkTypeChange} disabled={!bulkType}>
 								Apply Type
@@ -847,9 +849,13 @@ export default function MembershipsPage() {
 											className={`capitalize ${
 												member.membershipType === 'General'
 													? 'bg-blue-50 text-blue-700 border-blue-200' 
+													: member.membershipType === 'Active'
+													? 'bg-green-50 text-green-700 border-green-200'
 													: member.membershipType === 'Executive'
 													? 'bg-purple-50 text-purple-700 border-purple-200'
-													: 'bg-green-50 text-green-700 border-green-200'
+													: member.membershipType === 'Advisor'
+													? 'bg-orange-50 text-orange-700 border-orange-200'
+													: 'bg-gray-50 text-gray-700 border-gray-200'
 											}`}
 										>
 											{member.membershipType}
@@ -1005,9 +1011,13 @@ export default function MembershipsPage() {
 												className={`capitalize ${
 													viewingMember.membershipType === 'General'
 														? 'bg-blue-50 text-blue-700 border-blue-200' 
+														: viewingMember.membershipType === 'Active'
+														? 'bg-green-50 text-green-700 border-green-200'
 														: viewingMember.membershipType === 'Executive'
 														? 'bg-purple-50 text-purple-700 border-purple-200'
-														: 'bg-green-50 text-green-700 border-green-200'
+														: viewingMember.membershipType === 'Advisor'
+														? 'bg-orange-50 text-orange-700 border-orange-200'
+														: 'bg-gray-50 text-gray-700 border-gray-200'
 												}`}
 											>
 												{viewingMember.membershipType}
