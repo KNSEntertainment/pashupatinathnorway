@@ -1,91 +1,81 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useState, useEffect } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { 
   Building, 
   Flame, 
   Heart, 
-  Star, 
   Clock,
   Sparkles,
 } from "lucide-react";
 import SectionHeader from "./SectionHeader";
 
 interface Ritual {
-  id: string;
+  _id: string;
   title: string;
   description: string;
-  icon: React.ReactNode;
+  icon: string;
   features: string[];
   timing?: string;
+  order: number;
+  isActive: boolean;
 }
 
 export default function Rituals() {
   const t = useTranslations("rituals");
+  const locale = useLocale();
+  const [rituals, setRituals] = useState<Ritual[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const rituals: Ritual[] = [
-    {
-      id: "daily-puja",
-      title: t("daily_puja_title"),
-      description: t("daily_puja_description"),
-      icon: <Building className="w-6 h-6" />,
-      features: [
-        t("daily_puja_feature_1"),
-        t("daily_puja_feature_2"),
-        t("daily_puja_feature_3")
-      ],
-      timing: t("daily_puja_timing")
-    },
-    {
-      id: "rudrabhishek",
-      title: t("rudrabhishek_title"),
-      description: t("rudrabhishek_description"),
-      icon: <Flame className="w-6 h-6" />,
-      features: [
-        t("rudrabhishek_feature_1"),
-        t("rudrabhishek_feature_2"),
-        t("rudrabhishek_feature_3")
-      ],
-      timing: t("rudrabhishek_timing")
-    },
-    {
-      id: "satyanarayan",
-      title: t("satyanarayan_title"),
-      description: t("satyanarayan_description"),
-      icon: <Heart className="w-6 h-6" />,
-      features: [
-        t("satyanarayan_feature_1"),
-        t("satyanarayan_feature_2"),
-        t("satyanarayan_feature_3")
-      ],
-      timing: t("satyanarayan_timing")
-    },
-    {
-      id: "hawan",
-      title: t("hawan_title"),
-      description: t("hawan_description"),
-      icon: <Sparkles className="w-6 h-6" />,
-      features: [
-        t("hawan_feature_1"),
-        t("hawan_feature_2"),
-        t("hawan_feature_3")
-      ],
-      timing: t("hawan_timing")
-    },
-    {
-      id: "festivals",
-      title: t("festivals_title"),
-      description: t("festivals_description"),
-      icon: <Star className="w-6 h-6" />,
-      features: [
-        t("festivals_feature_1"),
-        t("festivals_feature_2"),
-        t("festivals_feature_3"),
-        t("festivals_feature_4"),
-        t("festivals_feature_5")
-      ]
+  const getIconComponent = (iconName: string) => {
+    switch (iconName) {
+      case "Building":
+        return <Building className="w-6 h-6" />;
+      case "Flame":
+        return <Flame className="w-6 h-6" />;
+      case "Heart":
+        return <Heart className="w-6 h-6" />;
+      case "Sparkles":
+        return <Sparkles className="w-6 h-6" />;
+      default:
+        return <Building className="w-6 h-6" />;
     }
-  ];
+  };
+
+  useEffect(() => {
+    fetchRituals();
+  }, [locale]);
+
+  const fetchRituals = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/rituals?locale=${locale}`);
+      if (response.ok) {
+        const data = await response.json();
+        setRituals(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch rituals:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50 py-12">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <header className="text-center mb-6 md:mb-8">
+            <SectionHeader heading={t("title")} subtitle={t("subtitle")} />
+          </header>
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand_primary"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50 py-12">
@@ -103,12 +93,12 @@ export default function Rituals() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {rituals.map((ritual) => (
             <div
-              key={ritual.id}
+              key={ritual._id}
               className="bg-light/20 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group border border-orange-100 flex flex-col justify-between h-full"
             >
               <div className="p-6">
                 <div className="w-12 h-12 bg-gradient-to-br from-brand_primary to-brand_secondary rounded-xl flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform">
-                  {ritual.icon}
+                  {getIconComponent(ritual.icon)}
                 </div>
                 {ritual.timing && (
                   <div className="flex items-center gap-2 text-sm w-fit text-gray-700 bg-brand_primary/20 px-3 py-1 rounded-full mb-4">
@@ -121,7 +111,7 @@ export default function Rituals() {
                 
                 <div className="space-y-2">
                   {ritual.features.slice(0, 2).map((feature, index) => (
-                    <div key={index} className="flex items-center gap-2 text-sm text-gray-600">
+                    <div key={`${ritual._id}-feature-${index}`} className="flex items-center gap-2 text-sm text-gray-600">
                       <div className="w-1.5 h-1.5 bg-brand_primary rounded-full"></div>
                       {feature}
                     </div>

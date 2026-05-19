@@ -7,7 +7,6 @@ import {
   Star, 
   Clock,
   PartyPopper,
-  Mic
 } from "lucide-react";
 import SectionHeader from "./SectionHeader";
 
@@ -73,18 +72,6 @@ export default function Festivals() {
         t("holi_feature_3")
       ],
       timing: t("holi_timing")
-    },
-    {
-      id: "special-programs",
-      title: t("special_programs_title"),
-      description: t("special_programs_description"),
-      icon: <Mic className="w-6 h-6" />,
-      features: [
-        t("special_programs_feature_1"),
-        t("special_programs_feature_2"),
-        t("special_programs_feature_3")
-      ],
-      timing: t("special_programs_timing")
     }
   ];
 

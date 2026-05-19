@@ -73,7 +73,12 @@ export default function DesktopNav({ navItems }: DesktopNavProps) {
 						{hasDropdown && isOpen && (
 								<div className="absolute left-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg">
 									{item.dropdown!.map((sub: NavDropdownItem) => (
-										<Link key={sub.href} href={sub.href} className="block px-4 py-2 text-sm hover:bg-brand_secondary/20">
+										<Link 
+											key={sub.href} 
+											href={sub.href} 
+											className="block px-4 py-2 text-sm hover:bg-brand_secondary/20"
+											onClick={() => setActiveDropdown(null)}
+										>
 											{sub.title}
 										</Link>
 									))}
