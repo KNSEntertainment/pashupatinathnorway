@@ -358,8 +358,8 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 					{/* ── Sidebar Info Card ── */}
 					<div className="px-4 md:px-0 relative z-10 mb-8 md:my-8 md:sticky md:top-8 md:self-start">
 						<Card className="bg-brand_primary/10 md:backdrop-blur-sm">
-							<CardHeader className="bg-gradient-to-r from-brand_primary to-brand_secondary">
-								<CardTitle className="text-xl font-bold text-gray-700 flex items-center gap-2">
+							<CardHeader className="bg-brand_secondary">
+								<CardTitle className="text-xl font-bold text-gray-200 flex items-center gap-2">
 									<svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
 										<path
 											fillRule="evenodd"
@@ -371,7 +371,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 								</CardTitle>
 							</CardHeader>
 							<CardContent className="p-6 space-y-4">
-								<div className="space-y-3">
+								{/* <div className="space-y-3">
 									{[
 										tr("membership_info_1"),
 										tr("membership_info_2"),
@@ -382,6 +382,21 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 											<p className="text-gray-700 leading-relaxed text-sm">{info}</p>
 										</div>
 									))}
+								</div> */}
+								<div className="space-y-3">
+									
+										<div className="flex items-start gap-3">
+											<div className="w-2 h-2 rounded-full bg-brand_primary mt-2 flex-shrink-0" />
+											<p className="text-gray-700 leading-relaxed text-sm">Membership fee is FREE and forms for children under 15 years of age must be filled by parents/guardians.</p>
+										</div>
+										<div className="flex items-start gap-3">
+											<div className="w-2 h-2 rounded-full bg-brand_primary mt-2 flex-shrink-0" />
+											<p className="text-gray-700 leading-relaxed text-sm"><a href="https://person.brreg.no/en/minside/tros-og-livssyn" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Click to View</a> your existing memberships with other organizations. To cancel, <a href="/utmeldingsblankett-juli2006.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">fill out this form</a> and send it to the respective temple/organization. </p>
+										</div>
+										<div className="flex items-start gap-3">
+											<div className="w-2 h-2 rounded-full bg-brand_primary mt-2 flex-shrink-0" />
+											<p className="text-gray-700 leading-relaxed text-sm">Your personal details will only be used by this organization. You can update them anytime through your member portal.</p>
+										</div>
 								</div>
 
 								<div className="bg-brand_primary/20 p-6 flex flex-col space-y-4">

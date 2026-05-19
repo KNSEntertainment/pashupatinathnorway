@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { 
   Lightbulb,
@@ -33,41 +33,32 @@ export default function Management() {
   const [loading, setLoading] = useState(true);
 
   // Default board members data
-  const defaultBoardMembers: BoardMember[] = [
-    { name: "Jitendra Bikram Shahi", position: t("chairperson"), type: "executive" },
-    { name: "Anush Khadka", position: t("secretary"), type: "executive" },
-    { name: "Bikram Basnet", position: t("treasurer"), type: "executive" },
-    { name: "Hemanta Bhandari", position: t("joint_secretary"), type: "executive" },
-    { name: "Sagar Aryal", position: t("joint_treasurer"), type: "executive" },
-    { name: "Abishkar Bastola", position: t("member"), type: "member" },
-    { name: "Bishnu Gautam", position: t("member"), type: "member" },
-    { name: "Biswas Bajgai", position: t("member"), type: "member" },
-    { name: "Geeban Uprety", position: t("member"), type: "member" },
-    { name: "Ghanashyam Bartaula", position: t("member"), type: "member" },
-    { name: "Hari Bahadur Baniya", position: t("member"), type: "member" },
-    { name: "Ishwori Prasad Khanal", position: t("member"), type: "member" },
-    { name: "Khumanand S. Dhungana", position: t("member"), type: "member" },
-    { name: "Paban Acharya", position: t("member"), type: "member" },
-    { name: "Prabina Munakarmi", position: t("member"), type: "member" },
-    { name: "Ratna Prasad Sapkota", position: t("member"), type: "member" },
-    { name: "Siddhant Ghale", position: t("member"), type: "member" },
-    { name: "Sita Shiwani Shrestha", position: t("member"), type: "member" },
-    { name: "Sunil Dhungana", position: t("member"), type: "member" },
-    { name: "Suresh Kumar Yadav", position: t("member"), type: "member" },
-    { name: "Tika Acharya", position: t("member"), type: "member" },
-    { name: "Youbaraj Bhandari", position: t("member"), type: "member" }
-  ];
+  const defaultBoardMembers = useMemo(() => [
+    { name: "Hari Prasad Sanjel", position: t("chairperson"), type: "executive" },
+    { name: "Bikash Acharya", position: t("vice_chairperson"), type: "executive" },
+    { name: "Bishnu Gautam", position: t("secretary"), type: "executive" },
+    { name: "Suman Koirala", position: t("treasurer"), type: "executive" },
+    { name: "Ram Chandra Kattel", position: t("member"), type: "member" },
+    { name: "Dilli Prasad Bhatta", position: t("member"), type: "member" },
+    { name: "Krishna Prasad Poudel", position: t("member"), type: "member" },
+    { name: "Ramesh Prasad Bhattarai", position: t("member"), type: "member" },
+    { name: "Prem Bahadur Thapa", position: t("member"), type: "member" },
+    { name: "Bhim Prasad Sharma", position: t("member"), type: "member" },
+    { name: "Kumar Khadka", position: t("member"), type: "member" },
+    { name: "Madhav Prasad Dahal", position: t("member"), type: "member" },
+    { name: "Chandra Man Shrestha", position: t("member"), type: "member" }
+  ], [t]);
 
-  const defaultAdvisors: BoardMember[] = [
+  const defaultAdvisors = useMemo(() => [
     { name: "Manish Budhathoki", position: t("advisor"), type: "advisor" },
     { name: "Kumar Pandit", position: t("advisor"), type: "advisor" },
     { name: "Sanjeev Kumar Thapa", position: t("advisor"), type: "advisor" },
     { name: "Jiban Bahadur Shahi", position: t("advisor"), type: "advisor" },
     { name: "Saligram Aryal", position: t("advisor"), type: "advisor" },
     { name: "Deependra Acharya", position: t("advisor"), type: "advisor" }
-  ];
+  ], [t]);
 
-  const fetchBoardMembers = async () => {
+  const fetchBoardMembers = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -113,22 +104,22 @@ export default function Management() {
       
       // Sort by type and then by name
       const sortedMembers = combinedMembers.sort((a, b) => {
-        const typeOrder = { executive: 0, member: 1, advisor: 2 };
+        const typeOrder: Record<string, number> = { executive: 0, member: 1, advisor: 2 };
         if (typeOrder[a.type] !== typeOrder[b.type]) {
           return typeOrder[a.type] - typeOrder[b.type];
         }
         return a.name.localeCompare(b.name);
       });
 
-      setMembers(sortedMembers);
+      setMembers(sortedMembers as BoardMember[]);
     } catch (error) {
       console.error("Error fetching board members:", error);
       // If API fails, still show default members
-      setMembers([...defaultBoardMembers, ...defaultAdvisors]);
+      setMembers([...defaultBoardMembers, ...defaultAdvisors] as BoardMember[]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [t, defaultBoardMembers, defaultAdvisors]);
 
   useEffect(() => {
     fetchBoardMembers();
