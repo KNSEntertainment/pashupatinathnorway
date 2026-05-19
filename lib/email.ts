@@ -160,6 +160,109 @@ export async function sendGeneralMemberWelcomeEmail({ name, email, membershipId,
 	}
 }
 
+// Nepali General Member welcome email (sent immediately on form submission)
+type sendGeneralMemberWelcomeEmailNepali = {
+	name: string;
+	email: string;
+	membershipId: string;
+	familyMembers?: string[]; // Array of family member names
+};
+export async function sendGeneralMemberWelcomeEmailNepali({ name, email, membershipId, familyMembers }: sendGeneralMemberWelcomeEmailNepali) {
+	const familyMembersText = familyMembers && familyMembers.length > 0 
+		? `\n\nपरिवारका सदस्यहरू दर्ता: ${familyMembers.join(', ')}`
+		: '';
+
+	const mailOptions = {
+		from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER}>`,
+		to: email,
+		subject: "पशुपतिनाथ नर्वे मन्दिरमा स्वागत - सदस्यता दर्ता सफल",
+		text: `नमस्ते ${name} जी,\n\nपशुपतिनाथ नर्वे मन्दिरमा तपाईंलाई स्वागत छ। तपाईं हाम्रो साधारण सदस्य बन्नुभएको छ।${familyMembersText}\n\nतपाईंको सदस्यता आईडी: ${membershipId}\nकृपया यो आईडी आफ्नो रेकर्डका लागि सुरक्षित राख्नुहोस्।\n\nतपाईंको खाता प्रमाणीकरण भएपछि, मन्दिरसँग सम्बन्धित धेरै कुराहरू आफ्नो सदस्यता पोर्टलमा हेर्न पाउनुहुनेछ।\n\nआउने चरणहरू:\n• तपाईंको आवेदन हालै हाम्रो प्रशासन टोलीद्वारा समीक्षा गरिँदै छ\n• प्रमाणीकरण गरेपछि तपाईंले नयाँ इमेल पाउनुहुनेछ जसमा तपाईंको सदस्य पोर्टलमा कसरी पहुँच गर्ने भन्ने जानकारी हुनेछ\n• एकचोटि स्वीकृत भएपछि तपाईं सक्रिय सदस्य बन्नुहुनेछ र सदस्य सुविधाहरूको पूर्ण पहुँच पाउनुहुनेछ\n\nसाधारण सदस्यको रूपमा, तपाईं पहिल्यै हाम्रो समुदायको भाग हुनुहुन्छ र मन्दिर कार्यक्रमहरू र गतिविधिहरूको बारेमा अपडेटहरू पाउनुहुनेछ।\n\nधन्यवाद,\nपशुपतिनाथ नर्वे मन्दिर टोली`,
+		html: `
+			<!DOCTYPE html>
+			<html>
+			<head>
+				<meta charset="UTF-8">
+				<style>
+					body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; direction: ltr; }
+					.container { max-width: 600px; margin: 0 auto; padding: 20px; }
+					.header { background: linear-gradient(135deg, #ffc445 0%, #FF7722 100%); color: #000000; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+					.content { background: #ffffff; padding: 30px; border-radius: 0 0 10px 10px; }
+					.status-box { background: #ffffff; border-left: 4px solid #ffc445; padding: 20px; margin: 20px 0; border-radius: 5px; }
+					.footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+				</style>
+			</head>
+			<body>
+				<div class="container">
+					<div class="header">
+						<h1>पशुपतिनाथ नर्वे मन्दिरमा स्वागत</h1>
+						<p style="margin: 10px 0 0 0; font-size: 18px;">सदस्यता दर्ता सफल</p>
+					</div>
+					<div class="content">
+						<p>नमस्ते <strong>${name}</strong> जी,</p>
+						<p>पशुपतिनाथ नर्वे मन्दिरमा तपाईंलाई स्वागत छ। तपाईं हाम्रो <strong>साधारण सदस्य</strong> बन्नुभएको छ।</p>
+						
+						${familyMembers && familyMembers.length > 0 ? `
+						<div style="background: #ffffff; border-left: 4px solid #ffc445; padding: 20px; margin: 20px 0; border-radius: 5px;">
+							<h3 style="margin: 0 0 10px 0; color: #ffc445; font-weight: bold;">परिवारका सदस्यहरू दर्ता</h3>
+							<p style="margin: 0; font-weight: bold;">${familyMembers.join(', ')}</p>
+						</div>
+						` : ''}
+						
+						<div style="background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 20px; margin: 20px 0; border-radius: 5px;">
+							<h3 style="margin: 0 0 10px 0; color: #0ea5e9; font-weight: bold;">तपाईंको सदस्यता आईडी</h3>
+							<p style="margin: 0; font-size: 18px; font-weight: bold; font-family: monospace;">${membershipId}</p>
+							<p style="margin: 10px 0 0 0; color: #666; font-size: 14px;">कृपया यो आईडी आफ्नो रेकर्डका लागि सुरक्षित राख्नुहोस्।</p>
+						</div>
+						
+						<p><strong>तपाईंको खाता प्रमाणीकरण भएपछि, मन्दिरसँग सम्बन्धित धेरै कुराहरू आफ्नो सदस्यता पोर्टलमा हेर्न पाउनुहुनेछ।</strong></p>
+						
+						<div style="background: #ffffff; padding: 20px; margin: 20px 0; border-radius: 5px; border-left: 4px solid #ffc445;">
+							<h4 style="margin: 0 0 15px 0;">आउने चरणहरू:</h4>
+							<ul style="margin: 0; padding-left: 20px; color: #333;">
+								<li style="margin: 10px 0;">तपाईंको आवेदन हालै हाम्रो प्रशासन टोलीद्वारा समीक्षा गरिँदै छ</li>
+								<li style="margin: 10px 0;">प्रमाणीकरण गरेपछि तपाईंले नयाँ इमेल पाउनुहुनेछ जसमा तपाईंको सदस्य पोर्टलमा कसरी पहुँच गर्ने भन्ने जानकारी हुनेछ</li>
+								<li style="margin: 10px 0;">एकचोटि स्वीकृत भएपछि तपाईं सक्रिय सदस्य बन्नुहुनेछ र सदस्य सुविधाहरूको पूर्ण पहुँच पाउनुहुनेछ</li>
+							</ul>
+						</div>
+						
+						<p>साधारण सदस्यको रूपमा, तपाईं पहिल्यै हाम्रो समुदायको भाग हुनुहुन्छ र मन्दिर कार्यक्रमहरू र गतिविधिहरूको बारेमा अपडेटहरू पाउनुहुनेछ।</p>
+						
+						<p>धन्यवाद,<br><strong>पशुपतिनाथ नर्वे मन्दिर टोली</strong></p>
+					</div>
+					<div class="footer">
+						<p>यो एक स्वचालित इमेल हो। कृपया यो सन्देशमा जवाफ दिनुहुँदैन।</p>
+					</div>
+				</div>
+			</body>
+			</html>
+		`,
+	};
+
+	try {
+		// Add unsubscribe footer if user is subscribed
+		const htmlContentWithFooter = await addEmailFooter(email, mailOptions.html);
+		mailOptions.html = htmlContentWithFooter;
+		
+		const { error } = await resend.emails.send({
+			from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER!}>`,
+			to: [email],
+		 subject: mailOptions.subject,
+			text: mailOptions.text,
+			html: mailOptions.html,
+		});
+		
+		if (error) {
+			console.error("Error sending Nepali General Member welcome email:", error);
+			throw new Error("Failed to send Nepali General Member welcome email");
+		}
+		
+		console.log("Nepali General Member welcome email sent to:", email);
+	} catch (error) {
+		console.error("Error sending Nepali General Member welcome email:", error);
+		throw new Error("Failed to send Nepali General Member welcome email");
+	}
+}
+
 // Active Member approval email (sent when admin approves membership)
 type sendActiveMemberApprovalEmailEnglish = {
 	name: string;

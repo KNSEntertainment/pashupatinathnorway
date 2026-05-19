@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Membership from "@/models/Membership.Model";
 import crypto from "crypto";
-import { sendActiveMemberApprovalEmail } from "@/lib/email";
+import { sendActiveMemberApprovalEmail, sendActiveMemberApprovalEmailEnglish } from "@/lib/email";
 
 const calculateAgeFromPersonalNumber = (personalNumber: string): number | null => {
 	if (!personalNumber || personalNumber.length !== 11 || !/^\d{11}$/.test(personalNumber)) {
@@ -112,11 +112,29 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
 			const fullName = [membership.firstName, membership.middleName, membership.lastName]
 				.filter(Boolean)
 				.join(' ');
-			await sendActiveMemberApprovalEmail({
-				name: fullName,
-				email: membership.email,
-				setupToken: setupToken,
-			});
+			
+			// Detect locale from URL path and referer for more accurate language detection
+			const referer = req.headers.get('referer') || '';
+			const url = req.url || '';
+			const isEnglishLocale = referer.includes('/en/') || url.includes('/en/') || 
+								  (!referer.includes('/ne/') && !url.includes('/ne/'));
+			
+			// Use appropriate email function based on locale
+			if (isEnglishLocale) {
+				await sendActiveMemberApprovalEmailEnglish({
+					name: fullName,
+					email: membership.email,
+					setupToken: setupToken,
+				});
+				console.log("English welcome email sent for approved member:", membership.email);
+			} else {
+				await sendActiveMemberApprovalEmail({
+					name: fullName,
+					email: membership.email,
+					setupToken: setupToken,
+				});
+				console.log("Nepali welcome email sent for approved member:", membership.email);
+			}
 
 			console.log("Welcome email sent for approved member:", membership.email);
 		} catch (error: unknown) {

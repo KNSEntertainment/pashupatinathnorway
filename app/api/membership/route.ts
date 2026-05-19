@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Membership from "@/models/Membership.Model";
 import Subscriber from "@/models/Subscriber.Model";
-import { sendGeneralMemberWelcomeEmail } from "@/lib/email";
+import { sendGeneralMemberWelcomeEmailNepali } from "@/lib/email";
 import generateMembershipId from "@/lib/membershipIdGenerator";
 
 interface FamilyMember {
@@ -145,13 +145,13 @@ export async function POST(req: NextRequest) {
 			}
 		}
 
-		// Send General Member welcome emails to all new members
+		// Send Nepali General Member welcome emails to all new members
 		try {
 			// Send to main applicant
 			const mainMemberName = [mainMembership.firstName, mainMembership.middleName, mainMembership.lastName]
 				.filter(Boolean)
 				.join(' ');
-			await sendGeneralMemberWelcomeEmail({
+			await sendGeneralMemberWelcomeEmailNepali({
 				name: mainMemberName,
 				email: mainMembership.email,
 				membershipId: mainMembership.membershipId,
@@ -163,7 +163,7 @@ export async function POST(req: NextRequest) {
 				const familyMemberName = [familyMembership.firstName, familyMembership.middleName, familyMembership.lastName]
 					.filter(Boolean)
 					.join(' ');
-				await sendGeneralMemberWelcomeEmail({
+				await sendGeneralMemberWelcomeEmailNepali({
 					name: familyMemberName,
 					email: familyMembership.email,
 					membershipId: familyMembership.membershipId,
@@ -171,9 +171,9 @@ export async function POST(req: NextRequest) {
 				});
 			}
 
-			console.log(`General Member welcome emails sent to ${1 + familyMemberships.length} members`);
+			console.log(`Nepali General Member welcome emails sent to ${1 + familyMemberships.length} members`);
 		} catch (emailError) {
-			console.error("Error sending General Member welcome emails:", emailError);
+			console.error("Error sending Nepali General Member welcome emails:", emailError);
 			// Don't fail the membership creation if email fails
 		}
 		
