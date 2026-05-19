@@ -12,8 +12,6 @@ export interface MenuItem {
 export const menuItems: MenuItem[] = [
 	{ id: "dashboard", label: "Dashboard", icon: LayoutDashboard, color: "bg-yellow-800", href: "/en/dashboard", role: "both" },
 	{ id: "about-us", label: "About Us", icon: Info, color: "bg-indigo-600", href: "/en/dashboard/about-us", role: "admin" },
-	{ id: "mission-vision", label: "Mission & Vision", icon: Target, color: "bg-purple-600", href: "/en/dashboard/mission-vision", role: "admin" },
-	{ id: "values", label: "Values", icon: Sparkles, color: "bg-pink-600", href: "/en/dashboard/values", role: "admin" },
 	{ id: "attendance", label: "Attendance", icon: QrCode, color: "bg-blue-600", href: "/en/dashboard/attendance", role: "admin" },
 	{ id: "audit-logs", label: "Audit Logs", icon: Shield, color: "bg-gray-600", href: "/en/dashboard/audit-logs", role: "admin" },
 	{ id: "birthdays", label: "Birthdays", icon: Gift, color: "bg-pink-500", href: "/en/dashboard/birthdays", role: "admin" },
@@ -25,6 +23,7 @@ export const menuItems: MenuItem[] = [
 	{ id: "events", label: "Events", icon: BookImage, color: "bg-pink-600", href: "/en/dashboard/events", role: "admin" },
 	{ id: "hero", label: "Hero Section", icon: Image, color: "bg-gradient-to-r from-purple-600 to-pink-600", href: "/en/dashboard/hero", role: "admin" },
 	{ id: "memberships", label: "Memberships", icon: Users, color: "bg-purple-600", href: "/en/dashboard/memberships", role: "admin" },
+	{ id: "mission-vision", label: "Mission & Vision", icon: Target, color: "bg-purple-600", href: "/en/dashboard/mission-vision", role: "admin" },
 	{ id: "notices", label: "Notices", icon: Bell, color: "bg-amber-600", href: "/en/dashboard/notices", role: "admin" },
 	{ id: "products", label: "Products", icon: ShoppingBag, color: "bg-teal-600", href: "/en/dashboard/products", role: "admin" },
 	{ id: "settings", label: "Profile Settings", icon: Settings, color: "bg-slate-600", href: "/en/dashboard/settings", role: "both" },
@@ -32,4 +31,5 @@ export const menuItems: MenuItem[] = [
 	{ id: "subscribers", label: "Subscribers", icon: Mail, color: "bg-violet-600", href: "/en/dashboard/subscribers", role: "admin" },
 	{ id: "tax-document", label: "Tax Document", icon: FileText, color: "bg-green-600", href: "/en/dashboard/tax-document", role: "admin" },
 	{ id: "users", label: "Users", icon: User, color: "bg-success", href: "/en/dashboard/users", role: "admin" },
+	{ id: "values", label: "Values", icon: Sparkles, color: "bg-pink-600", href: "/en/dashboard/values", role: "admin" },
 ];

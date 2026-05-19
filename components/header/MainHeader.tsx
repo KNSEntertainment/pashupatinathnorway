@@ -30,6 +30,7 @@ export default function MainHeader() {
 			dropdown: [
 				{ title: t("rituals"), href: "/rituals" },
 				{ title: t("festivals"), href: "/festivals" },
+				{ title: t("events"), href: "/events" },
 			],
 		
 		},
