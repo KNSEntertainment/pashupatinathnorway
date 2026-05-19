@@ -67,6 +67,10 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
 	await connectDB();
 	const data = await req.json();
 
+	// Debug logging
+	console.log('PUT /api/membership/[id] - Received data:', JSON.stringify(data, null, 2));
+	console.log('Position field in request:', data.position);
+
 	// Find the membership before update to check status change
 	const existingMembership = await Membership.findById(id);
 	if (!existingMembership) {
@@ -75,6 +79,7 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
 
 	// Handle membership approval logic
 	const updateData = { ...data };
+	console.log('Update data being sent to MongoDB:', JSON.stringify(updateData, null, 2));
 
 	// If membership is being approved, check age and set membership type
 	if (data.membershipStatus === "approved" && existingMembership.membershipStatus !== "approved") {
@@ -94,6 +99,14 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
 	}
 
 	const membership = await Membership.findByIdAndUpdate(id, updateData, { new: true });
+
+	// Debug logging after update
+	console.log('Updated membership data:', JSON.stringify({
+		_id: membership._id,
+		name: `${membership.firstName} ${membership.lastName}`,
+		position: membership.position,
+		membershipType: membership.membershipType
+	}, null, 2));
 
 	// If membership is being approved for the first time
 	if (data.membershipStatus === "approved" && existingMembership.membershipStatus !== "approved") {

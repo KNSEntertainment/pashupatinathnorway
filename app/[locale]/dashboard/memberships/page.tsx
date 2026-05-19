@@ -5,7 +5,7 @@ import useFetchData from "@/hooks/useFetchData";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Eye, CheckCircle, XCircle, Clock, User, Mail, Phone, X, Edit, Download, Upload, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
+import { Trash2, Eye, CheckCircle, XCircle, Clock, User, Mail, Phone, X, Edit, Download, Upload, ChevronLeft, ChevronRight, AlertTriangle, Plus } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -65,32 +65,9 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 	return age;
 };
 
-// const getGenderFromPersonalNumber = (personalNumber: string): string | null => {
-// 	if (!personalNumber || personalNumber.length !== 11 || !/^\d{11}$/.test(personalNumber)) {
-// 		return null;
-// 	}
 
-// 	// In Norwegian personal numbers, the 9th digit (index 8) indicates gender
-// 	// Odd numbers = male, even numbers = female
-// 	const genderDigit = parseInt(personalNumber.charAt(8));
-	
-// 	if (isNaN(genderDigit)) {
-// 		return null;
-// 	}
 
-// 	return genderDigit % 2 === 0 ? 'female' : 'male';
-// };
 
-const maskPersonalNumber = (personalNumber: string): string => {
-	if (!personalNumber || personalNumber.length < 5) {
-		return personalNumber || 'Not specified';
-	}
-	
-	// Show first 6 digits, mask last 5 with asterisks
-	const visiblePart = personalNumber.substring(0, 6);
-	const maskedPart = '*****';
-	return `${visiblePart}${maskedPart}`;
-};
 
 export default function MembershipsPage() {
 	const [search, setSearch] = useState("");
@@ -103,6 +80,11 @@ export default function MembershipsPage() {
 	const [viewingMember, setViewingMember] = useState<Membership | null>(null);
 	const [editingMember, setEditingMember] = useState<Membership | null>(null);
 	const [editFormData, setEditFormData] = useState<Partial<Membership>>({});
+	const [addingMember, setAddingMember] = useState(false);
+	const [addFormData, setAddFormData] = useState<Partial<Membership>>({
+		membershipType: "General",
+		membershipStatus: "pending"
+	});
 	const MEMBERS_PER_PAGE = 10;
 	const { data: memberships, error, loading, mutate } = useFetchData("/api/membership", "memberships");
 	const { toast } = useToast();
@@ -179,7 +161,7 @@ export default function MembershipsPage() {
 			kommune: member.kommune,
 			membershipType: member.membershipType,
 			membershipStatus: member.membershipStatus,
-	
+			position: member.position || '',
 		});
 	};
 
@@ -217,6 +199,47 @@ export default function MembershipsPage() {
 
 	const handleEditChange = (field: string, value: string | boolean) => {
 		setEditFormData((prev) => ({ ...prev, [field]: value }));
+	};
+
+	const handleAddChange = (field: string, value: string | boolean) => {
+		setAddFormData((prev) => ({ ...prev, [field]: value }));
+	};
+
+	const handleAddSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+
+		try {
+			// Create member via membership API (all types including Executive/Advisor with positions)
+			const response = await fetch('/api/membership', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(addFormData),
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || 'Failed to add member');
+			}
+
+			toast({
+				title: "Success",
+				description: "Member added successfully",
+			});
+
+			setAddingMember(false);
+			setAddFormData({
+				membershipType: "General",
+				membershipStatus: "pending"
+			});
+			mutate();
+		} catch (error) {
+			console.error('Error adding member:', error);
+			toast({
+				title: "Error",
+				description: error instanceof Error ? error.message : "Failed to add member. Please try again.",
+				variant: "destructive",
+			});
+		}
 	};
 
 	const handlePasswordReset = async () => {
@@ -561,6 +584,10 @@ export default function MembershipsPage() {
 						<p className="text-sm text-gray-500 mt-1">Manage temple membership applications and accounts</p>
 					</div>
 					<div className="flex items-center gap-3">
+						<Button onClick={() => setAddingMember(true)} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700">
+							<Plus className="w-4 h-4" />
+							Add a Member
+						</Button>
 						<AlertDialog>
 							<AlertDialogTrigger asChild>
 								<Button variant="outline" size="sm" className="flex items-center gap-2">
@@ -801,7 +828,6 @@ export default function MembershipsPage() {
 							<TableHead className="font-medium text-gray-700 py-4">Contact</TableHead>
 							<TableHead className="font-medium text-gray-700 py-4">Type</TableHead>
 							<TableHead className="font-medium text-gray-700 py-4">Status</TableHead>
-							<TableHead className="font-medium text-gray-700 py-4">Joined</TableHead>
 							<TableHead className="font-medium text-gray-700 py-4 text-right pr-6">Actions</TableHead>
 						</TableRow>
 					</TableHeader>
@@ -825,9 +851,6 @@ export default function MembershipsPage() {
 										<div>
 											<div className="font-medium text-gray-900">
 												{`${member.firstName} ${member.middleName ? member.middleName + ' ' : ''}${member.lastName}`}
-											</div>
-											<div className="text-sm text-gray-500">
-												{maskPersonalNumber(member.personalNumber || '')}
 											</div>
 										</div>
 									</TableCell>
@@ -864,9 +887,7 @@ export default function MembershipsPage() {
 									<TableCell className="py-4">
 										{getStatusBadge(member.membershipStatus)}
 									</TableCell>
-									<TableCell className="py-4 text-sm text-gray-600">
-										{formatDate(member.createdAt)}
-									</TableCell>
+							
 									<TableCell onClick={(e) => e.stopPropagation()} className="py-4 pr-6">
 										<div className="flex items-center justify-end gap-2">
 											<Button variant="ghost" size="sm" onClick={() => setViewingMember(member)} className="h-8 px-3 text-gray-600 hover:text-gray-900">
@@ -966,10 +987,7 @@ export default function MembershipsPage() {
 											<p className="text-sm text-gray-500">Name</p>
 											<p className="font-medium">{`${viewingMember.firstName} ${viewingMember.middleName ? viewingMember.middleName + ' ' : ''}${viewingMember.lastName}`}</p>
 										</div>
-										<div>
-											<p className="text-sm text-gray-500">Personal Number</p>
-											<p className="font-medium">{maskPersonalNumber(viewingMember.personalNumber || '')}</p>
-										</div>
+									
 										<div>
 											<p className="text-sm text-gray-500">Email</p>
 											<p className="font-medium">{viewingMember.email}</p>
@@ -1194,6 +1212,55 @@ export default function MembershipsPage() {
 										/>
 									</div>
 								</div>
+
+								{/* Membership Settings */}
+								<div className="space-y-4">
+									<h3 className="text-lg font-semibold text-gray-900 mb-4">Membership Settings</h3>
+									
+									<div>
+										<label className="block text-sm font-medium text-gray-900 mb-2">Membership Type *</label>
+										<select
+											value={editFormData.membershipType || 'General'}
+											onChange={(e) => handleEditChange('membershipType', e.target.value)}
+											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+											required
+										>
+											<option value="General">General Member</option>
+											<option value="Active">Active Member</option>
+											<option value="Executive">Executive Member</option>
+											<option value="Advisor">Advisor</option>
+										</select>
+									</div>
+
+									{/* Position field - only show for Executive/Advisor types */}
+									{['Executive', 'Advisor'].includes(editFormData.membershipType || '') && (
+										<div>
+											<label className="block text-sm font-medium text-gray-900 mb-2">Position *</label>
+											<input
+												type="text"
+												value={editFormData.position || ''}
+												onChange={(e) => handleEditChange('position', e.target.value)}
+												placeholder="e.g., Chairperson, Secretary, Advisor"
+												className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+												required
+											/>
+										</div>
+									)}
+
+									<div>
+										<label className="block text-sm font-medium text-gray-900 mb-2">Membership Status *</label>
+										<select
+											value={editFormData.membershipStatus || 'pending'}
+											onChange={(e) => handleEditChange('membershipStatus', e.target.value)}
+											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+											required
+										>
+											<option value="pending">Pending</option>
+											<option value="approved">Approved</option>
+											<option value="blocked">Blocked</option>
+										</select>
+									</div>
+								</div>
 							</div>
 
 							{/* Action Buttons */}
@@ -1203,6 +1270,223 @@ export default function MembershipsPage() {
 										Save Changes
 									</Button>
 									<Button type="button" variant="outline" onClick={() => setEditingMember(null)} className="px-6">
+										Cancel
+									</Button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			)}
+
+			{/* Add Member Modal */}
+			{addingMember && (
+				<div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200" onClick={() => setAddingMember(false)}>
+					<div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
+						{/* Header */}
+						<div className="bg-gradient-to-r from-green-600 to-blue-600 px-8 py-6">
+							<button onClick={() => setAddingMember(false)} className="absolute top-4 right-4 text-white/80 hover:text-white hover:bg-white/20 rounded-full p-2 transition-all duration-200">
+								<X className="w-5 h-5" />
+							</button>
+							<h2 className="text-3xl font-bold text-white mb-2">Add New Member</h2>
+							<p className="text-green-100">Create a new membership account</p>
+						</div>
+
+						{/* Form */}
+						<form onSubmit={handleAddSubmit} className="overflow-y-auto max-h-[calc(90vh-180px)] px-8 py-6">
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+								{/* Personal Information */}
+								<div className="space-y-4">
+									<h3 className="text-lg font-semibold text-gray-900 mb-4">Personal Information</h3>
+									
+									<div>
+										<label className="block text-sm font-medium text-gray-900 mb-2">First Name *</label>
+										<input
+											type="text"
+											value={addFormData.firstName || ''}
+											onChange={(e) => handleAddChange('firstName', e.target.value)}
+											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+											required
+										/>
+									</div>
+
+									<div>
+										<label className="block text-sm font-medium text-gray-900 mb-2">Middle Name</label>
+										<input
+											type="text"
+											value={addFormData.middleName || ''}
+											onChange={(e) => handleAddChange('middleName', e.target.value)}
+											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+										/>
+									</div>
+
+									<div>
+										<label className="block text-sm font-medium text-gray-900 mb-2">Last Name *</label>
+										<input
+											type="text"
+											value={addFormData.lastName || ''}
+											onChange={(e) => handleAddChange('lastName', e.target.value)}
+											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+											required
+										/>
+									</div>
+
+									<div>
+										<label className="block text-sm font-medium text-gray-900 mb-2">Email *</label>
+										<input
+											type="email"
+											value={addFormData.email || ''}
+											onChange={(e) => handleAddChange('email', e.target.value)}
+											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+											required
+										/>
+									</div>
+
+									<div>
+										<label className="block text-sm font-medium text-gray-900 mb-2">Phone *</label>
+										<input
+											type="tel"
+											value={addFormData.phone || ''}
+											onChange={(e) => handleAddChange('phone', e.target.value)}
+											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+											required
+										/>
+									</div>
+
+									<div>
+										<label className="block text-sm font-medium text-gray-900 mb-2">Personal Number</label>
+										<input
+											type="text"
+											value={addFormData.personalNumber || ''}
+											onChange={(e) => handleAddChange('personalNumber', e.target.value)}
+											placeholder="11-digit personal number"
+											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+										/>
+									</div>
+
+									<div>
+										<label className="block text-sm font-medium text-gray-900 mb-2">Gender</label>
+										<select
+											value={addFormData.gender || ''}
+											onChange={(e) => handleAddChange('gender', e.target.value)}
+											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+										>
+											<option value="">Select Gender</option>
+											<option value="male">Male</option>
+											<option value="female">Female</option>
+											<option value="other">Other</option>
+											<option value="prefer_not_to_say">Prefer not to say</option>
+										</select>
+									</div>
+								</div>
+
+								{/* Location & Membership Information */}
+								<div className="space-y-4">
+									<h3 className="text-lg font-semibold text-gray-900 mb-4">Location & Membership</h3>
+									
+									<div>
+										<label className="block text-sm font-medium text-gray-900 mb-2">Address</label>
+										<input
+											type="text"
+											value={addFormData.address || ''}
+											onChange={(e) => handleAddChange('address', e.target.value)}
+											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+										/>
+									</div>
+
+									<div>
+										<label className="block text-sm font-medium text-gray-900 mb-2">City</label>
+										<input
+											type="text"
+											value={addFormData.city || ''}
+											onChange={(e) => handleAddChange('city', e.target.value)}
+											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+										/>
+									</div>
+
+									<div>
+										<label className="block text-sm font-medium text-gray-900 mb-2">Postal Code</label>
+										<input
+											type="text"
+											value={addFormData.postalCode || ''}
+											onChange={(e) => handleAddChange('postalCode', e.target.value)}
+											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+										/>
+									</div>
+
+									<div>
+										<label className="block text-sm font-medium text-gray-900 mb-2">Fylke</label>
+										<input
+											type="text"
+											value={addFormData.fylke || ''}
+											onChange={(e) => handleAddChange('fylke', e.target.value)}
+											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+										/>
+									</div>
+
+									<div>
+										<label className="block text-sm font-medium text-gray-900 mb-2">Kommune</label>
+										<input
+											type="text"
+											value={addFormData.kommune || ''}
+											onChange={(e) => handleAddChange('kommune', e.target.value)}
+											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+										/>
+									</div>
+
+									<div>
+										<label className="block text-sm font-medium text-gray-900 mb-2">Membership Type *</label>
+										<select
+											value={addFormData.membershipType || 'General'}
+											onChange={(e) => handleAddChange('membershipType', e.target.value)}
+											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+											required
+										>
+											<option value="General">General Member</option>
+											<option value="Active">Active Member</option>
+											<option value="Executive">Executive Member</option>
+											<option value="Advisor">Advisor</option>
+										</select>
+									</div>
+
+									{/* Position field - only show for Executive/Advisor types */}
+									{['Executive', 'Advisor'].includes(addFormData.membershipType || '') && (
+										<div>
+											<label className="block text-sm font-medium text-gray-900 mb-2">Position *</label>
+											<input
+												type="text"
+												value={addFormData.position || ''}
+												onChange={(e) => handleAddChange('position', e.target.value)}
+												placeholder="e.g., Chairperson, Secretary, Advisor"
+												className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+												required
+											/>
+										</div>
+									)}
+
+									<div>
+										<label className="block text-sm font-medium text-gray-900 mb-2">Membership Status *</label>
+										<select
+											value={addFormData.membershipStatus || 'pending'}
+											onChange={(e) => handleAddChange('membershipStatus', e.target.value)}
+											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+											required
+										>
+											<option value="pending">Pending</option>
+											<option value="approved">Approved</option>
+											<option value="blocked">Blocked</option>
+										</select>
+									</div>
+								</div>
+							</div>
+
+							{/* Action Buttons */}
+							<div className="border-t bg-gray-50 px-8 py-4 mt-6">
+								<div className="flex gap-3">
+									<Button type="submit" className="flex-1 bg-green-600 hover:bg-green-700">
+										Add Member
+									</Button>
+									<Button type="button" variant="outline" onClick={() => setAddingMember(false)} className="px-6">
 										Cancel
 									</Button>
 								</div>

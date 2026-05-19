@@ -30,6 +30,7 @@ interface MemberData {
   profilePhoto?: string;
   membershipStatus?: string;
   membershipType?: string;
+  position?: string;
   agreeTerms?: boolean;
   familyMembers?: FamilyMemberData[];
   createdAt?: Date;
@@ -159,6 +160,7 @@ export async function POST(request: NextRequest) {
             case 'fylke':
             case 'personalNumber':
             case 'profilePhoto':
+            case 'position':
               memberData[header] = value;
               break;
             case 'middleName':
@@ -274,7 +276,7 @@ export async function POST(request: NextRequest) {
         // Generate membership ID
         memberData.membershipId = await generateMembershipId();
 
-        // Insert member
+        // Insert member (all types including Executive/Advisor with positions)
         await Membership.create(memberData);
         
         results.success++;

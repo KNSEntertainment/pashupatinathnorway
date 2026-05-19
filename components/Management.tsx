@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { 
   Lightbulb,
@@ -25,6 +25,7 @@ interface MembershipData {
   membershipId: string;
   email: string;
   phone: string;
+  position?: string;
 }
 
 export default function Management() {
@@ -32,54 +33,19 @@ export default function Management() {
   const [members, setMembers] = useState<BoardMember[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Default board members data
-  const defaultBoardMembers = useMemo(() => [
-    { name: "Hari Prasad Sanjel", position: t("chairperson"), type: "executive" },
-    { name: "Bikash Acharya", position: t("vice_chairperson"), type: "executive" },
-    { name: "Bishnu Gautam", position: t("secretary"), type: "executive" },
-    { name: "Suman Koirala", position: t("treasurer"), type: "executive" },
-    { name: "Ram Chandra Kattel", position: t("member"), type: "member" },
-    { name: "Dilli Prasad Bhatta", position: t("member"), type: "member" },
-    { name: "Krishna Prasad Poudel", position: t("member"), type: "member" },
-    { name: "Ramesh Prasad Bhattarai", position: t("member"), type: "member" },
-    { name: "Prem Bahadur Thapa", position: t("member"), type: "member" },
-    { name: "Bhim Prasad Sharma", position: t("member"), type: "member" },
-    { name: "Kumar Khadka", position: t("member"), type: "member" },
-    { name: "Madhav Prasad Dahal", position: t("member"), type: "member" },
-    { name: "Chandra Man Shrestha", position: t("member"), type: "member" }
-  ], [t]);
-
-  const defaultAdvisors = useMemo(() => [
-    { name: "Manish Budhathoki", position: t("advisor"), type: "advisor" },
-    { name: "Kumar Pandit", position: t("advisor"), type: "advisor" },
-    { name: "Sanjeev Kumar Thapa", position: t("advisor"), type: "advisor" },
-    { name: "Jiban Bahadur Shahi", position: t("advisor"), type: "advisor" },
-    { name: "Saligram Aryal", position: t("advisor"), type: "advisor" },
-    { name: "Deependra Acharya", position: t("advisor"), type: "advisor" }
-  ], [t]);
-
+  
   const fetchBoardMembers = useCallback(async () => {
     try {
       setLoading(true);
       
-      // Start with default board members
-      const combinedMembers = [...defaultBoardMembers, ...defaultAdvisors];
-      
-      // Fetch from board members API
-      const boardResponse = await fetch("/api/board-members");
-      let boardMembers: BoardMember[] = [];
-      if (boardResponse.ok) {
-        boardMembers = await boardResponse.json();
-      }
-
       // Fetch from membership system for executive and advisor types
       const membershipResponse = await fetch("/api/membership?type=Executive,Advisor");
-      let membershipMembers: BoardMember[] = [];
+      let members: BoardMember[] = [];
       if (membershipResponse.ok) {
         const membershipData = await membershipResponse.json();
-        membershipMembers = membershipData.map((member: MembershipData) => ({
+        members = membershipData.map((member: MembershipData) => ({
           name: `${member.firstName} ${member.lastName}`,
-          position: member.membershipType === "Executive" ? t("executive_member") : t("advisor"),
+          position: member.position || (member.membershipType === "Executive" ? t("executive_member") : t("advisor")),
           type: member.membershipType.toLowerCase() as "executive" | "advisor",
           membershipId: member.membershipId,
           email: member.email,
@@ -87,24 +53,10 @@ export default function Management() {
           _id: `membership-${member._id}`
         }));
       }
-
-      // Add API board members that aren't already in default members
-      const defaultNames = new Set(combinedMembers.map(m => m.name.toLowerCase()));
-      const uniqueBoardMembers = boardMembers.filter(
-        (m: BoardMember) => !defaultNames.has(m.name.toLowerCase())
-      );
-      combinedMembers.push(...uniqueBoardMembers);
-      
-      // Add membership members that aren't already in combined members
-      const existingNames = new Set(combinedMembers.map(m => m.name.toLowerCase()));
-      const uniqueMembershipMembers = membershipMembers.filter(
-        (m: BoardMember) => !existingNames.has(m.name.toLowerCase())
-      );
-      combinedMembers.push(...uniqueMembershipMembers);
       
       // Sort by type and then by name
-      const sortedMembers = combinedMembers.sort((a, b) => {
-        const typeOrder: Record<string, number> = { executive: 0, member: 1, advisor: 2 };
+      const sortedMembers = members.sort((a, b) => {
+        const typeOrder: Record<string, number> = { executive: 0, advisor: 1 };
         if (typeOrder[a.type] !== typeOrder[b.type]) {
           return typeOrder[a.type] - typeOrder[b.type];
         }
@@ -113,13 +65,13 @@ export default function Management() {
 
       setMembers(sortedMembers as BoardMember[]);
     } catch (error) {
-      console.error("Error fetching board members:", error);
-      // If API fails, still show default members
-      setMembers([...defaultBoardMembers, ...defaultAdvisors] as BoardMember[]);
+      console.error("Error fetching members:", error);
+      // If API fails, show empty array
+      setMembers([]);
     } finally {
       setLoading(false);
     }
-  }, [t, defaultBoardMembers, defaultAdvisors]);
+  }, [t]);
 
   useEffect(() => {
     fetchBoardMembers();
@@ -127,7 +79,6 @@ export default function Management() {
 
   // Filter members by type
   const executiveMembers = members.filter(m => m.type === "executive");
-  const regularMembers = members.filter(m => m.type === "member");
   const advisors = members.filter(m => m.type === "advisor");
 
   if (loading) {
@@ -154,7 +105,7 @@ export default function Management() {
       {/* Current Board Members Section */}
       <div className="container mx-auto px-6">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-16">
-          {[...executiveMembers, ...regularMembers].map((member: BoardMember, index: number) => (
+          {executiveMembers.map((member: BoardMember, index: number) => (
             <div
               key={member._id || index}
               className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-4 border border-gray-100"

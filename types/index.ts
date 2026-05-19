@@ -56,10 +56,11 @@ export interface Membership {
 	gender: string;
 	fylke?: string;
 	kommune?: string;
-	membershipType: "General" | "Active" | "Executive";
+	membershipType: "General" | "Active" | "Executive" | "Advisor";
 	membershipStatus: "blocked" | "pending" | "approved";
 	agreeTerms: boolean;
 	profilePhoto?: string;
+	position?: string;
 	password?: string;
 	passwordSetupToken?: string;
 	passwordSetupTokenExpiry?: Date;
