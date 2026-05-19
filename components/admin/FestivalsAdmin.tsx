@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useLocale } from "next-intl";
 import { 
-  Flame, 
-  Building, 
+  PartyPopper, 
+  Star, 
   Heart, 
   Sparkles,
   Plus, 
@@ -14,7 +15,8 @@ import {
   RefreshCw,
   Clock,
   Eye,
-  EyeOff
+  EyeOff,
+  Star as StarIcon
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 
@@ -30,28 +32,30 @@ interface MultilingualArray {
   ne: string[];
 }
 
-interface Ritual {
+interface Festival {
   _id?: string;
   title: MultilingualField;
   description: MultilingualField;
   icon: string;
   features: MultilingualArray;
   timing: MultilingualField;
+  highlight: boolean;
   order: number;
   isActive: boolean;
 }
 
 const iconOptions = [
-  { value: "Building", label: "Building", icon: Building },
-  { value: "Flame", label: "Flame", icon: Flame },
+  { value: "Star", label: "Star", icon: Star },
   { value: "Heart", label: "Heart", icon: Heart },
   { value: "Sparkles", label: "Sparkles", icon: Sparkles },
+  { value: "PartyPopper", label: "PartyPopper", icon: PartyPopper },
 ];
 
-export default function RitualsAdmin() {
-  const [rituals, setRituals] = useState<Ritual[]>([]);
+export default function FestivalsAdmin() {
+  const locale = useLocale();
+  const [festivals, setFestivals] = useState<Festival[]>([]);
   const [loading, setLoading] = useState(false);
-  const [editingRitual, setEditingRitual] = useState<Ritual | null>(null);
+  const [editingFestival, setEditingFestival] = useState<Festival | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [activeTab, setActiveTab] = useState<"en" | "no" | "ne">("en");
   const [showInactive, setShowInactive] = useState(false);
@@ -62,43 +66,44 @@ export default function RitualsAdmin() {
     { code: "ne", name: "Nepali", flag: "🇳🇵" }
   ];
 
-  const emptyRitual: Ritual = {
+  const emptyFestival: Festival = {
     title: { en: "", no: "", ne: "" },
     description: { en: "", no: "", ne: "" },
-    icon: "Building",
+    icon: "Star",
     features: { en: [], no: [], ne: [] },
     timing: { en: "", no: "", ne: "" },
+    highlight: false,
     order: 0,
     isActive: true
   };
 
   useEffect(() => {
-    fetchRituals();
-  }, []);
+    fetchFestivals();
+  }, [locale]);
 
-  const fetchRituals = async () => {
+  const fetchFestivals = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/rituals?edit=true");
+      const response = await fetch(`/api/festivals?edit=true&locale=${locale}`);
       if (response.ok) {
         const data = await response.json();
-        setRituals(data);
+        setFestivals(data);
       } else {
-        toast.error("Failed to fetch rituals");
+        toast.error("Failed to fetch festivals");
       }
     } catch {
-      toast.error("Failed to fetch rituals");
+      toast.error("Failed to fetch festivals");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleFieldChange = (field: keyof Ritual, value: string | boolean | number | MultilingualField | MultilingualArray) => {
-    if (!editingRitual) return;
+  const handleFieldChange = (field: keyof Festival, value: string | boolean | number | MultilingualField | MultilingualArray) => {
+    if (!editingFestival) return;
 
     if (field === "features") {
       const localeValue = value as string;
-      setEditingRitual(prev => ({
+      setEditingFestival(prev => ({
         ...prev!,
         features: {
           ...prev!.features,
@@ -106,7 +111,7 @@ export default function RitualsAdmin() {
         }
       }));
     } else if (field === "title" || field === "description" || field === "timing") {
-      setEditingRitual(prev => ({
+      setEditingFestival(prev => ({
         ...prev!,
         [field]: {
           ...prev![field] as MultilingualField,
@@ -114,7 +119,7 @@ export default function RitualsAdmin() {
         }
       }));
     } else {
-      setEditingRitual(prev => ({
+      setEditingFestival(prev => ({
         ...prev!,
         [field]: value
       }));
@@ -122,25 +127,25 @@ export default function RitualsAdmin() {
   };
 
   const handleSave = async () => {
-    if (!editingRitual) return;
+    if (!editingFestival) return;
 
     // Validate required fields
-    if (!editingRitual.title.en.trim() || !editingRitual.description.en.trim()) {
+    if (!editingFestival.title.en.trim() || !editingFestival.description.en.trim()) {
       toast.error("English title and description are required");
       return;
     }
 
     try {
       setLoading(true);
-      const url = editingRitual._id 
-        ? "/api/rituals" 
-        : "/api/rituals";
-      const method = editingRitual._id ? "PUT" : "POST";
+      const url = editingFestival._id 
+        ? "/api/festivals" 
+        : "/api/festivals";
+      const method = editingFestival._id ? "PUT" : "POST";
 
       // For PUT requests, include the id as a separate field
-      const requestBody = editingRitual._id 
-        ? { ...editingRitual, id: editingRitual._id }
-        : editingRitual;
+      const requestBody = editingFestival._id 
+        ? { ...editingFestival, id: editingFestival._id }
+        : editingFestival;
 
       const response = await fetch(url, {
         method,
@@ -151,86 +156,86 @@ export default function RitualsAdmin() {
       });
 
       if (response.ok) {
-        toast.success(`Ritual ${editingRitual._id ? "updated" : "created"} successfully!`);
-        setEditingRitual(null);
+        toast.success(`Festival ${editingFestival._id ? "updated" : "created"} successfully!`);
+        setEditingFestival(null);
         setIsCreating(false);
-        fetchRituals();
+        fetchFestivals();
       } else {
-        toast.error(`Failed to ${editingRitual._id ? "update" : "create"} ritual`);
+        toast.error(`Failed to ${editingFestival._id ? "update" : "create"} festival`);
       }
     } catch {
-      toast.error(`Failed to ${editingRitual._id ? "update" : "create"} ritual`);
+      toast.error(`Failed to ${editingFestival._id ? "update" : "create"} festival`);
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this ritual?")) return;
+    if (!confirm("Are you sure you want to delete this festival?")) return;
 
     try {
       setLoading(true);
-      const response = await fetch(`/api/rituals?id=${id}`, {
+      const response = await fetch(`/api/festivals?id=${id}`, {
         method: "DELETE"
       });
 
       if (response.ok) {
-        toast.success("Ritual deleted successfully!");
-        fetchRituals();
+        toast.success("Festival deleted successfully!");
+        fetchFestivals();
       } else {
-        toast.error("Failed to delete ritual");
+        toast.error("Failed to delete festival");
       }
     } catch {
-      toast.error("Failed to delete ritual");
+      toast.error("Failed to delete festival");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleToggleActive = async (ritual: Ritual) => {
+  const handleToggleActive = async (festival: Festival) => {
     try {
       setLoading(true);
-      const updatedRitual = { ...ritual, isActive: !ritual.isActive };
+      const updatedFestival = { ...festival, isActive: !festival.isActive };
       
-      const response = await fetch("/api/rituals", {
+      const response = await fetch("/api/festivals", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(updatedRitual)
+        body: JSON.stringify({ ...updatedFestival, id: updatedFestival._id })
       });
 
       if (response.ok) {
-        toast.success(`Ritual ${updatedRitual.isActive ? "activated" : "deactivated"} successfully!`);
-        fetchRituals();
+        toast.success(`Festival ${updatedFestival.isActive ? "activated" : "deactivated"} successfully!`);
+        fetchFestivals();
       } else {
-        toast.error("Failed to update ritual status");
+        toast.error("Failed to update festival status");
       }
     } catch {
-      toast.error("Failed to update ritual status");
+      toast.error("Failed to update festival status");
     } finally {
       setLoading(false);
     }
   };
 
-  const startEdit = (ritual: Ritual) => {
-    setEditingRitual({ ...ritual });
+  const startEdit = (festival: Festival) => {
+    setEditingFestival({ ...festival });
     setIsCreating(false);
   };
 
   const startCreate = () => {
-    setEditingRitual({ ...emptyRitual });
+    setEditingFestival({ ...emptyFestival });
     setIsCreating(true);
   };
 
   const cancelEdit = () => {
-    setEditingRitual(null);
+    setEditingFestival(null);
     setIsCreating(false);
   };
 
   const getIconComponent = (iconName: string) => {
     const icon = iconOptions.find(opt => opt.value === iconName);
-    return icon ? icon.icon : Building;
+    return icon ? icon.icon : Star;
   };
 
   const getLocalizedField = (field: MultilingualField | MultilingualArray): string | string[] => {
@@ -240,7 +245,7 @@ export default function RitualsAdmin() {
     return field[activeTab] || field.en || "";
   };
 
-  if (loading && rituals.length === 0) {
+  if (loading && festivals.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
         <RefreshCw className="w-8 h-8 animate-spin text-brand_primary" />
@@ -253,8 +258,8 @@ export default function RitualsAdmin() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Rituals Management</h1>
-          <p className="text-gray-600 mt-1">Manage temple rituals and ceremonies in multiple languages</p>
+          <h1 className="text-2xl font-bold text-gray-900">Festivals Management</h1>
+          <p className="text-gray-600 mt-1">Manage temple festivals and celebrations in multiple languages</p>
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -273,17 +278,17 @@ export default function RitualsAdmin() {
             className="flex items-center gap-2 px-4 py-2 bg-brand_primary text-gray-600 rounded-lg font-medium hover:bg-brand_primary/90 transition-colors"
           >
             <Plus className="w-4 h-4" />
-            Add Ritual
+            Add Festival
           </button>
         </div>
       </div>
 
-      {editingRitual ? (
+      {editingFestival ? (
         /* Edit/Create Form */
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-gray-900">
-              {isCreating ? "Create New Ritual" : "Edit Ritual"}
+              {isCreating ? "Create New Festival" : "Edit Festival"}
             </h2>
             <button
               onClick={cancelEdit}
@@ -319,10 +324,10 @@ export default function RitualsAdmin() {
               </label>
               <input
                 type="text"
-                value={editingRitual.title[activeTab]}
+                value={editingFestival.title[activeTab]}
                 onChange={(e) => handleFieldChange("title", e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand_primary focus:border-transparent"
-                placeholder="Enter ritual title..."
+                placeholder="Enter festival title..."
               />
             </div>
 
@@ -332,11 +337,11 @@ export default function RitualsAdmin() {
                 Description ({locales.find(l => l.code === activeTab)?.name})
               </label>
               <textarea
-                value={editingRitual.description[activeTab]}
+                value={editingFestival.description[activeTab]}
                 onChange={(e) => handleFieldChange("description", e.target.value)}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand_primary focus:border-transparent"
-                placeholder="Enter ritual description..."
+                placeholder="Enter festival description..."
               />
             </div>
 
@@ -351,7 +356,7 @@ export default function RitualsAdmin() {
                       key={option.value}
                       onClick={() => handleFieldChange("icon", option.value)}
                       className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors ${
-                        editingRitual.icon === option.value
+                        editingFestival.icon === option.value
                           ? "border-brand_primary bg-brand_primary/10 text-brand_primary"
                           : "border-gray-300 hover:border-gray-400"
                       }`}
@@ -371,7 +376,7 @@ export default function RitualsAdmin() {
               </label>
               <input
                 type="text"
-                value={(getLocalizedField(editingRitual.features) as string[]).join(", ")}
+                value={(getLocalizedField(editingFestival.features) as string[]).join(", ")}
                 onChange={(e) => handleFieldChange("features", e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand_primary focus:border-transparent"
                 placeholder="Enter features separated by commas..."
@@ -386,30 +391,39 @@ export default function RitualsAdmin() {
               </label>
               <input
                 type="text"
-                value={editingRitual.timing[activeTab]}
+                value={editingFestival.timing[activeTab]}
                 onChange={(e) => handleFieldChange("timing", e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand_primary focus:border-transparent"
                 placeholder="Enter timing information..."
               />
             </div>
 
-            {/* Order and Status */}
+            {/* Order, Highlight and Status */}
             <div className="flex gap-4">
               <div className="flex-1">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Order</label>
                 <input
                   type="number"
-                  value={editingRitual.order}
+                  value={editingFestival.order}
                   onChange={(e) => handleFieldChange("order", parseInt(e.target.value) || 0)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand_primary focus:border-transparent"
                   placeholder="Display order..."
                 />
               </div>
-              <div className="flex items-center">
+              <div className="flex items-center gap-4">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={editingRitual.isActive}
+                    checked={editingFestival.highlight}
+                    onChange={(e) => handleFieldChange("highlight", e.target.checked)}
+                    className="w-4 h-4 text-brand_primary border-gray-300 rounded focus:ring-brand_primary"
+                  />
+                  <span className="text-sm font-medium text-gray-700">Featured</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editingFestival.isActive}
                     onChange={(e) => handleFieldChange("isActive", e.target.checked)}
                     className="w-4 h-4 text-brand_primary border-gray-300 rounded focus:ring-brand_primary"
                   />
@@ -438,20 +452,23 @@ export default function RitualsAdmin() {
           </div>
         </div>
       ) : (
-        /* Rituals Table */
+        /* Festivals Table */
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Ritual
+                    Festival
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Description
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Timing
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Featured
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Order
@@ -465,70 +482,82 @@ export default function RitualsAdmin() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {rituals
-                  .filter(ritual => showInactive || ritual.isActive)
-                  .map((ritual) => {
-                    const IconComponent = getIconComponent(ritual.icon);
+                {festivals
+                  .filter(festival => showInactive || festival.isActive)
+                  .map((festival) => {
+                    const IconComponent = getIconComponent(festival.icon);
                     return (
-                      <tr key={ritual._id} className="hover:bg-gray-50">
+                      <tr key={festival._id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <div className="w-10 h-10 bg-brand_primary/10 rounded-lg flex items-center justify-center mr-3">
-                              <IconComponent className="w-5 h-5 text-brand_primary" />
+                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-3 ${
+                              festival.highlight
+                                ? "bg-gradient-to-br from-purple-600 to-pink-600"
+                                : "bg-brand_primary/10"
+                            }`}>
+                              <IconComponent className={`w-5 h-5 ${festival.highlight ? "text-white" : "text-brand_primary"}`} />
                             </div>
                             <div>
                               <div className="text-sm font-medium text-gray-900">
-                                {ritual.title.en}
+                                {festival.title.en}
                               </div>
                               <div className="text-xs text-gray-500">
-                                {ritual.title.no} / {ritual.title.ne}
+                                {festival.title.no} / {festival.title.ne}
                               </div>
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4">
                           <div className="text-sm text-gray-900 max-w-xs truncate">
-                            {ritual.description.en}
+                            {festival.description.en}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center text-sm text-gray-900">
                             <Clock className="w-4 h-4 mr-1 text-gray-400" />
-                            {ritual.timing.en || "-"}
+                            {festival.timing.en || "-"}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
+                          {festival.highlight && (
+                            <div className="flex items-center text-sm text-purple-600">
+                              <StarIcon className="w-4 h-4 mr-1" />
+                              Featured
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
-                            {ritual.order}
+                            {festival.order}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            ritual.isActive
+                            festival.isActive
                               ? "bg-green-100 text-green-800"
                               : "bg-red-100 text-red-800"
                           }`}>
-                            {ritual.isActive ? "Active" : "Inactive"}
+                            {festival.isActive ? "Active" : "Inactive"}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex items-center justify-end gap-2">
                             <button
-                              onClick={() => handleToggleActive(ritual)}
+                              onClick={() => handleToggleActive(festival)}
                               className="p-1 hover:bg-gray-100 rounded transition-colors"
-                              title={ritual.isActive ? "Deactivate" : "Activate"}
+                              title={festival.isActive ? "Deactivate" : "Activate"}
                             >
-                              {ritual.isActive ? <EyeOff className="w-4 h-4 text-gray-500" /> : <Eye className="w-4 h-4 text-gray-500" />}
+                              {festival.isActive ? <EyeOff className="w-4 h-4 text-gray-500" /> : <Eye className="w-4 h-4 text-gray-500" />}
                             </button>
                             <button
-                              onClick={() => startEdit(ritual)}
+                              onClick={() => startEdit(festival)}
                               className="p-1 hover:bg-gray-100 rounded transition-colors"
                               title="Edit"
                             >
                               <Edit className="w-4 h-4 text-gray-500" />
                             </button>
                             <button
-                              onClick={() => handleDelete(ritual._id!)}
+                              onClick={() => handleDelete(festival._id!)}
                               className="p-1 hover:bg-red-50 rounded transition-colors"
                               title="Delete"
                             >
@@ -543,12 +572,12 @@ export default function RitualsAdmin() {
             </table>
           </div>
 
-          {rituals.filter(ritual => showInactive || ritual.isActive).length === 0 && (
+          {festivals.filter(festival => showInactive || festival.isActive).length === 0 && (
             <div className="text-center py-12">
-              <Flame className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No rituals found</h3>
+              <PartyPopper className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No festivals found</h3>
               <p className="text-gray-500 mb-4">
-                {showInactive ? "No inactive rituals found" : "Get started by creating your first ritual"}
+                {showInactive ? "No inactive festivals found" : "Get started by creating your first festival"}
               </p>
               {!showInactive && (
                 <button
@@ -556,7 +585,7 @@ export default function RitualsAdmin() {
                   className="inline-flex items-center gap-2 px-4 py-2 bg-brand_primary text-white rounded-lg font-medium hover:bg-brand_primary/90 transition-colors"
                 >
                   <Plus className="w-4 h-4" />
-                  Add Ritual
+                  Add Festival
                 </button>
               )}
             </div>

@@ -53,10 +53,10 @@ const ValuesPreview = ({ data, locale }: ValuesPreviewProps) => {
 				{getLocalizedField(data.title)}
 			</h3>
 			<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-				{sortedValues.map((value, index) => {
+				{sortedValues.map((value) => {
 					const IconComponent = getIconComponent(value.icon);
 					return (
-						<div key={index} className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+						<div key={`value-${value.order}-${value.title.en.replace(/\s+/g, '-').toLowerCase()}`} className="bg-gray-50 rounded-xl p-6 border border-gray-200">
 							<div className="w-12 h-12 mb-4 bg-brand_primary rounded-lg flex items-center justify-center">
 								<IconComponent className="w-6 h-6 text-white" />
 							</div>
@@ -355,7 +355,7 @@ export default function ValuesAdmin() {
 
 							<div className="space-y-4">
 								{data.values.map((value, index) => (
-									<div key={index} className="border border-gray-200 rounded-lg p-4">
+									<div key={`edit-value-${value.order}-${value.title.en.replace(/\s+/g, '-').toLowerCase()}`} className="border border-gray-200 rounded-lg p-4">
 										<div className="flex items-center justify-between mb-4">
 											<div className="flex items-center gap-2">
 												<GripVertical className="w-5 h-5 text-gray-400" />
