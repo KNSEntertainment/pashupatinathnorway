@@ -54,13 +54,14 @@ export default function AboutUsClient() {
 	const [missionVisionData, setMissionVisionData] = useState<MissionVisionData | null>(null);
 	const [valuesData, setValuesData] = useState<ValuesData | null>(null);
 	const [memberCount, setMemberCount] = useState<number>(0);
+	const [establishmentDate, setEstablishmentDate] = useState<Date | null>(null);
 
-	// Calculate months active from January 2025 to current date
+	// Calculate months active from establishment date to current date
 	const calculateMonthsActive = () => {
-		const establishedDate = new Date(2025, 0, 1); // January 2025
+		if (!establishmentDate) return 1; // Default to 1 if no date is set
 		const currentDate = new Date();
-		const monthsDiff = (currentDate.getFullYear() - establishedDate.getFullYear()) * 12 + 
-							(currentDate.getMonth() - establishedDate.getMonth());
+		const monthsDiff = (currentDate.getFullYear() - establishmentDate.getFullYear()) * 12 + 
+									(currentDate.getMonth() - establishmentDate.getMonth());
 		return Math.max(1, monthsDiff + 1); // At least 1 month
 	};
 
@@ -68,11 +69,12 @@ export default function AboutUsClient() {
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				const [aboutUsResponse, missionVisionResponse, valuesResponse, membersResponse] = await Promise.all([
+				const [aboutUsResponse, missionVisionResponse, valuesResponse, membersResponse, settingsResponse] = await Promise.all([
 					fetch(`/api/about-us?locale=${locale}`),
 					fetch(`/api/mission-vision?locale=${locale}`),
 					fetch(`/api/values?locale=${locale}`),
-					fetch(`/api/members/count`)
+					fetch(`/api/members/count`),
+					fetch(`/api/settings`)
 				]);
 
 				if (aboutUsResponse.ok) {
@@ -93,6 +95,15 @@ export default function AboutUsClient() {
 				if (membersResponse.ok) {
 					const data = await membersResponse.json();
 					setMemberCount(data.count || 0);
+				}
+
+				if (settingsResponse.ok) {
+					const settings = await settingsResponse.json();
+					// Get the first setting with dateOfEstablishment
+					const settingWithDate = settings.find((setting: { dateOfEstablishment?: string }) => setting.dateOfEstablishment);
+					if (settingWithDate && settingWithDate.dateOfEstablishment) {
+						setEstablishmentDate(new Date(settingWithDate.dateOfEstablishment));
+					}
 				}
 			} catch (error) {
 				console.error('Failed to fetch data:', error);
@@ -204,7 +215,7 @@ export default function AboutUsClient() {
             </svg>
           </div>
           <div>
-            				<p className="text-lg font-bold text-gray-900 leading-none">{aboutUsData?.stats?.active_members || "200+"}</p>
+            				<p className="text-lg font-bold text-gray-900 leading-none">{memberCount}+</p>
 				<p className="text-xs text-gray-500 mt-0.5">{aboutUsData?.stats?.active_members_label || "Members"}</p>
           </div>
         </div>
@@ -215,7 +226,7 @@ export default function AboutUsClient() {
             </svg>
           </div>
           <div>
-            				<p className="text-lg font-bold text-gray-900 leading-none">{aboutUsData?.stats?.months_active || "6+"}</p>
+            				<p className="text-lg font-bold text-gray-900 leading-none">{calculateMonthsActive()}+</p>
 				<p className="text-xs text-gray-500 mt-0.5">{aboutUsData?.stats?.months_active_label || "Months Active"}</p>
           </div>
         </div>

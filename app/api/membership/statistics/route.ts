@@ -15,8 +15,16 @@ export async function GET() {
       membershipType: "Active" 
     });
     
+    const executiveMembersCount = await Membership.countDocuments({ 
+      membershipType: "Executive" 
+    });
+    
+    const advisorsCount = await Membership.countDocuments({ 
+      membershipType: "Advisor" 
+    });
+    
     // Get total members
-    const totalMembers = generalMembersCount + activeMembersCount;
+    const totalMembers = generalMembersCount + activeMembersCount + executiveMembersCount + advisorsCount;
     
     // Get recent registrations (last 30 days)
     const thirtyDaysAgo = new Date();
@@ -69,6 +77,8 @@ export async function GET() {
       totalMembers,
       generalMembersCount,
       activeMembersCount,
+      executiveMembersCount,
+      advisorsCount,
       recentRegistrations,
       growthPercentage,
       topFylke: membersByFylke,

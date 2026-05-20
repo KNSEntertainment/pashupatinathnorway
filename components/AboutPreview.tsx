@@ -24,23 +24,25 @@ export default function AboutPreview() {
 	const locale = useLocale();
 	const [aboutData, setAboutData] = useState<AboutUsData | null>(null);
 	const [memberCount, setMemberCount] = useState<number>(0);
+	const [establishmentDate, setEstablishmentDate] = useState<Date | null>(null);
 	const [loading, setLoading] = useState(true);
 
-	// Calculate months active from January 2025 to current date
+	// Calculate months active from establishment date to current date
 	const calculateMonthsActive = () => {
-		const establishedDate = new Date(2025, 0, 1); // January 2025
+		if (!establishmentDate) return 1; // Default to 1 if no date is set
 		const currentDate = new Date();
-		const monthsDiff = (currentDate.getFullYear() - establishedDate.getFullYear()) * 12 + 
-							(currentDate.getMonth() - establishedDate.getMonth());
+		const monthsDiff = (currentDate.getFullYear() - establishmentDate.getFullYear()) * 12 + 
+							(currentDate.getMonth() - establishmentDate.getMonth());
 		return Math.max(1, monthsDiff + 1); // At least 1 month
 	};
 
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				const [aboutUsResponse, membersResponse] = await Promise.all([
+				const [aboutUsResponse, membersResponse, settingsResponse] = await Promise.all([
 					fetch(`/api/about-us?locale=${locale}`),
-					fetch(`/api/members/count`)
+					fetch(`/api/members/count`),
+					fetch(`/api/settings`)
 				]);
 
 				if (aboutUsResponse.ok) {
@@ -51,6 +53,15 @@ export default function AboutPreview() {
 				if (membersResponse.ok) {
 					const data = await membersResponse.json();
 					setMemberCount(data.count || 0);
+				}
+
+				if (settingsResponse.ok) {
+					const settings = await settingsResponse.json();
+					// Get the first setting with dateOfEstablishment
+					const settingWithDate = settings.find((setting: { dateOfEstablishment?: string }) => setting.dateOfEstablishment);
+					if (settingWithDate && settingWithDate.dateOfEstablishment) {
+						setEstablishmentDate(new Date(settingWithDate.dateOfEstablishment));
+					}
 				}
 			} catch (error) {
 				console.error("Error fetching data:", error);

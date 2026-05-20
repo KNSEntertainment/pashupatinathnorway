@@ -3,6 +3,8 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import SimpleMemberStats from "@/components/membership/SimpleMemberStats";
+import { useState } from "react";
+import { ChevronDown, Users } from "lucide-react";
 import { MembershipTranslations } from "@/components/membership/types/membership";
 import { useMembershipForm } from "@/app/[locale]/membership/hooks/useMembershipForm";
 import { useOTPVerification } from "@/app/[locale]/membership/hooks/useOTPVerification";
@@ -20,6 +22,7 @@ interface Props {
 
 export default function MembershipPageClient({ translations: t, locale }: Props) {
 	const tr = useTranslations("membership");
+	const [showStats, setShowStats] = useState(false);
 
 	// --- Hooks ---
 	const form = useMembershipForm();
@@ -99,7 +102,37 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 				}}
 			/>
 
-			<SimpleMemberStats />
+			{/* Mobile: View Members Data Link */}
+			<div className="md:hidden container mx-auto px-4 my-6">
+				<button
+					onClick={() => setShowStats(!showStats)}
+					className="w-full flex items-center justify-between text-blue-600 hover:text-blue-800 py-2 transition-colors duration-200"
+				>
+					<div className="flex items-center gap-2">
+						<Users className="w-4 h-4" />
+						<span className="font-medium underline">View Members Data</span>
+					</div>
+					<ChevronDown 
+						className={`w-4 h-4 transition-transform duration-300 ${showStats ? 'rotate-180' : ''}`} 
+					/>
+				</button>
+			</div>
+
+			{/* Mobile: Animated SimpleMemberStats */}
+			<div className="md:hidden">
+				<div 
+					className={`overflow-hidden transition-all duration-500 ease-in-out ${
+						showStats ? 'max-h-none opacity-100 my-4' : 'max-h-0 opacity-0'
+					}`}
+				>
+					<SimpleMemberStats />
+				</div>
+			</div>
+
+			{/* Desktop: Always show SimpleMemberStats */}
+			<div className="hidden md:block">
+				<SimpleMemberStats />
+			</div>
 
 			<div className="container mx-auto md:px-4 md:pb-12">
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
