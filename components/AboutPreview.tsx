@@ -23,24 +23,43 @@ interface AboutUsData {
 export default function AboutPreview() {
 	const locale = useLocale();
 	const [aboutData, setAboutData] = useState<AboutUsData | null>(null);
+	const [memberCount, setMemberCount] = useState<number>(0);
 	const [loading, setLoading] = useState(true);
 
+	// Calculate months active from January 2025 to current date
+	const calculateMonthsActive = () => {
+		const establishedDate = new Date(2025, 0, 1); // January 2025
+		const currentDate = new Date();
+		const monthsDiff = (currentDate.getFullYear() - establishedDate.getFullYear()) * 12 + 
+							(currentDate.getMonth() - establishedDate.getMonth());
+		return Math.max(1, monthsDiff + 1); // At least 1 month
+	};
+
 	useEffect(() => {
-		const fetchAboutData = async () => {
+		const fetchData = async () => {
 			try {
-				const response = await fetch(`/api/about-us?locale=${locale}`);
-				if (response.ok) {
-					const data = await response.json();
+				const [aboutUsResponse, membersResponse] = await Promise.all([
+					fetch(`/api/about-us?locale=${locale}`),
+					fetch(`/api/members/count`)
+				]);
+
+				if (aboutUsResponse.ok) {
+					const data = await aboutUsResponse.json();
 					setAboutData(data);
 				}
+
+				if (membersResponse.ok) {
+					const data = await membersResponse.json();
+					setMemberCount(data.count || 0);
+				}
 			} catch (error) {
-				console.error("Error fetching About Us data:", error);
+				console.error("Error fetching data:", error);
 			} finally {
 				setLoading(false);
 			}
 		};
 
-		fetchAboutData();
+		fetchData();
 	}, [locale]);
 
 	if (loading) {
@@ -166,7 +185,7 @@ export default function AboutPreview() {
 								<div
 									className="space-y-1"
 								>
-									<p className="text-2xl sm:text-3xl font-bold text-white">{aboutData.stats.active_members}</p>
+									<p className="text-2xl sm:text-3xl font-bold text-white">{memberCount}+</p>
 									<p className="text-orange-100 text-xs sm:text-sm font-medium">{aboutData.stats.active_members_label}</p>
 								</div>
 							</div>
@@ -191,7 +210,7 @@ export default function AboutPreview() {
 								<div
 									className="space-y-1"
 								>
-									<p className="text-2xl sm:text-3xl font-bold text-white">{aboutData.stats.months_active}</p>
+									<p className="text-2xl sm:text-3xl font-bold text-white">{calculateMonthsActive()}+</p>
 									<p className="text-red-100 text-xs sm:text-sm font-medium">{aboutData.stats.months_active_label}</p>
 								</div>
 							</div>

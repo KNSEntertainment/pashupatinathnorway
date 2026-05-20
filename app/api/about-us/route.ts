@@ -9,6 +9,21 @@ interface MultilingualField {
 	ne: string;
 }
 
+interface AboutUsDocument {
+	title: MultilingualField;
+	subtitle: MultilingualField;
+	about_description_1: MultilingualField;
+	about_description_2: MultilingualField;
+	more_about_us: MultilingualField;
+	image: string;
+	stats?: {
+		active_members: string;
+		months_active: string;
+		active_members_label: MultilingualField;
+		months_active_label: MultilingualField;
+	};
+}
+
 
 // GET about-us content
 export async function GET(request: NextRequest) {
@@ -78,12 +93,18 @@ export async function GET(request: NextRequest) {
 
 		// Return single locale version for frontend
 		const localizedContent = {
-			title: aboutUs.title?.[locale as keyof MultilingualField] || aboutUs.title?.en || "",
-			subtitle: aboutUs.subtitle?.[locale as keyof MultilingualField] || aboutUs.subtitle?.en || "",
-			about_description_1: aboutUs.about_description_1?.[locale as keyof MultilingualField] || aboutUs.about_description_1?.en || "",
-			about_description_2: aboutUs.about_description_2?.[locale as keyof MultilingualField] || aboutUs.about_description_2?.en || "",
-			more_about_us: aboutUs.more_about_us?.[locale as keyof MultilingualField] || aboutUs.more_about_us?.en || "",
-			image: aboutUs.image || ""
+			title: aboutUsObj.title?.[locale as keyof MultilingualField] || aboutUsObj.title?.en || "",
+			subtitle: aboutUsObj.subtitle?.[locale as keyof MultilingualField] || aboutUsObj.subtitle?.en || "",
+			about_description_1: aboutUsObj.about_description_1?.[locale as keyof MultilingualField] || aboutUsObj.about_description_1?.en || "",
+			about_description_2: aboutUsObj.about_description_2?.[locale as keyof MultilingualField] || aboutUsObj.about_description_2?.en || "",
+			more_about_us: aboutUsObj.more_about_us?.[locale as keyof MultilingualField] || aboutUsObj.more_about_us?.en || "",
+			image: aboutUsObj.image || "",
+			stats: {
+				active_members: (aboutUsObj as AboutUsDocument).stats?.active_members || "200+",
+				months_active: (aboutUsObj as AboutUsDocument).stats?.months_active || "6+",
+				active_members_label: (aboutUsObj as AboutUsDocument).stats?.active_members_label?.[locale as keyof MultilingualField] || (aboutUsObj as AboutUsDocument).stats?.active_members_label?.en || "Active Members",
+				months_active_label: (aboutUsObj as AboutUsDocument).stats?.months_active_label?.[locale as keyof MultilingualField] || (aboutUsObj as AboutUsDocument).stats?.months_active_label?.en || "Months Active"
+			}
 		};
 
 		return NextResponse.json(localizedContent);
