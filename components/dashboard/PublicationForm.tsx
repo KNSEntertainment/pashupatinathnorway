@@ -6,12 +6,10 @@ import { X, Save } from "lucide-react";
 interface Publication {
   id?: string;
   title: string;
-  year: number;
   type: "financial" | "activity" | "membership" | "audit";
   description: string;
   publishedDate: string;
   downloadUrl: string;
-  previewUrl: string;
   language: "en" | "ne" | "no";
 }
 
@@ -37,12 +35,10 @@ const languages = [
 export default function PublicationForm({ publication, onSubmit, onCancel }: PublicationFormProps) {
   const [formData, setFormData] = useState<Publication>({
     title: "",
-    year: new Date().getFullYear(),
     type: "financial",
     description: "",
     publishedDate: new Date().toISOString().split('T')[0],
     downloadUrl: "",
-    previewUrl: "",
     language: "en"
   });
 
@@ -59,7 +55,7 @@ export default function PublicationForm({ publication, onSubmit, onCancel }: Pub
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === "year" ? parseInt(value) || 0 : value
+      [name]: value
     }));
     
     // Clear error for this field
@@ -73,10 +69,6 @@ export default function PublicationForm({ publication, onSubmit, onCancel }: Pub
 
     if (!formData.title.trim()) {
       newErrors.title = "Title is required";
-    }
-
-    if (!formData.year || formData.year < 2000 || formData.year > new Date().getFullYear() + 1) {
-      newErrors.year = "Please enter a valid year";
     }
 
     if (!formData.type) {
@@ -187,26 +179,6 @@ export default function PublicationForm({ publication, onSubmit, onCancel }: Pub
                 )}
               </div>
 
-              {/* Year */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Year *
-                </label>
-                <input
-                  type="number"
-                  name="year"
-                  value={formData.year}
-                  onChange={handleChange}
-                  min="2000"
-                  max={new Date().getFullYear() + 1}
-                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 ${
-                    errors.year ? "border-red-500" : "border-gray-300"
-                  }`}
-                />
-                {errors.year && (
-                  <p className="mt-1 text-sm text-red-600">{errors.year}</p>
-                )}
-              </div>
 
               {/* Type */}
               <div>
@@ -310,20 +282,6 @@ export default function PublicationForm({ publication, onSubmit, onCancel }: Pub
                 />
               </div>
 
-              {/* Read More URL */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Read More URL
-                </label>
-                <input
-                  type="url"
-                  name="previewUrl"
-                  value={formData.previewUrl}
-                  onChange={handleChange}
-                  placeholder="https://example.com/preview.pdf"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                />
-              </div>
             </div>
 
             {/* Form Actions */}

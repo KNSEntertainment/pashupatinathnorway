@@ -14,7 +14,6 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type');
     const language = searchParams.get('language');
-    const year = searchParams.get('year');
     const search = searchParams.get('search');
     
         
@@ -29,9 +28,6 @@ export async function GET(request: NextRequest) {
       query.language = language;
     }
     
-    if (year && year !== 'all') {
-      query.year = parseInt(year);
-    }
     
     if (search) {
       query.$or = [
@@ -50,12 +46,10 @@ export async function GET(request: NextRequest) {
     const formattedPublications = publications.map((pub) => ({
       id: (pub._id as mongoose.Types.ObjectId).toString(),
       title: pub.title,
-      year: pub.year,
       type: pub.type,
       description: pub.description,
       publishedDate: pub.publishedDate.toISOString().split('T')[0],
       downloadUrl: pub.downloadUrl,
-      previewUrl: pub.previewUrl,
       language: pub.language,
       createdAt: pub.createdAt,
       updatedAt: pub.updatedAt
@@ -98,19 +92,17 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { 
       title, 
-      year, 
       type, 
       description, 
       publishedDate, 
       downloadUrl, 
-      previewUrl, 
       language 
     } = body;
     
     // Validate required fields
-    if (!title || !year || !type || !description || !language) {
+    if (!title || !type || !description || !language) {
       return NextResponse.json(
-        { error: "Missing required fields: title, year, type, description, language" },
+        { error: "Missing required fields: title, type, description, language" },
         { status: 400 }
       );
     }
@@ -118,12 +110,10 @@ export async function POST(request: NextRequest) {
     // Create new publication
     const newPublication = new Publication({
       title,
-      year: parseInt(year),
       type,
       description,
       publishedDate: publishedDate || new Date(),
       downloadUrl: downloadUrl || "",
-      previewUrl: previewUrl || "",
       language,
       createdBy: user._id
     });
@@ -137,12 +127,10 @@ export async function POST(request: NextRequest) {
     const formattedPublication = {
       id: newPublication._id.toString(),
       title: newPublication.title,
-      year: newPublication.year,
       type: newPublication.type,
       description: newPublication.description,
       publishedDate: newPublication.publishedDate.toISOString().split('T')[0],
       downloadUrl: newPublication.downloadUrl,
-      previewUrl: newPublication.previewUrl,
       language: newPublication.language,
       createdAt: newPublication.createdAt,
       updatedAt: newPublication.updatedAt

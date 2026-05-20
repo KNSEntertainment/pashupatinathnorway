@@ -66,12 +66,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const body = await request.json();
     const { 
       title, 
-      year, 
       type, 
       description, 
       publishedDate, 
       downloadUrl, 
-      previewUrl, 
       language 
     } = body;
     
@@ -80,12 +78,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       id,
       {
         title: title || publication.title,
-        year: year ? parseInt(year) : publication.year,
         type: type || publication.type,
         description: description || publication.description,
         publishedDate: publishedDate || publication.publishedDate,
         downloadUrl: downloadUrl || publication.downloadUrl,
-        previewUrl: previewUrl || publication.previewUrl,
         language: language || publication.language
       },
       { new: true }

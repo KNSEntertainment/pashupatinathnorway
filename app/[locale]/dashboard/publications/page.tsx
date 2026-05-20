@@ -7,12 +7,10 @@ import PublicationForm from "@/components/dashboard/PublicationForm";
 interface Publication {
   id: string;
   title: string;
-  year: number;
   type: "financial" | "activity" | "membership" | "audit";
   description: string;
   publishedDate: string;
   downloadUrl: string;
-  previewUrl: string;
   language: "en" | "ne" | "no";
   createdAt: string;
   updatedAt: string;
@@ -40,7 +38,6 @@ export default function PublicationsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("all");
   const [selectedLanguage, setSelectedLanguage] = useState("all");
-  const [selectedYear, setSelectedYear] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
 
   // Fetch publications
@@ -80,15 +77,9 @@ export default function PublicationsPage() {
       filtered = filtered.filter(pub => pub.language === selectedLanguage);
     }
     
-    if (selectedYear !== "all") {
-      filtered = filtered.filter(pub => pub.year.toString() === selectedYear);
-    }
-    
     setFilteredPublications(filtered);
-  }, [publications, searchTerm, selectedType, selectedLanguage, selectedYear]);
+  }, [publications, searchTerm, selectedType, selectedLanguage]);
 
-  // Get available years
-  const availableYears = Array.from(new Set(publications.map(pub => pub.year))).sort((a, b) => b - a);
 
   // Handle delete
   const handleDelete = async (id: string) => {
@@ -194,14 +185,14 @@ export default function PublicationsPage() {
               <Filter className="w-4 h-4" />
               Filters
               <span className="text-xs bg-gray-200 px-2 py-1 rounded-full">
-                {[selectedType, selectedLanguage, selectedYear].filter(v => v !== "all").length}
+                {[selectedType, selectedLanguage].filter(v => v !== "all").length}
               </span>
             </button>
           </div>
 
           {/* Filter Options */}
           {showFilters && (
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
               <select
                 value={selectedType}
                 onChange={(e) => setSelectedType(e.target.value)}
@@ -221,17 +212,6 @@ export default function PublicationsPage() {
                 <option value="all">All Languages</option>
                 {languages.map(lang => (
                   <option key={lang.value} value={lang.value}>{lang.label}</option>
-                ))}
-              </select>
-
-              <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-              >
-                <option value="all">All Years</option>
-                {availableYears.map(year => (
-                  <option key={year} value={year}>{year}</option>
                 ))}
               </select>
             </div>
@@ -297,9 +277,6 @@ export default function PublicationsPage() {
                     <div className="flex items-center text-sm text-gray-500">
                       <Calendar className="w-4 h-4 mr-2" />
                       {new Date(publication.publishedDate).toLocaleDateString()}
-                    </div>
-                    <div className="flex items-center text-sm text-gray-500">
-                      <span>{publication.year}</span>
                     </div>
                   </div>
 

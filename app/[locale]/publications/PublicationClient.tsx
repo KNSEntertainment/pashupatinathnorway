@@ -1,18 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Download, Eye, Calendar, FileText, Filter, ChevronDown } from "lucide-react";
+import { Search, Download, Calendar, FileText, Filter, ChevronDown } from "lucide-react";
 import SectionHeader from "@/components/SectionHeader";
 
 interface AnnualReport {
   id: string;
   title: string;
-  year: number;
   type: "financial" | "activity" | "membership" | "audit";
   description: string;
   publishedDate: string;
   downloadUrl: string;
-  previewUrl: string;
   language: "en" | "ne" | "no";
 }
 
@@ -40,7 +38,6 @@ export default function PublicationClient() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("all");
   const [selectedLanguage, setSelectedLanguage] = useState("all");
-  const [selectedYear, setSelectedYear] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
 
   // Fetch publications from API
@@ -80,15 +77,9 @@ export default function PublicationClient() {
       filtered = filtered.filter((report: AnnualReport) => report.language === selectedLanguage);
     }
     
-    if (selectedYear !== "all") {
-      filtered = filtered.filter((report: AnnualReport) => report.year.toString() === selectedYear);
-    }
-    
     setFilteredPublications(filtered);
-  }, [publications, searchTerm, selectedType, selectedLanguage, selectedYear]);
+  }, [publications, searchTerm, selectedType, selectedLanguage]);
 
-  // Get available years
-  const availableYears = Array.from(new Set(publications.map(pub => pub.year))).sort((a, b) => b - a);
 
   const getTypeColor = (type: string) => {
     switch (type) {
@@ -151,7 +142,7 @@ export default function PublicationClient() {
 
           {/* Filter Options */}
           {showFilters && (
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
               <select
                 value={selectedType}
                 onChange={(e) => setSelectedType(e.target.value)}
@@ -169,17 +160,6 @@ export default function PublicationClient() {
               >
                 {languages.map(lang => (
                   <option key={lang.value} value={lang.value}>{lang.label}</option>
-                ))}
-              </select>
-
-              <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-              >
-                <option value="all">All Years</option>
-                {availableYears.map((year: number) => (
-                  <option key={year} value={year}>{year}</option>
                 ))}
               </select>
             </div>
@@ -242,17 +222,10 @@ export default function PublicationClient() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => window.open(report.downloadUrl, '_blank')}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
                     >
                       <Download className="w-4 h-4" />
                       Download
-                    </button>
-                    <button
-                      onClick={() => window.open(report.previewUrl, '_blank')}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
-                    >
-                      <Eye className="w-4 h-4" />
-                      Read More
                     </button>
                   </div>
                 </div>

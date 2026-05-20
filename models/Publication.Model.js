@@ -6,10 +6,6 @@ const publicationSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
-  year: {
-    type: Number,
-    required: true
-  },
   type: {
     type: String,
     required: true,
@@ -24,10 +20,6 @@ const publicationSchema = new mongoose.Schema({
     default: Date.now
   },
   downloadUrl: {
-    type: String,
-    default: ""
-  },
-  previewUrl: {
     type: String,
     default: ""
   },
@@ -47,7 +39,6 @@ const publicationSchema = new mongoose.Schema({
 });
 
 // Index for better performance
-publicationSchema.index({ year: 1 });
 publicationSchema.index({ type: 1 });
 publicationSchema.index({ language: 1 });
 publicationSchema.index({ title: 'text', description: 'text' });
