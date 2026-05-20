@@ -1137,7 +1137,7 @@ export default function MembershipsPage() {
 				<div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200" onClick={() => setEditingMember(null)}>
 					<div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
 						{/* Header */}
-						<div className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6">
+						<div className="relative bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6">
 							<button onClick={() => setEditingMember(null)} className="absolute top-4 right-4 text-white/80 hover:text-white hover:bg-white/20 rounded-full p-2 transition-all duration-200">
 								<X className="w-5 h-5" />
 							</button>
@@ -1346,7 +1346,7 @@ export default function MembershipsPage() {
 				<div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200" onClick={() => setAddingMember(false)}>
 					<div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
 						{/* Header */}
-						<div className="bg-gradient-to-r from-green-600 to-blue-600 px-8 py-6">
+						<div className="relative bg-gradient-to-r from-green-600 to-blue-600 px-8 py-6">
 							<button onClick={() => setAddingMember(false)} className="absolute top-4 right-4 text-white/80 hover:text-white hover:bg-white/20 rounded-full p-2 transition-all duration-200">
 								<X className="w-5 h-5" />
 							</button>
