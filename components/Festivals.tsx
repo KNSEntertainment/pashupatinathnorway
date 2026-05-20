@@ -50,7 +50,7 @@ export default function Festivals() {
         setLoading(true);
         const response = await fetch(`/api/festivals?locale=${locale}`);
         const data = await response.json();
-        setFestivals(data.festivals || []);
+        setFestivals(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error('Error fetching festivals:', error);
       } finally {
@@ -78,7 +78,7 @@ export default function Festivals() {
 
 
   return (
-    <div className="min-h-screen bg-brand_secondary/20 py-12">
+    <div className="min-h-screen bg-brand_secondary/10 py-12">
       <div className="container mx-auto px-4 max-w-7xl">
         <header className="text-center mb-6 md:mb-8">
           <SectionHeader heading={t("title")} subtitle={t("subtitle")} />

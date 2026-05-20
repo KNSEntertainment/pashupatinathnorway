@@ -50,7 +50,7 @@ export default function Rituals() {
         const response = await fetch(`/api/rituals?locale=${locale}`);
         if (response.ok) {
           const data = await response.json();
-          setRituals(data.rituals || []);
+          setRituals(Array.isArray(data) ? data : []);
         }
       } catch (error) {
         console.error('Error fetching rituals:', error);
@@ -78,7 +78,7 @@ export default function Rituals() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50 py-12">
+    <div className="min-h-screen bg-brand_primary/20 py-12">
       <div className="container mx-auto px-4 max-w-7xl">
         <header className="text-center mb-6 md:mb-8">
           <SectionHeader heading={t("title")} subtitle={t("subtitle")} />
