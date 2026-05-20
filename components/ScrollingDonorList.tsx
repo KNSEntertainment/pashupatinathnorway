@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Heart } from "lucide-react";
 
 interface Donor {
@@ -16,7 +16,7 @@ interface ScrollingDonorListProps {
 
 export default function ScrollingDonorList({ donors }: ScrollingDonorListProps) {
 	// Ensure donors is always an array
-	const safeDonors = Array.isArray(donors) ? donors : [];
+	const safeDonors = useMemo(() => Array.isArray(donors) ? donors : [], [donors]);
 	
 	const [isPaused, setIsPaused] = useState(false);
 	const [isScrollable, setIsScrollable] = useState(false);

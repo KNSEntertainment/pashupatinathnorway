@@ -58,10 +58,10 @@ export default function DonatePageClient({ locale }: DonatePageClientProps) {
 				}
 
 				// Fetch donors
-				const donorsResponse = await fetch('/api/donations/donors');
+				const donorsResponse = await fetch('/api/donations/donors?limit=10');
 				if (donorsResponse.ok) {
 					const donorsData = await donorsResponse.json();
-					setDonors(donorsData);
+					setDonors(donorsData.donors || []);
 				}
 			} catch (error) {
 				console.error('Error fetching data:', error);
