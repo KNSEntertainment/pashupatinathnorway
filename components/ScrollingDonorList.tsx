@@ -15,6 +15,9 @@ interface ScrollingDonorListProps {
 }
 
 export default function ScrollingDonorList({ donors }: ScrollingDonorListProps) {
+	// Ensure donors is always an array
+	const safeDonors = Array.isArray(donors) ? donors : [];
+	
 	const [isPaused, setIsPaused] = useState(false);
 	const [isScrollable, setIsScrollable] = useState(false);
 	const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -22,7 +25,7 @@ export default function ScrollingDonorList({ donors }: ScrollingDonorListProps) 
 
 	useEffect(() => {
 		const container = scrollContainerRef.current;
-		if (!container || donors.length === 0) return;
+		if (!container || safeDonors.length === 0) return;
 
 		// Check if content is scrollable
 		const isContentScrollable = container.scrollHeight > container.clientHeight;
@@ -61,14 +64,14 @@ export default function ScrollingDonorList({ donors }: ScrollingDonorListProps) 
 				cancelAnimationFrame(animationFrameId);
 			}
 		};
-	}, [donors, isPaused]);
+	}, [safeDonors, isPaused]);
 
 	const handleMouseEnter = () => setIsPaused(true);
 	const handleMouseLeave = () => setIsPaused(false);
 	const handleTouchStart = () => setIsPaused(true);
 	const handleTouchEnd = () => setIsPaused(false);
 
-	if (donors.length === 0) {
+	if (safeDonors.length === 0) {
 		return (
 			<div className="text-center py-8 text-gray-500">
 				<Heart className="w-8 h-8 mx-auto mb-2 text-brand_secondary" />
@@ -89,7 +92,7 @@ export default function ScrollingDonorList({ donors }: ScrollingDonorListProps) 
 				style={{ cursor: isScrollable ? (isPaused ? 'grab' : 'grabbing') : 'default' }}
 			>
 				<div className="py-3 space-y-2">
-					{donors.map((donor, index) => (
+					{safeDonors.map((donor, index) => (
 						<div
 							key={index}
 							className="flex justify-between items-center p-2 bg-white rounded-lg border border-orange-100 shadow-sm"
