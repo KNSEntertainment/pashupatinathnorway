@@ -60,6 +60,7 @@ export default function AttendanceDashboard() {
   const [error, setError] = useState<string>("");
   const [showExportModal, setShowExportModal] = useState<boolean>(false);
   const [exporting, setExporting] = useState<boolean>(false);
+  const [showClearRecordsDialog, setShowClearRecordsDialog] = useState<boolean>(false);
   
   // Search states
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -368,6 +369,68 @@ export default function AttendanceDashboard() {
       }
   };
 
+  // Handle attendance toggle with single button logic
+  const handleAttendanceToggle = async (event: Event) => {
+    if (!event.enableAttendance) {
+      // Enable and start attendance
+      await updateEventAttendance(event._id, {
+        enableAttendance: true,
+        attendanceStatus: "active"
+      });
+    } else if (event.attendanceStatus === "active") {
+      // Stop and disable attendance
+      await updateEventAttendance(event._id, {
+        enableAttendance: false,
+        attendanceStatus: "not_started"
+      });
+    } else {
+      // Start attendance (already enabled but not started)
+      await updateEventAttendance(event._id, {
+        attendanceStatus: "active"
+      });
+    }
+  };
+
+  // Get button text based on event state
+  const getAttendanceButtonText = (event: Event) => {
+    if (!event.enableAttendance) {
+      return "Enable Attendance";
+    }
+    if (event.attendanceStatus === "active") {
+      return "Stop Attendance";
+    }
+    return "Start Attendance";
+  };
+
+  // Clear all attendance records for selected event
+  const clearAllAttendanceRecords = async () => {
+    if (!selectedEvent) return;
+
+    try {
+      const response = await fetch(`/api/events/${selectedEvent._id}/attendance/clear`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      
+      if (response.ok) {
+        // Clear local records
+        setAttendanceRecords([]);
+        // Show success message
+        setError(`✓ Cleared all attendance records for ${selectedEvent.eventname}`);
+        // Clear error after 3 seconds
+        setTimeout(() => setError(""), 3000);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || "Failed to clear attendance records");
+      }
+    } catch (error) {
+      console.error("Error clearing attendance records:", error);
+      setError("Failed to clear attendance records");
+    }
+  };
+
   const exportAttendance = () => {
     if (!selectedEvent || attendanceRecords.length === 0) return;
     setShowExportModal(true);
@@ -510,6 +573,51 @@ export default function AttendanceDashboard() {
         </div>
       )}
 
+      {/* Mobile Event Selection */}
+      <div className="px-4 py-3 bg-white border-b border-gray-200">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-semibold text-gray-700">Select Event</h2>
+          {selectedEvent && (
+            <Button
+              onClick={() => setSelectedEvent(null)}
+              variant="outline"
+              size="sm"
+              className="text-xs h-6"
+            >
+              Clear
+            </Button>
+          )}
+        </div>
+        
+        {events.length === 0 ? (
+          <div className="text-center py-4">
+            <Calendar className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+            <p className="text-sm text-gray-500">No events available</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <select
+              value={selectedEvent?._id || ""}
+              onChange={(e) => {
+                const event = events.find(ev => ev._id === e.target.value);
+                setSelectedEvent(event || null);
+              }}
+              className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand_primary focus:border-transparent text-sm"
+            >
+              <option value="">Select an event...</option>
+              {events.map((event) => (
+                <option key={event._id} value={event._id}>
+                  {event.eventname}
+                  {event.eventdate && ` - ${event.eventdate}`}
+                  {event.eventtime && ` ${event.eventtime}`}
+                  {event.enableAttendance && event.attendanceStatus === "active" && " (Active)"}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
+
       {/* Mobile Search Section */}
       <div className="px-4 py-3 bg-white border-b border-gray-200">
         <div className="relative">
@@ -577,64 +685,6 @@ export default function AttendanceDashboard() {
         </div>
       )}
 
-      {/* Mobile Event Selection */}
-      <div className="px-4 py-3 bg-white border-b border-gray-200">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold text-gray-700">Select Event</h2>
-          {selectedEvent && (
-            <Button
-              onClick={() => setSelectedEvent(null)}
-              variant="outline"
-              size="sm"
-              className="text-xs h-6"
-            >
-              Clear
-            </Button>
-          )}
-        </div>
-        
-        {events.length === 0 ? (
-          <div className="text-center py-4">
-            <Calendar className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-            <p className="text-sm text-gray-500">No events available</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {events.map((event) => (
-              <div
-                key={event._id}
-                onClick={() => setSelectedEvent(event)}
-                className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                  selectedEvent?._id === event._id
-                    ? "border-brand_primary bg-brand/5 border-2"
-                    : "border-gray-200 bg-white"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="font-medium text-sm text-gray-900">{event.eventname}</div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      {event.eventdate && `📅 ${event.eventdate}`}
-                      {event.eventtime && ` • ${event.eventtime}`}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {event.enableAttendance && event.attendanceStatus === "active" && (
-                      <Badge className="bg-green-100 text-green-800 text-xs">
-                        Active
-                      </Badge>
-                    )}
-                    {selectedEvent?._id === event._id && (
-                      <div className="w-2 h-2 bg-brand_primary rounded-full"></div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
       {/* Mobile Event Details & Controls */}
       {selectedEvent && (
         <div className="px-4 py-3 bg-white border-b border-gray-200">
@@ -652,37 +702,22 @@ export default function AttendanceDashboard() {
                   Active
                 </Badge>
               )}
+              
+              <Button
+                onClick={() => handleAttendanceToggle(selectedEvent)}
+                disabled={updatingEvent === selectedEvent._id}
+                size="sm"
+                className={`text-xs h-8 ${
+                  !selectedEvent.enableAttendance
+                    ? "bg-blue-600 hover:bg-blue-700"
+                    : selectedEvent.attendanceStatus === "active"
+                    ? "bg-red-600 hover:bg-red-700"
+                    : "bg-green-600 hover:bg-green-700"
+                }`}
+              >
+                {getAttendanceButtonText(selectedEvent)}
+              </Button>
             </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              onClick={() => updateEventAttendance(selectedEvent._id, { 
-                attendanceStatus: selectedEvent.attendanceStatus === "active" ? "closed" : "active" 
-              })}
-              disabled={updatingEvent === selectedEvent._id}
-              size="sm"
-              className={`text-xs h-8 ${
-                selectedEvent.attendanceStatus === "active" 
-                  ? "bg-red-600 hover:bg-red-700" 
-                  : "bg-green-600 hover:bg-green-700"
-              }`}
-            >
-              {selectedEvent.attendanceStatus === "active" ? "Stop" : "Start"}
-            </Button>
-            
-            <Button
-              onClick={() => updateEventAttendance(selectedEvent._id, { 
-                enableAttendance: !selectedEvent.enableAttendance 
-              })}
-              disabled={updatingEvent === selectedEvent._id}
-              variant="outline"
-              size="sm"
-              className="text-xs h-8"
-            >
-              {selectedEvent.enableAttendance ? "Disable" : "Enable"}
-            </Button>
           </div>
         </div>
       )}
@@ -763,7 +798,18 @@ export default function AttendanceDashboard() {
             <h3 className="font-semibold text-sm text-gray-800">
               Recent Check-ins ({attendanceRecords.length})
             </h3>
-            {attendanceRecords.length > 0 && (
+            <div className="flex items-center gap-2">
+              {attendanceRecords.length > 0 && (
+                <Button
+                  onClick={() => setShowClearRecordsDialog(true)}
+                  disabled={updatingEvent === selectedEvent._id}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs h-6 border-red-300 text-red-700 hover:bg-red-50"
+                >
+                  Clear All
+                </Button>
+              )}
               <Button
                 onClick={exportAttendance}
                 disabled={exporting}
@@ -778,7 +824,7 @@ export default function AttendanceDashboard() {
                 )}
                 <p className="text-gray-700">{exporting ? "Exporting..." : "Export"}</p>
               </Button>
-            )}
+            </div>
           </div>
           
           <div className="space-y-2 overflow-y-auto">
@@ -837,6 +883,33 @@ export default function AttendanceDashboard() {
               ) : (
                 "Export Data"
               )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Clear Records Confirmation Modal */}
+      <AlertDialog open={showClearRecordsDialog} onOpenChange={setShowClearRecordsDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Clear All Attendance Records</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to clear all attendance records for &quot;{selectedEvent?.eventname}&quot;?
+              <br /><br />
+              This will permanently delete {attendanceRecords.length} attendance records and this action cannot be undone.
+              This action will be logged in the audit system.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => {
+                clearAllAttendanceRecords();
+                setShowClearRecordsDialog(false);
+              }}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Clear All Records
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

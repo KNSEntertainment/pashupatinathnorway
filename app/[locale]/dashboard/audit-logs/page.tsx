@@ -111,13 +111,15 @@ export default function AuditLogsManagement() {
       if (filters.status && filters.status !== "all") params.append("status", filters.status);
       if (filters.startDate) params.append("startDate", filters.startDate);
       if (filters.endDate) params.append("endDate", filters.endDate);
-
+      
       const response = await fetch(`/api/audit-logs?${params}`);
+      
       if (!response.ok) {
         throw new Error("Failed to fetch audit logs");
       }
 
       const data = await response.json();
+      
       setAuditLogs(data.logs || []);
       setPagination(prev => ({
         ...prev,

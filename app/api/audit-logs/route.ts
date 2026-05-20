@@ -89,14 +89,11 @@ export async function GET(request: Request) {
     }));
 
     return NextResponse.json({
-      success: true,
-      data: formattedLogs,
-      pagination: {
-        page,
-        limit,
-        total: totalCount,
-        pages: Math.ceil(totalCount / limit)
-      }
+      logs: formattedLogs,
+      total: totalCount,
+      page,
+      limit,
+      pages: Math.ceil(totalCount / limit)
     });
 
   } catch (error) {
