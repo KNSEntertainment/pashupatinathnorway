@@ -39,7 +39,6 @@ const reportTypeSchema = new mongoose.Schema({
 });
 
 // Index for better performance
-reportTypeSchema.index({ name: 1 });
 reportTypeSchema.index({ isActive: 1 });
 reportTypeSchema.index({ sortOrder: 1 });
 

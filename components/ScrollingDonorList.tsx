@@ -18,7 +18,7 @@ export default function ScrollingDonorList({ donors }: ScrollingDonorListProps) 
 	const [isPaused, setIsPaused] = useState(false);
 	const [isScrollable, setIsScrollable] = useState(false);
 	const scrollContainerRef = useRef<HTMLDivElement>(null);
-	const scrollSpeed = 30; // pixels per second
+	const scrollSpeed = 20; // pixels per second
 
 	useEffect(() => {
 		const container = scrollContainerRef.current;
@@ -81,7 +81,7 @@ export default function ScrollingDonorList({ donors }: ScrollingDonorListProps) 
 		<div className="relative">
 			<div
 				ref={scrollContainerRef}
-				className="h-48 overflow-hidden"
+				className="h-64 overflow-hidden"
 				onMouseEnter={handleMouseEnter}
 				onMouseLeave={handleMouseLeave}
 				onTouchStart={handleTouchStart}

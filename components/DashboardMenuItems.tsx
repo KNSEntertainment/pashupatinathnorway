@@ -1,4 +1,4 @@
-import { BookImage, Settings, LayoutDashboard, Book, Newspaper, User, Bell, Users, Mail, DollarSign, Image, Heart, QrCode, Gift, LucideIcon, FileText, Shield, FolderOpen, PiggyBank, Info, Target, Sparkles, Flame, PartyPopper } from "lucide-react";
+import { BookImage, Settings, LayoutDashboard, Book, User, Bell, Users, Mail, DollarSign, Image, Heart, QrCode, Gift, LucideIcon, FileText, Shield, FolderOpen, PiggyBank, Info, Target, Sparkles, Flame, PartyPopper } from "lucide-react";
 
 export interface MenuItem {
 	id: string;
@@ -15,7 +15,6 @@ export const menuItems: MenuItem[] = [
 	{ id: "attendance", label: "Attendance", icon: QrCode, color: "bg-blue-600", href: "/en/dashboard/attendance", role: "admin" },
 	{ id: "audit-logs", label: "Audit Logs", icon: Shield, color: "bg-gray-600", href: "/en/dashboard/audit-logs", role: "admin" },
 	{ id: "birthdays", label: "Birthdays", icon: Gift, color: "bg-pink-500", href: "/en/dashboard/birthdays", role: "admin" },
-	{ id: "blogs", label: "Blogs", icon: Newspaper, color: "bg-orange-600", href: "/en/dashboard/blogs", role: "admin" },
 	{ id: "budget", label: "Budget", icon: PiggyBank, color: "bg-emerald-600", href: "/en/dashboard/budget", role: "admin" },
 	{ id: "causes", label: "Causes", icon: Heart, color: "bg-blue-600", href: "/en/dashboard/causes", role: "admin" },
 	{ id: "contactmessages", label: "Contact Messages", icon: Book, color: "bg-blue-600", href: "/en/dashboard/contactmessages", role: "admin" },

@@ -36,6 +36,16 @@ const urgencies = [
 	{ value: "critical", label: "Critical", color: "bg-red-700" }
 ];
 
+// Norwegian currency formatter
+const formatNOK = (amount) => {
+	return new Intl.NumberFormat('nb-NO', {
+		style: 'currency',
+		currency: 'NOK',
+		minimumFractionDigits: 0,
+		maximumFractionDigits: 0
+	}).format(amount || 0);
+};
+
 export default function CausesManagement() {
 	const [causes, setCauses] = useState([]);
 	const [loading, setLoading] = useState(true);
@@ -44,6 +54,12 @@ export default function CausesManagement() {
 	const [editingCause, setEditingCause] = useState(null);
 	const [posterFile, setPosterFile] = useState(null);
 	const [posterPreview, setPosterPreview] = useState("");
+	
+	// Association dialog states
+	const [showAssociateDialog, setShowAssociateDialog] = useState(false);
+	const [availableCauses, setAvailableCauses] = useState([]);
+	const [selectedCauseForAssociation, setSelectedCauseForAssociation] = useState("");
+	const [generalDonationCount, setGeneralDonationCount] = useState(0);
 
 	const [formData, setFormData] = useState({
 		title: { en: "", no: "", ne: "" },
@@ -271,6 +287,56 @@ export default function CausesManagement() {
 		);
 	};
 
+	const handleAssociateDonations = async () => {
+		try {
+			// Get available causes and general donation count
+			const response = await fetch('/api/admin/associate-donations');
+			const data = await response.json();
+			
+			if (data.causes && data.causes.length > 0) {
+				setAvailableCauses(data.causes);
+				setGeneralDonationCount(data.generalDonationCount || 0);
+				setShowAssociateDialog(true);
+			} else {
+				error('No causes available to associate donations with');
+			}
+		} catch (error) {
+			console.error('Error fetching causes:', error);
+			error('Failed to fetch causes');
+		}
+	};
+
+	const handleAssociateSubmit = async () => {
+		if (!selectedCauseForAssociation) {
+			error('Please select a cause');
+			return;
+		}
+
+		try {
+			const response = await fetch('/api/admin/associate-donations', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ causeId: selectedCauseForAssociation })
+			});
+
+			const data = await response.json();
+
+			if (response.ok) {
+				alert(`Successfully associated ${data.donationsUpdated} donations with "${data.causeTitle}"`);
+				setShowAssociateDialog(false);
+				setSelectedCauseForAssociation('');
+				fetchCauses(); // Refresh causes data
+			} else {
+				error(data.error || 'Failed to associate donations');
+			}
+		} catch (error) {
+			console.error('Error associating donations:', error);
+			error('Failed to associate donations');
+		}
+	};
+
 	if (loading && causes.length === 0) {
 		return <div className="flex justify-center items-center h-64">Loading...</div>;
 	}
@@ -279,10 +345,15 @@ export default function CausesManagement() {
 		<div className="p-6">
 			<div className="flex justify-between items-center mb-6">
 				<h1 className="text-3xl font-bold">Causes Management</h1>
-				<Button onClick={() => { setIsDialogOpen(true); resetForm(); }}>
-					<Plus className="h-4 w-4 mr-2" />
-					Add New Cause
-				</Button>
+				<div className="flex gap-3">
+					<Button onClick={() => { setIsDialogOpen(true); resetForm(); }}>
+						<Plus className="h-4 w-4 mr-2" />
+						Add New Cause
+					</Button>
+					<Button onClick={handleAssociateDonations} variant="outline">
+						Associate Existing Donations
+					</Button>
+				</div>
 			</div>
 
 			{error && (
@@ -291,7 +362,7 @@ export default function CausesManagement() {
 				</div>
 			)}
 
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+			<div className="grid grid-cols-1 gap-6">
 				{causes.map((cause) => (
 					<Card key={cause._id} className="relative">
 						<CardHeader>
@@ -331,7 +402,7 @@ export default function CausesManagement() {
 								<div className="flex justify-between text-sm">
 									<span>Progress:</span>
 									<span className="font-semibold">
-										NOK {cause.currentAmount?.toLocaleString() || 0} / NOK {cause.goalAmount?.toLocaleString() || 0}
+										{formatNOK(cause.currentAmount)} / {formatNOK(cause.goalAmount)}
 									</span>
 								</div>
 								<Progress value={cause.progressPercentage || 0} className="h-2" />
@@ -471,7 +542,7 @@ export default function CausesManagement() {
 									value={formData.goalAmount}
 									onChange={handleChange}
 									required
-									placeholder="10000"
+									placeholder="10 000"
 									min="0"
 								/>
 							</div>
@@ -588,6 +659,55 @@ export default function CausesManagement() {
 							</Button>
 						</div>
 					</form>
+				</DialogContent>
+			</Dialog>
+			
+			{/* Association Dialog */}
+			<Dialog open={showAssociateDialog} onOpenChange={setShowAssociateDialog}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Associate Existing Donations</DialogTitle>
+					</DialogHeader>
+					
+					<div className="space-y-4">
+						<div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+							<p className="text-sm text-blue-800">
+								<strong>General donations available:</strong> {generalDonationCount}
+							</p>
+							<p className="text-xs text-blue-600 mt-1">
+								These are donations without a specific cause assigned.
+							</p>
+						</div>
+
+						<div>
+							<Label htmlFor="causeSelect">Select Cause</Label>
+							<Select value={selectedCauseForAssociation} onValueChange={setSelectedCauseForAssociation}>
+								<SelectTrigger>
+									<SelectValue placeholder="Select a cause to associate donations with" />
+								</SelectTrigger>
+								<SelectContent>
+									{availableCauses.map((cause) => (
+										<SelectItem key={cause.id} value={cause.id}>
+											{cause.title} ({cause.status})
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+
+						{error && (
+							<div className="text-red-600 text-sm">{error}</div>
+						)}
+
+						<div className="flex justify-end gap-3 pt-4">
+							<Button type="button" variant="outline" onClick={() => setShowAssociateDialog(false)}>
+								Cancel
+							</Button>
+							<Button onClick={handleAssociateSubmit} disabled={!selectedCauseForAssociation}>
+								Associate Donations
+							</Button>
+						</div>
+					</div>
 				</DialogContent>
 			</Dialog>
 		</div>

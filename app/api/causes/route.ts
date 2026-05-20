@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Cause from "@/models/Cause.Model";
+import Donation from "@/models/Donation.Model";
 import User from "@/models/User.Model";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
@@ -52,21 +53,47 @@ export async function GET(request: NextRequest) {
 		
 		const causes = await causesQuery;
 		
-		// Transform for locale
-		const transformedCauses = causes.map(cause => {
-			const causeObj = cause.toObject();
-			return {
-				...causeObj,
-				title: cause.title[locale] || cause.title.en || '',
-				description: cause.description[locale] || cause.description.en || '',
-				progressPercentage: cause.progressPercentage,
-				remainingAmount: cause.remainingAmount,
-				currentAmount: cause.currentAmount,
-				donationCount: cause.donationCount
-			};
-		});
+		// Get actual donation data for each cause
+		const causesWithDonationData = await Promise.all(
+			causes.map(async (cause) => {
+				// Count completed donations for this cause
+				const donationCount = await Donation.countDocuments({
+					causeId: cause._id,
+					paymentStatus: "completed"
+				});
+				
+				// Calculate total donated amount
+				const donationAggregation = await Donation.aggregate([
+					{
+						$match: {
+							causeId: cause._id,
+							paymentStatus: "completed"
+						}
+					},
+					{
+						$group: {
+							_id: null,
+							totalAmount: { $sum: "$amount" }
+						}
+					}
+				]);
+				
+				const totalDonated = donationAggregation.length > 0 ? donationAggregation[0].totalAmount : 0;
+				
+				const causeObj = cause.toObject();
+				return {
+					...causeObj,
+					title: cause.title[locale] || cause.title.en || '',
+					description: cause.description[locale] || cause.description.en || '',
+					progressPercentage: cause.goalAmount > 0 ? Math.min((totalDonated / cause.goalAmount) * 100, 100) : 0,
+					remainingAmount: Math.max(cause.goalAmount - totalDonated, 0),
+					currentAmount: totalDonated,
+					donationCount: donationCount
+				};
+			})
+		);
 		
-		return NextResponse.json({ causes: transformedCauses });
+		return NextResponse.json({ causes: causesWithDonationData });
 	} catch (error) {
 		console.error("Error fetching causes:", error);
 		return NextResponse.json(

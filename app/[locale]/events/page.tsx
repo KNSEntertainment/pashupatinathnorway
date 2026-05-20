@@ -82,7 +82,7 @@ export default function EventsPage() {
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
               {t("title") || "Upcoming Events"}
             </h1>
-            <p className="text-xl md:text-2xl text-red-700 mb-8">
+            <p className="text-xl md:text-2xl text-gray-800 mb-8">
               {t("subtitle") || "Join us for spiritual gatherings, cultural celebrations, and community events"}
             </p>
             <div className="flex flex-wrap justify-center gap-4 text-sm md:text-base">

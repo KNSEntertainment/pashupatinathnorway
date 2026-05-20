@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import DonationForm from "@/components/DonationForm";
 import DonateCTA from "@/components/DonateCTA";
 import ScrollingDonorList from "@/components/ScrollingDonorList";
+import CauseProgressBar from "@/components/CauseProgressBar";
 import { Heart, Building, Star } from "lucide-react";
 import Link from "next/link";
 import SectionHeader from "@/components/SectionHeader";
@@ -33,6 +34,8 @@ interface DonatePageClientProps {
 export default function DonatePageClient({ locale }: DonatePageClientProps) {
 	const t = useTranslations("donate");
 	const [totalAmount, setTotalAmount] = useState<number>(0);
+	const [totalGoalAmount, setTotalGoalAmount] = useState<number>(0);
+	const [totalDonations, setTotalDonations] = useState<number>(0);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [donors, setDonors] = useState<Array<{name: string; amount: number; isAnonymous: boolean; date: string}>>([]); // Added donors state
 
@@ -44,6 +47,14 @@ export default function DonatePageClient({ locale }: DonatePageClientProps) {
 				if (totalResponse.ok) {
 					const totalData = await totalResponse.json();
 					setTotalAmount(totalData.totalAmount);
+				}
+
+				// Fetch total goals and donations for progress bar
+				const goalsResponse = await fetch('/api/causes/total');
+				if (goalsResponse.ok) {
+					const goalsData = await goalsResponse.json();
+					setTotalGoalAmount(goalsData.totalGoalAmount);
+					setTotalDonations(goalsData.totalDonations);
 				}
 
 				// Fetch donors
@@ -92,8 +103,18 @@ export default function DonatePageClient({ locale }: DonatePageClientProps) {
 									})
 								)}
 							</div>
+							{/* Progress Bar */}
+							{!loading && totalGoalAmount > 0 && (
+								<div className="mt-6 max-w-md mx-auto">
+									<CauseProgressBar 
+										currentAmount={totalAmount}
+										goalAmount={totalGoalAmount}
+										donationCount={totalDonations}
+										className="bg-white rounded-lg p-4 shadow-sm"
+									/>
+								</div>
+							)}
 						</div>
-						
 						</div>
 
 						{/* Right Side - Auto-Scrolling Donors */}
@@ -199,5 +220,6 @@ export default function DonatePageClient({ locale }: DonatePageClientProps) {
 				</div>
 			</div>
 		</div>
+		
 	);
 }
