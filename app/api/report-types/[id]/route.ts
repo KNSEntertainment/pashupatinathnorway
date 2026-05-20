@@ -66,25 +66,27 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     
     const body = await request.json();
     const { 
-      name, 
       label, 
-      description, 
       color, 
-      isActive, 
-      sortOrder 
+      isActive
     } = body;
     
-    // Check if name is being changed and if new name already exists
-    if (name && name !== reportType.name) {
-      const existingType = await ReportType.findOne({ 
-        name: name.toLowerCase().trim(), 
-        _id: { $ne: id } 
-      });
-      if (existingType) {
-        return NextResponse.json(
-          { error: "Report type with this name already exists" },
-          { status: 409 }
-        );
+    // Auto-generate name from label if label is provided
+    let generatedName = reportType.name;
+    if (label) {
+      generatedName = label.toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
+      // Check if new name already exists (excluding current record)
+      if (generatedName !== reportType.name) {
+        const existingType = await ReportType.findOne({ 
+          name: generatedName, 
+          _id: { $ne: id } 
+        });
+        if (existingType) {
+          return NextResponse.json(
+            { error: "Report type with this name already exists" },
+            { status: 409 }
+          );
+        }
       }
     }
     
@@ -92,12 +94,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const updatedReportType = await ReportType.findByIdAndUpdate(
       id,
       {
-        name: name ? name.toLowerCase().trim() : reportType.name,
+        name: generatedName,
         label: label || reportType.label,
-        description: description !== undefined ? description.trim() : reportType.description,
+        description: "", // Keep empty description
         color: color || reportType.color,
         isActive: isActive !== undefined ? isActive : reportType.isActive,
-        sortOrder: sortOrder !== undefined ? sortOrder : reportType.sortOrder
+        sortOrder: reportType.sortOrder // Keep existing sort order
       },
       { new: true }
     ).populate('createdBy', 'name email');

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Edit, Trash2, Search, Filter, ChevronDown, Palette, ArrowUpDown } from "lucide-react";
+import { Plus, Edit, Trash2, Search, Filter, ChevronDown, Palette } from "lucide-react";
 
 interface ReportType {
   id: string;
@@ -35,11 +35,8 @@ interface ReportTypeFormProps {
 
 function ReportTypeForm({ reportType, onSubmit, onCancel }: ReportTypeFormProps) {
   const [formData, setFormData] = useState({
-    name: "",
     label: "",
-    description: "",
     color: "gray",
-    sortOrder: 0,
     isActive: true
   });
 
@@ -49,11 +46,8 @@ function ReportTypeForm({ reportType, onSubmit, onCancel }: ReportTypeFormProps)
   useEffect(() => {
     if (reportType) {
       setFormData({
-        name: reportType.name,
         label: reportType.label,
-        description: reportType.description,
         color: reportType.color,
-        sortOrder: reportType.sortOrder,
         isActive: reportType.isActive
       });
     }
@@ -74,10 +68,6 @@ function ReportTypeForm({ reportType, onSubmit, onCancel }: ReportTypeFormProps)
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = "Name is required";
-    }
 
     if (!formData.label.trim()) {
       newErrors.label = "Label is required";
@@ -153,27 +143,7 @@ function ReportTypeForm({ reportType, onSubmit, onCancel }: ReportTypeFormProps)
       <div className="container mx-auto px-4 py-6">
         <div className="max-w-2xl mx-auto">
           <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Name */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Name *
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 ${
-                    errors.name ? "border-red-500" : "border-gray-300"
-                  }`}
-                  placeholder="e.g., financial"
-                />
-                {errors.name && (
-                  <p className="mt-1 text-sm text-red-600">{errors.name}</p>
-                )}
-              </div>
-
+            <div className="grid grid-cols-1 md:grid-cols-3 items-end gap-6">
               {/* Label */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -214,39 +184,8 @@ function ReportTypeForm({ reportType, onSubmit, onCancel }: ReportTypeFormProps)
                 </select>
               </div>
 
-              {/* Sort Order */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <ArrowUpDown className="w-4 h-4 inline mr-1" />
-                  Sort Order
-                </label>
-                <input
-                  type="number"
-                  name="sortOrder"
-                  value={formData.sortOrder}
-                  onChange={handleChange}
-                  min="0"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                />
-              </div>
-
-              {/* Description */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description
-                </label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                  placeholder="Optional description for this report type"
-                />
-              </div>
-
               {/* Active Status */}
-              <div className="md:col-span-2">
+              <div>
                 <label className="flex items-center">
                   <input
                     type="checkbox"
@@ -261,9 +200,9 @@ function ReportTypeForm({ reportType, onSubmit, onCancel }: ReportTypeFormProps)
             </div>
 
             {/* Preview */}
-            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+            <div className="flex space-x-2 mt-6 p-4 bg-gray-50 rounded-lg">
               <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
-              <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full border ${
+              <span className={`px-3 py-1 text-xs font-medium rounded-full border ${
                 colorOptions.find(c => c.value === formData.color)?.className || "bg-gray-100 text-gray-800 border-gray-200"
               }`}>
                 {formData.label || "Report Type Label"}
@@ -501,65 +440,67 @@ export default function ReportTypesManagement({ onSubmit, onCancel }: ReportType
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredReportTypes.map((reportType) => (
-              <div key={reportType.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200">
-                <div className="p-6">
-                  {/* Header */}
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full border ${getColorClass(reportType.color)}`}>
-                        {reportType.label}
-                      </span>
-                      {!reportType.isActive && (
-                        <span className="ml-2 inline-block px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600 border border-gray-200">
+          <div className="overflow-x-auto">
+            <table className="w-full bg-white border border-gray-200">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Label
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {filteredReportTypes.map((reportType) => (
+                  <tr key={reportType.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full border ${getColorClass(reportType.color)}`}>
+                          {reportType.label}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {reportType.isActive ? (
+                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                          Active
+                        </span>
+                      ) : (
+                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
                           Inactive
                         </span>
                       )}
-                    </div>
-                  </div>
-
-                  {/* Name */}
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    {reportType.name}
-                  </h3>
-
-                  {/* Description */}
-                  {reportType.description && (
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                      {reportType.description}
-                    </p>
-                  )}
-
-                  {/* Meta Information */}
-                  <div className="space-y-2 mb-4 text-sm text-gray-500">
-                    <div>Sort Order: {reportType.sortOrder}</div>
-                    <div>Created: {new Date(reportType.createdAt).toLocaleDateString()}</div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => {
-                        setEditingReportType(reportType);
-                        setShowForm(true);
-                      }}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
-                    >
-                      <Edit className="w-4 h-4" />
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(reportType.id)}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors text-sm"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            setEditingReportType(reportType);
+                            setShowForm(true);
+                          }}
+                          className="flex items-center gap-1 px-3 py-1 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition-colors text-xs"
+                        >
+                          <Edit className="w-3 h-3" />
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(reportType.id)}
+                          className="flex items-center gap-1 px-3 py-1 border border-red-300 text-red-700 rounded hover:bg-red-50 transition-colors text-xs"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>

@@ -211,52 +211,74 @@ export default function PublicationClient() {
             <p className="text-gray-500">Try adjusting your search criteria or filters.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredPublications.map((report: AnnualReport) => (
-              <div key={report.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200">
-                <div className="p-6">
-                  {/* Header */}
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
+          <div className="overflow-x-auto">
+            <table className="w-full bg-white border border-gray-200">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Title
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Type
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Language
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Published Date
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {filteredPublications.map((report: AnnualReport) => (
+                  <tr key={report.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4">
+                      <div>
+                        <div className="text-sm font-medium text-gray-900 line-clamp-2">
+                          {report.title}
+                        </div>
+                        <div className="text-sm text-gray-500 line-clamp-2 mt-1">
+                          {report.description}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full border ${getTypeColor(report.type)}`}>
                         {getTypeLabel(report.type)}
                       </span>
-                    </div>
-                    <span className="text-2xl">{getLanguageFlag(report.language)}</span>
-                  </div>
-
-                  {/* Title */}
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-                    {report.title}
-                  </h3>
-
-                  {/* Description */}
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                    {report.description}
-                  </p>
-
-                  {/* Meta Information */}
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center text-sm text-gray-500">
-                      <Calendar className="w-4 h-4 mr-2" />
-                      Published: {new Date(report.publishedDate).toLocaleDateString()}
-                    </div>
-                
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => window.open(report.downloadUrl, '_blank')}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
-                    >
-                      <Download className="w-4 h-4" />
-                      Download
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <span className="text-2xl mr-2">{getLanguageFlag(report.language)}</span>
+                        <span className="text-sm text-gray-600">
+                          {report.language === 'en' ? 'English' : 
+                           report.language === 'ne' ? 'नेपाली' : 
+                           report.language === 'no' ? 'Norsk' : 'Unknown'}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <div className="flex items-center">
+                        <Calendar className="w-4 h-4 mr-2" />
+                        {new Date(report.publishedDate).toLocaleDateString()}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <button
+                        onClick={() => window.open(report.downloadUrl, '_blank')}
+                        className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                      >
+                        <Download className="w-4 h-4" />
+                        Download
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>

@@ -65,23 +65,23 @@ export async function POST(request: NextRequest) {
     
     const body = await request.json();
     const { 
-      name, 
       label, 
-      description, 
-      color,
-      sortOrder 
+      color
     } = body;
     
+    // Auto-generate name from label
+    const generatedName = label.toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
+    
     // Validate required fields
-    if (!name || !label) {
+    if (!label) {
       return NextResponse.json(
-        { error: "Missing required fields: name, label" },
+        { error: "Missing required field: label" },
         { status: 400 }
       );
     }
     
     // Check if report type with same name already exists
-    const existingType = await ReportType.findOne({ name: name.toLowerCase().trim() });
+    const existingType = await ReportType.findOne({ name: generatedName });
     if (existingType) {
       return NextResponse.json(
         { error: "Report type with this name already exists" },
@@ -91,11 +91,11 @@ export async function POST(request: NextRequest) {
     
     // Create new report type
     const newReportType = new ReportType({
-      name: name.toLowerCase().trim(),
+      name: generatedName,
       label: label.trim(),
-      description: description?.trim() || "",
+      description: "", // Empty description
       color: color || "gray",
-      sortOrder: sortOrder || 0,
+      sortOrder: 0, // Default sort order
       createdBy: user._id
     });
     
