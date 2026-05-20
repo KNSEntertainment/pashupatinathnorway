@@ -17,6 +17,8 @@ export default function EmployeeForm({ settingdata }) {
 		linkedin: "",
 		businessHoursMF: "",
 		companyLogo: "",
+		organizationNumber: "",
+		dateOfEstablishment: "",
 	});
 	const [submitting, setSubmitting] = useState(false);
 	const [message, setMessage] = useState("");
@@ -167,6 +169,20 @@ export default function EmployeeForm({ settingdata }) {
 				</div>
 
 				<div className="mb-4">
+					<label className="block text-gray-900 text-sm font-bold mb-2" htmlFor="organizationNumber">
+						Organization Number
+					</label>
+					<input type="text" id="organizationNumber" name="organizationNumber" value={formData.organizationNumber} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-900 leading-tight focus:outline-none focus:shadow-outline" placeholder="e.g., 123456789" />
+				</div>
+
+				<div className="mb-4">
+					<label className="block text-gray-900 text-sm font-bold mb-2" htmlFor="dateOfEstablishment">
+						Date of Establishment
+					</label>
+					<input type="date" id="dateOfEstablishment" name="dateOfEstablishment" value={formData.dateOfEstablishment} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-900 leading-tight focus:outline-none focus:shadow-outline" />
+				</div>
+
+				<div className="mb-4">
 					<label className="block text-gray-900 text-sm font-bold mb-2" htmlFor="companyLogo">
 						Company Logo
 					</label>
@@ -174,12 +190,12 @@ export default function EmployeeForm({ settingdata }) {
 					<input type="file" id="companyLogo" name="companyLogo" onChange={handleImageChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-900 leading-tight focus:outline-none focus:shadow-outline" />
 				</div>
 				<div className="grid justify-items-end gap-2 mt-12">
-					<button type="submit" disabled={submitting} className={`px-4 py-2 rounded ${submitting ? "bg-neutral-400 cursor-not-allowed" : "bg-brand_primary hover:bg-red-800"} text-gray-700 font-bold`}>
+					<button type="submit" disabled={submitting} className={`px-4 py-2 rounded ${submitting ? "bg-neutral-400 cursor-not-allowed" : "bg-brand_primary hover:bg-brand_secondary hover:text-white"} text-gray-700 font-bold`}>
 						{submitting ? "Updating Profile..." : "Update Profile"}
 					</button>
 				</div>
-				{error && <p className="text-red-500 mt-4 text-right">{error}</p>}
-				{message && <p className="text-brand_primary mt-4 text-right">{message}</p>}
+				{error && <p className="text-brand_secondary mt-4 text-right">{error}</p>}
+				{message && <p className="text-green-700 mt-4 text-right">{message}</p>}
 			</div>
 		</form>
 	);

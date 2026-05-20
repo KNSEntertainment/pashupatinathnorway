@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { X, Upload, Users } from "lucide-react";
+import { X, Upload } from "lucide-react";
 import Image from "next/image";
 
 export default function AboutUsForm({ data, onClose, onSuccess }) {
@@ -37,20 +37,6 @@ export default function AboutUsForm({ data, onClose, onSuccess }) {
 			ne: data?.more_about_us?.ne || "",
 		},
 		image: data?.image || "/pashupatinath.png",
-		stats: {
-			active_members: data?.stats?.active_members || "200+",
-			months_active: data?.stats?.months_active || "6+",
-			active_members_label: {
-				en: data?.stats?.active_members_label?.en || "Active Members",
-				no: data?.stats?.active_members_label?.no || "Aktive Medlemmer",
-				ne: data?.stats?.active_members_label?.ne || "सक्रिय सदस्यहरू",
-			},
-			months_active_label: {
-				en: data?.stats?.months_active_label?.en || "Months Active",
-				no: data?.stats?.months_active_label?.no || "Måneder Aktiv",
-				ne: data?.stats?.months_active_label?.ne || "महिना सक्रिय",
-			},
-		},
 	});
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
@@ -419,86 +405,6 @@ export default function AboutUsForm({ data, onClose, onSuccess }) {
 									required 
 									placeholder="e.g., हाम्रो बारेमा थप" 
 								/>
-							</div>
-						</div>
-					</div>
-
-					{/* Statistics */}
-					<div className="space-y-4">
-						<Label className="text-lg font-semibold flex items-center gap-2">
-							<Users className="w-5 h-5" />
-							Statistics
-						</Label>
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-							<div className="space-y-4">
-								<div>
-									<Label htmlFor="stats.active_members">Active Members Count</Label>
-									<Input 
-										id="stats.active_members" 
-										name="stats.active_members" 
-										value={formData.stats.active_members} 
-										onChange={handleChange} 
-										placeholder="e.g., 200+" 
-									/>
-								</div>
-								<div className="space-y-2">
-									<Label className="text-sm font-medium">Active Members Labels</Label>
-									<div className="grid grid-cols-3 gap-2">
-										<Input 
-											name="stats.active_members_label.en" 
-											value={formData.stats.active_members_label.en} 
-											onChange={handleChange} 
-											placeholder="English" 
-										/>
-										<Input 
-											name="stats.active_members_label.no" 
-											value={formData.stats.active_members_label.no} 
-											onChange={handleChange} 
-											placeholder="Norwegian" 
-										/>
-										<Input 
-											name="stats.active_members_label.ne" 
-											value={formData.stats.active_members_label.ne} 
-											onChange={handleChange} 
-											placeholder="Nepali" 
-										/>
-									</div>
-								</div>
-							</div>
-							<div className="space-y-4">
-								<div>
-									<Label htmlFor="stats.months_active">Months Active Count</Label>
-									<Input 
-										id="stats.months_active" 
-										name="stats.months_active" 
-										value={formData.stats.months_active} 
-										onChange={handleChange} 
-										placeholder="e.g., 6+" 
-									/>
-								</div>
-								<div className="space-y-2">
-									<Label className="text-sm font-medium">Months Active Labels</Label>
-									<div className="grid grid-cols-3 gap-2">
-										<Input 
-											name="stats.months_active_label.en" 
-											value={formData.stats.months_active_label.en} 
-											onChange={handleChange} 
-											placeholder="English" 
-										/>
-										<Input 
-											name="stats.months_active_label.no" 
-											value={formData.stats.months_active_label.no} 
-											onChange={handleChange} 
-											placeholder="Norwegian" 
-										/>
-										<Input 
-											name="stats.months_active_label.ne" 
-											value={formData.stats.months_active_label.ne} 
-											onChange={handleChange} 
-											placeholder="Nepali" 
-										/>
-									</div>
-								</div>
 							</div>
 						</div>
 					</div>

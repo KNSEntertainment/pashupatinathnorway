@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Pencil, Image as ImageIcon, Globe, Users, RefreshCcw } from "lucide-react";
+import { Pencil, Image as ImageIcon, Globe } from "lucide-react";
 import Image from "next/image";
 import AboutUsForm from "@/components/AboutUsForm";
 import useFetchData from "@/hooks/useFetchData";
@@ -127,38 +127,6 @@ export default function AboutUsPage() {
 										<h4 className="font-semibold text-lg mb-2">Image URL</h4>
 										<p className="text-gray-600 text-sm break-all">{aboutUsData.image || '/pashupatinath.png'}</p>
 									</div>
-								</div>
-							</div>
-						</CardContent>
-					</Card>
-
-					{/* Statistics Card */}
-					<Card>
-						<CardHeader>
-							<CardTitle className="flex items-center gap-2">
-								<Users className="w-5 h-5" />
-								Statistics
-							</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-								<div className="text-center p-4 bg-orange-50 rounded-lg">
-									<Users className="w-8 h-8 mx-auto mb-2 text-orange-600" />
-									<div className="text-2xl font-bold text-orange-800">{aboutUsData.stats?.active_members || '200+'}</div>
-									<p className="text-sm text-orange-600">{aboutUsData.stats?.active_members_label?.en || 'Active Members'}</p>
-								</div>
-								<div className="text-center p-4 bg-red-50 rounded-lg">
-									<RefreshCcw className="w-8 h-8 mx-auto mb-2 text-red-600" />
-									<div className="text-2xl font-bold text-red-800">{aboutUsData.stats?.months_active || '6+'}</div>
-									<p className="text-sm text-red-600">{aboutUsData.stats?.months_active_label?.en || 'Months Active'}</p>
-								</div>
-								<div className="text-center p-4 bg-gray-50 rounded-lg">
-									<p className="text-sm text-gray-600 mb-2">Active Members (Norwegian)</p>
-									<p className="font-medium">{aboutUsData.stats?.active_members_label?.no || 'Aktive Medlemmer'}</p>
-								</div>
-								<div className="text-center p-4 bg-gray-50 rounded-lg">
-									<p className="text-sm text-gray-600 mb-2">Months Active (Norwegian)</p>
-									<p className="font-medium">{aboutUsData.stats?.months_active_label?.no || 'Måneder Aktiv'}</p>
 								</div>
 							</div>
 						</CardContent>

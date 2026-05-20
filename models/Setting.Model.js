@@ -13,6 +13,8 @@ const SettingSchema = new mongoose.Schema({
 	linkedin: String,
 	businessHoursMF: String,
 	companyLogo: String,
+	organizationNumber: String,
+	dateOfEstablishment: String,
 });
 
 export default mongoose.models.Setting || mongoose.model("Setting", SettingSchema);

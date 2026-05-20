@@ -10,6 +10,23 @@ import { Membership } from "@/types";
 import MemberIDCard from "@/components/MemberIDCard";
 import { useParams } from "next/navigation";
 
+interface Settings {
+	_id?: string;
+	name: string;
+	address: string;
+	email: string;
+	phone?: string;
+	mobile?: string;
+	facebook?: string;
+	youtube?: string;
+	instagram?: string;
+	linkedin?: string;
+	businessHoursMF?: string;
+	companyLogo?: string;
+	organizationNumber?: string;
+	dateOfEstablishment?: string;
+}
+
 export default function IDCardPage() {
     const { data: session, status } = useSession();
     const params = useParams();
@@ -18,6 +35,7 @@ export default function IDCardPage() {
     const [membershipData, setMembershipData] = useState<Membership | null>(null);
     const [profilePhoto, setProfilePhoto] = useState<string>("");
     const [logo, setLogo] = useState<string>("");
+    const [settings, setSettings] = useState<Settings[]>([]);
     const lastEmailRef = useRef<string | null>(null);
     const hasFetchedRef = useRef<boolean>(false);
 
@@ -71,17 +89,18 @@ export default function IDCardPage() {
         }
     }, [session?.user?.email]);
 
-    const fetchLogo = useCallback(async () => {
+    const fetchSettings = useCallback(async () => {
         try {
             const response = await fetch(`/api/settings`);
             if (response.ok) {
                 const data = await response.json();
-                if (data.logo) {
-                    setLogo(data.logo);
+                setSettings(data);
+                if (data[0]?.companyLogo) {
+                    setLogo(data[0].companyLogo);
                 }
             }
         } catch (error) {
-            console.error("Error fetching logo:", error);
+            console.error("Error fetching settings:", error);
         }
     }, []);
 
@@ -99,14 +118,14 @@ export default function IDCardPage() {
                 await Promise.all([
                     fetchMembershipData(),
                     fetchProfilePhoto(),
-                    fetchLogo()
+                    fetchSettings()
                 ]);
                 lastEmailRef.current = currentEmail;
                 hasFetchedRef.current = true;
             };
             fetchData();
         }
-    }, [status, session?.user?.email, fetchMembershipData, fetchProfilePhoto, fetchLogo]);
+    }, [status, session?.user?.email, fetchMembershipData, fetchProfilePhoto, fetchSettings]);
 
     if (status === "loading") {
         return (
@@ -166,6 +185,7 @@ export default function IDCardPage() {
 									}}
 									logo={logo}
 									locale={locale}
+									settings={settings}
 								/>
 							</CardContent>
 						

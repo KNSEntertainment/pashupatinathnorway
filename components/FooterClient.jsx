@@ -53,10 +53,10 @@ export default function FooterClient({ settings }) {
 						<div className="flex flex-col leading-snug">
 							<span className="font-bold text-white text-base tracking-wide">Pashupatinath Norway</span>
 							<span className="text-amber-400/80 text-sm tracking-widest uppercase font-light">Temple</span>
-							<span className="text-stone-500 text-xs mt-0.5">Org nr. 926499211</span>
+							<span className="text-gray-300 text-md mt-0.5">Org nr. {settings?.[0]?.organizationNumber || '926499211'}</span>
 						</div>
 					</Link>
-					<p className="text-stone-400 ml-2 text-sm leading-relaxed max-w-xs">
+					<p className="text-stone-400 ml-2 text-md leading-relaxed max-w-xs">
 						{t("tagline")}
 					</p>
 				</div>
@@ -69,7 +69,7 @@ export default function FooterClient({ settings }) {
 						<SectionLabel>{t("contact_details")}</SectionLabel>
 						<ul className="space-y-4 mt-5">
 							<ContactRow icon={<MapPin className="h-4 w-4" />}>
-								<p className="text-sm text-stone-300">{t("address")}</p>
+								<p className="text-md text-stone-300">{t("address")}</p>
 							</ContactRow>
 
 							<li>
@@ -80,7 +80,7 @@ export default function FooterClient({ settings }) {
 									<IconBubble>
 										<Mail className="h-4 w-4" />
 									</IconBubble>
-									<span className="text-sm text-stone-300 group-hover:text-amber-400 transition-colors duration-300 break-all pt-0.5">
+									<span className="text-md text-stone-300 group-hover:text-amber-400 transition-colors duration-300 break-all pt-0.5">
 										{settings?.[0]?.email}
 									</span>
 								</a>
@@ -94,7 +94,7 @@ export default function FooterClient({ settings }) {
 									<IconBubble>
 										<Phone className="h-4 w-4" />
 									</IconBubble>
-									<span className="text-sm text-stone-300 group-hover:text-amber-400 transition-colors duration-300 pt-0.5">
+									<span className="text-md text-stone-300 group-hover:text-amber-400 transition-colors duration-300 pt-0.5">
 										{t("phone")}
 									</span>
 								</a>
@@ -132,7 +132,7 @@ export default function FooterClient({ settings }) {
 				{/* ── Bottom bar ── */}
 				<div className="h-px w-full bg-stone-800 mb-6" />
 
-				<div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-stone-400">
+				<div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-md text-stone-400">
 					<span>© {new Date().getFullYear()} Pashupatinath Norway Temple</span>
 					<span>
 						{t("developed_by")}{" "}
@@ -157,7 +157,7 @@ function SectionLabel({ children }) {
 	return (
 		<div className="flex items-center gap-2">
 			<span className="block w-5 h-px bg-amber-500" />
-			<h3 className="text-xs font-semibold tracking-widest uppercase text-amber-400/90">
+			<h3 className="text-md font-semibold tracking-widest uppercase text-amber-400/90">
 				{children}
 			</h3>
 		</div>
@@ -191,6 +191,7 @@ function SocialButton({ href, label, hoverClass, children }) {
 			className={`w-11 h-11 rounded-xl bg-stone-800 border border-stone-700 flex items-center justify-center text-stone-400 hover:text-white hover:scale-105 hover:shadow-lg transition-all duration-300 ${hoverClass}`}
 		>
 			{children}
+			
 		</a>
 	);
 }
@@ -199,7 +200,7 @@ function LegalLink({ href, label }) {
 	return (
 		<Link
 			href={href}
-			className="inline-flex items-center gap-1 text-sm text-stone-400 hover:text-amber-400 transition-colors duration-300 group"
+			className="inline-flex items-center gap-1 text-md text-stone-400 hover:text-amber-400 transition-colors duration-300 group"
 		>
 			{label}
 			<ArrowUpRight className="h-3 w-3 opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all duration-300" />

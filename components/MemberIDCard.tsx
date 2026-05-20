@@ -5,6 +5,23 @@ import { QRCodeSVG } from "qrcode.react";
 
 import Image from "next/image";
 
+interface Settings {
+	_id?: string;
+	name: string;
+	address: string;
+	email: string;
+	phone?: string;
+	mobile?: string;
+	facebook?: string;
+	youtube?: string;
+	instagram?: string;
+	linkedin?: string;
+	businessHoursMF?: string;
+	companyLogo?: string;
+	organizationNumber?: string;
+	dateOfEstablishment?: string;
+}
+
 interface MemberIDCardProps {
 	memberData: {
 		_id: string;
@@ -21,9 +38,10 @@ interface MemberIDCardProps {
 	};
 	logo?: string;
 	locale?: string;
+	settings?: Settings[];
 }
 
-export default function MemberIDCard({ memberData }: MemberIDCardProps) {
+export default function MemberIDCard({ memberData, settings }: MemberIDCardProps) {
 	const cardRef = useRef<HTMLDivElement>(null);
 	
 	// Cache-busting key to prevent Safari caching issues
@@ -54,8 +72,8 @@ export default function MemberIDCard({ memberData }: MemberIDCardProps) {
 					{/* Header Section */}
 					<div className="relative bg-brand_primary text-gray-100 px-6 pt-4 pb-8">
 						<div className="flex flex-col items-center justify-between">
-								<h2 className="text-md font-bold mt-0.5 text-gray-700">Pashupatinath Norway Temple</h2>
-								<h3 className="text-sm font-semibold text-gray-700">Oslo, Norway</h3>
+								<h2 className="text-md font-bold mt-0.5 text-gray-700">{settings?.[0]?.name || 'Pashupatinath Norway Temple'}</h2>
+								<h3 className="text-sm font-semibold text-gray-700">{settings?.[0]?.address || 'Oslo, Norway'}</h3>
 								<h4 className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-brand_secondary shadow-md px-2 py-1 rounded-2xl text-xs font-semibold tracking-wide text-gray-100">MEMBERSHIP CARD</h4>
 						</div>
 					
@@ -189,7 +207,7 @@ export default function MemberIDCard({ memberData }: MemberIDCardProps) {
 						{/* Organization Info */}
 						<div className="border-t border-light pt-3">
 							<p className="text-[10px] font-bold text-brand_primary mb-1">Pashupatinath Norway Temple</p>
-							<p className="text-[9px] text-gray-600 mt-1">Org. No.926499211</p>
+							<p className="text-[9px] text-gray-600 mt-1">Org nr. {settings?.[0]?.organizationNumber || '926499211'}</p>
 						</div>
 					</div>
 
@@ -197,7 +215,7 @@ export default function MemberIDCard({ memberData }: MemberIDCardProps) {
 					<div className="absolute bottom-0 w-full bg-brand_secondary px-6 py-4">
 						
 							<div className="flex justify-center items-center">
-									<p className="text-xs text-gray-100">nepalihindusamfunn@gmail.com</p>
+									<p className="text-xs text-gray-100">{settings?.[0]?.email || 'nepalihindusamfunn@gmail.com'}</p>
 								</div>
 							
 					</div>

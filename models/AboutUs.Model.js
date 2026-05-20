@@ -30,28 +30,6 @@ const AboutUsSchema = new mongoose.Schema(
 		image: {
 			type: String,
 			required: true,
-		},
-		stats: {
-			active_members: {
-				type: String,
-				required: true,
-				default: "200+"
-			},
-			months_active: {
-				type: String,
-				required: true,
-				default: "6+"
-			},
-			active_members_label: {
-				type: mongoose.Schema.Types.Mixed,
-				required: true,
-				default: { en: 'Active Members', no: 'Aktive Medlemmer', ne: 'सक्रिय सदस्यहरू' }
-			},
-			months_active_label: {
-				type: mongoose.Schema.Types.Mixed,
-				required: true,
-				default: { en: 'Months Active', no: 'Måneder Aktiv', ne: 'महिना सक्रिय' }
-			}
 		}
 	},
 	{

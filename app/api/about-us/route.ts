@@ -83,13 +83,7 @@ export async function GET(request: NextRequest) {
 			about_description_1: aboutUs.about_description_1?.[locale as keyof MultilingualField] || aboutUs.about_description_1?.en || "",
 			about_description_2: aboutUs.about_description_2?.[locale as keyof MultilingualField] || aboutUs.about_description_2?.en || "",
 			more_about_us: aboutUs.more_about_us?.[locale as keyof MultilingualField] || aboutUs.more_about_us?.en || "",
-			image: aboutUs.image || "",
-			stats: {
-				active_members: aboutUs.stats?.active_members || "200+",
-				months_active: aboutUs.stats?.months_active || "6+",
-				active_members_label: aboutUs.stats?.active_members_label?.[locale as keyof MultilingualField] || aboutUs.stats?.active_members_label?.en || "Active Members",
-				months_active_label: aboutUs.stats?.months_active_label?.[locale as keyof MultilingualField] || aboutUs.stats?.months_active_label?.en || "Months Active"
-			}
+			image: aboutUs.image || ""
 		};
 
 		return NextResponse.json(localizedContent);
@@ -131,13 +125,7 @@ export async function POST(request: Request) {
 			about_description_1: normalizeMultilingualField(body.about_description_1),
 			about_description_2: normalizeMultilingualField(body.about_description_2),
 			more_about_us: normalizeMultilingualField(body.more_about_us),
-			image: body.image || "/pashupatinath.png",
-			stats: {
-				active_members: body.stats?.active_members || "200+",
-				months_active: body.stats?.months_active || "6+",
-				active_members_label: normalizeMultilingualField(body.stats?.active_members_label),
-				months_active_label: normalizeMultilingualField(body.stats?.months_active_label)
-			}
+			image: body.image || "/pashupatinath.png"
 		};
 
 		// Validate required fields
@@ -164,7 +152,6 @@ export async function POST(request: Request) {
 			aboutUs.about_description_2 = processedData.about_description_2;
 			aboutUs.more_about_us = processedData.more_about_us;
 			aboutUs.image = processedData.image;
-			aboutUs.stats = processedData.stats;
 
 			const updatedAboutUs = await aboutUs.save();
 
