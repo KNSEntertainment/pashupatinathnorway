@@ -21,7 +21,7 @@ interface DonationFormProps {
 	locale?: string;
 }
 
-export default function DonationForm({ preselectedCause, onDonationSuccess, isInModal = false, locale }: DonationFormProps) {
+export default function DonationForm({ preselectedCause, isInModal = false, locale }: DonationFormProps) {
 	const t = useTranslations("donation");
 	const { data: session } = useSession();
 	const [amount, setAmount] = useState<number>(20000);
@@ -32,7 +32,7 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 	const [personalNumber, setPersonalNumber] = useState("");
 	const [address, setAddress] = useState("");
 	const [message, setMessage] = useState("");
-	const [isAnonymous, setIsAnonymous] = useState(false);
+	const [isAnonymous] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [paymentMethod, setPaymentMethod] = useState<'card' | 'vipps'>('vipps');
 	const [showVippsSuccess, setShowVippsSuccess] = useState(false);
@@ -125,13 +125,19 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 			return;
 		}
 
+		// Validate phone number for Vipps
+		if (paymentMethod === 'vipps' && !donorPhone) {
+			toast.error("Phone number is required for Vipps payment");
+			return;
+		}
+
 		setLoading(true);
 
-		// Handle Vipps payment simulation
+		// Handle Vipps payment
 		if (paymentMethod === 'vipps') {
 			try {
-				// Create donation record with completed status
-				const response = await fetch("/api/donations/vipps", {
+				// Create Vipps payment
+				const response = await fetch("/api/vipps/create-payment", {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
@@ -151,35 +157,26 @@ export default function DonationForm({ preselectedCause, onDonationSuccess, isIn
 				});
 
 				if (!response.ok) {
-					throw new Error("Failed to process Vipps donation");
+					const errorData = await response.json();
+					throw new Error(errorData.error || "Failed to create Vipps payment");
 				}
 
-				// Simulate Vipps payment processing delay
-				setTimeout(() => {
-					setLoading(false);
-					setShowVippsSuccess(true);
-					// Reset form after showing success
-					setTimeout(() => {
-						setShowVippsSuccess(false);
-						setAmount(500);
-						setCustomAmount("500");
-						setDonorName(session?.user?.fullName || "");
-						setDonorEmail(session?.user?.email || "");
-						setDonorPhone("");
-						setPersonalNumber("");
-						setAddress("");
-						setMessage("");
-						setIsAnonymous(false);
-						// Call success callback if provided
-						if (onDonationSuccess) {
-							onDonationSuccess();
-						}
-					}, 3000);
-				}, 2000);
+				const result = await response.json();
+				
+				// Store donation data in sessionStorage for confirmation page
+				sessionStorage.setItem(`donation_${result.payment.reference}`, JSON.stringify(result.donationData));
+
+				// Redirect to Vipps payment
+				if (result.payment.redirectUrl) {
+					window.location.href = result.payment.redirectUrl;
+				} else {
+					throw new Error("No redirect URL received from Vipps");
+				}
+
 			} catch (error) {
-				console.error("Vipps donation error:", error);
+				console.error("Vipps payment error:", error);
 				setLoading(false);
-				toast.error(error instanceof Error ? error.message : "Error processing donation");
+				toast.error(error instanceof Error ? error.message : "Error processing Vipps payment");
 			}
 			return;
 		}

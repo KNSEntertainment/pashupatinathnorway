@@ -59,7 +59,18 @@ export async function GET(req: NextRequest) {
 	}
 
 	// Return filtered memberships if type filter provided, otherwise all memberships
-	const memberships = await Membership.find(query).sort({ createdAt: -1 });
+	// For executive members, sort by displayOrder first
+	let sortOptions: Record<string, 1 | -1> = { createdAt: -1 };
+	if (type && (type.includes('Executive') || type.includes('Advisor'))) {
+		sortOptions = { 
+			membershipType: 1, // Executive first, then Advisor
+			displayOrder: 1,   // Then by display order
+			lastName: 1,      // Then by last name
+			firstName: 1      // Then by first name
+		};
+	}
+	
+	const memberships = await Membership.find(query).sort(sortOptions);
 	return NextResponse.json(memberships);
 }
 

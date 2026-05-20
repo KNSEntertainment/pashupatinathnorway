@@ -5,7 +5,7 @@ import useFetchData from "@/hooks/useFetchData";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Eye, CheckCircle, XCircle, Clock, User, Mail, Phone, X, Edit, Download, Upload, ChevronLeft, ChevronRight, AlertTriangle, Plus } from "lucide-react";
+import { Trash2, Eye, CheckCircle, XCircle, Clock, User, Mail, Phone, X, Edit, Download, Upload, ChevronLeft, ChevronRight, AlertTriangle, Plus, Crown, Users } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,6 +20,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Membership } from "@/types";
 import { Link } from "@/i18n/navigation";
+import ExecutiveMemberReorder from "@/components/ExecutiveMemberReorder";
 
 const calculateAgeFromPersonalNumber = (personalNumber: string): number | null => {
 	if (!personalNumber || personalNumber.length !== 11 || !/^\d{11}$/.test(personalNumber)) {
@@ -70,6 +71,7 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 
 
 export default function MembershipsPage() {
+	const [activeTab, setActiveTab] = useState<"members" | "executive">("members");
 	const [search, setSearch] = useState("");
 	const [statusFilter, setStatusFilter] = useState("");
 	const [typeFilter, setTypeFilter] = useState("");
@@ -583,7 +585,52 @@ export default function MembershipsPage() {
 						<h1 className="text-3xl font-light text-gray-900 tracking-tight">Members</h1>
 						<p className="text-sm text-gray-500 mt-1">Manage temple membership applications and accounts</p>
 					</div>
-					<div className="flex items-center gap-3">
+				</div>
+			</div>
+
+			{/* Tab Navigation */}
+			<div className="mb-8">
+				<div className="border-b border-gray-200">
+					<nav className="-mb-px flex space-x-8">
+						<button
+							onClick={() => setActiveTab("members")}
+							className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+								activeTab === "members"
+									? "border-brand_primary text-brand_secondary"
+									: "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+							}`}
+						>
+							<div className="flex items-center gap-2">
+								<Users className="w-4 h-4" />
+								All Members
+							</div>
+						</button>
+						<button
+							onClick={() => setActiveTab("executive")}
+							className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+								activeTab === "executive"
+									? "border-brand_primary text-brand_secondary"
+									: "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+							}`}
+						>
+							<div className="flex items-center gap-2">
+								<Crown className="w-4 h-4" />
+								Executive Hierarchy
+							</div>
+						</button>
+					</nav>
+				</div>
+			</div>
+
+			{/* Tab Content */}
+			{activeTab === "executive" ? (
+				<ExecutiveMemberReorder />
+			) : (
+				<>
+					<div className="mb-8">
+						<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+							<div></div>
+							<div className="flex items-center gap-3">
 						<Button onClick={() => setAddingMember(true)} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700">
 							<Plus className="w-4 h-4" />
 							Add a Member
@@ -674,9 +721,9 @@ export default function MembershipsPage() {
 							Bulk Upload
 						</Button>
 					</Link>
+						</div>
+					</div>
 				</div>
-			</div>
-			</div>
 
 			{/* Filters Section */}
 			<div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
@@ -996,6 +1043,10 @@ export default function MembershipsPage() {
 											<p className="text-sm text-gray-500">Phone</p>
 											<p className="font-medium">{viewingMember.phone}</p>
 										</div>
+										<div>
+											<p className="text-sm text-gray-500">Personal Number</p>
+											<p className="font-medium">{viewingMember.personalNumber || 'Not provided'}</p>
+										</div>
 									</div>
 								</div>
 
@@ -1155,8 +1206,19 @@ export default function MembershipsPage() {
 										/>
 									</div>
 
-						
-
+									<div>
+										<label className="block text-sm font-medium text-gray-900 mb-2">Personal Number *</label>
+										<input
+											type="text"
+											value={editFormData.personalNumber || ''}
+											onChange={(e) => handleEditChange('personalNumber', e.target.value)}
+											placeholder="11-digit personal number (DDMMYYXXXXX)"
+											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+											pattern="\d{11}"
+											maxLength={11}
+											required
+										/>
+									</div>
 								
 								</div>
 
@@ -1494,6 +1556,8 @@ export default function MembershipsPage() {
 						</form>
 					</div>
 				</div>
+			)}
+				</>
 			)}
 		</div>
 	);

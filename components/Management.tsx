@@ -15,17 +15,20 @@ interface BoardMember {
   membershipId?: string;
   email?: string;
   phone?: string;
+  displayOrder?: number;
 }
 
 interface MembershipData {
   _id: string;
   firstName: string;
+  middleName?: string;
   lastName: string;
   membershipType: string;
   membershipId: string;
   email: string;
   phone: string;
   position?: string;
+  displayOrder?: number;
 }
 
 export default function Management() {
@@ -44,22 +47,33 @@ export default function Management() {
       if (membershipResponse.ok) {
         const membershipData = await membershipResponse.json();
         members = membershipData.map((member: MembershipData) => ({
-          name: `${member.firstName} ${member.lastName}`,
+          name: `${member.firstName} ${member.middleName ? member.middleName + ' ' : ''}${member.lastName}`,
           position: member.position || (member.membershipType === "Executive" ? t("executive_member") : t("advisor")),
           type: member.membershipType.toLowerCase() as "executive" | "advisor",
           membershipId: member.membershipId,
           email: member.email,
           phone: member.phone,
+          displayOrder: member.displayOrder,
           _id: `membership-${member._id}`
         }));
       }
       
-      // Sort by type and then by name
+      // Sort by type first, then by displayOrder for executives, then by name
       const sortedMembers = members.sort((a, b) => {
         const typeOrder: Record<string, number> = { executive: 0, advisor: 1 };
         if (typeOrder[a.type] !== typeOrder[b.type]) {
           return typeOrder[a.type] - typeOrder[b.type];
         }
+        
+        // For executive members, sort by displayOrder if available, then by name
+        if (a.type === "executive" && b.type === "executive") {
+          const aOrder = a.displayOrder ?? 999;
+          const bOrder = b.displayOrder ?? 999;
+          if (aOrder !== bOrder) {
+            return aOrder - bOrder;
+          }
+        }
+        
         return a.name.localeCompare(b.name);
       });
 

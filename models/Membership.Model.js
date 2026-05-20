@@ -16,6 +16,7 @@ const MembershipSchema = new mongoose.Schema({
 	membershipStatus: { type: String, enum: ["blocked", "pending", "approved"], required: true },
 	membershipType: { type: String, enum: ["General", "Active", "Executive", "Advisor"], default: "General" },
 	position: { type: String },
+	displayOrder: { type: Number, default: 0 }, // For executive member hierarchy ordering
 	osloVerificationStatus: { type: String, enum: ["pending", "verified", "rejected", "follow_up_needed"], default: "pending" },
 	agreeTerms: { type: Boolean, required: false, default: true },
 	profilePhoto: { type: String },
