@@ -188,9 +188,12 @@ export default function EventsTimeline() {
 											
 
 												{/* Event Title */}
-													<h3 className="text-2xl md:text-3xl font-bold text-gray-900 md:mb-4 group-hover:text-brand_primary transition-colors duration-300 ">
+													<a 
+														href={`/${locale}/events/${event._id}`}
+														className="text-2xl md:text-3xl font-bold text-gray-900 md:mb-4 hover:text-brand_secondary transition-colors duration-300 inline-block"
+													>
 														{getLocalizedTitle(event)}
-													</h3>
+													</a>
 
 												{/* Event Description */}
 												<p className="text-gray-600 mb-6 line-clamp-3 text-base leading-relaxed">

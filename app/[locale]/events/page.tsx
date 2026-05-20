@@ -135,14 +135,14 @@ export default function EventsPage() {
                       className="object-cover"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
-                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full">
+                    {/* <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full">
                       <span className="text-sm font-medium text-red-700">
                         {new Date(event.eventdate).toLocaleDateString('en-US', { 
                           month: 'short', 
                           day: 'numeric' 
                         })}
                       </span>
-                    </div>
+                    </div> */}
                   </div>
 
                   {/* Event Content */}

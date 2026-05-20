@@ -109,7 +109,7 @@ export default function EventDetailPage() {
           src={event.eventposterUrl || "/pashupatinath.png"}
           alt={event.eventname}
           fill
-          className="object-cover"
+          className="object-cover object-top"
           sizes="100vw"
           priority
         />
