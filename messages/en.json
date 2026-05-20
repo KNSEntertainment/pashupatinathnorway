@@ -1004,6 +1004,8 @@
 	},
 	"events": {
 		"title": "Upcoming Events",
+		"upcoming_event": "Upcoming Event",
+		"recent_event": "Recent Event",
 		"subtitle": "Join us for spiritual gatherings, cultural celebrations, and community events",
 		"regular_events": "Regular Events",
 		"community_gatherings": "Community Gatherings",

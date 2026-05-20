@@ -83,7 +83,7 @@ export default function FestivalsAdmin() {
       const response = await fetch(`/api/festivals?edit=true&locale=${locale}`);
       if (response.ok) {
         const data = await response.json();
-        setFestivals(data.festivals || []);
+        setFestivals(Array.isArray(data) ? data : data.festivals || []);
       }
     } catch (error) {
       console.error('Error fetching festivals:', error);

@@ -26,10 +26,38 @@ export default function EventsTimeline() {
 	const [events, setEvents] = useState<Event[]>([]);
 	const [loading, setLoading] = useState(true);
 
-	const getRecentEvents = (allEvents: Event[]) => {
-		return allEvents
-			.sort((a, b) => new Date(b.eventdate).getTime() - new Date(a.eventdate).getTime())
-			.slice(0, 4);
+	const getEventToDisplay = (allEvents: Event[]) => {
+		const today = new Date();
+		today.setHours(0, 0, 0, 0); // Set to start of day for accurate comparison
+		
+		// Separate future and past events
+		const futureEvents = allEvents.filter(event => {
+			const eventDate = new Date(event.eventdate);
+			return eventDate >= today;
+		});
+		
+		const pastEvents = allEvents.filter(event => {
+			const eventDate = new Date(event.eventdate);
+			return eventDate < today;
+		});
+		
+		// Sort future events by date (closest first)
+		futureEvents.sort((a, b) => new Date(a.eventdate).getTime() - new Date(b.eventdate).getTime());
+		// Sort past events by date (most recent first)
+		pastEvents.sort((a, b) => new Date(b.eventdate).getTime() - new Date(a.eventdate).getTime());
+		
+		// Return the first future event if available, otherwise the most recent past event
+		return futureEvents.length > 0 ? [futureEvents[0]] : pastEvents.length > 0 ? [pastEvents[0]] : [];
+	};
+
+	const getSectionTitle = () => {
+		if (events.length === 0) return t("title");
+		
+		const today = new Date();
+		today.setHours(0, 0, 0, 0);
+		const eventDate = new Date(events[0].eventdate);
+		
+		return eventDate >= today ? t("upcoming_event") : t("recent_event");
 	};
 
 	useEffect(() => {
@@ -53,10 +81,10 @@ export default function EventsTimeline() {
 				
 				const data = await res.json();
 				
-				// Get all events and sort by most recent
+				// Get all events and determine which one to display
 				const allEvents = data.events || [];
-				const recentEvents = getRecentEvents(allEvents);
-				setEvents(recentEvents);
+				const eventToDisplay = getEventToDisplay(allEvents);
+				setEvents(eventToDisplay);
 			} catch  {
 				// Try fallback to relative URL
 				try {
@@ -65,8 +93,8 @@ export default function EventsTimeline() {
 					console.log("Fallback events response data:", fallbackData);
 					
 					const allEvents = fallbackData.events || [];
-					const recentEvents = getRecentEvents(allEvents);
-					setEvents(recentEvents);
+					const eventToDisplay = getEventToDisplay(allEvents);
+					setEvents(eventToDisplay);
 				} catch (fallbackError) {
 					console.error("Fallback events also failed:", fallbackError);
 				}
@@ -84,6 +112,20 @@ export default function EventsTimeline() {
 
 	const getLocalizedDescription = (event: Event): string => {
 		return event.eventdescription || "";
+	};
+
+	const formatFullDate = (dateString: string): string => {
+		try {
+			const date = new Date(dateString);
+			return date.toLocaleDateString(locale === 'no' ? 'nb-NO' : locale === 'ne' ? 'ne-NP' : 'en-US', {
+				weekday: 'long',
+				year: 'numeric',
+				month: 'long',
+				day: 'numeric'
+			});
+		} catch {
+			return dateString;
+		}
 	};
 
 	if (loading) {
@@ -114,25 +156,23 @@ export default function EventsTimeline() {
 					className="text-center mb-16 px-4"
 				>
 					<SectionHeader 
-						heading={t("title")} 
-						seeAllLink={`/${locale}/events`}
-						seeAllText={t("see_all")}
-					/>
+					heading={getSectionTitle()} 
+				/>
 			
 				</div>
 
-				{events.length > 0 ? (
-					<div className="w-full md:max-w-4xl mx-auto">
-							{/* Two Events Display */}
-							<div className="container mx-auto grid grid-cols-1 gap-6 lg:gap-8 px-4">
-								{events.slice(0, 2).map((event) => (
+					{events.length > 0 ? (
+						<div className="w-full md:max-w-4xl mx-auto">
+								{/* Single Event Display */}
+								<div className="container mx-auto px-4">
+									{events.slice(0, 1).map((event) => (
 									<div
 										key={event._id}
 										
 									>
 										<div className="flex flex-col md:flex-row bg-gray-50 transition-all duration-300 overflow-hidden h-full">
 											{/* Event Poster */}
-											<div className="w-full md:w-1/2 relative h-64 md:h-auto">
+											<div className="w-full md:w-2/3 relative h-64 md:h-auto">
 												<Image 
 													src={event.eventposterUrl || "/pashupatinath.png"} 
 													alt={getLocalizedTitle(event)} 
@@ -161,7 +201,7 @@ export default function EventsTimeline() {
 												<div className="grid grid-cols-1 gap-4 mb-6">
 													<div className="flex items-center text-gray-500">
 														<Calendar className="w-5 h-5 mr-3 text-brand_primary" />
-														<span className="font-medium">{event.eventdate}</span>
+														<span className="font-medium">{formatFullDate(event.eventdate)}</span>
 													</div>
 													<div className="flex items-center text-gray-500">
 														<Clock className="w-5 h-5 mr-3 text-brand_primary" />
@@ -178,6 +218,15 @@ export default function EventsTimeline() {
 										</div>
 									</div>
 								))}
+								{/* View All Events Button */}
+								<div className="text-center mt-8">
+									<a
+										href={`/${locale}/events`}
+										className="inline-flex items-center gap-2 px-6 py-3 bg-brand_primary text-gray-700 rounded-lg font-medium hover:bg-brand_primary/90 transition-colors"
+									>
+										{t("see_all")}
+									</a>
+								</div>
 							</div>
 
 							

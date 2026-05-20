@@ -998,6 +998,8 @@
 	},
 	"events": {
 		"title": "Kommende Arrangementer",
+		"upcoming_event": "Kommende Arrangement",
+		"recent_event": "Nylig Arrangement",
 		"subtitle": "events.subtitle",
 		"regular_events": "Vanlige Arrangementer",
 		"community_gatherings": "Community Gatherings",
