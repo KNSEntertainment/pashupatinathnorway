@@ -27,28 +27,27 @@ export default function EventDetailPage() {
   const eventId = params.id as string;
 
   useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/events/${eventId}`);
+        const data = await response.json();
+        if (data.event) {
+          setEvent(data.event);
+        } else {
+          setError('Event not found');
+        }
+      } catch {
+        setError('Failed to fetch event');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (eventId) {
       fetchEvent();
     }
   }, [eventId]);
-
-  const fetchEvent = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/events/${eventId}`);
-      const data = await response.json();
-      
-      if (data.success) {
-        setEvent(data.event);
-      } else {
-        setError("Event not found");
-      }
-    } catch {
-      setError("Failed to load event");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleShare = async () => {
     if (navigator.share && event) {

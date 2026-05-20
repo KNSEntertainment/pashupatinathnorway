@@ -6,11 +6,19 @@ import { X, Save } from "lucide-react";
 interface Publication {
   id?: string;
   title: string;
-  type: "financial" | "activity" | "membership" | "audit";
+  type: string;
   description: string;
   publishedDate: string;
   downloadUrl: string;
   language: "en" | "ne" | "no";
+}
+
+interface ReportType {
+  id: string;
+  name: string;
+  label: string;
+  color: string;
+  isActive: boolean;
 }
 
 interface PublicationFormProps {
@@ -18,13 +26,6 @@ interface PublicationFormProps {
   onSubmit: () => void;
   onCancel: () => void;
 }
-
-const reportTypes = [
-  { value: "financial", label: "Financial Reports" },
-  { value: "activity", label: "Activity Reports" },
-  { value: "membership", label: "Membership Reports" },
-  { value: "audit", label: "Audit Reports" }
-];
 
 const languages = [
   { value: "en", label: "English" },
@@ -35,17 +36,30 @@ const languages = [
 export default function PublicationForm({ publication, onSubmit, onCancel }: PublicationFormProps) {
   const [formData, setFormData] = useState<Publication>({
     title: "",
-    type: "financial",
+    type: "",
     description: "",
     publishedDate: new Date().toISOString().split('T')[0],
     downloadUrl: "",
     language: "en"
   });
 
+  const [reportTypes, setReportTypes] = useState<ReportType[]>([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Fetch report types
+  const fetchReportTypes = async () => {
+    try {
+      const response = await fetch("/api/report-types");
+      const data = await response.json();
+      setReportTypes(data.reportTypes || []);
+    } catch (error) {
+      console.error("Error fetching report types:", error);
+    }
+  };
+
   useEffect(() => {
+    fetchReportTypes();
     if (publication) {
       setFormData(publication);
     }
@@ -193,8 +207,9 @@ export default function PublicationForm({ publication, onSubmit, onCancel }: Pub
                     errors.type ? "border-red-500" : "border-gray-300"
                   }`}
                 >
+                  <option value="">Select Report Type</option>
                   {reportTypes.map(type => (
-                    <option key={type.value} value={type.value}>
+                    <option key={type.id} value={type.name}>
                       {type.label}
                     </option>
                   ))}

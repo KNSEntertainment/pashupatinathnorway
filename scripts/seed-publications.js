@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import connectDB from '../lib/mongodb.js';
 import User from '../models/User.Model.js';
 import Publication from '../models/Publication.Model.js';
+import ReportType from '../models/ReportType.Model.js';
 
 dotenv.config({ path: '.env.local' });
 
@@ -29,7 +30,17 @@ async function seedPublications() {
     await Publication.deleteMany({});
     console.log('Cleared existing publications');
     
-    // Sample publications
+    // Get available report types
+    const reportTypes = await ReportType.find({ isActive: true });
+    if (reportTypes.length === 0) {
+      console.log('No report types found. Please run seed-report-types.js first.');
+      return;
+    }
+    
+    // Create a map of report type names for easy lookup
+    const reportTypeMap = new Map(reportTypes.map(rt => [rt.name, rt]));
+    
+    // Sample publications using dynamic report types
     const samplePublications = [
       {
         title: "Annual Financial Report 2024",
@@ -110,9 +121,22 @@ async function seedPublications() {
       }
     ];
     
+    // Validate that all publication types exist in report types
+    const validPublications = samplePublications.filter(pub => {
+      if (!reportTypeMap.has(pub.type)) {
+        console.warn(`Skipping publication with invalid type: ${pub.type}`);
+        return false;
+      }
+      return true;
+    });
+    
+    if (validPublications.length < samplePublications.length) {
+      console.log(`Filtered out ${samplePublications.length - validPublications.length} publications with invalid types`);
+    }
+    
     // Insert sample publications
-    await Publication.insertMany(samplePublications);
-    console.log(`Successfully seeded ${samplePublications.length} publications`);
+    await Publication.insertMany(validPublications);
+    console.log(`Successfully seeded ${validPublications.length} publications`);
     
     // Verify the seeding
     const count = await Publication.countDocuments();

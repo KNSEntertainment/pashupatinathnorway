@@ -8,8 +8,7 @@ const publicationSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    required: true,
-    enum: ['financial', 'activity', 'membership', 'audit']
+    required: true
   },
   description: {
     type: String,

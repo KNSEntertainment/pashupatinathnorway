@@ -44,23 +44,23 @@ export default function Rituals() {
   };
 
   useEffect(() => {
+    const fetchRituals = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/rituals?locale=${locale}`);
+        if (response.ok) {
+          const data = await response.json();
+          setRituals(data.rituals || []);
+        }
+      } catch (error) {
+        console.error('Error fetching rituals:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchRituals();
   }, [locale]);
-
-  const fetchRituals = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/rituals?locale=${locale}`);
-      if (response.ok) {
-        const data = await response.json();
-        setRituals(data);
-      }
-    } catch (error) {
-      console.error("Failed to fetch rituals:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (loading) {
     return (

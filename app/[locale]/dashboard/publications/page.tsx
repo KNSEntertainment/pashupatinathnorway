@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Search, Edit, Trash2, Filter, FileText, Calendar } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Filter, FileText, Calendar, Settings } from "lucide-react";
 import PublicationForm from "@/components/dashboard/PublicationForm";
+import ReportTypesManagement from "@/components/dashboard/ReportTypesManagement";
 
 interface Publication {
   id: string;
   title: string;
-  type: "financial" | "activity" | "membership" | "audit";
+  type: string;
   description: string;
   publishedDate: string;
   downloadUrl: string;
@@ -16,12 +17,13 @@ interface Publication {
   updatedAt: string;
 }
 
-const reportTypes = [
-  { value: "financial", label: "Financial Reports" },
-  { value: "activity", label: "Activity Reports" },
-  { value: "membership", label: "Membership Reports" },
-  { value: "audit", label: "Audit Reports" }
-];
+interface ReportType {
+  id: string;
+  name: string;
+  label: string;
+  color: string;
+  isActive: boolean;
+}
 
 const languages = [
   { value: "en", label: "English" },
@@ -32,8 +34,10 @@ const languages = [
 export default function PublicationsPage() {
   const [publications, setPublications] = useState<Publication[]>([]);
   const [filteredPublications, setFilteredPublications] = useState<Publication[]>([]);
+  const [reportTypes, setReportTypes] = useState<ReportType[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [showReportTypesManagement, setShowReportTypesManagement] = useState(false);
   const [editingPublication, setEditingPublication] = useState<Publication | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("all");
@@ -54,8 +58,20 @@ export default function PublicationsPage() {
     }
   };
 
+  // Fetch report types
+  const fetchReportTypes = async () => {
+    try {
+      const response = await fetch("/api/report-types");
+      const data = await response.json();
+      setReportTypes(data.reportTypes || []);
+    } catch (error) {
+      console.error("Error fetching report types:", error);
+    }
+  };
+
   useEffect(() => {
     fetchPublications();
+    fetchReportTypes();
   }, []);
 
   // Filter publications
@@ -108,14 +124,34 @@ export default function PublicationsPage() {
     fetchPublications();
   };
 
+  // Handle report types management
+  const handleReportTypesSubmit = () => {
+    setShowReportTypesManagement(false);
+    fetchReportTypes();
+    fetchPublications();
+  };
+
   const getTypeColor = (type: string) => {
-    switch (type) {
-      case "financial": return "bg-green-100 text-green-800 border-green-200";
-      case "activity": return "bg-blue-100 text-blue-800 border-blue-200";
-      case "membership": return "bg-purple-100 text-purple-800 border-purple-200";
-      case "audit": return "bg-orange-100 text-orange-800 border-orange-200";
-      default: return "bg-gray-100 text-gray-800 border-gray-200";
+    const reportType = reportTypes.find(rt => rt.name === type);
+    if (reportType) {
+      switch (reportType.color) {
+        case "green": return "bg-green-100 text-green-800 border-green-200";
+        case "blue": return "bg-blue-100 text-blue-800 border-blue-200";
+        case "purple": return "bg-purple-100 text-purple-800 border-purple-200";
+        case "orange": return "bg-orange-100 text-orange-800 border-orange-200";
+        case "red": return "bg-red-100 text-red-800 border-red-200";
+        case "yellow": return "bg-yellow-100 text-yellow-800 border-yellow-200";
+        case "pink": return "bg-pink-100 text-pink-800 border-pink-200";
+        case "indigo": return "bg-indigo-100 text-indigo-800 border-indigo-200";
+        default: return "bg-gray-100 text-gray-800 border-gray-200";
+      }
     }
+    return "bg-gray-100 text-gray-800 border-gray-200";
+  };
+
+  const getTypeLabel = (type: string) => {
+    const reportType = reportTypes.find(rt => rt.name === type);
+    return reportType ? reportType.label : type;
   };
 
   const getLanguageFlag = (language: string) => {
@@ -126,6 +162,15 @@ export default function PublicationsPage() {
       default: return "🌐";
     }
   };
+
+  if (showReportTypesManagement) {
+    return (
+      <ReportTypesManagement
+        onSubmit={handleReportTypesSubmit}
+        onCancel={() => setShowReportTypesManagement(false)}
+      />
+    );
+  }
 
   if (showForm) {
     return (
@@ -150,13 +195,22 @@ export default function PublicationsPage() {
               <h1 className="text-2xl font-bold text-gray-900">Publications</h1>
               <p className="text-gray-600 mt-1">Manage annual reports and publications</p>
             </div>
-            <button
-              onClick={() => setShowForm(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              Add Publication
-            </button>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setShowReportTypesManagement(true)}
+                className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <Settings className="w-4 h-4" />
+                Manage Report Types
+              </button>
+              <button
+                onClick={() => setShowForm(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                Add Publication
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -200,7 +254,7 @@ export default function PublicationsPage() {
               >
                 <option value="all">All Types</option>
                 {reportTypes.map(type => (
-                  <option key={type.value} value={type.value}>{type.label}</option>
+                  <option key={type.id} value={type.name}>{type.label}</option>
                 ))}
               </select>
 
@@ -256,7 +310,7 @@ export default function PublicationsPage() {
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full border ${getTypeColor(publication.type)}`}>
-                        {publication.type.charAt(0).toUpperCase() + publication.type.slice(1)}
+                        {getTypeLabel(publication.type)}
                       </span>
                     </div>
                     <span className="text-2xl">{getLanguageFlag(publication.language)}</span>

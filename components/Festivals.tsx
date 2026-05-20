@@ -45,23 +45,21 @@ export default function Festivals() {
   };
 
   useEffect(() => {
+    const fetchFestivals = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/festivals?locale=${locale}`);
+        const data = await response.json();
+        setFestivals(data.festivals || []);
+      } catch (error) {
+        console.error('Error fetching festivals:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchFestivals();
   }, [locale]);
-
-  const fetchFestivals = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/festivals?locale=${locale}`);
-      if (response.ok) {
-        const data = await response.json();
-        setFestivals(data);
-      }
-    } catch (error) {
-      console.error("Failed to fetch festivals:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (loading) {
     return (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLocale } from "next-intl";
 import { 
   PartyPopper, 
@@ -77,26 +77,24 @@ export default function FestivalsAdmin() {
     isActive: true
   };
 
-  useEffect(() => {
-    fetchFestivals();
-  }, [locale]);
-
-  const fetchFestivals = async () => {
+  const fetchFestivals = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/festivals?edit=true&locale=${locale}`);
       if (response.ok) {
         const data = await response.json();
-        setFestivals(data);
-      } else {
-        toast.error("Failed to fetch festivals");
+        setFestivals(data.festivals || []);
       }
-    } catch {
-      toast.error("Failed to fetch festivals");
+    } catch (error) {
+      console.error('Error fetching festivals:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [locale]);
+
+  useEffect(() => {
+    fetchFestivals();
+  }, [fetchFestivals]);
 
   const handleFieldChange = (field: keyof Festival, value: string | boolean | number | MultilingualField | MultilingualArray) => {
     if (!editingFestival) return;
