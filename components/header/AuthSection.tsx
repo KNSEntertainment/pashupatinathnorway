@@ -15,7 +15,7 @@ export default function AuthSection() {
 	if (user) return <LoggedInUser user={user} />;
 
 	return (
-		<Link href="/login" className="flex items-center gap-1 bg-brand_secondary/10 py-1 px-2 hover:bg-brand_secondary/30 rounded-md text-sm">
+		<Link href="/login" className="flex items-center gap-1 bg-gray-100 py-1 px-2 hover:bg-gray-50 rounded-md text-sm">
 			<LogIn size={16} />
 			{t("login")}
 		</Link>
