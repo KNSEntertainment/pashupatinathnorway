@@ -13,6 +13,7 @@ interface Publication {
   publishedDate: string;
   downloadUrl: string;
   language: "en" | "ne" | "no";
+  accessLevels: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -161,6 +162,18 @@ export default function PublicationsPage() {
       case "no": return "🇳🇴";
       default: return "🌐";
     }
+  };
+
+  const getAccessLevelLabels = (accessLevels: string[]) => {
+    const labels: Record<string, string> = {
+      all: "All",
+      executives: "Executives",
+      advisors: "Advisors", 
+      active_members: "Active Members",
+      general_members: "General Members"
+    };
+    
+    return accessLevels.map(level => labels[level] || level);
   };
 
   if (showReportTypesManagement) {
@@ -331,6 +344,19 @@ export default function PublicationsPage() {
                     <div className="flex items-center text-sm text-gray-500">
                       <Calendar className="w-4 h-4 mr-2" />
                       {new Date(publication.publishedDate).toLocaleDateString()}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      <span className="font-medium">Access:</span>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {getAccessLevelLabels(publication.accessLevels || []).map((level, index) => (
+                          <span
+                            key={index}
+                            className="inline-block px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded"
+                          >
+                            {level}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
 

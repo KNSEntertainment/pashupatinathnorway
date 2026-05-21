@@ -28,6 +28,10 @@ const publicationSchema = new mongoose.Schema({
     enum: ['en', 'ne', 'no'],
     default: 'en'
   },
+  accessLevels: [{
+    type: String,
+    enum: ['all', 'executives', 'advisors', 'active_members', 'general_members']
+  }],
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

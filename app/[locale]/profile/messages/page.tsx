@@ -1,6 +1,6 @@
 
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -109,6 +109,41 @@ export default function MessagesPage() {
     }
   }, [session]);
 
+  const handleMarkAsRead = useCallback(async (messageId: string) => {
+    try {
+      const response = await fetch(`/api/messages/${messageId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ action: "markAsRead" }),
+      });
+      
+      if (response.ok) {
+        setMessages(prev => prev.map(msg => 
+          msg._id === messageId 
+            ? { ...msg, status: "read" as const, readAt: new Date().toISOString() }
+            : msg
+        ));
+        
+        setUnreadCount(prev => Math.max(0, prev - 1));
+        
+        if (selectedMessage && selectedMessage._id === messageId) {
+          setSelectedMessage(prev => prev ? ({
+            ...prev,
+            status: "read" as const,
+            readAt: new Date().toISOString()
+          }) : null);
+        }
+
+        // Dispatch event to notify other components of message status change
+        window.dispatchEvent(new CustomEvent('messageStatusChanged'));
+      }
+    } catch (error) {
+      console.error("Error marking message as read:", error);
+    }
+  }, [selectedMessage]);
+
   // Auto-select first message when messages are loaded
   useEffect(() => {
     if (messages.length > 0 && !selectedMessage) {
@@ -120,7 +155,7 @@ export default function MessagesPage() {
         handleMarkAsRead(firstMessage._id);
       }
     }
-  }, [messages, selectedMessage]);
+  }, [messages, selectedMessage, handleMarkAsRead]);
 
   
   const handleMessageDelete = async (messageId: string) => {
@@ -172,41 +207,7 @@ export default function MessagesPage() {
     }
   };
 
-  const handleMarkAsRead = async (messageId: string) => {
-    try {
-      const response = await fetch(`/api/messages/${messageId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ action: "markAsRead" }),
-      });
-      
-      if (response.ok) {
-        setMessages(prev => prev.map(msg => 
-          msg._id === messageId 
-            ? { ...msg, status: "read" as const, readAt: new Date().toISOString() }
-            : msg
-        ));
-        
-        setUnreadCount(prev => Math.max(0, prev - 1));
-        
-        if (selectedMessage && selectedMessage._id === messageId) {
-          setSelectedMessage(prev => prev ? ({
-            ...prev,
-            status: "read" as const,
-            readAt: new Date().toISOString()
-          }) : null);
-        }
-
-        // Dispatch event to notify other components of message status change
-        window.dispatchEvent(new CustomEvent('messageStatusChanged'));
-      }
-    } catch (error) {
-      console.error("Error marking message as read:", error);
-    }
-  };
-
+  
   const handleMarkAsUnread = async (messageId: string) => {
     try {
       const response = await fetch(`/api/messages/${messageId}`, {

@@ -11,6 +11,7 @@ interface Publication {
   publishedDate: string;
   downloadUrl: string;
   language: "en" | "ne" | "no";
+  accessLevels: string[];
 }
 
 interface ReportType {
@@ -33,6 +34,14 @@ const languages = [
   { value: "no", label: "Norsk" }
 ];
 
+const accessLevelOptions = [
+  { value: "all", label: "All" },
+  { value: "executives", label: "Executives" },
+  { value: "advisors", label: "Advisors" },
+  { value: "active_members", label: "Active Members" },
+  { value: "general_members", label: "General Members" }
+];
+
 export default function PublicationForm({ publication, onSubmit, onCancel }: PublicationFormProps) {
   const [formData, setFormData] = useState<Publication>({
     title: "",
@@ -40,7 +49,8 @@ export default function PublicationForm({ publication, onSubmit, onCancel }: Pub
     description: "",
     publishedDate: new Date().toISOString().split('T')[0],
     downloadUrl: "",
-    language: "en"
+    language: "en",
+    accessLevels: ["all"]
   });
 
   const [reportTypes, setReportTypes] = useState<ReportType[]>([]);
@@ -78,6 +88,22 @@ export default function PublicationForm({ publication, onSubmit, onCancel }: Pub
     }
   };
 
+  const handleAccessLevelChange = (value: string, checked: boolean) => {
+    setFormData(prev => {
+      if (checked) {
+        return {
+          ...prev,
+          accessLevels: [...prev.accessLevels, value]
+        };
+      } else {
+        return {
+          ...prev,
+          accessLevels: prev.accessLevels.filter(level => level !== value)
+        };
+      }
+    });
+  };
+
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
@@ -99,6 +125,10 @@ export default function PublicationForm({ publication, onSubmit, onCancel }: Pub
 
     if (!formData.publishedDate) {
       newErrors.publishedDate = "Published date is required";
+    }
+
+    if (!formData.accessLevels || formData.accessLevels.length === 0) {
+      newErrors.accessLevels = "At least one access level must be selected";
     }
 
     setErrors(newErrors);
@@ -295,6 +325,35 @@ export default function PublicationForm({ publication, onSubmit, onCancel }: Pub
                   placeholder="https://example.com/file.pdf"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                 />
+              </div>
+
+              {/* Access Levels */}
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Access Levels *
+                </label>
+                <div className="space-y-2">
+                  {accessLevelOptions.map((option) => (
+                    <div key={option.value} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id={option.value}
+                        checked={formData.accessLevels.includes(option.value)}
+                        onChange={(e) => handleAccessLevelChange(option.value, e.target.checked)}
+                        className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+                      />
+                      <label
+                        htmlFor={option.value}
+                        className="ml-2 text-sm text-gray-700 cursor-pointer"
+                      >
+                        {option.label}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+                {errors.accessLevels && (
+                  <p className="mt-1 text-sm text-red-600">{errors.accessLevels}</p>
+                )}
               </div>
 
             </div>

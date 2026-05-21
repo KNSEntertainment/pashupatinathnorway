@@ -70,9 +70,29 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       description, 
       publishedDate, 
       downloadUrl, 
-      language 
+      language,
+      accessLevels 
     } = body;
     
+    // Validate accessLevels if provided
+    if (accessLevels) {
+      if (!Array.isArray(accessLevels) || accessLevels.length === 0) {
+        return NextResponse.json(
+          { error: "At least one access level must be selected" },
+          { status: 400 }
+        );
+      }
+
+      const validAccessLevels = ['all', 'executives', 'advisors', 'active_members', 'general_members'];
+      const invalidAccessLevels = accessLevels.filter(level => !validAccessLevels.includes(level));
+      if (invalidAccessLevels.length > 0) {
+        return NextResponse.json(
+          { error: "Invalid access levels: " + invalidAccessLevels.join(', ') },
+          { status: 400 }
+        );
+      }
+    }
+
     // Update publication
     const updatedPublication = await Publication.findByIdAndUpdate(
       id,
@@ -82,7 +102,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         description: description || publication.description,
         publishedDate: publishedDate || publication.publishedDate,
         downloadUrl: downloadUrl || publication.downloadUrl,
-        language: language || publication.language
+        language: language || publication.language,
+        accessLevels: accessLevels || publication.accessLevels
       },
       { new: true }
     ).populate('createdBy', 'name email');

@@ -15,6 +15,8 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type');
     const language = searchParams.get('language');
     const search = searchParams.get('search');
+    const isPublic = searchParams.get('public') === 'true';
+    const memberAccess = searchParams.get('memberAccess');
     
         
     // Build query
@@ -26,6 +28,17 @@ export async function GET(request: NextRequest) {
     
     if (language && language !== 'all') {
       query.language = language;
+    }
+    
+    // If this is a public request, only show publications with "all" access level
+    if (isPublic) {
+      query.accessLevels = 'all';
+    }
+    
+    // If this is a member request, filter by member access levels
+    if (memberAccess) {
+      const accessLevels = memberAccess.split(',');
+      query.accessLevels = { $in: accessLevels };
     }
     
     
@@ -51,6 +64,7 @@ export async function GET(request: NextRequest) {
       publishedDate: pub.publishedDate.toISOString().split('T')[0],
       downloadUrl: pub.downloadUrl,
       language: pub.language,
+      accessLevels: pub.accessLevels || [],
       createdAt: pub.createdAt,
       updatedAt: pub.updatedAt
     }));
@@ -96,13 +110,31 @@ export async function POST(request: NextRequest) {
       description, 
       publishedDate, 
       downloadUrl, 
-      language 
+      language,
+      accessLevels 
     } = body;
     
     // Validate required fields
     if (!title || !type || !description || !language) {
       return NextResponse.json(
         { error: "Missing required fields: title, type, description, language" },
+        { status: 400 }
+      );
+    }
+
+    // Validate accessLevels
+    if (!accessLevels || !Array.isArray(accessLevels) || accessLevels.length === 0) {
+      return NextResponse.json(
+        { error: "At least one access level must be selected" },
+        { status: 400 }
+      );
+    }
+
+    const validAccessLevels = ['all', 'executives', 'advisors', 'active_members', 'general_members'];
+    const invalidAccessLevels = accessLevels.filter(level => !validAccessLevels.includes(level));
+    if (invalidAccessLevels.length > 0) {
+      return NextResponse.json(
+        { error: "Invalid access levels: " + invalidAccessLevels.join(', ') },
         { status: 400 }
       );
     }
@@ -115,6 +147,7 @@ export async function POST(request: NextRequest) {
       publishedDate: publishedDate || new Date(),
       downloadUrl: downloadUrl || "",
       language,
+      accessLevels,
       createdBy: user._id
     });
     
@@ -132,6 +165,7 @@ export async function POST(request: NextRequest) {
       publishedDate: newPublication.publishedDate.toISOString().split('T')[0],
       downloadUrl: newPublication.downloadUrl,
       language: newPublication.language,
+      accessLevels: newPublication.accessLevels,
       createdAt: newPublication.createdAt,
       updatedAt: newPublication.updatedAt
     };
