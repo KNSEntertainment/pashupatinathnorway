@@ -142,7 +142,7 @@ export default function MemberIDCard({ memberData, settings }: MemberIDCardProps
 						</div>
 					
 						{/* QR Code with Signature */}
-						<div className="absolute bottom-16 right-12 flex flex-col items-center">
+						<div className="absolute bottom-12 right-4 flex flex-col items-center">
 								<QRCodeSVG value={qrData} size={108} level="H" includeMargin={false} />
 							{/* Signature below QR */}
 							<div className="my-2 text-center">

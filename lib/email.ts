@@ -1138,7 +1138,7 @@ export async function sendEmailVerificationEmail({ name, email, verificationToke
 					</div>
 					<div class="content">
 						<p>Hello <strong>${name}</strong>,</p>
-						<p>You requested to change your email address for your Pashupatinath Norway Temple account. Please click the button below to verify your new email address:</p>
+						<p>You requested to change your email address for your Pashupatinath Norway Temple account. Password remains same as earlier one. Please click the button below to verify your new email address:</p>
 						<center>
 							<a href="${verificationUrl}" class="button">Verify Email Address</a>
 						</center>

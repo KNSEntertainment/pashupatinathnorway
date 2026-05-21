@@ -48,8 +48,7 @@ export default function MessagesPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   // const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
-  // const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
-  // const [showCompose, setShowCompose] = useState(false);
+    // const [showCompose, setShowCompose] = useState(false);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
@@ -284,7 +283,9 @@ export default function MessagesPage() {
   };
 
   // Filter messages based on search and filter criteria
-  const filteredMessages = messages.filter((message: Message) => {
+  const filteredMessages = (messages || []).filter((message: Message) => {
+    if (!message) return false;
+    
     const matchesSearch = message.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          message.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          (message.type === "broadcast" && "admin".includes(searchQuery.toLowerCase())) || 

@@ -36,7 +36,7 @@ export default function MessageInbox({
   onMessageStar,
   onMessageClick
 }: MessageInboxProps) {
-  const unreadCount = messages.filter(m => m.status !== "read").length;
+  const unreadCount = (messages || []).filter(m => m && m.status !== "read").length;
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -56,14 +56,14 @@ export default function MessageInbox({
 
       {/* Message List */}
       <div className="flex-1 overflow-y-auto">
-        {messages.length === 0 ? (
+        {(!messages || messages.length === 0) ? (
           <div className="flex flex-col items-center justify-center h-full text-gray-500">
             <MessageSquare className="w-12 h-12 mb-4 text-gray-300" />
             <p>No messages found</p>
           </div>
         ) : (
           <div className="divide-y divide-gray-200">
-            {messages.map((message) => (
+            {(messages || []).filter(Boolean).map((message) => (
               <div
                 key={message._id}
                 className={`flex items-start p-4 hover:bg-gray-50 cursor-pointer transition-colors ${

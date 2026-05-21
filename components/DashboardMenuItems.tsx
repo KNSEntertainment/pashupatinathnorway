@@ -25,7 +25,7 @@ export const menuItems: MenuItem[] = [
 	{ id: "contactmessages", label: "Contact Messages", icon: Book, color: "bg-blue-600", href: "/en/dashboard/contactmessages", role: "admin" },
 	{ id: "donations", label: "Donations", icon: DollarSign, color: "bg-green-600", href: "/en/dashboard/donations", role: "admin" },
 	{ id: "events", label: "Events", icon: BookImage, color: "bg-pink-600", href: "/en/dashboard/events", role: "admin" },
-	{ id: "festivals", label: "Festivals", icon: PartyPopper, color: "bg-pink-600", href: "/en/dashboard/festivals", role: "admin" },
+		{ id: "festivals", label: "Festivals", icon: PartyPopper, color: "bg-pink-600", href: "/en/dashboard/festivals", role: "admin" },
 	{ id: "hero", label: "Hero Section", icon: Image, color: "bg-gradient-to-r from-purple-600 to-pink-600", href: "/en/dashboard/hero", role: "admin" },
 	{ id: "memberships", label: "Memberships", icon: Users, color: "bg-purple-600", href: "/en/dashboard/memberships", role: "admin" },
 	{ id: "mission-vision", label: "Mission & Vision", icon: Target, color: "bg-purple-600", href: "/en/dashboard/mission-vision", role: "admin" },

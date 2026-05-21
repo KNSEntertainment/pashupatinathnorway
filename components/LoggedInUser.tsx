@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { LayoutDashboard, LogOut, User, MessageSquare } from "lucide-react";
+import { LayoutDashboard, LogOut, User, MessageSquare, Ticket } from "lucide-react";
 import { completeSignOut } from "@/utils/authUtils";
 
 interface SessionUser {
@@ -113,17 +113,23 @@ const LoggedInUser = ({ user }: { user: SessionUser }) => {
 									{user.role === "admin" ? "Admin Dashboard" : "Member Dashboard"}
 								</Link>
 								{user.isMember && (
-									<Link href="/en/profile/messages" onClick={() => setShowUserDropdown(false)} className="flex items-center gap-3 px-5 py-3.5 text-gray-700 hover:bg-red-50 w-full transition-all duration-200 font-medium">
-										<div className="relative">
-											<MessageSquare size={18} />
-											{unreadCount > 0 && (
-												<span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-medium">
-													{unreadCount > 9 ? "9+" : unreadCount}
-												</span>
-											)}
-										</div>
-										Messages
-									</Link>
+									<>
+										<Link href="/en/profile/my-events" onClick={() => setShowUserDropdown(false)} className="flex items-center gap-3 px-5 py-3.5 text-gray-700 hover:bg-red-50 w-full transition-all duration-200 font-medium">
+											<Ticket size={18} />
+											My Events
+										</Link>
+										<Link href="/en/profile/messages" onClick={() => setShowUserDropdown(false)} className="flex items-center gap-3 px-5 py-3.5 text-gray-700 hover:bg-red-50 w-full transition-all duration-200 font-medium">
+											<div className="relative">
+												<MessageSquare size={18} />
+												{unreadCount > 0 && (
+													<span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-medium">
+														{unreadCount > 9 ? "9+" : unreadCount}
+													</span>
+												)}
+											</div>
+											Messages
+										</Link>
+									</>
 								)}
 							</>
 						) : (
