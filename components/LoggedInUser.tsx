@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { LayoutDashboard, LogOut, User } from "lucide-react";
+import { LayoutDashboard, LogOut, User, MessageSquare } from "lucide-react";
 import { completeSignOut } from "@/utils/authUtils";
 
 interface SessionUser {
@@ -21,34 +21,45 @@ const LoggedInUser = ({ user }: { user: SessionUser }) => {
 	const avatarInitial = typeof user?.email === "string" && user.email ? user.email.charAt(0).toUpperCase() : "U";
 	const [showUserDropdown, setShowUserDropdown] = useState(false);
 	const [memberPhoto, setMemberPhoto] = useState<string | null>(null);
+	const [unreadCount, setUnreadCount] = useState(0);
 	const lastEmailRef = useRef<string | null>(null);
 
-	// Fetch member profile photo when user is a member
+	// Fetch member profile photo and unread messages when user is a member
 	useEffect(() => {
 		if (!user?.isMember || !user?.email) return;
 		
 		// Only fetch if email has actually changed
 		if (lastEmailRef.current === user.email) return;
 		
-		const fetchMemberPhoto = async () => {
+		const fetchMemberData = async () => {
 			try {
 				// Only reset if we're actually fetching a different email
 				if (lastEmailRef.current !== user.email) {
 					setMemberPhoto(null);
+					setUnreadCount(0);
 				}
-				const response = await fetch(`/api/users/profile-photo?email=${encodeURIComponent(user.email!)}`);
-				if (response.ok) {
-					const data = await response.json();
-					if (data.profilePhoto) {
-						setMemberPhoto(data.profilePhoto);
+				
+				// Fetch profile photo
+				const photoResponse = await fetch(`/api/users/profile-photo?email=${encodeURIComponent(user.email!)}`);
+				if (photoResponse.ok) {
+					const photoData = await photoResponse.json();
+					if (photoData.profilePhoto) {
+						setMemberPhoto(photoData.profilePhoto);
 					}
 				}
+				
+				// Fetch unread messages count
+				const messagesResponse = await fetch("/api/messages");
+				if (messagesResponse.ok) {
+					const messagesData = await messagesResponse.json();
+					setUnreadCount(messagesData.unreadCount || 0);
+				}
 			} catch (error) {
-				console.error("Failed to fetch member profile photo:", error);
+				console.error("Failed to fetch member data:", error);
 			}
 		};
 
-		fetchMemberPhoto();
+		fetchMemberData();
 		lastEmailRef.current = user.email; // Update last email
 	}, [user?.isMember, user?.email]);
 
@@ -96,10 +107,25 @@ const LoggedInUser = ({ user }: { user: SessionUser }) => {
 							<p className="text-xs text-gray-900 mt-1">{getUserRoleText()}</p>
 						</div>
 						{user.role === "admin" || user.isMember ? (
-							<Link href="/en/dashboard" onClick={() => setShowUserDropdown(false)} className="flex items-center gap-3 px-5 py-3.5 text-gray-700 hover:bg-red-50 w-full transition-all duration-200 font-medium">
-								<LayoutDashboard size={18} />
-								{user.role === "admin" ? "Admin Dashboard" : "Member Dashboard"}
-							</Link>
+							<>
+								<Link href="/en/dashboard" onClick={() => setShowUserDropdown(false)} className="flex items-center gap-3 px-5 py-3.5 text-gray-700 hover:bg-red-50 w-full transition-all duration-200 font-medium">
+									<LayoutDashboard size={18} />
+									{user.role === "admin" ? "Admin Dashboard" : "Member Dashboard"}
+								</Link>
+								{user.isMember && (
+									<Link href="/en/profile/messages" onClick={() => setShowUserDropdown(false)} className="flex items-center gap-3 px-5 py-3.5 text-gray-700 hover:bg-red-50 w-full transition-all duration-200 font-medium">
+										<div className="relative">
+											<MessageSquare size={18} />
+											{unreadCount > 0 && (
+												<span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-medium">
+													{unreadCount > 9 ? "9+" : unreadCount}
+												</span>
+											)}
+										</div>
+										Messages
+									</Link>
+								)}
+							</>
 						) : (
 							<Link href="/en/profile" onClick={() => setShowUserDropdown(false)} className="flex items-center gap-3 px-5 py-3.5 text-brand_primary hover:bg-brand_primary/10 w-full transition-all duration-200 font-medium">
 								<User size={18} />

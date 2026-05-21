@@ -5,12 +5,14 @@ import { useRouter, usePathname } from "next/navigation";
 import { Toaster } from "@/components/ui/toaster";
 import { useSession } from "next-auth/react";
 import { memberMenuItems } from "@/components/MemberMenuItems";
+import { useMessageCounts } from "@/hooks/useMessageCounts";
 
 function ProfileLayoutContent({ children }) {
 	const router = useRouter();
 	const pathname = usePathname();
 	const [profileOpen, setProfileOpen] = useState(false);
 	const { data: session, status } = useSession();
+	const messageCounts = useMessageCounts();
 
 	// Protect profile: redirect if not authenticated
 	if (status === "loading") {
@@ -36,22 +38,36 @@ function ProfileLayoutContent({ children }) {
 			}}
 		>
 			{/* Sidebar */}
-			<div className="hidden py-6 md:flex w-64 bg-brand_primary/20 flex-col shadow-lg">
+			<div className="hidden py-6 md:flex w-64 bg-brand_primary/20 text-gray-700 flex-col shadow-lg">
 				<nav className="overflow-y-hidden no-scrollbar">
 					{memberMenuItems.map((item) => {
 						const Icon = item.icon;
 						const isActive = pathname === item.href;
+						const isMessages = item.id === "messages";
+						
 						return (
 							<Link
 								key={item.id}
 								href={item.href}
-								className={`w-full flex items-center px-4 py-2 text-sm transition-colors duration-200
-									${isActive ? "bg-brand_primary text-white font-semibold shadow border-l-2 border-black" : "text-black hover:text-brand_primary hover:bg-light"}
+								className={`w-full flex items-center justify-between px-4 py-2 text-sm transition-colors duration-200
+									${isActive ? "bg-brand_primary text-gray-700 font-semibold shadow border-l-2 border-black" : "text-gray-700 hover:bg-brand_primary/20"}
 								`}
 								style={isActive ? { boxShadow: "0 2px 8px 0 rgba(0, 0, 0, 0.10)" } : {}}
 							>
-								<Icon className="w-5 h-5 mr-3 flex-shrink-0" />
-								{item.label}
+								<div className="flex items-center">
+									<Icon className="w-5 h-5 mr-3 flex-shrink-0" />
+									{item.label}
+								</div>
+								
+								{isMessages && !messageCounts.loading && (
+									<div className="flex items-center space-x-1">
+										{messageCounts.unread > 0 && (
+											<span className="bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-full min-w-[20px] text-center">
+												{messageCounts.unread}
+											</span>
+										)}
+									</div>
+								)}
 							</Link>
 						);
 					})}

@@ -555,6 +555,38 @@ type sendDonationThankYouEmail = {
 	membershipId?: string; // Optional - for members
 };
 
+// Generic email sender function for broadcast and other purposes
+type sendEmail = {
+	to: string;
+	subject: string;
+	text?: string;
+	html?: string;
+};
+
+export async function sendEmail({ to, subject, text, html }: sendEmail) {
+	try {
+		const mailOptions = {
+			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER!}>`,
+			to: [to],
+			subject,
+			text: text || "",
+			html: html || text || ""
+		};
+
+		const { error } = await resend.emails.send(mailOptions);
+		
+		if (error) {
+			console.error("Error sending email:", error);
+			throw new Error(`Failed to send email: ${error.message}`);
+		}
+		
+		console.log("Email sent successfully to:", to);
+	} catch (error) {
+		console.error("Error in sendEmail function:", error);
+		throw error;
+	}
+}
+
 export async function sendDonationThankYouEmail({ name, email, amount, currency = "NOK", transactionId, date, message, membershipId }: sendDonationThankYouEmail) {
 	const formattedDate = new Date(date).toLocaleDateString('en-US', { 
 		year: 'numeric', 
