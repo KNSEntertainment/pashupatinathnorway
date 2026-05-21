@@ -284,7 +284,7 @@ export function useMembershipForm() {
 	};
 
 	// --- Submit ---
-	const submitForm = async (): Promise<boolean> => {
+	const submitForm = async (captchaData?: { text: string; hash: string }): Promise<boolean> => {
 		// Validate family members first
 		const newFamilyErrors: Record<string, string> = {};
 		let hasFamilyError = false;
@@ -312,10 +312,11 @@ export function useMembershipForm() {
 		}
 
 		try {
+			const submissionData = captchaData ? { ...formData, captcha: captchaData } : formData;
 			const res = await fetch("/api/membership", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(formData),
+				body: JSON.stringify(submissionData),
 			});
 			if (!res.ok) {
 				const errorData = await res.json();

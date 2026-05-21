@@ -14,6 +14,7 @@ import { SuccessModal } from "@/components/membership/SuccessModal";
 import { AddressField } from "@/components/membership/AddressField";
 import { FamilyMemberCard } from "@/components/membership/FamilyMemberCard";
 import { FormField, StyledInput } from "@/components/membership/FormField";
+import CustomCaptcha from "@/components/ui/custom-captcha";
 
 interface Props {
 	translations: MembershipTranslations;
@@ -23,6 +24,8 @@ interface Props {
 export default function MembershipPageClient({ translations: t, locale }: Props) {
 	const tr = useTranslations("membership");
 	const [showStats, setShowStats] = useState(false);
+	const [captchaValid, setCaptchaValid] = useState(false);
+	const [captchaData, setCaptchaData] = useState({ text: "", hash: "" });
 
 	// --- Hooks ---
 	const form = useMembershipForm();
@@ -30,7 +33,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 	const otp = useOTPVerification({
 		phone: form.formData.phone,
 		onVerified: async () => {
-			await form.submitForm();
+			await form.submitForm(captchaData);
 		},
 	});
 
@@ -42,6 +45,12 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 	// --- Submit handler ---
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
+		
+		// Verify captcha before submission
+		if (!captchaValid) {
+			return;
+		}
+		
 		const valid = form.validateAll();
 		if (!valid) return;
 
@@ -332,6 +341,14 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 									cityPlaceholder={t.city_ph}
 									postalCodeLabel={t.postal_code}
 									postalCodePlaceholder={t.postal_code_ph}
+								/>
+							</section>
+
+							{/* ── Captcha ── */}
+							<section>
+								<CustomCaptcha 
+									onVerify={setCaptchaValid}
+									onCaptchaChange={setCaptchaData}
 								/>
 							</section>
 

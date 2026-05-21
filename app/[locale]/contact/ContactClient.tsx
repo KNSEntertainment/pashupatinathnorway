@@ -2,6 +2,7 @@
 import { Mail, MapPin, Phone, Send, CheckCircle, AlertCircle } from "lucide-react";
 import React, { useState } from "react";
 import SectionHeader from "@/components/SectionHeader";
+import CustomCaptcha from "@/components/ui/custom-captcha";
 
 type Setting = {
 	_id?: string;
@@ -43,13 +44,16 @@ export default function ContactPageClient({ settings, translations: t }: Props) 
 	const [success, setSuccess] = useState("");
 	const [error, setError] = useState("");
 	const [submitting, setSubmitting] = useState(false);
+	const [captchaValid, setCaptchaValid] = useState(false);
+	const [captchaData, setCaptchaData] = useState({ text: "", hash: "" });
 
 	const setting = settings?.[0] || {};
 
 	// Check if form is valid for submission
 	const isFormValid = form.name.trim().length >= 2 && 
 					   form.email.trim().length > 0 && 
-					   form.message.trim().length >= 10;
+					   form.message.trim().length >= 10 &&
+					   captchaValid;
 
 	function handleChange(e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) {
 		setForm({ ...form, [e.target.name]: e.target.value });
@@ -59,12 +63,22 @@ export default function ContactPageClient({ settings, translations: t }: Props) 
 		e.preventDefault();
 		setSuccess("");
 		setError("");
+		
+		// Verify captcha before submission
+		if (!captchaValid) {
+			setError("Please complete the captcha verification");
+			return;
+		}
+		
 		setSubmitting(true);
 		try {
 			const res = await fetch("/api/contact", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(form),
+				body: JSON.stringify({
+					...form,
+					captcha: captchaData
+				}),
 			});
 			const data = await res.json();
 			
@@ -165,6 +179,15 @@ export default function ContactPageClient({ settings, translations: t }: Props) 
 									{t.form.message}
 								</label>
 								<textarea id="message" name="message" value={form.message} onChange={handleChange} required rows={5} className="w-full px-4 py-3 rounded-xl border border-light focus:ring-4 focus:ring-blue-100 focus:border-blue-600 outline-none transition-all resize-none" placeholder={t.form.message_placeholder} />
+							</div>
+
+							{/* Captcha */}
+							<div className="mt-6">
+								<CustomCaptcha 
+									onVerify={setCaptchaValid}
+									onCaptchaChange={setCaptchaData}
+									error={!captchaValid && error === "Please complete the captcha verification" ? "Please verify the captcha" : ""}
+								/>
 							</div>
 
 							<button type="submit" disabled={submitting || !isFormValid} className="w-full md:w-auto px-10 py-4 bg-brand_primary text-gray-700 font-bold rounded-xl shadow-lg shadow-brand/50 hover:bg-brand_primary/90 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-brand_primary">

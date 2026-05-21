@@ -11,6 +11,7 @@ import { toast } from "react-hot-toast";
 import Image from "next/image";
 import { formatNOK } from "@/lib/norwegianCurrency";
 import AddressAutocomplete from "@/components/ui/address-autocomplete";
+import CustomCaptcha from "@/components/ui/custom-captcha";
 
 const PRESET_AMOUNTS = [100, 250, 500, 1000, 2500, 5000, 10000, 20000];
 
@@ -38,6 +39,8 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 	const [showVippsSuccess, setShowVippsSuccess] = useState(false);
 	const [selectedCause, setSelectedCause] = useState<string>("");
 	const [causes, setCauses] = useState<Array<{ _id: string; title: string; category: string }>>([]);
+	const [captchaValid, setCaptchaValid] = useState(false);
+	const [captchaData, setCaptchaData] = useState({ text: "", hash: "" });
 
 	const fetchUserData = useCallback(async () => {
 		// Only fetch if user is logged in
@@ -119,6 +122,12 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 			return;
 		}
 
+		// Verify captcha before submission
+		if (!captchaValid) {
+			toast.error("Please complete the captcha verification");
+			return;
+		}
+
 		// Validate personal number if provided (optional for tax purposes)
 		if (personalNumber && personalNumber.length !== 11) {
 			toast.error("Personal number must be exactly 11 digits");
@@ -153,6 +162,7 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 						isAnonymous,
 						causeId: selectedCause && selectedCause !== "general" ? selectedCause : null,
 						donationType: selectedCause && selectedCause !== "general" ? "cause_specific" : "general",
+						captcha: captchaData,
 					}),
 				});
 
@@ -198,6 +208,7 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 					isAnonymous,
 					causeId: selectedCause || null,
 					donationType: selectedCause ? "cause_specific" : "general",
+					captcha: captchaData,
 				}),
 			});
 
@@ -362,6 +373,14 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 			<div>
 				<label className="block text-sm font-medium text-gray-900 mb-2">{t("message_optional") || "Message (Optional)"}</label>
 				<textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={3} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-brand focus:outline-none text-gray-900 resize-none" placeholder={t("message_placeholder") || "Add a message (optional)"} />
+			</div>
+
+			{/* Captcha */}
+			<div>
+				<CustomCaptcha 
+					onVerify={setCaptchaValid}
+					onCaptchaChange={setCaptchaData}
+				/>
 			</div>
 
 			{/* Submit Button */}

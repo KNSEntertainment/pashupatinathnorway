@@ -10,10 +10,21 @@ export async function POST(req) {
 
 	try {
 		await connectDB();
-		const { name, email, message } = await req.json();
+		const { name, email, message, captcha } = await req.json();
 
 		if (!name || !email || !message) {
 			return NextResponse.json({ error: "All fields are required." }, { status: 400 });
+		}
+
+		// Verify captcha - for custom math captcha, we just need to ensure it was completed
+		if (!captcha || !captcha.hash) {
+			return NextResponse.json({ error: "Captcha verification is required." }, { status: 400 });
+		}
+
+		// For the custom math captcha, we verify that a hash exists (indicating the user solved it)
+		// The actual verification happens client-side with sessionStorage
+		if (!captcha.hash || captcha.hash.length < 10) {
+			return NextResponse.json({ error: "Invalid captcha. Please try again." }, { status: 400 });
 		}
 
 		// Validate message length
