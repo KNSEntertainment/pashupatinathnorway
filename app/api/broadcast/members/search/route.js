@@ -24,12 +24,40 @@ export async function GET(request) {
     const searchQuery = { membershipStatus: "approved" };
     
     if (query) {
-      searchQuery.$or = [
-        { firstName: { $regex: query, $options: "i" } },
-        { lastName: { $regex: query, $options: "i" } },
-        { email: { $regex: query, $options: "i" } },
-        { membershipId: { $regex: query, $options: "i" } }
-      ];
+      // Split query into keywords for better search
+      const keywords = query.trim().split(/\s+/);
+      const searchConditions = [];
+      
+      // Create conditions for each keyword
+      keywords.forEach(keyword => {
+        if (keyword) {
+          searchConditions.push(
+            { firstName: { $regex: keyword, $options: "i" } },
+            { middleName: { $regex: keyword, $options: "i" } },
+            { lastName: { $regex: keyword, $options: "i" } },
+            { email: { $regex: keyword, $options: "i" } },
+            { membershipId: { $regex: keyword, $options: "i" } },
+            { phone: { $regex: keyword, $options: "i" } }
+          );
+        }
+      });
+      
+      // For multi-keyword search, use $and to match all keywords
+      if (keywords.length > 1) {
+        searchQuery.$and = keywords.map(keyword => ({
+          $or: [
+            { firstName: { $regex: keyword, $options: "i" } },
+            { middleName: { $regex: keyword, $options: "i" } },
+            { lastName: { $regex: keyword, $options: "i" } },
+            { email: { $regex: keyword, $options: "i" } },
+            { membershipId: { $regex: keyword, $options: "i" } },
+            { phone: { $regex: keyword, $options: "i" } }
+          ]
+        }));
+      } else {
+        // For single keyword, use $or
+        searchQuery.$or = searchConditions;
+      }
     }
 
     if (membershipType && membershipType !== "all") {
@@ -37,7 +65,7 @@ export async function GET(request) {
     }
 
     const members = await Membership.find(searchQuery)
-      .select("firstName lastName email membershipType membershipId phone")
+      .select("firstName middleName lastName email membershipType membershipId phone")
       .sort({ lastName: 1, firstName: 1 })
       .limit(limit * 1)
       .skip((page - 1) * limit);

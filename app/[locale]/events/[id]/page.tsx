@@ -138,7 +138,7 @@ export default function EventDetailPage() {
         </div>
 
         {/* Event Title Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
+        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-12">
           <div className="container mx-auto">
             <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
               {event.eventname}
@@ -165,20 +165,20 @@ export default function EventDetailPage() {
       </div>
 
       {/* Event Details */}
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-6 md:py-12">
         <div className="max-w-4xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-8">
               {/* Event Description */}
-              <div className="bg-white rounded-xl p-8 shadow-sm">
+              <div className="bg-white rounded-xl p-4 md:p-8 shadow-sm">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
                   <h2 className="text-2xl font-bold text-gray-900">
                     {t("about_this_event") || "About This Event"}
                   </h2>
                   <Link
                     href={`/register?eventId=${event._id}`}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-red-700 text-white font-medium rounded-lg hover:bg-red-800 transition-colors"
+                    className="inline-flex justify-center items-center gap-2 px-6 py-3 bg-red-700 text-white font-medium rounded-lg hover:bg-red-800 transition-colors"
                   >
                     {t("register") || "Register"}
                   </Link>
@@ -195,7 +195,7 @@ export default function EventDetailPage() {
               </div>
 
               {/* Additional Information */}
-              <div className="bg-white rounded-xl p-8 shadow-sm">
+              <div className="bg-white rounded-xl p-4 md:p-8 shadow-sm">
                 <h3 className="text-xl font-bold text-gray-900 mb-4">
                   {t("additional_info") || "Additional Information"}
                 </h3>
@@ -245,7 +245,7 @@ export default function EventDetailPage() {
             {/* Sidebar */}
             <div className="space-y-6">
               {/* Quick Actions */}
-              <div className="bg-white rounded-xl p-6 shadow-sm">
+              <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">
                   {t("get_involved") || "Get Involved"}
                 </h3>
@@ -267,7 +267,7 @@ export default function EventDetailPage() {
 
 
               {/* Related Events */}
-              <div className="bg-white rounded-xl p-6 shadow-sm">
+              <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">
                   {t("more_events") || "More Events"}
                 </h3>

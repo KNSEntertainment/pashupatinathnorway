@@ -139,9 +139,9 @@ export default function EventFinancialDashboard() {
   }, [selectedEvent, fetchEventReport]);
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('nb-NO', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'NOK',
     }).format(amount);
   };
 
@@ -441,7 +441,7 @@ export default function EventFinancialDashboard() {
                   {eventReport.recentActivity.registrations.slice(0, 3).map((reg, index) => (
                     <div key={index} className="p-2 bg-blue-50 rounded text-sm">
                       <p className="font-medium text-gray-800">{reg.name}</p>
-                      <p className="text-blue-600">Payment: ${reg.paymentAmount}</p>
+                      <p className="text-blue-600">Payment: {reg.paymentAmount} kr</p>
                     </div>
                   ))}
                   {eventReport.recentActivity.registrations.length === 0 && (

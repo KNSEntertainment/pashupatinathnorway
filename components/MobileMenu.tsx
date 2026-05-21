@@ -49,6 +49,12 @@ export default function MobileMenu({
 
     const [expandedItem, setExpandedItem] =
         useState<string | null>(null);
+    
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const closeMenu = () => {
         setIsOpen(false);
@@ -361,9 +367,9 @@ export default function MobileMenu({
                                 item.dropdown
                                     ?.length;
                             
-                            const isMainActive = currentPath === normalizePath(item.href);
+                            const isMainActive = mounted && currentPath === normalizePath(item.href);
                             
-                            const isSubActive = hasDropdown && item.dropdown?.some(
+                            const isSubActive = mounted && hasDropdown && item.dropdown?.some(
                                 (sub) => normalizePath(sub.href) === currentPath
                             );
                             
@@ -404,7 +410,7 @@ export default function MobileMenu({
                                                         ? `
                                                         bg-brand_secondary/15
                                                         text-gray-900
-                                                        border-l-4
+                                                        border-l-2
                                                         border-brand_secondary
                                                         `
                                                         : `
@@ -442,7 +448,7 @@ export default function MobileMenu({
                                                     (
                                                         sub
                                                     ) => {
-                                                        const isSubItemActive = normalizePath(sub.href) === currentPath;
+                                                        const isSubItemActive = mounted && normalizePath(sub.href) === currentPath;
                                                         
                                                         return (
                                                             <Link
@@ -471,7 +477,7 @@ export default function MobileMenu({
                                                                         bg-brand_secondary/10
                                                                         text-brand_secondary
                                                                         font-semibold
-                                                                        border-l-3
+                                                                        border-l-2
                                                                         border-brand_secondary
                                                                         `
                                                                         : `
@@ -508,7 +514,7 @@ export default function MobileMenu({
                                                 active
                                                     ? `
                                                     bg-brand_secondary/15
-                                                    border-l-4
+                                                    border-l-2
                                                     border-brand_secondary
                                                     text-gray-900
                                                     `

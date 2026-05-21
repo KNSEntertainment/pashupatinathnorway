@@ -124,9 +124,9 @@ export default function GlobalFinancialDashboard() {
   }, [fetchReport]);
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('nb-NO', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'NOK',
     }).format(amount);
   };
 

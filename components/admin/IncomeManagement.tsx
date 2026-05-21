@@ -216,7 +216,7 @@ export default function IncomeManagement() {
             <div>
               <p className="text-gray-500 text-sm">Total Income</p>
               <p className="text-2xl font-bold text-green-600">
-                ${incomes.reduce((sum, i) => sum + i.amount, 0).toLocaleString()}
+                kr{incomes.reduce((sum, i) => sum + i.amount, 0).toLocaleString()}
               </p>
             </div>
             <DollarSign className="text-green-500" size={24} />
@@ -240,7 +240,7 @@ export default function IncomeManagement() {
             <div>
               <p className="text-gray-500 text-sm">Avg Income</p>
               <p className="text-2xl font-bold text-purple-600">
-                ${incomes.length > 0 ? (incomes.reduce((sum, i) => sum + i.amount, 0) / incomes.length).toFixed(2) : "0"}
+                kr{incomes.length > 0 ? (incomes.reduce((sum, i) => sum + i.amount, 0) / incomes.length).toFixed(2) : "0"}
               </p>
             </div>
             <TrendingUp className="text-purple-500" size={24} />
@@ -252,7 +252,7 @@ export default function IncomeManagement() {
             <div>
               <p className="text-gray-500 text-sm">This Month</p>
               <p className="text-2xl font-bold text-orange-600">
-                ${incomes
+                kr{incomes
                   .filter(i => new Date(i.date).getMonth() === new Date().getMonth() && 
                                new Date(i.date).getFullYear() === new Date().getFullYear())
                   .reduce((sum, i) => sum + i.amount, 0)
@@ -501,7 +501,7 @@ export default function IncomeManagement() {
                     </div>
                   </td>
                   <td className="px-4 py-3 font-medium text-green-600">
-                    ${income.amount.toLocaleString()}
+                    kr{income.amount.toLocaleString()}
                   </td>
                   <td className="px-4 py-3">
                     <span className="text-sm text-gray-600">

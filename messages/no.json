@@ -1001,7 +1001,7 @@
 		"digitalProductsMessage": "Tilgang til digitale produkter vil bli sendt til din e-post."
 	},
 	"events": {
-		"title": "Kommende Arrangementer",
+		"title": "Arrangementer",
 		"upcoming_event": "Kommende Arrangement",
 		"recent_event": "Nylig Arrangement",
 		"subtitle": "events.subtitle",
@@ -1012,6 +1012,7 @@
 		"no_events_desc": "Kom tilbake snart for kommende arrangementer og aktiviteter ved Pashupatinath Norway Temple",
 		"view_details": "Se Detaljer",
 		"register": "Registrer",
+		"event_completed": "Arrangement Fullført",
 		"previous": "Forrige",
 		"next": "Neste",
 		"cta_title": "Hold Deg Oppdatert",
@@ -1043,5 +1044,19 @@
 		"event_gallery": "Arrangementsgalleri",
 		"upcoming_events": "Kommende Arrangementer",
 		"special_occasions": "Spesielle Anledninger"
+	},
+	"registration": {
+		"title": "Arrangementsregistrering",
+		"subtitle": "Fullfør registreringen din i noen enkle trinn",
+		"no_event_selected": "Intet Arrangement Valgt",
+		"no_event_desc": "Velg et arrangement å registrere deg for, eller bruk registreringslinken i arrangementsdetaljene.",
+		"browse_events": "Bla Arrangementer",
+		"browse_more_events": "Bla Flere Arrangementer",
+		"go_to_dashboard": "Gå til Kontrollpanel",
+		"success_title": "Registrering Vellykket!",
+		"success_message": "Takk for at du registrerte deg for dette arrangementet. Din registrering er bekreftet.",
+		"registration_details": "Registreringsdetaljer",
+		"download_ticket": "Last Ned Billett",
+		"share_registration": "Del Registrering"
 	}
 }

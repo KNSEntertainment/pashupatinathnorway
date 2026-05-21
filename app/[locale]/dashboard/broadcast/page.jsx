@@ -304,10 +304,10 @@ export default function BroadcastPage() {
                           <div className="flex items-center justify-between">
                             <div>
                               <div className="font-medium">
-                                {member.firstName} {member.lastName}
+                                {member.firstName} {member.middleName && member.middleName + ' '}{member.lastName}
                               </div>
                               <div className="text-sm text-gray-500">
-                                {member.email} • {member.membershipType}
+                                {member.email} • {member.phone ? member.phone : 'No phone'} • {member.membershipType}
                               </div>
                             </div>
                             <input
@@ -338,7 +338,7 @@ export default function BroadcastPage() {
                           className="flex items-center justify-between p-2 bg-gray-50 rounded"
                         >
                           <div className="text-sm">
-                            {member.firstName} {member.lastName} • {member.email}
+                            {member.firstName} {member.middleName && member.middleName + ' '}{member.lastName} • {member.email} {member.phone && '• ' + member.phone}
                           </div>
                           <button
                             type="button"

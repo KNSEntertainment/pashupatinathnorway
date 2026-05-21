@@ -1,0 +1,46 @@
+name: Process Scheduled Broadcasts
+
+on:
+  schedule:
+    # Run every 5 minutes
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+    # Allow manual triggering for testing
+
+jobs:
+  process-scheduled-broadcasts:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Process Scheduled Broadcasts
+        run: |
+          echo "Processing scheduled broadcasts..."
+          echo "Time: $(date)"
+          
+          # Call the API endpoint to process scheduled broadcasts
+          response=$(curl -s -w "\n%{http_code}" -X GET \
+            "https://pashupatinathnorway.vercel.app/api/broadcast/process-scheduled" \
+            -H "Content-Type: application/json")
+          
+          # Extract status code and response body
+          http_code=$(echo "$response" | tail -n1)
+          response_body=$(echo "$response" | sed '$d')
+          
+          echo "HTTP Status: $http_code"
+          echo "Response: $response_body"
+          
+          # Check if the request was successful
+          if [ "$http_code" -eq 200 ]; then
+            echo "✅ Scheduled broadcasts processed successfully"
+          else
+            echo "❌ Failed to process scheduled broadcasts"
+            echo "Status code: $http_code"
+            echo "Response: $response_body"
+            exit 1
+          fi
+
+      - name: Log Results
+        if: always()
+        run: |
+          echo "Broadcast processing completed at: $(date)"
+          echo "Check the logs above for details"

@@ -1007,7 +1007,7 @@
 		"digitalProductsMessage": "Access to digital products will be sent to your email."
 	},
 	"events": {
-		"title": "Upcoming Events",
+		"title": "Events",
 		"upcoming_event": "Upcoming Event",
 		"recent_event": "Recent Event",
 		"subtitle": "Join us for spiritual gatherings, cultural celebrations, and community events",
@@ -1018,6 +1018,7 @@
 		"no_events_desc": "Check back soon for upcoming events and activities at Pashupatinath Norway Temple",
 		"view_details": "View Details",
 		"register": "Register",
+		"event_completed": "Event Completed",
 		"previous": "Previous",
 		"next": "Next",
 		"cta_title": "Stay Connected",
@@ -1047,5 +1048,19 @@
 		"event_gallery": "Event Gallery",
 		"upcoming_events": "Upcoming Events",
 		"special_occasions": "Special Occasions"
+	},
+	"registration": {
+		"title": "Event Registration",
+		"subtitle": "Complete your registration in a few simple steps",
+		"no_event_selected": "No Event Selected",
+		"no_event_desc": "Please select an event to register for, or use the registration link provided in the event details.",
+		"browse_events": "Browse Events",
+		"browse_more_events": "Browse More Events",
+		"go_to_dashboard": "Go to Dashboard",
+		"success_title": "Registration Successful!",
+		"success_message": "Thank you for registering for this event. Your registration has been confirmed.",
+		"registration_details": "Registration Details",
+		"download_ticket": "Download Ticket",
+		"share_registration": "Share Registration"
 	}
 }

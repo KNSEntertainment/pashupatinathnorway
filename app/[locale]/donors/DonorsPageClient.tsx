@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -135,10 +135,10 @@ export default function DonorsPageClient() {
 					<p className="text-lg text-gray-600">
 						View all donors who have contributed to building the Pashupatinath Temple in Norway
 					</p>
-					<Link href={`/${locale}/donate`} className="text-brand_primary hover:text-brand_secondary font-medium">
-						← Back to Donate
-					</Link>
 				</div>
+				<Link href={`/${locale}/donate`} className="text-brand_secondary/80 hover:text-brand_secondary font-medium mb-6 inline-block">
+					← Back to Donate Form
+				</Link>
 
 				{/* Statistics Cards */}
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -267,7 +267,7 @@ export default function DonorsPageClient() {
 							
 							{/* Top Pagination */}
 							{pagination.pages > 1 && (
-								<div className="flex items-center gap-2">
+								<div className="flex items-center justify-between">
 									<Button
 										onClick={() => handlePageChange(currentPage - 1)}
 										disabled={!pagination.hasPrevPage}
@@ -275,10 +275,10 @@ export default function DonorsPageClient() {
 										size="sm"
 									>
 										<ChevronLeft className="w-4 h-4" />
-										Previous
+										<span className="hidden sm:inline">Previous</span>
 									</Button>
 									
-									<div className="flex items-center gap-1">
+									<div className="flex items-center gap-1 hidden sm:flex">
 										{Array.from({ length: Math.min(5, pagination.pages) }, (_, i) => {
 											let pageNum;
 											if (pagination.pages <= 5) {
@@ -311,7 +311,7 @@ export default function DonorsPageClient() {
 										variant="outline"
 										size="sm"
 									>
-										Next
+										<span className="hidden sm:inline">Next</span>
 										<ChevronRight className="w-4 h-4" />
 									</Button>
 								</div>
@@ -333,44 +333,59 @@ export default function DonorsPageClient() {
 											<tr className="border-b border-gray-200">
 												<th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Donor</th>
 												<th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Amount</th>
-												<th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Date</th>
-												<th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Message</th>
+												<th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 hidden sm:table-cell">Date</th>
+												<th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 hidden sm:table-cell">Message</th>
 											</tr>
 										</thead>
 										<tbody>
 											{donors.map((donor: Donor, index: number) => (
-												<tr key={index} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-													<td className="py-3 px-4">
-														<div className="flex items-center gap-2">
-															<Heart className="w-4 h-4 text-brand_secondary flex-shrink-0" />
-															<div>
-																<p className="font-medium text-gray-900">{donor.name}</p>
-																{donor.isAnonymous && (
-																	<p className="text-xs text-gray-500">Anonymous</p>
-																)}
+												<React.Fragment key={index}>
+													<tr className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+														<td className="py-3 px-4">
+															<div className="flex items-center gap-2">
+																<Heart className="w-4 h-4 text-brand_secondary flex-shrink-0" />
+																<div>
+																	<p className="font-medium text-gray-900">{donor.name}</p>
+																	{donor.isAnonymous && (
+																		<p className="text-xs text-gray-500">Anonymous</p>
+																	)}
+																</div>
 															</div>
-														</div>
-													</td>
-													<td className="py-3 px-4">
-														<p className="font-semibold text-gray-900">
-															{donor.amount.toLocaleString('nb-NO', {
-																style: 'currency',
-																currency: 'NOK',
-																minimumFractionDigits: 0,
-																maximumFractionDigits: 0
-															})}
-														</p>
-													</td>
-													<td className="py-3 px-4 text-sm text-gray-600">
-														<div className="flex items-center gap-1">
-															<Calendar className="w-3 h-3" />
-															{new Date(donor.date).toLocaleDateString('nb-NO')}
-														</div>
-													</td>
-													<td className="py-3 px-4 text-sm text-gray-600 max-w-xs truncate">
-														{donor.message || "-"}
-													</td>
-												</tr>
+														</td>
+														<td className="py-3 px-4">
+															<p className="font-semibold text-gray-900">
+																{donor.amount.toLocaleString('nb-NO', {
+																	style: 'currency',
+																	currency: 'NOK',
+																	minimumFractionDigits: 0,
+																	maximumFractionDigits: 0
+																})}
+															</p>
+														</td>
+														<td className="py-3 px-4 text-sm text-gray-600 hidden sm:table-cell">
+															<div className="flex items-center gap-1">
+																<Calendar className="w-3 h-3" />
+																{new Date(donor.date).toLocaleDateString('nb-NO')}
+															</div>
+														</td>
+														<td className="py-3 px-4 text-sm text-gray-600 max-w-xs truncate hidden sm:table-cell">
+															{donor.message || "-"}
+														</td>
+													</tr>
+													{/* Mobile-only message row */}
+													{donor.message && (
+														<tr className="sm:hidden">
+															<td colSpan={2} className="py-3 px-4 pt-0 text-sm text-gray-600">
+																<div className="pl-6 border-l-2 border-gray-200 ml-4">
+																	<div className="bg-gray-50 rounded-r p-3 -ml-px">
+																		<span className="font-medium text-gray-700 text-xs block mb-1">Message:</span>
+																		<div className="text-gray-600">{donor.message}</div>
+																	</div>
+																</div>
+															</td>
+														</tr>
+													)}
+												</React.Fragment>
 											))}
 										</tbody>
 									</table>
@@ -378,11 +393,11 @@ export default function DonorsPageClient() {
 
 								{/* Pagination */}
 								{pagination.pages > 1 && (
-									<div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-200">
-										<div className="text-sm text-gray-600">
+									<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-6 pt-6 border-t border-gray-200">
+										<div className="text-sm text-gray-600 text-center sm:text-left">
 											Showing {((currentPage - 1) * pagination.limit) + 1} to {Math.min(currentPage * pagination.limit, pagination.total)} of {pagination.total} donors
 										</div>
-										<div className="flex items-center gap-2">
+										<div className="flex items-center justify-between sm:justify-end gap-2">
 											<Button
 												onClick={() => handlePageChange(currentPage - 1)}
 												disabled={!pagination.hasPrevPage}
@@ -390,10 +405,10 @@ export default function DonorsPageClient() {
 												size="sm"
 											>
 												<ChevronLeft className="w-4 h-4" />
-												Previous
+												<span className="hidden sm:inline">Previous</span>
 											</Button>
 											
-											<div className="flex items-center gap-1">
+											<div className="flex items-center gap-1 hidden sm:flex">
 												{Array.from({ length: Math.min(5, pagination.pages) }, (_, i) => {
 													let pageNum;
 													if (pagination.pages <= 5) {
@@ -426,7 +441,7 @@ export default function DonorsPageClient() {
 												variant="outline"
 												size="sm"
 											>
-												Next
+												<span className="hidden sm:inline">Next</span>
 												<ChevronRight className="w-4 h-4" />
 											</Button>
 										</div>

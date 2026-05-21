@@ -16,6 +16,16 @@ interface Event {
   eventposterUrl?: string;
 }
 
+// Utility function to check if event is today or in the future
+const isEventTodayOrFuture = (eventDate: string): boolean => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Set to start of day for comparison
+  const event = new Date(eventDate);
+  event.setHours(0, 0, 0, 0); // Set to start of day for comparison
+  return event >= today;
+};
+
+
 export default function EventsPage() {
   const t = useTranslations("events");
   const [events, setEvents] = useState<Event[]>([]);
@@ -80,7 +90,7 @@ export default function EventsPage() {
         <div className="container mx-auto px-4 py-16 lg:py-24">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              {t("title") || "Upcoming Events"}
+              {t("title") || "Events"}
             </h1>
             <p className="text-xl md:text-2xl text-gray-800 mb-8">
               {t("subtitle") || "Join us for spiritual gatherings, cultural celebrations, and community events"}
@@ -182,12 +192,18 @@ export default function EventsPage() {
                     )}
 
                     <div className="flex gap-3">
-                      <Link
-                        href={`/register?eventId=${event._id}`}
-                        className="inline-flex flex-1 justify-center items-center gap-2 bg-red-700 text-white hover:bg-red-800 px-4 py-2 rounded-lg font-medium text-sm transition-colors"
-                      >
-                        {t("register") || "Register"}
-                      </Link>
+                      {isEventTodayOrFuture(event.eventdate) ? (
+                        <Link
+                          href={`/register?eventId=${event._id}`}
+                          className="inline-flex flex-1 justify-center items-center gap-2 bg-red-700 text-white hover:bg-red-800 px-4 py-2 rounded-lg font-medium text-sm transition-colors"
+                        >
+                          {t("register") || "Register"}
+                        </Link>
+                      ) : (
+                        <div className="inline-flex flex-1 justify-center items-center gap-2 bg-gray-300 text-gray-600 px-4 py-2 rounded-lg font-medium text-sm cursor-not-allowed">
+                          {t("event_completed") || "Event Completed"}
+                        </div>
+                      )}
                       
                       <Link
                         href={`/events/${event._id}`}

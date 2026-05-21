@@ -349,12 +349,12 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ params }) => {
 						<CardContent>
 							<div className="bg-gray-50 p-4 rounded-lg">
 								<div className="flex items-center gap-3">
-									<div className="w-12 h-8 bg-blue-600 rounded flex items-center justify-center">
-										<span className="text-white text-xs font-bold">STRIPE</span>
+									<div className="w-12 h-8 bg-orange-700 rounded flex items-center justify-center">
+										<span className="text-white text-xs font-bold">VIPPS</span>
 									</div>
 									<div>
 										<div className="font-medium text-sm">Secure Payment</div>
-										<div className="text-xs text-gray-600">Pay with credit/debit card</div>
+										<div className="text-xs text-gray-600">Pay with VIPPS</div>
 									</div>
 								</div>
 							</div>
@@ -364,7 +364,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ params }) => {
 					{/* Submit Button */}
 					<Button 
 						type="submit" 
-						className="w-full" 
+						className="w-full bg-orange-700" 
 						size="lg"
 						disabled={isProcessing}
 					>

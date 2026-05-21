@@ -8,11 +8,11 @@ import {
   Save, 
   X, 
   RefreshCw,
-  DollarSign,
   TrendingUp,
   TrendingDown,
   Target,
-  AlertCircle
+  AlertCircle,
+  Coins
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 
@@ -207,7 +207,7 @@ export default function BudgetManagement() {
             <div>
               <p className="text-gray-500 text-sm">Total Allocated</p>
               <p className="text-2xl font-bold text-blue-600">
-                ${budgets.reduce((sum, b) => sum + (b.allocatedAmount || 0), 0).toLocaleString()}
+                kr{budgets.reduce((sum, b) => sum + (b.allocatedAmount || 0), 0).toLocaleString()}
               </p>
             </div>
             <Target className="text-blue-500" size={24} />
@@ -219,7 +219,7 @@ export default function BudgetManagement() {
             <div>
               <p className="text-gray-500 text-sm">Total Spent</p>
               <p className="text-2xl font-bold text-red-600">
-                ${budgets.reduce((sum, b) => sum + (b.spentAmount || 0), 0).toLocaleString()}
+                kr{budgets.reduce((sum, b) => sum + (b.spentAmount || 0), 0).toLocaleString()}
               </p>
             </div>
             <TrendingDown className="text-red-500" size={24} />
@@ -231,7 +231,7 @@ export default function BudgetManagement() {
             <div>
               <p className="text-gray-500 text-sm">Total Remaining</p>
               <p className="text-2xl font-bold text-green-600">
-                ${budgets.reduce((sum, b) => sum + (b.remainingAmount || 0), 0).toLocaleString()}
+                kr{budgets.reduce((sum, b) => sum + (b.remainingAmount || 0), 0).toLocaleString()}
               </p>
             </div>
             <TrendingUp className="text-green-500" size={24} />
@@ -246,7 +246,7 @@ export default function BudgetManagement() {
                 {budgets.filter(b => b.status === "active").length}
               </p>
             </div>
-            <DollarSign className="text-purple-500" size={24} />
+            <Coins className="text-purple-500" size={24} />
           </div>
         </div>
       </div>
@@ -492,16 +492,16 @@ export default function BudgetManagement() {
                     </span>
                   </td>
                   <td className="px-4 py-3 font-medium text-blue-600">
-                    ${(budget.allocatedAmount || 0).toLocaleString()}
+                    kr{(budget.allocatedAmount || 0).toLocaleString()}
                   </td>
                   <td className="px-4 py-3 font-medium text-red-600">
-                    ${(budget.spentAmount || 0).toLocaleString()}
+                    kr{(budget.spentAmount || 0).toLocaleString()}
                   </td>
                   <td className="px-4 py-3">
                     <span className={`font-medium ${
                       (budget.remainingAmount || 0) >= 0 ? 'text-green-600' : 'text-red-600'
                     }`}>
-                      ${(budget.remainingAmount || 0).toLocaleString()}
+                      kr{(budget.remainingAmount || 0).toLocaleString()}
                     </span>
                     {(budget.remainingAmount || 0) < 0 && (
                       <div className="flex items-center text-xs text-red-500 mt-1">

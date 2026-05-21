@@ -58,7 +58,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ children }) => {
 			</SheetTrigger>
 			<SheetContent className="w-full sm:max-w-lg overflow-y-auto">
 				<SheetHeader>
-					<SheetTitle className="flex items-center justify-between">
+					<SheetTitle className="flex items-center justify-between mt-4">
 						<span className="flex items-center gap-2">
 							<ShoppingCart className="w-5 h-5" />
 							Shopping Cart ({itemTotal})
@@ -198,17 +198,17 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ children }) => {
 
 							{/* Checkout Button */}
 							<Button 
-								className="w-full mt-6" 
+								className="w-full mt-6 bg-orange-700" 
 								size="lg"
 								onClick={() => {
 									window.location.href = '/checkout';
 								}}
 							>
-								Proceed to Checkout
+								Pay with VIPPS
 							</Button>
 
 							<div className="text-xs text-gray-500 text-center">
-								Secure checkout powered by Stripe
+								Secure checkout powered by VIPPS
 							</div>
 						</>
 					)}
