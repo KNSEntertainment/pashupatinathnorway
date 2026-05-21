@@ -125,6 +125,7 @@ export default function FooterClient({ settings }) {
 						<nav className="flex flex-col gap-3 mt-5">
 							<LegalLink href={`/${locale}/terms-and-conditions`} label={t("terms")} />
 							<LegalLink href={`/${locale}/privacy-policy`} label={t("privacy")} />
+							<LegalLink href={`/${locale}/sales-terms-and-conditions`} label={t("sales_terms")} />
 						</nav>
 					</div>
 				</div>
