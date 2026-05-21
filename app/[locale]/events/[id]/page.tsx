@@ -113,7 +113,7 @@ export default function EventDetailPage() {
           sizes="100vw"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent"></div>
         
         {/* Back Button */}
         <div className="absolute top-4 left-4 md:top-8 md:left-8">
@@ -127,7 +127,7 @@ export default function EventDetailPage() {
         </div>
 
         {/* Action Buttons */}
-        <div className="absolute top-4 right-4 md:top-8 md:right-8 flex gap-2">
+        <div className="absolute top-4 right-4 md:top-8 md:right-8">
           <button
             onClick={handleShare}
             className="p-2 bg-white/90 backdrop-blur-sm text-gray-700 rounded-lg hover:bg-white transition-colors"
@@ -135,7 +135,6 @@ export default function EventDetailPage() {
           >
             <Share2 className="w-5 h-5" />
           </button>
-     
         </div>
 
         {/* Event Title Overlay */}
@@ -173,9 +172,17 @@ export default function EventDetailPage() {
             <div className="lg:col-span-2 space-y-8">
               {/* Event Description */}
               <div className="bg-white rounded-xl p-8 shadow-sm">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                  {t("about_this_event") || "About This Event"}
-                </h2>
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    {t("about_this_event") || "About This Event"}
+                  </h2>
+                  <Link
+                    href={`/register?eventId=${event._id}`}
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-red-700 text-white font-medium rounded-lg hover:bg-red-800 transition-colors"
+                  >
+                    {t("register") || "Register"}
+                  </Link>
+                </div>
                 {event.eventdescription ? (
                   <div className="prose prose-lg text-gray-600">
                     <p className="whitespace-pre-wrap">{event.eventdescription}</p>

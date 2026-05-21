@@ -93,6 +93,19 @@ const DonationSchema = new mongoose.Schema(
 			enum: ["general", "cause_specific"],
 			default: "general",
 		},
+		// New fields for event integration
+		eventId: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "Event",
+		},
+		linkedRegistrationId: {
+			type: mongoose.Schema.Types.ObjectId,
+		},
+		donationPurpose: {
+			type: String,
+			enum: ["general", "cause", "event"],
+			default: "general",
+		},
 	},
 	{
 		timestamps: true,

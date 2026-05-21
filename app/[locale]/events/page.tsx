@@ -147,7 +147,7 @@ export default function EventsPage() {
 
                   {/* Event Content */}
                   <div className="p-6">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-3 line-clamp-2">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-3 line-clamp-1">
                       {event.eventname}
                     </h3>
                     
@@ -181,13 +181,22 @@ export default function EventsPage() {
                       </p>
                     )}
 
-                    <Link
-                      href={`/events/${event._id}`}
-                      className="inline-flex items-center gap-2 text-red-700 hover:text-red-800 font-medium text-sm transition-colors"
-                    >
-                      {t("view_details") || "View Details"}
-                      <ArrowRight className="w-4 h-4" />
-                    </Link>
+                    <div className="flex gap-3">
+                      <Link
+                        href={`/register?eventId=${event._id}`}
+                        className="inline-flex flex-1 justify-center items-center gap-2 bg-red-700 text-white hover:bg-red-800 px-4 py-2 rounded-lg font-medium text-sm transition-colors"
+                      >
+                        {t("register") || "Register"}
+                      </Link>
+                      
+                      <Link
+                        href={`/events/${event._id}`}
+                        className="inline-flex items-center gap-2 text-red-700 hover:text-red-800 font-medium text-sm transition-colors"
+                      >
+                        {t("view_details") || "View Details"}
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               ))}

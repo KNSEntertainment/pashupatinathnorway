@@ -17,6 +17,12 @@ export default function EventForm({ handleCloseEventModal, eventToEdit = null })
 		eventvideo: null,
 		removeEventPoster2: false,
 		removeEventPoster3: false,
+		// New pricing and registration fields
+		memberPrice: "",
+		guestPrice: "",
+		allowGuestRegistration: true,
+		registrationDeadline: "",
+		maxAttendees: "",
 	});
 	const [submitting, setSubmitting] = useState(false);
 	const [error, setError] = useState("");
@@ -24,6 +30,7 @@ export default function EventForm({ handleCloseEventModal, eventToEdit = null })
 	useEffect(() => {
 		if (eventToEdit) {
 			const eventDateValue = eventToEdit.eventdate ? String(eventToEdit.eventdate).split("T")[0] : "";
+			const registrationDeadlineValue = eventToEdit.registrationDeadline ? String(eventToEdit.registrationDeadline).split("T")[0] : "";
 			const stringKeys = ["eventname", "eventdescription", "eventvenue", "eventtime"];
 			const sanitizedStrings = stringKeys.reduce((acc, key) => {
 				acc[key] = toSafeString(eventToEdit[key]);
@@ -39,6 +46,12 @@ export default function EventForm({ handleCloseEventModal, eventToEdit = null })
 				eventvideo: null,
 				removeEventPoster2: false,
 				removeEventPoster3: false,
+				// New pricing and registration fields
+				memberPrice: eventToEdit.memberPrice ? String(eventToEdit.memberPrice) : "",
+				guestPrice: eventToEdit.guestPrice ? String(eventToEdit.guestPrice) : "",
+				allowGuestRegistration: eventToEdit.allowGuestRegistration ?? true,
+				registrationDeadline: registrationDeadlineValue,
+				maxAttendees: eventToEdit.maxAttendees ? String(eventToEdit.maxAttendees) : "",
 			}));
 		}
 	}, [eventToEdit]);
@@ -90,6 +103,12 @@ export default function EventForm({ handleCloseEventModal, eventToEdit = null })
 					eventvideo: null,
 					removeEventPoster2: false,
 					removeEventPoster3: false,
+					// New pricing and registration fields
+					memberPrice: "",
+					guestPrice: "",
+					allowGuestRegistration: true,
+					registrationDeadline: "",
+					maxAttendees: "",
 				});
 				// Reset eventposter input
 				const eventposterInput = document.getElementById("eventposter");
@@ -153,6 +172,89 @@ export default function EventForm({ handleCloseEventModal, eventToEdit = null })
 						Event Time
 					</label>
 					<input type="text" id="eventtime" value={formData.eventtime} onChange={(e) => setFormData({ ...formData, eventtime: e.target.value })} className="w-full p-2 border rounded" />
+				</div>
+
+				{/* New Pricing and Registration Fields */}
+				<div className="md:col-span-2 border-t pt-4">
+					<h3 className="text-lg font-semibold mb-4 text-gray-800">Pricing & Registration Settings</h3>
+				</div>
+
+				<div>
+					<label htmlFor="memberPrice" className="block mb-2 font-bold">
+						Member Price ($)
+					</label>
+					<input 
+						type="number" 
+						id="memberPrice" 
+						value={formData.memberPrice} 
+						onChange={(e) => setFormData({ ...formData, memberPrice: e.target.value })} 
+						className="w-full p-2 border rounded" 
+						min="0" 
+						step="0.01"
+						placeholder="0.00"
+					/>
+					<p className="text-xs text-gray-500 mt-1">Price for registered members</p>
+				</div>
+
+				<div>
+					<label htmlFor="guestPrice" className="block mb-2 font-bold">
+						Guest Price ($)
+					</label>
+					<input 
+						type="number" 
+						id="guestPrice" 
+						value={formData.guestPrice} 
+						onChange={(e) => setFormData({ ...formData, guestPrice: e.target.value })} 
+						className="w-full p-2 border rounded" 
+						min="0" 
+						step="0.01"
+						placeholder="0.00"
+					/>
+					<p className="text-xs text-gray-500 mt-1">Price for non-members</p>
+				</div>
+
+				<div>
+					<label htmlFor="registrationDeadline" className="block mb-2 font-bold">
+						Registration Deadline
+					</label>
+					<input 
+						type="date" 
+						id="registrationDeadline" 
+						value={formData.registrationDeadline} 
+						onChange={(e) => setFormData({ ...formData, registrationDeadline: e.target.value })} 
+						className="w-full p-2 border rounded"
+					/>
+					<p className="text-xs text-gray-500 mt-1">Last date for registration (optional)</p>
+				</div>
+
+				<div>
+					<label htmlFor="maxAttendees" className="block mb-2 font-bold">
+						Maximum Attendees
+					</label>
+					<input 
+						type="number" 
+						id="maxAttendees" 
+						value={formData.maxAttendees} 
+						onChange={(e) => setFormData({ ...formData, maxAttendees: e.target.value })} 
+						className="w-full p-2 border rounded" 
+						min="1"
+						placeholder="Unlimited"
+					/>
+					<p className="text-xs text-gray-500 mt-1">Leave empty for unlimited</p>
+				</div>
+
+				<div className="md:col-span-2">
+					<label className="flex items-center gap-2 mb-2">
+						<input
+							type="checkbox"
+							id="allowGuestRegistration"
+							checked={formData.allowGuestRegistration}
+							onChange={(e) => setFormData({ ...formData, allowGuestRegistration: e.target.checked })}
+							className="rounded"
+						/>
+						<span className="font-bold">Allow Guest Registration</span>
+					</label>
+					<p className="text-xs text-gray-500">Enable non-members to register for this event</p>
 				</div>
 
 				<div>

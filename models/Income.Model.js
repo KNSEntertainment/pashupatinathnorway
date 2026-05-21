@@ -2,13 +2,36 @@ import mongoose from "mongoose";
 
 const IncomeSchema = new mongoose.Schema(
 	{
+		eventId: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "Event",
+		},
+		title: {
+			type: String,
+			required: true,
+		},
 		amount: {
 			type: Number,
 			required: true,
 		},
-		source: {
+		sourceType: {
 			type: String,
 			required: true,
+			enum: ["donation", "membership", "registration", "sponsorship", "other"],
+		},
+		paymentMethod: {
+			type: String,
+			enum: ["cash", "bank_transfer", "stripe", "vipps", "paypal", "other"],
+		},
+		referenceId: {
+			type: String,
+		},
+		description: {
+			type: String,
+		},
+		// Keep existing fields for backward compatibility
+		source: {
+			type: String,
 			enum: ["donations", "membership_fees", "events", "sponsorships", "grants", "other"],
 		},
 		customSource: {
@@ -16,9 +39,6 @@ const IncomeSchema = new mongoose.Schema(
 			required: function() {
 				return this.source === "other";
 			},
-		},
-		description: {
-			type: String,
 		},
 		date: {
 			type: Date,
@@ -31,6 +51,10 @@ const IncomeSchema = new mongoose.Schema(
 		budgetId: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "Budget",
+		},
+		createdBy: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "User",
 		},
 	},
 	{

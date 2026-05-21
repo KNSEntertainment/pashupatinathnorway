@@ -8,8 +8,13 @@ export async function GET(request: Request) {
 		await connectDB();
 		const { searchParams } = new URL(request.url);
 		const filter = searchParams.get('filter');
+		const eventId = searchParams.get('eventId');
 		
 		const query: Record<string, unknown> = {};
+		
+		if (eventId) {
+			query.eventId = new mongoose.Types.ObjectId(eventId);
+		}
 		
 		if (filter && filter !== 'all') {
 			const now = new Date();
@@ -32,7 +37,12 @@ export async function GET(request: Request) {
 			}
 		}
 		
-		const income = await Income.find(query).populate('budgetId', 'name').sort({ date: -1 });
+		const income = await Income.find(query)
+			.populate('eventId', 'eventname eventdate')
+			.populate('budgetId', 'name')
+			.populate('createdBy', 'name email')
+			.sort({ date: -1 });
+			
 		return NextResponse.json(income, { status: 200 });
 	} catch (error) {
 		console.error("Error fetching income:", error);
@@ -45,6 +55,16 @@ export async function POST(request: Request) {
 		await connectDB();
 		const body = await request.json();
 		
+		// Convert eventId to ObjectId if present
+		if (body.eventId && typeof body.eventId === 'string') {
+			try {
+				body.eventId = new mongoose.Types.ObjectId(body.eventId);
+			} catch {
+				console.error("Invalid eventId ObjectId:", body.eventId);
+				return NextResponse.json({ error: "Invalid eventId format" }, { status: 400 });
+			}
+		}
+		
 		// Convert budgetId string to ObjectId if present
 		if (body.budgetId && typeof body.budgetId === 'string') {
 			try {
@@ -55,8 +75,23 @@ export async function POST(request: Request) {
 			}
 		}
 		
+		// Convert createdBy to ObjectId if present
+		if (body.createdBy && typeof body.createdBy === 'string') {
+			try {
+				body.createdBy = new mongoose.Types.ObjectId(body.createdBy);
+			} catch {
+				console.error("Invalid createdBy ObjectId:", body.createdBy);
+				return NextResponse.json({ error: "Invalid createdBy format" }, { status: 400 });
+			}
+		}
+		
 		const income = await Income.create(body);
-		return NextResponse.json(income, { status: 201 });
+		const populatedIncome = await Income.findById(income._id)
+			.populate('eventId', 'eventname eventdate')
+			.populate('budgetId', 'name')
+			.populate('createdBy', 'name email');
+			
+		return NextResponse.json(populatedIncome, { status: 201 });
 	} catch (error) {
 		console.error("Error creating income:", error);
 		return NextResponse.json({ error: "Failed to create income" }, { status: 500 });
@@ -73,6 +108,16 @@ export async function PUT(request: Request) {
 			return NextResponse.json({ error: "Income ID is required" }, { status: 400 });
 		}
 		
+		// Convert eventId to ObjectId if present
+		if (updateData.eventId && typeof updateData.eventId === 'string') {
+			try {
+				updateData.eventId = new mongoose.Types.ObjectId(updateData.eventId);
+			} catch {
+				console.error("Invalid eventId ObjectId:", updateData.eventId);
+				return NextResponse.json({ error: "Invalid eventId format" }, { status: 400 });
+			}
+		}
+		
 		// Convert budgetId string to ObjectId if present
 		if (updateData.budgetId && typeof updateData.budgetId === 'string') {
 			try {
@@ -83,11 +128,23 @@ export async function PUT(request: Request) {
 			}
 		}
 		
+		// Convert createdBy to ObjectId if present
+		if (updateData.createdBy && typeof updateData.createdBy === 'string') {
+			try {
+				updateData.createdBy = new mongoose.Types.ObjectId(updateData.createdBy);
+			} catch {
+				console.error("Invalid createdBy ObjectId:", updateData.createdBy);
+				return NextResponse.json({ error: "Invalid createdBy format" }, { status: 400 });
+			}
+		}
+		
 		const income = await Income.findByIdAndUpdate(
 			id,
 			updateData,
 			{ new: true, runValidators: true }
-		);
+		).populate('eventId', 'eventname eventdate')
+		 .populate('budgetId', 'name')
+		 .populate('createdBy', 'name email');
 		
 		if (!income) {
 			return NextResponse.json({ error: "Income not found" }, { status: 404 });

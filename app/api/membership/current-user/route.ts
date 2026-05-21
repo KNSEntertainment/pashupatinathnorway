@@ -28,6 +28,7 @@ export async function GET() {
         lastName: membership.lastName,
         email: membership.email,
         phone: membership.phone,
+        address: membership.address,
         personalNumber: membership.personalNumber,
         membershipStatus: membership.membershipStatus,
         membershipType: membership.membershipType

@@ -21,6 +21,13 @@ export async function POST(request) {
 		const eventdate = formData.get("eventdate");
 		const eventtime = formData.get("eventtime");
 		const eventposter = formData.get("eventposter");
+		
+		// New pricing and registration fields
+		const memberPrice = formData.get("memberPrice");
+		const guestPrice = formData.get("guestPrice");
+		const allowGuestRegistration = formData.get("allowGuestRegistration") === "true";
+		const registrationDeadline = formData.get("registrationDeadline");
+		const maxAttendees = formData.get("maxAttendees");
 		if (!eventposter || typeof eventposter.arrayBuffer !== "function") {
 			return NextResponse.json({ success: false, error: "Invalid file upload for eventposter" }, { status: 400 });
 		}
@@ -55,6 +62,12 @@ export async function POST(request) {
 			eventposter2Url,
 			eventposter3Url,
 			eventvideoUrl,
+			// New pricing and registration fields
+			memberPrice: memberPrice ? parseFloat(memberPrice) : 0,
+			guestPrice: guestPrice ? parseFloat(guestPrice) : 0,
+			allowGuestRegistration,
+			registrationDeadline: registrationDeadline ? new Date(registrationDeadline) : null,
+			maxAttendees: maxAttendees ? parseInt(maxAttendees) : null,
 		});
 		console.log("Event created successfully:", event);
 

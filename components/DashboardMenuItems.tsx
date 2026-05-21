@@ -1,4 +1,4 @@
-import { BookImage, Settings, LayoutDashboard, Book, User, Bell, Users, Mail, DollarSign, Image, Heart, QrCode, Gift, LucideIcon, FileText, Shield, FolderOpen, PiggyBank, Info, Target, Sparkles, Flame, PartyPopper, Send, MessageSquare } from "lucide-react";
+import { BookImage, Settings, LayoutDashboard, Book, User, Bell, Users, Mail, DollarSign, Image, Heart, QrCode, Gift, LucideIcon, FileText, Shield, FolderOpen, PiggyBank, Info, Target, Sparkles, Flame, PartyPopper, Send, MessageSquare, TrendingUp, TrendingDown } from "lucide-react";
 
 export interface MenuItem {
 	id: string;
@@ -17,6 +17,10 @@ export const menuItems: MenuItem[] = [
 	{ id: "birthdays", label: "Birthdays", icon: Gift, color: "bg-pink-500", href: "/en/dashboard/birthdays", role: "admin" },
 	{ id: "broadcast", label: "Broadcast", icon: Send, color: "bg-blue-600", href: "/en/dashboard/broadcast", role: "admin" },
 	{ id: "budget", label: "Budget", icon: PiggyBank, color: "bg-emerald-600", href: "/en/dashboard/budget", role: "admin" },
+	{ id: "income", label: "Income", icon: TrendingUp, color: "bg-green-600", href: "/en/dashboard/income", role: "admin" },
+	{ id: "expenses", label: "Expenses", icon: TrendingDown, color: "bg-red-600", href: "/en/dashboard/expenses", role: "admin" },
+	{ id: "financial-dashboard", label: "Financial Dashboard", icon: DollarSign, color: "bg-blue-600", href: "/en/dashboard/financial-dashboard", role: "admin" },
+	{ id: "event-financial-dashboard", label: "Event Financials", icon: Target, color: "bg-purple-600", href: "/en/dashboard/event-financial-dashboard", role: "admin" },
 	{ id: "causes", label: "Causes", icon: Heart, color: "bg-blue-600", href: "/en/dashboard/causes", role: "admin" },
 	{ id: "contactmessages", label: "Contact Messages", icon: Book, color: "bg-blue-600", href: "/en/dashboard/contactmessages", role: "admin" },
 	{ id: "donations", label: "Donations", icon: DollarSign, color: "bg-green-600", href: "/en/dashboard/donations", role: "admin" },

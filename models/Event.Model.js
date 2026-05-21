@@ -10,6 +10,11 @@ const eventSchema = new mongoose.Schema({
 	eventposter2Url: { type: String, required: false },
 	eventposter3Url: { type: String, required: false },
 	eventvideoUrl: { type: String, required: false },
+	// New fields for registration and pricing
+	memberPrice: { type: Number, default: 0 },
+	guestPrice: { type: Number, default: 0 },
+	allowGuestRegistration: { type: Boolean, default: true },
+	registrationDeadline: { type: Date },
 	// New fields for attendance tracking
 	enableAttendance: { type: Boolean, default: false },
 	attendanceStatus: { type: String, enum: ["not_started", "active", "closed"], default: "not_started" },

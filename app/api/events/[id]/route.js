@@ -40,6 +40,31 @@ export async function PUT(request, { params }) {
 			}
 		}
 
+		// Handle new pricing and registration fields
+		if (formData.has("memberPrice")) {
+			const memberPrice = formData.get("memberPrice");
+			eventData.memberPrice = memberPrice ? parseFloat(memberPrice) : 0;
+		}
+		
+		if (formData.has("guestPrice")) {
+			const guestPrice = formData.get("guestPrice");
+			eventData.guestPrice = guestPrice ? parseFloat(guestPrice) : 0;
+		}
+		
+		if (formData.has("allowGuestRegistration")) {
+			eventData.allowGuestRegistration = formData.get("allowGuestRegistration") === "true";
+		}
+		
+		if (formData.has("registrationDeadline")) {
+			const registrationDeadline = formData.get("registrationDeadline");
+			eventData.registrationDeadline = registrationDeadline ? new Date(String(registrationDeadline)) : null;
+		}
+		
+		if (formData.has("maxAttendees")) {
+			const maxAttendees = formData.get("maxAttendees");
+			eventData.maxAttendees = maxAttendees ? parseInt(maxAttendees) : null;
+		}
+
 		const handleUpload = async (formKey, urlField) => {
 			const file = formData.get(formKey);
 			if (file && typeof file.arrayBuffer === "function" && file.size > 0) {

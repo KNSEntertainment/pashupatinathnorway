@@ -8,8 +8,13 @@ export async function GET(request: Request) {
 		await connectDB();
 		const { searchParams } = new URL(request.url);
 		const filter = searchParams.get('filter');
+		const eventId = searchParams.get('eventId');
 		
 		const query: Record<string, unknown> = {};
+		
+		if (eventId) {
+			query.eventId = new mongoose.Types.ObjectId(eventId);
+		}
 		
 		if (filter && filter !== 'all') {
 			const now = new Date();
@@ -32,7 +37,12 @@ export async function GET(request: Request) {
 			}
 		}
 		
-		const expenses = await Expense.find(query).populate('budgetId', 'name').sort({ date: -1 });
+		const expenses = await Expense.find(query)
+			.populate('eventId', 'eventname eventdate')
+			.populate('budgetId', 'name')
+			.populate('createdBy', 'name email')
+			.sort({ date: -1 });
+			
 		return NextResponse.json(expenses, { status: 200 });
 	} catch (error) {
 		console.error("Error fetching expenses:", error);
@@ -45,6 +55,24 @@ export async function POST(request: Request) {
 		await connectDB();
 		const body = await request.json();
 		
+		console.log("Expense creation request body:", body);
+		
+		// Validate required fields
+		if (!body.title || !body.amount || !body.expenseCategory || !body.date) {
+			console.error("Missing required fields:", { title: !!body.title, amount: !!body.amount, expenseCategory: !!body.expenseCategory, date: !!body.date });
+			return NextResponse.json({ error: "Missing required fields: title, amount, expenseCategory, date" }, { status: 400 });
+		}
+		
+		// Convert eventId to ObjectId if present
+		if (body.eventId && typeof body.eventId === 'string') {
+			try {
+				body.eventId = new mongoose.Types.ObjectId(body.eventId);
+			} catch {
+				console.error("Invalid eventId ObjectId:", body.eventId);
+				return NextResponse.json({ error: "Invalid eventId format" }, { status: 400 });
+			}
+		}
+		
 		// Convert budgetId string to ObjectId if present
 		if (body.budgetId && typeof body.budgetId === 'string') {
 			try {
@@ -55,11 +83,40 @@ export async function POST(request: Request) {
 			}
 		}
 		
+		// Convert createdBy to ObjectId if present
+		if (body.createdBy && typeof body.createdBy === 'string') {
+			try {
+				body.createdBy = new mongoose.Types.ObjectId(body.createdBy);
+			} catch {
+				console.error("Invalid createdBy ObjectId:", body.createdBy);
+				return NextResponse.json({ error: "Invalid createdBy format" }, { status: 400 });
+			}
+		}
+		
+		// Convert string date to Date object
+		if (body.date && typeof body.date === 'string') {
+			body.date = new Date(body.date);
+		}
+		
+		console.log("Processed expense data:", body);
+		
 		const expense = await Expense.create(body);
-		return NextResponse.json(expense, { status: 201 });
+		const populatedExpense = await Expense.findById(expense._id)
+			.populate('eventId', 'eventname eventdate')
+			.populate('budgetId', 'name')
+			.populate('createdBy', 'name email');
+			
+		return NextResponse.json(populatedExpense, { status: 201 });
 	} catch (error) {
 		console.error("Error creating expense:", error);
-		return NextResponse.json({ error: "Failed to create expense" }, { status: 500 });
+		if (error instanceof Error && error.name === 'ValidationError') {
+			const validationError = error as unknown as {
+				errors: Record<string, { message: string }>;
+			};
+			console.error("Validation errors:", Object.values(validationError.errors).map(err => err.message));
+			return NextResponse.json({ error: "Validation failed: " + Object.values(validationError.errors).map(err => err.message).join(", ") }, { status: 400 });
+		}
+		return NextResponse.json({ error: "Failed to create expense: " + (error instanceof Error ? error.message : String(error)) }, { status: 500 });
 	}
 }
 
@@ -73,6 +130,16 @@ export async function PUT(request: Request) {
 			return NextResponse.json({ error: "Expense ID is required" }, { status: 400 });
 		}
 		
+		// Convert eventId to ObjectId if present
+		if (updateData.eventId && typeof updateData.eventId === 'string') {
+			try {
+				updateData.eventId = new mongoose.Types.ObjectId(updateData.eventId);
+			} catch {
+				console.error("Invalid eventId ObjectId:", updateData.eventId);
+				return NextResponse.json({ error: "Invalid eventId format" }, { status: 400 });
+			}
+		}
+		
 		// Convert budgetId string to ObjectId if present
 		if (updateData.budgetId && typeof updateData.budgetId === 'string') {
 			try {
@@ -83,11 +150,23 @@ export async function PUT(request: Request) {
 			}
 		}
 		
+		// Convert createdBy to ObjectId if present
+		if (updateData.createdBy && typeof updateData.createdBy === 'string') {
+			try {
+				updateData.createdBy = new mongoose.Types.ObjectId(updateData.createdBy);
+			} catch {
+				console.error("Invalid createdBy ObjectId:", updateData.createdBy);
+				return NextResponse.json({ error: "Invalid createdBy format" }, { status: 400 });
+			}
+		}
+		
 		const expense = await Expense.findByIdAndUpdate(
 			id,
 			updateData,
 			{ new: true, runValidators: true }
-		);
+		).populate('eventId', 'eventname eventdate')
+		 .populate('budgetId', 'name')
+		 .populate('createdBy', 'name email');
 		
 		if (!expense) {
 			return NextResponse.json({ error: "Expense not found" }, { status: 404 });
