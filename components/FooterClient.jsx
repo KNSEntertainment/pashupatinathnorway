@@ -119,7 +119,7 @@ export default function FooterClient({ settings }) {
 						</div>
 						<div className="mt-4">
 							<Link href="/membership-status" className="text-md text-stone-400 hover:text-amber-400 transition-colors duration-300">
-								Check Membership Status
+								{t("check_membership_status")}
 							</Link>
 						</div>
 					</div>

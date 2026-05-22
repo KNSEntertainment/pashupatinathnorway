@@ -5,24 +5,33 @@ import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { useCallback, useState, useEffect } from "react";
 import Image from "next/image";
-import HeroLoading from "@/components/HeroLoading";
 import { useOptimizedFetch } from "@/hooks/useOptimizedFetch";
 import { useLocale } from "next-intl";
 
 export default function FullWidthHero() {
 	const [currentSlide, setCurrentSlide] = useState(0);
 	const [isAnimating, setIsAnimating] = useState(false);
-	const [slides, setSlides] = useState([]);
-	const [loading] = useState(false); // Start with false for faster LCP
+	// Static fallback data for instant LCP
+	const [slides, setSlides] = useState([
+		{
+			title: "Warm Welcome",
+			description: "Welcome to our page, where you can discover all the news, updates and information on the upcoming event. Stay tuned for more information on an event not to be missed.",
+			primaryLink: "/membership",
+			primaryButton: "Become a Member",
+			secondaryLink: "/donate",
+			secondaryButton: "Donate",
+			image: "/pashupatinath.png"
+		}
+	]);
+	const [loading] = useState(false);
 	const locale = useLocale();
 
-	// Use optimized fetch with caching - load in background
+	// Load real data in background without blocking render
 	const { data: heroData } = useOptimizedFetch(`/api/hero?locale=${locale}`);
 
-	// Set slides when data arrives
+	// Update slides when data arrives (non-blocking)
 	useEffect(() => {
 		if (heroData && heroData.slides && heroData.slides.length > 0) {
-			// Filter only active slides
 			const activeSlides = heroData.slides.filter(slide => slide.isActive);
 			if (activeSlides.length > 0) {
 				setSlides(activeSlides);
@@ -45,10 +54,7 @@ export default function FullWidthHero() {
 		return () => clearInterval(interval);
 	}, [currentSlide, nextSlide, isAnimating, loading, slides.length]);
 
-	// Show loading state when loading or when no slides are available yet
-	if (loading || slides.length === 0) {
-		return <HeroLoading />;
-	}
+	// Never show loading state - always render with fallback data
 
 	return (
 		
@@ -62,46 +68,25 @@ export default function FullWidthHero() {
 							fill 
 							className="object-cover object-top" 
 							priority={currentSlide === 0}
-							placeholder="blur"
-							blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
 							sizes="100vw"
-							quality={75}
+							quality={80}
 							loading={currentSlide === 0 ? "eager" : "lazy"}
 						/>
 						<div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/80 z-10" />
 					</div>
 
-				{/* OM Symbol */}
+				{/* Simplified OM Symbol - reduced animations */}
 				<div className="absolute top-36 right-[34.5%] z-15 pointer-events-none">
-					<div className="text-6xl md:text-8xl font-bold text-yellow-100/20 drop-shadow-2xl animate-pulse" style={{
-						textShadow: '0 0 10px rgba(254, 240, 138, 0.3), 0 0 20px rgba(254, 240, 138, 0.1)',
-						fontFamily: 'serif',
-						animation: 'omGlow 10s ease-in-out infinite'
+					<div className="text-6xl md:text-8xl font-bold text-yellow-100/20 drop-shadow-lg animate-pulse" style={{
+						fontFamily: 'serif'
 					}}>
 						ॐ
 					</div>
 				</div>
 
-				{/* Mantra Light Effect */}
+				{/* Simplified Light Effect - single animation */}
 				<div className="absolute top-[20%] right-[38%] flex items-center justify-center pointer-events-none z-5">
-					<div
-						className="absolute w-64 h-64 rounded-full bg-gradient-to-br from-yellow-300/60 via-orange-400/40 to-transparent blur-3xl animate-pulse"
-						style={{
-							animation: 'mantraPulse1 4s ease-in-out infinite'
-						}}
-					/>
-					<div
-						className="absolute w-48 h-48 rounded-full bg-gradient-to-tr from-white/60 via-red-200/40 to-transparent blur-2xl animate-pulse"
-						style={{
-							animation: 'mantraPulse2 6s ease-in-out infinite 2s'
-						}}
-					/>
-					<div
-						className="absolute w-36 h-36 rounded-full bg-gradient-to-bl from-yellow-200/50 via-orange-300/30 to-transparent blur-xl animate-pulse"
-						style={{
-							animation: 'mantraPulse3 8s ease-in-out infinite 4s'
-						}}
-					/>
+					<div className="absolute w-32 h-32 rounded-full bg-yellow-300/20 blur-xl animate-pulse" />
 				</div>
 
 				{/* Content Layer */}

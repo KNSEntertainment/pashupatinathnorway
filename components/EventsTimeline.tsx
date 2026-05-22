@@ -1,10 +1,11 @@
 "use client";
 
-import { Calendar, MapPin, Clock } from "lucide-react";
+import { Calendar, MapPin, Clock, ArrowRight } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import SectionHeader from "./SectionHeader";
 import { useState, useEffect, useMemo } from "react";
+import { Link } from "@/i18n/navigation";
 
 interface Event {
 	_id: string;
@@ -19,6 +20,15 @@ interface Event {
 	eventvideoUrl?: string;
 	createdAt: string;
 }
+
+// Utility function to check if event is today or in the future
+const isEventTodayOrFuture = (eventDate: string): boolean => {
+	const today = new Date();
+	today.setHours(0, 0, 0, 0); // Set to start of day for comparison
+	const event = new Date(eventDate);
+	event.setHours(0, 0, 0, 0); // Set to start of day for comparison
+	return event >= today;
+};
 
 export default function EventsTimeline() {
 	const locale = useLocale();
@@ -104,7 +114,7 @@ export default function EventsTimeline() {
 		};
 
 		fetchEvents();
-	}, []);
+	}, [getEventToDisplay]);
 
 	const getLocalizedTitle = (event: Event): string => {
 		return event.eventname || "Untitled Event";
@@ -221,7 +231,30 @@ export default function EventsTimeline() {
 													</div>
 												</div>
 
-												
+												{/* Action Buttons */}
+												<div className="flex gap-3">
+													{isEventTodayOrFuture(event.eventdate) ? (
+														<Link
+															href={`/register?eventId=${event._id}`}
+															className="inline-flex flex-1 justify-center items-center gap-2 bg-brand_primary text-gray-700 hover:bg-brand_primary/90 px-4 py-2 rounded-lg font-medium text-sm transition-colors"
+														>
+															{t("register") || "Register"}
+														</Link>
+													) : (
+														<div className="inline-flex flex-1 justify-center items-center gap-2 bg-gray-300 text-gray-600 px-4 py-2 rounded-lg font-medium text-sm cursor-not-allowed">
+															{t("event_completed") || "Event Completed"}
+														</div>
+													)}
+													
+													<Link
+														href={`/events/${event._id}`}
+														className="inline-flex items-center gap-2 text-brand_secondary/80 hover:text-brand_secondary font-medium text-sm transition-colors"
+													>
+														{t("view_details") || "View Details"}
+														<ArrowRight className="w-4 h-4" />
+													</Link>
+												</div>
+
 											</div>
 										</div>
 									</div>

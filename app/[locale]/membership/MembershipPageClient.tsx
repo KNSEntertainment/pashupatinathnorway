@@ -23,6 +23,7 @@ interface Props {
 
 export default function MembershipPageClient({ translations: t, locale }: Props) {
 	const tr = useTranslations("membership");
+	const footerT = useTranslations("footer");
 	const [showStats, setShowStats] = useState(false);
 	const [captchaValid, setCaptchaValid] = useState(false);
 	const [captchaData, setCaptchaData] = useState({ text: "", hash: "" });
@@ -152,7 +153,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 
 	<div className="absolute top-4 right-4 z-20">
 	<Link href="/membership-status" className="text-brand_secondary hover:text-red-700 underline text-sm font-medium transition-colors duration-200">
-		Check Membership Status
+		{footerT("check_membership_status")}
 	</Link>
 </div>
 
