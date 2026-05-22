@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Loader2, Users, Calendar, CheckCircle, Download, Search, Upload, Camera } from "lucide-react";
+import DashboardPageLayout from "@/components/layout/DashboardPageLayout";
 
 interface Event {
   _id: string;
@@ -540,29 +541,34 @@ export default function AttendanceDashboard() {
   }
 
   return (
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      
-    <div className="bg-gray-50">
-      {/* Mobile Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-brand_primary rounded-full flex items-center justify-center">
-                <Users className="w-4 h-4 text-white" />
+    <DashboardPageLayout
+      title="Attendance Management"
+      description="Track and manage event attendance with QR code scanning"
+      icon="QrCode"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <div className="bg-gray-50">
+          {/* Mobile Header */}
+          <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+            <div className="px-4 py-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-brand_primary rounded-full flex items-center justify-center">
+                    <Users className="w-4 h-4 text-white" />
+                  </div>
+                  <h1 className="text-lg font-bold text-gray-900">Attendance</h1>
+                </div>
+                {selectedEvent && (
+                  <Badge className="bg-green-100 text-green-800 text-xs px-2 py-1">
+                    {selectedEvent.eventname}
+                  </Badge>
+                )}
               </div>
-              <h1 className="text-lg font-bold text-gray-900">Attendance</h1>
             </div>
-            {selectedEvent && (
-              <Badge className="bg-green-100 text-green-800 text-xs px-2 py-1">
-                {selectedEvent.eventname}
-              </Badge>
-            )}
           </div>
-        </div>
-      </div>
 
-      {/* Error/Success Alert */}
+          {/* Error/Success Alert */}
       {error && (
         <div className="px-4 py-2">
           <Alert className={`${error.startsWith('✓') ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
@@ -915,6 +921,7 @@ export default function AttendanceDashboard() {
         </AlertDialogContent>
       </AlertDialog>
       </div>
-  </div>
+      </div>
+    </DashboardPageLayout>
   );
 }

@@ -1,14 +1,12 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  Search, 
+import { Search, 
   Filter, 
   User, 
   FileText, 
@@ -18,8 +16,9 @@ import {
   AlertTriangle,
   ChevronLeft, 
   ChevronRight,
-  RefreshCw
+  RefreshCw,
 } from "lucide-react";
+import DashboardPageLayout from "@/components/layout/DashboardPageLayout";
 
 interface AuditLog {
   id: string;
@@ -79,7 +78,6 @@ interface AuditLog {
 // }
 
 export default function AuditLogsManagement() {
-  const router = useRouter();
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -204,34 +202,20 @@ export default function AuditLogsManagement() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
+    <DashboardPageLayout
+      title="Audit Logs"
+      description="Monitor and track all administrative actions and system events"
+      icon="Shield"
+      actions={
+        <div className="flex gap-2">
           <Button
             variant="outline"
-            onClick={() => router.back()}
-            className="mb-4"
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center gap-2"
           >
-            ← Back to Dashboard
+            <Filter className="w-4 h-4" />
+            Filters
           </Button>
-          
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Audit Logs</h1>
-              <p className="text-gray-600">
-                Monitor and track all administrative actions and system events
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center gap-2"
-              >
-                <Filter className="w-4 h-4" />
-                Filters
-              </Button>
               <Button
                 variant="outline"
                 onClick={fetchAuditLogs}
@@ -241,8 +225,8 @@ export default function AuditLogsManagement() {
                 Refresh
               </Button>
             </div>
-          </div>
-        </div>
+      }
+    >
 
         {/* Filters Panel */}
         {showFilters && (
@@ -553,7 +537,6 @@ export default function AuditLogsManagement() {
             )}
           </CardContent>
         </Card>
-      </div>
-    </div>
+    </DashboardPageLayout>
   );
 }

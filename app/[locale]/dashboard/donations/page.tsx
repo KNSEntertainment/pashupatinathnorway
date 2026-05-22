@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Users, CheckCircle, Clock, XCircle, Search, Upload, ChevronLeft, ChevronRight, Edit } from "lucide-react";
 import { formatNOK } from "@/lib/norwegianCurrency";
 import DonationChart from "@/components/DonationChart";
+import DashboardPageLayout from "@/components/layout/DashboardPageLayout";
 
 interface Donation {
 	_id: string;
@@ -188,23 +189,18 @@ export default function DonationsManagement() {
 	}
 
 	return (
-		<div className="space-y-6">
-			{/* Header with Total Donation */}
-			<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-				<div>
-					<h1 className="text-3xl font-bold text-gray-900">Donations Management</h1>
-					<p className="text-gray-600 mt-2">Track and manage all donations</p>
-				</div>
-				{/* Total Donation Display */}
+		<DashboardPageLayout
+			title="Donations Management"
+			description="Track and manage all donations"
+			icon="Heart"
+			actions={
 				<div className="text-right">
 					<p className="text-sm text-gray-500 font-medium uppercase tracking-wide">Total Donations till Date</p>
 					<p className="text-4xl md:text-5xl font-bold text-green-700 mt-1">{formatNOK(stats.totalAmount)}</p>
 					<p className="text-sm text-gray-600 mt-1">From {stats.total} donors</p>
 				</div>
-			</div>
-
-
-		
+			}
+		>
 			{/* Donations Table */}
 			<Card className="border-0 shadow-lg">
 				<CardHeader>
@@ -511,7 +507,7 @@ export default function DonationsManagement() {
 					</div>
 				</div>
 			)}
-
-		</div>
+			
+		</DashboardPageLayout>
 	);
 }

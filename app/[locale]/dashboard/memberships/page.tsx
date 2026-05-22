@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Trash2, Eye, CheckCircle, XCircle, Clock, User, Mail, Phone, X, Edit, Download, Upload, ChevronLeft, ChevronRight, AlertTriangle, Plus, Crown, Users, Key } from "lucide-react";
+import DashboardPageLayout from "@/components/layout/DashboardPageLayout";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -642,16 +643,11 @@ export default function MembershipsPage() {
 	};
 
 	return (
-		<div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-			{/* Header Section */}
-			<div className="mb-8">
-				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-					<div>
-						<h1 className="text-3xl font-light text-gray-900 tracking-tight">Members</h1>
-						<p className="text-sm text-gray-500 mt-1">Manage temple membership applications and accounts</p>
-					</div>
-				</div>
-			</div>
+		<DashboardPageLayout
+			title="Members"
+			description="Manage temple membership applications and accounts"
+			icon="Users"
+		>
 
 			{/* Tab Navigation */}
 			<div className="mb-8">
@@ -1638,7 +1634,7 @@ disabled={passwordResetLoading.includes(member._id)}
 			)}
 				</>
 			)}
-		</div>
+		</DashboardPageLayout>
 	);
 }
 						

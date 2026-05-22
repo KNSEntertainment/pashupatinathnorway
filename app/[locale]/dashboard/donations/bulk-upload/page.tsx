@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Upload, Download, FileText, CheckCircle, AlertCircle, UploadCloud, AlertTriangle } from "lucide-react";
 import { useRouter } from "next/navigation";
+import DashboardPageLayout from "@/components/layout/DashboardPageLayout";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -136,24 +137,21 @@ Anonymous User,anonymous@temple.no,,250,NOK,Anonymous donation,,true,completed,`
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <Button
-            variant="outline"
-            onClick={() => router.back()}
-            className="mb-4"
-          >
-            ← Back to Donations
-          </Button>
-          
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Bulk Upload Donations</h1>
-          <p className="text-gray-600 mb-8">
-            Upload multiple donation records at once using a CSV file. Follow the template format for best results.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <DashboardPageLayout
+      title="Bulk Upload Donations"
+      description="Upload multiple donation records at once using a CSV file. Follow the template format for best results."
+      icon="Heart"
+      breadcrumbs={
+        <Button
+          variant="outline"
+          onClick={() => router.back()}
+          className="mb-4"
+        >
+          ← Back to Donations
+        </Button>
+      }
+    >
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Step 1: Download Template */}
           <Card>
             <CardHeader>
@@ -360,7 +358,7 @@ Anonymous User,anonymous@temple.no,,250,NOK,Anonymous donation,,true,completed,`
             </CardContent>
           </Card>
         )}
-      </div>
-    </div>
+      
+    </DashboardPageLayout>
   );
 }

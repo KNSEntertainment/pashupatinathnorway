@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Plus, Search, Edit, Trash2, Filter, FileText, Calendar, Settings } from "lucide-react";
 import PublicationForm from "@/components/dashboard/PublicationForm";
 import ReportTypesManagement from "@/components/dashboard/ReportTypesManagement";
+import DashboardPageLayout from "@/components/layout/DashboardPageLayout";
 
 interface Publication {
   id: string;
@@ -199,34 +200,29 @@ export default function PublicationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Publications</h1>
-              <p className="text-gray-600 mt-1">Manage annual reports and publications</p>
-            </div>
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setShowReportTypesManagement(true)}
-                className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <Settings className="w-4 h-4" />
-                Manage Report Types
-              </button>
-              <button
-                onClick={() => setShowForm(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-              >
-                <Plus className="w-4 h-4" />
-                Add Publication
-              </button>
-            </div>
-          </div>
+    <DashboardPageLayout
+      title="Publications"
+      description="Manage annual reports and publications"
+      icon="FolderOpen"
+      actions={
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setShowReportTypesManagement(true)}
+            className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <Settings className="w-4 h-4" />
+            Manage Report Types
+          </button>
+          <button
+            onClick={() => setShowForm(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Add Publication
+          </button>
         </div>
-      </div>
+      }
+    >
 
       {/* Search and Filters */}
       <div className="bg-white border-b">
@@ -386,6 +382,6 @@ export default function PublicationsPage() {
           </div>
         )}
       </div>
-    </div>
+    </DashboardPageLayout>
   );
 }

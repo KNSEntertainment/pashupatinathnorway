@@ -227,7 +227,7 @@ export default function ValuesAdmin() {
 	if (loading && !data.title.en) {
 		return (
 			<div className="flex items-center justify-center h-64">
-				<RefreshCw className="w-8 h-8 animate-spin text-brand_primary" />
+				<RefreshCw className="w-8 h-8 animate-spin text-gray-700" />
 			</div>
 		);
 	}
@@ -245,7 +245,7 @@ export default function ValuesAdmin() {
 						onClick={() => setPreviewMode(!previewMode)}
 						className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
 							previewMode
-								? "bg-brand_primary text-white"
+								? "bg-brand_primary text-gray-700"
 								: "bg-gray-100 text-gray-700 hover:bg-gray-200"
 						}`}
 					>
@@ -284,7 +284,7 @@ export default function ValuesAdmin() {
 								onClick={() => setActiveTab(locale.code as "en" | "no" | "ne")}
 								className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
 									activeTab === locale.code
-										? "bg-brand_primary text-white"
+										? "bg-brand_primary text-gray-700"
 										: "bg-gray-100 text-gray-700 hover:bg-gray-200"
 								}`}
 							>
@@ -312,7 +312,7 @@ export default function ValuesAdmin() {
 								onClick={() => setActiveTab(locale.code as "en" | "no" | "ne")}
 								className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
 									activeTab === locale.code
-										? "bg-brand_primary text-white"
+										? "bg-brand_primary text-gray-700"
 										: "bg-gray-100 text-gray-700 hover:bg-gray-200"
 								}`}
 							>
@@ -346,7 +346,7 @@ export default function ValuesAdmin() {
 								<h3 className="text-lg font-semibold text-gray-900">Values</h3>
 								<button
 									onClick={addNewValue}
-									className="flex items-center gap-2 px-3 py-2 bg-brand_primary text-white rounded-lg font-medium hover:bg-brand_primary/90 transition-colors"
+									className="flex items-center gap-2 px-3 py-2 bg-brand_primary text-gray-700 rounded-lg font-medium hover:bg-brand_primary/90 transition-colors"
 								>
 									<Plus className="w-4 h-4" />
 									Add Value
@@ -422,7 +422,7 @@ export default function ValuesAdmin() {
 															onClick={() => handleIconChange(index, option.value)}
 															className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors ${
 																value.icon === option.value
-																	? "border-brand_primary bg-brand_primary/10 text-brand_primary"
+																	? "border-brand_primary bg-brand_primary/10 text-gray-700"
 																	: "border-gray-200 hover:border-gray-300"
 															}`}
 														>

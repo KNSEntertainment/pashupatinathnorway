@@ -183,7 +183,7 @@ export default function MissionVisionAdmin() {
 						onClick={() => setPreviewMode(!previewMode)}
 						className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
 							previewMode
-								? "bg-brand_primary text-white"
+								? "bg-brand_primary text-gray-700"
 								: "bg-gray-100 text-gray-700 hover:bg-gray-200"
 						}`}
 					>
@@ -222,7 +222,7 @@ export default function MissionVisionAdmin() {
 								onClick={() => setActiveTab(locale.code as "en" | "no" | "ne")}
 								className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
 									activeTab === locale.code
-										? "bg-brand_primary text-white"
+										? "bg-brand_primary text-gray-700"
 										: "bg-gray-100 text-gray-700 hover:bg-gray-200"
 								}`}
 							>

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import RegisterForm from "@/components/RegisterForm";
 import EditUserForm from "@/components/EditUserForm";
+import DashboardPageLayout from "@/components/layout/DashboardPageLayout";
 
 export default function UsersPage() {
 	const [openUserModal, setOpenUserModal] = useState(false);
@@ -109,7 +110,16 @@ export default function UsersPage() {
 	};
 
 	return (
-		<div className="max-w-4xl">
+		<DashboardPageLayout
+			title="Users"
+			description="Manage user accounts, roles, and permissions"
+			icon="Users"
+			actions={
+				<Button onClick={() => setOpenUserModal(!openUserModal)} className="bg-brand_primary text-gray-700 font-bold">
+					{openUserModal ? "Cancel" : "Register User"}
+				</Button>
+			}
+		>
 			<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
 				<div className="flex gap-2 flex-1">
 					<input type="text" placeholder="Search users..." className="border rounded px-3 py-2 w-full" value={search} onChange={(e) => setSearch(e.target.value)} />
@@ -119,9 +129,6 @@ export default function UsersPage() {
 						<option value="user">User</option>
 					</select>
 				</div>
-				<button onClick={() => setOpenUserModal(!openUserModal)} className="bg-brand_primary text-gray-700 font-bold px-4 py-2">
-					{openUserModal ? "Cancel" : "Register User"}
-				</button>
 			</div>
 
 			{/* Bulk Actions Controls */}
@@ -230,6 +237,6 @@ export default function UsersPage() {
 					</div>
 				)}
 			</div>
-		</div>
+		</DashboardPageLayout>
 	);
 }

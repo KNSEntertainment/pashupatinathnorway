@@ -5,6 +5,7 @@ import { Calendar, MapPin, Clock, Users, Ticket, ArrowRight, CreditCard, Star } 
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import DashboardPageLayout from "@/components/layout/DashboardPageLayout";
 
 interface Event {
   _id: string;
@@ -149,13 +150,11 @@ export default function MemberEventsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Events</h1>
-          <p className="text-gray-600">Manage your event tickets and discover upcoming events</p>
-        </div>
+    <DashboardPageLayout
+      title="My Events"
+      description="Manage your event tickets and discover upcoming events"
+      icon="Calendar"
+    >
 
         {/* Active Events with QR Codes */}
         {activeEvents.length > 0 && (
@@ -350,7 +349,6 @@ export default function MemberEventsPage() {
             </Link>
           </div>
         )}
-      </div>
-    </div>
+    </DashboardPageLayout>
   );
 }
