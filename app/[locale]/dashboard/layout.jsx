@@ -186,7 +186,9 @@ function DashboardLayoutContent({ children }) {
 				<nav className="py-6 overflow-y-auto max-h-screen">
 					{/* Admin Menu Header */}
 					<div className="px-4 py-3 mb-4 border-b border-gray-200">
-						<h2 className="text-lg font-semibold text-gray-800">Admin Menu</h2>
+						<Link href="/dashboard" className="block hover:bg-gray-50 rounded-lg px-2 py-1 transition-colors">
+							<h2 className="text-lg font-semibold text-gray-800">Admin Dashboard</h2>
+						</Link>
 					</div>
 					
 					{menuCategories
