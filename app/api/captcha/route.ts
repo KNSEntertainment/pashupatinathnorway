@@ -1,6 +1,18 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { captchaStore } from "@/lib/captcha-store";
+import { SignJWT } from "jose";
+
+const JWT_SECRET = new TextEncoder().encode(
+	process.env.NEXTAUTH_SECRET || process.env.ENCRYPTION_KEY || "fallback-captcha-secret"
+);
+
+interface CaptchaPayload {
+	answer: string;
+	question: string;
+	exp: number;
+	iat: number;
+	[key: string]: unknown; // Make it compatible with JWTPayload
+}
 
 export async function GET() {
 	const operation = ["+", "-", "*"][crypto.randomInt(3)];
@@ -20,10 +32,21 @@ export async function GET() {
 	}
 
 	const question = `${num1} ${operation === "*" ? "x" : operation} ${num2}`;
-	const token = captchaStore.generateToken();
 	
-	// Store the captcha data server-side
-	captchaStore.storeCaptcha(token, question, String(answer));
+	// Create JWT token with captcha data (valid for 5 minutes)
+	const now = Math.floor(Date.now() / 1000);
+	const payload: CaptchaPayload = {
+		answer: String(answer),
+		question,
+		iat: now,
+		exp: now + 300, // 5 minutes
+	};
+
+	const token = await new SignJWT(payload)
+		.setProtectedHeader({ alg: 'HS256' })
+		.setIssuedAt(now)
+		.setExpirationTime('5m')
+		.sign(JWT_SECRET);
 
 	return NextResponse.json({
 		question: `${question} = ?`,

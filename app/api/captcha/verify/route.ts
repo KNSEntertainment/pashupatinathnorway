@@ -1,5 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { captchaStore } from "@/lib/captcha-store";
+import { jwtVerify } from "jose";
+
+const JWT_SECRET = new TextEncoder().encode(
+	process.env.NEXTAUTH_SECRET || process.env.ENCRYPTION_KEY || "fallback-captcha-secret"
+);
+
+interface CaptchaPayload {
+	answer: string;
+	question: string;
+	exp: number;
+	iat: number;
+	[key: string]: unknown;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,14 +24,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const isValid = captchaStore.verifyCaptcha(token, answer);
+    // Verify JWT token and extract captcha data
+    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const captchaData = payload as CaptchaPayload;
+    
+    // Check if the answer matches
+    const isValid = answer.trim() === captchaData.answer;
 
     return NextResponse.json({ valid: isValid });
   } catch (error) {
     console.error("Captcha verification error:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
+      { error: "Invalid or expired captcha" },
+      { status: 400 }
     );
   }
 }
