@@ -2,9 +2,13 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Subscriber from "@/models/Subscriber.Model";
 import { sendSubscriptionThankYouEmail } from "@/lib/email";
+import { requireAdmin } from "@/lib/apiAuth";
 
 export async function GET() {
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 		const subscribers = await Subscriber.find({}).sort({ createdAt: -1 });
 		return NextResponse.json({ subscribers });

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Product from "@/models/Product.Model";
 import { uploadToCloudinary } from "@/utils/saveFileToCloudinaryUtils";
+import { requireAdmin } from "@/lib/apiAuth";
 
 interface RouteParams {
 	params: Promise<{ id: string }>;
@@ -32,6 +33,9 @@ export async function GET(request: Request, { params }: RouteParams) {
 
 export async function PUT(request: Request, { params }: RouteParams) {
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 		const { id } = await params;
 
@@ -174,6 +178,9 @@ export async function PUT(request: Request, { params }: RouteParams) {
 
 export async function DELETE(request: Request, { params }: RouteParams) {
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 		const { id } = await params;
 

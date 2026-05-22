@@ -4,7 +4,20 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import Membership from '@/models/Membership.Model';
 import AuditLog from '@/models/AuditLog.Model';
 import connectDB from '@/lib/mongodb';
-import * as XLSX from 'xlsx';
+
+const escapeCsvValue = (value: unknown) => {
+  const stringValue = String(value ?? "");
+  return `"${stringValue.replace(/"/g, '""')}"`;
+};
+
+const toCsv = (rows: Record<string, unknown>[]) => {
+  if (rows.length === 0) return "";
+  const headers = Object.keys(rows[0]);
+  return [
+    headers.map(escapeCsvValue).join(","),
+    ...rows.map(row => headers.map(header => escapeCsvValue(row[header])).join(",")),
+  ].join("\n");
+};
 
 const calculateAgeFromPersonalNumber = (personalNumber: string): number | null => {
   if (!personalNumber || personalNumber.length !== 11 || !/^\d{11}$/.test(personalNumber)) {
@@ -157,17 +170,11 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    // Create workbook and worksheet
-    const ws = XLSX.utils.json_to_sheet(excelData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Members");
-
     // Generate filename with timestamp
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-    const filename = `members_${timestamp}.xlsx`;
+    const filename = `members_${timestamp}.csv`;
 
-    // Convert to buffer
-    const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+    const buffer = Buffer.from(toCsv(excelData), 'utf-8');
 
     // Update audit log with successful results
     await AuditLog.findByIdAndUpdate(auditLog._id, {
@@ -177,10 +184,10 @@ export async function GET(request: NextRequest) {
       'details.fileSize': buffer.length
     });
 
-    // Return the Excel file
+    // Return CSV content from this legacy endpoint to avoid the vulnerable xlsx package.
     return new NextResponse(buffer, {
       headers: {
-        'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'Content-Type': 'text/csv;charset=utf-8;',
         'Content-Disposition': `attachment; filename="${filename}"`,
       },
     });

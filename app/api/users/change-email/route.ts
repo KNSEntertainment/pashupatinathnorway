@@ -2,9 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Membership from "@/models/Membership.Model";
 import crypto from "crypto";
+import bcrypt from "bcryptjs";
 import { sendEmailVerificationEmail } from "@/lib/email";
+import { requireAuthenticatedMember } from "@/lib/apiAuth";
 
 export async function POST(req: NextRequest) {
+  const auth = await requireAuthenticatedMember();
+  if (auth.response) return auth.response;
+
   await connectDB();
 
   try {
@@ -26,6 +31,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (auth.session?.user?.email?.toLowerCase() !== currentEmail.toLowerCase()) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 403 }
+      );
+    }
+
     // Find member by current email
     const member = await Membership.findOne({ email: currentEmail });
     if (!member) {
@@ -35,8 +47,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Note: In a real implementation, you should verify the password against the stored hash
-    // For now, we'll assume the password is correct if the member provides it
+    const isPasswordValid = await bcrypt.compare(password, member.password || "");
+    if (!isPasswordValid) {
+      return NextResponse.json(
+        { error: "Current password is incorrect" },
+        { status: 400 }
+      );
+    }
 
     // Check if new email already exists
     const existingMember = await Membership.findOne({ email: newEmail });
@@ -66,7 +83,6 @@ export async function POST(req: NextRequest) {
     console.log("=== SENDING EMAIL VERIFICATION ===");
     console.log("To:", newEmail);
     console.log("Name:", fullName);
-    console.log("Token:", verificationToken);
     console.log("EMAIL_USER configured:", !!process.env.EMAIL_USER);
     console.log("RESEND_API_KEY configured:", !!process.env.RESEND_API_KEY);
     

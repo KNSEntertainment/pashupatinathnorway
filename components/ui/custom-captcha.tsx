@@ -13,85 +13,40 @@ interface CustomCaptchaProps {
 export default function CustomCaptcha({ onVerify, onCaptchaChange, className = "", error }: CustomCaptchaProps) {
   const [captchaText, setCaptchaText] = useState("");
   const [userInput, setUserInput] = useState("");
+  const [captchaToken, setCaptchaToken] = useState("");
   const [loading, setLoading] = useState(false);
   const [verified, setVerified] = useState(false);
 
   // Generate a simple math captcha
-  const generateCaptcha = () => {
+  const generateCaptcha = async () => {
     setLoading(true);
     setUserInput("");
+    setCaptchaToken("");
     setVerified(false);
     onVerify(false);
     
     try {
-      const num1 = Math.floor(Math.random() * 10) + 1;
-      const num2 = Math.floor(Math.random() * 10) + 1;
-      const operations = ['+', '-', '*'];
-      const operation = operations[Math.floor(Math.random() * operations.length)];
-      
-      let answer = 0;
-      let question = '';
-      
-      switch (operation) {
-        case '+':
-          answer = num1 + num2;
-          question = `${num1} + ${num2}`;
-          break;
-        case '-':
-          // Ensure positive result
-          if (num1 < num2) {
-            answer = num2 - num1;
-            question = `${num2} - ${num1}`;
-          } else {
-            answer = num1 - num2;
-            question = `${num1} - ${num2}`;
-          }
-          break;
-        case '*':
-          // Keep multiplication simple
-          const smallNum1 = Math.floor(Math.random() * 5) + 1;
-          const smallNum2 = Math.floor(Math.random() * 5) + 1;
-          answer = smallNum1 * smallNum2;
-          question = `${smallNum1} × ${smallNum2}`;
-          break;
-      }
-      
-      setCaptchaText(`${question} = ?`);
-      const hash = btoa(`${question}:${answer}`).replace(/[^a-zA-Z0-9]/g, '').substring(0, 20);
-      
-      if (onCaptchaChange) {
-        onCaptchaChange({ text: "", hash: hash });
-      }
-      
-      // Store the answer in session storage for verification
-      sessionStorage.setItem('captcha_answer', answer.toString());
-      sessionStorage.setItem('captcha_hash', hash);
-      
+      const response = await fetch("/api/captcha", { cache: "no-store" });
+      if (!response.ok) throw new Error("Failed to generate captcha");
+      const data = await response.json();
+      setCaptchaText(`${data.question} = ?`);
+      setCaptchaToken(data.token);
+      onCaptchaChange?.({ text: "", hash: data.token });
     } catch (error) {
       console.error("Error generating captcha:", error);
+      setCaptchaText("Refresh to try again");
     } finally {
       setLoading(false);
     }
   };
 
   const verifyCaptcha = (input: string) => {
-    if (!input || !captchaText) return;
+    if (!input || !captchaText || !captchaToken) return;
     
     try {
-      const storedAnswer = sessionStorage.getItem('captcha_answer');
-      const storedHash = sessionStorage.getItem('captcha_hash');
-      
-      if (storedAnswer && input.trim() === storedAnswer.trim()) {
-        setVerified(true);
-        onVerify(true);
-        
-        if (onCaptchaChange && storedHash) {
-          onCaptchaChange({ text: input, hash: storedHash });
-        }
-      } else {
-        setVerified(false);
-        onVerify(false);
-      }
+      setVerified(true);
+      onVerify(true);
+      onCaptchaChange?.({ text: input, hash: captchaToken });
     } catch (error) {
       console.error("Error verifying captcha:", error);
       setVerified(false);

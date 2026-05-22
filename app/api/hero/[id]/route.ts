@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Hero from "@/models/Hero.Model";
 import { deleteFromCloudinary } from "@/utils/saveFileToCloudinaryUtils";
+import { requireAdmin } from "@/lib/apiAuth";
 
 // GET single slide by ID
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -41,6 +42,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
 	const { id } = await params;
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 		
 		const body = await request.json();
@@ -103,6 +107,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
 	const { id } = await params;
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 		
 		const hero = await Hero.findOne();

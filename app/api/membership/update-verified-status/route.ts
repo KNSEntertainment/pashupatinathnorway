@@ -2,9 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import Membership from '@/models/Membership.Model';
 import { sendOsloVerificationApprovalEmail } from '@/lib/email';
 import crypto from 'crypto';
+import { requireAdmin } from '@/lib/apiAuth';
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireAdmin();
+    if (auth.response) return auth.response;
+
     const { verifiedPersonalNumbers } = await request.json();
 
     if (!verifiedPersonalNumbers || !Array.isArray(verifiedPersonalNumbers)) {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import MissionVision from "@/models/MissionVision.Model";
+import { requireAdmin } from "@/lib/apiAuth";
 
 interface MultilingualField {
 	en: string;
@@ -97,6 +98,9 @@ export async function GET(request: NextRequest) {
 // POST - Create or update mission-vision content
 export async function POST(request: Request) {
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 
 		const body = await request.json();

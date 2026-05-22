@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Hero from "@/models/Hero.Model";
 import { uploadToCloudinary } from "@/utils/saveFileToCloudinaryUtils";
+import { requireAdmin } from "@/lib/apiAuth";
 
 export const config = {
 	api: {
@@ -11,6 +12,9 @@ export const config = {
 
 export async function POST(request) {
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 
 		// Parse the incoming form data

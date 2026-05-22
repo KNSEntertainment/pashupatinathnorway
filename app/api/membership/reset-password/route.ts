@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
+import { requireAdmin } from '@/lib/apiAuth';
 
 export async function POST(request: NextRequest) {
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		const { memberId, newPassword } = await request.json();
 
 		if (!memberId || !newPassword) {
@@ -20,16 +25,18 @@ export async function POST(request: NextRequest) {
 			throw new Error('Database connection failed');
 		}
 		
+		const hashedPassword = await bcrypt.hash(newPassword, 10);
+
 		// Update member password in database
 		await db.collection('memberships').updateOne(
 			{ _id: memberId },
-			{ $set: { password: newPassword } }
+			{ $set: { password: hashedPassword } }
 		);
 
 		// Also update in users collection if needed
 		await db.collection('users').updateOne(
 			{ email: memberId }, // Assuming memberId is email, adjust if needed
-			{ $set: { password: newPassword } }
+			{ $set: { password: hashedPassword } }
 		);
 
 		return NextResponse.json(

@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Membership from "@/models/Membership.Model";
+import { requireAdmin } from "@/lib/apiAuth";
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireAdmin();
+    if (auth.response) return auth.response;
+
     await connectDB();
     
     const { memberOrders } = await request.json();

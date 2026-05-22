@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Donation from "@/models/Donation.Model";
+import { requireAdmin } from "@/lib/apiAuth";
 
 export async function GET() {
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 
 		console.log("Debug: Finding all recent completed donations with addresses");

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { sendContactEmail } from "@/lib/email";
 import connectDB from "@/lib/mongodb";
 import Message from "@/models/Message.Model";
+import { verifyCaptcha } from "@/lib/captcha";
 
 export async function POST(req) {
 	let messageSaved = false;
@@ -16,14 +17,7 @@ export async function POST(req) {
 			return NextResponse.json({ error: "All fields are required." }, { status: 400 });
 		}
 
-		// Verify captcha - for custom math captcha, we just need to ensure it was completed
-		if (!captcha || !captcha.hash) {
-			return NextResponse.json({ error: "Captcha verification is required." }, { status: 400 });
-		}
-
-		// For the custom math captcha, we verify that a hash exists (indicating the user solved it)
-		// The actual verification happens client-side with sessionStorage
-		if (!captcha.hash || captcha.hash.length < 10) {
+		if (!verifyCaptcha(captcha)) {
 			return NextResponse.json({ error: "Invalid captcha. Please try again." }, { status: 400 });
 		}
 

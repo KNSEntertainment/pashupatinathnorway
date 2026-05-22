@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { sendBirthdayWishEmail } from "@/lib/email";
+import { requireAdmin } from "@/lib/apiAuth";
 
 export async function POST(req: Request) {
     try {
+        const auth = await requireAdmin();
+        if (auth.response) return auth.response;
+
         const { name, email, age } = await req.json();
 
         if (!name || !email) {

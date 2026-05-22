@@ -2,15 +2,26 @@ import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import Membership from '@/models/Membership.Model';
+import { requireAuthenticatedMember } from '@/lib/apiAuth';
 
 export async function POST(request: NextRequest) {
 	try {
+		const auth = await requireAuthenticatedMember();
+		if (auth.response) return auth.response;
+
 		const { email, password } = await request.json();
 
 		if (!email || !password) {
 			return NextResponse.json(
 				{ error: 'Email and password are required' },
 				{ status: 400 }
+			);
+		}
+
+		if (auth.session?.user?.email?.toLowerCase() !== email.toLowerCase()) {
+			return NextResponse.json(
+				{ error: 'Unauthorized', isValid: false },
+				{ status: 403 }
 			);
 		}
 

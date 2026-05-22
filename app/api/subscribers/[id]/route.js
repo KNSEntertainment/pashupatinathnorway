@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Subscriber from "@/models/Subscriber.Model";
+import { requireAdmin } from "@/lib/apiAuth";
 
 export async function DELETE(request, { params }) {
 	const { id } = await params;
 
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 
 		const subscriberId = id;

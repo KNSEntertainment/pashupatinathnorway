@@ -1,15 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendEmail } from '@/lib/email';
+import { requireAuthenticatedMember } from '@/lib/apiAuth';
 
 export async function POST(request: NextRequest) {
 	try {
-		const { email, name } = await request.json();
+		const auth = await requireAuthenticatedMember();
+		if (auth.response) return auth.response;
 
-		if (!email || !name) {
+		const { email, name, fullName } = await request.json();
+
+		if (!email || (!name && !fullName)) {
 			return NextResponse.json(
 				{ error: 'Email and name are required' },
 				{ status: 400 }
 			);
+		}
+
+		if (auth.session?.user?.email?.toLowerCase() !== email.toLowerCase()) {
+			return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
 		}
 
 		await sendEmail({
@@ -18,7 +26,7 @@ export async function POST(request: NextRequest) {
 			html: `
 				<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
 					<h2 style="color: #333;">Account Deletion Confirmation</h2>
-					<p>Dear ${name},</p>
+					<p>Dear ${name || fullName},</p>
 					<p>We're sorry to see you go. Your account has been <strong>permanently deleted</strong> from our system.</p>
 					
 					<h3 style="color: #666; margin-top: 20px;">What was deleted:</h3>

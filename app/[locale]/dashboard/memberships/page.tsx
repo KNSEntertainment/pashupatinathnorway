@@ -512,7 +512,7 @@ export default function MembershipsPage() {
 
 			// Get filename from response headers or create one
 			const contentDisposition = response.headers.get('content-disposition');
-			let filename = 'members.xlsx';
+			let filename = 'members.csv';
 			if (contentDisposition) {
 				const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
 				if (filenameMatch) filename = filenameMatch[1];

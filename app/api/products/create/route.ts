@@ -2,9 +2,13 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Product from "@/models/Product.Model";
 import { uploadToCloudinary } from "@/utils/saveFileToCloudinaryUtils";
+import { requireAdmin } from "@/lib/apiAuth";
 
 export async function POST(request: Request) {
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 
 		const formData = await request.formData();

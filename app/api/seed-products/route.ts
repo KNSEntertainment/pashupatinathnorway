@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Product from "@/models/Product.Model";
+import { requireAdmin } from "@/lib/apiAuth";
 
 // Sample products for testing
 const sampleProducts = [
@@ -227,6 +228,9 @@ const sampleProducts = [
 
 export async function POST() {
   try {
+    const auth = await requireAdmin();
+    if (auth.response) return auth.response;
+
     await connectDB();
 
     // Clear existing products (optional - remove if you want to keep existing products)
@@ -258,6 +262,9 @@ export async function POST() {
 
 export async function GET() {
   try {
+    const auth = await requireAdmin();
+    if (auth.response) return auth.response;
+
     await connectDB();
     
     const count = await Product.countDocuments();

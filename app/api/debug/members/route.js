@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import Membership from "@/models/Membership.Model";
 import connectDB from "@/lib/mongodb";
+import { requireAdmin } from "@/lib/apiAuth";
 
 export async function GET(request) {
   try {
+    const auth = await requireAdmin();
+    if (auth.response) return auth.response;
+
     await connectDB();
     
     // Get all members first to see what's in the database

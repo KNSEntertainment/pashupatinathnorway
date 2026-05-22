@@ -2,9 +2,13 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Budget from "@/models/Budget.Model";
 import mongoose from "mongoose";
+import { requireAdmin } from "@/lib/apiAuth";
 
 export async function GET(request: Request) {
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 		const { searchParams } = new URL(request.url);
 		const eventId = searchParams.get('eventId');
@@ -33,6 +37,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 		const body = await request.json();
 		
@@ -107,6 +114,9 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 		const body = await request.json();
 		const { id, ...updateData } = body;
@@ -167,6 +177,9 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 		const { searchParams } = new URL(request.url);
 		const id = searchParams.get('id');

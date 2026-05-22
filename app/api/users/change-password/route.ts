@@ -3,9 +3,13 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import Membership from '@/models/Membership.Model';
 import { sendEmail } from '@/lib/email';
+import { requireAuthenticatedMember } from '@/lib/apiAuth';
 
 export async function POST(request: NextRequest) {
 	try {
+		const auth = await requireAuthenticatedMember();
+		if (auth.response) return auth.response;
+
 		const { email, currentPassword, newPassword } = await request.json();
 		const loginUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/en/login`;
 
@@ -13,6 +17,13 @@ export async function POST(request: NextRequest) {
 			return NextResponse.json(
 				{ error: 'Email, current password, and new password are required' },
 				{ status: 400 }
+			);
+		}
+
+		if (auth.session?.user?.email?.toLowerCase() !== email.toLowerCase()) {
+			return NextResponse.json(
+				{ error: 'Unauthorized' },
+				{ status: 403 }
 			);
 		}
 

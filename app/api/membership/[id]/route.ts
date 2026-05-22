@@ -3,6 +3,7 @@ import connectDB from "@/lib/mongodb";
 import Membership from "@/models/Membership.Model";
 import crypto from "crypto";
 import { sendActiveMemberApprovalEmail, sendActiveMemberApprovalEmailEnglish } from "@/lib/email";
+import { requireAdmin } from "@/lib/apiAuth";
 
 const calculateAgeFromPersonalNumber = (personalNumber: string): number | null => {
 	if (!personalNumber || personalNumber.length !== 11 || !/^\d{11}$/.test(personalNumber)) {
@@ -49,6 +50,9 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 };
 
 export async function GET(req: NextRequest, context: { params: Promise<{ id: string }> }) {
+	const auth = await requireAdmin();
+	if (auth.response) return auth.response;
+
 	const { id } = await context.params;
 
 	await connectDB();
@@ -63,6 +67,9 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
 }
 
 export async function PUT(req: NextRequest, context: { params: Promise<{ id: string }> }) {
+	const auth = await requireAdmin();
+	if (auth.response) return auth.response;
+
 	const { id } = await context.params;
 	await connectDB();
 	const data = await req.json();
@@ -160,6 +167,9 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
 }
 
 export async function DELETE(req: NextRequest, context: { params: Promise<{ id: string }> }) {
+	const auth = await requireAdmin();
+	if (auth.response) return auth.response;
+
 	const { id } = await context.params;
 	await connectDB();
 	const membership = await Membership.findByIdAndDelete(id);

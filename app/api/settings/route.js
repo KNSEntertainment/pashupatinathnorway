@@ -2,9 +2,13 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Setting from "@/models/Setting.Model";
 import { uploadToCloudinary } from "@/utils/saveFileToCloudinaryUtils";
+import { requireAdmin } from "@/lib/apiAuth";
 
 export async function POST(request) {
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 
 		// Check if request is FormData (has file) or JSON

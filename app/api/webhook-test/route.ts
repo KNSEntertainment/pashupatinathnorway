@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Donation from "@/models/Donation.Model";
+import { requireAdmin } from "@/lib/apiAuth";
 
 export async function GET() {
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 		
 		// Get donation statistics
@@ -52,6 +56,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		const body = await request.json();
 		const { action } = body;
 

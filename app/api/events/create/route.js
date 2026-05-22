@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Event from "@/models/Event.Model";
 import { uploadToCloudinary } from "@/utils/saveFileToCloudinaryUtils";
+import { requireAdmin } from "@/lib/apiAuth";
 
 export const config = {
 	api: {
@@ -11,6 +12,9 @@ export const config = {
 
 export async function POST(request) {
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 
 		const formData = await request.formData();

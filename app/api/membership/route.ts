@@ -5,6 +5,7 @@ import Subscriber from "@/models/Subscriber.Model";
 import { sendGeneralMemberWelcomeEmailNepali, sendWelcomeEmail } from "@/lib/email";
 import generateMembershipId from "@/lib/membershipIdGenerator";
 import crypto from "crypto";
+import { verifyCaptcha } from "@/lib/captcha";
 
 interface FamilyMember {
 	firstName: string;
@@ -139,14 +140,7 @@ export async function POST(req: NextRequest) {
 	const data = await req.json();
 	
 	try {
-		// Verify captcha - for custom math captcha, we just need to ensure it was completed
-		if (!data.captcha || !data.captcha.hash) {
-			return NextResponse.json({ error: "Captcha verification is required." }, { status: 400 });
-		}
-
-		// For the custom math captcha, we verify that a hash exists (indicating the user solved it)
-		// The actual verification happens client-side with sessionStorage
-		if (!data.captcha.hash || data.captcha.hash.length < 10) {
+		if (!verifyCaptcha(data.captcha)) {
 			return NextResponse.json({ error: "Invalid captcha. Please try again." }, { status: 400 });
 		}
 

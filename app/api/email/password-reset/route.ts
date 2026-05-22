@@ -2,13 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from "resend";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import Membership from "@/models/Membership.Model";
+import { requireAdmin } from "@/lib/apiAuth";
 
 // Create Resend client
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: NextRequest) {
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		const { email, name } = await request.json();
 
 		if (!email || !name) {
@@ -37,7 +42,7 @@ export async function POST(request: NextRequest) {
 			const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 			let password = '';
 			for (let i = 0; i < 6; i++) {
-				password += chars.charAt(Math.floor(Math.random() * chars.length));
+				password += chars.charAt(crypto.randomInt(chars.length));
 			}
 			return password;
 		};
@@ -107,8 +112,7 @@ export async function POST(request: NextRequest) {
 
 		return NextResponse.json(
 			{ 
-				message: 'Password reset email sent successfully',
-				tempPassword: newPassword 
+				message: 'Password reset email sent successfully'
 			},
 			{ status: 200 }
 		);

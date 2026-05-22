@@ -3,6 +3,7 @@ import connectDB from "@/lib/mongodb";
 import Membership from "@/models/Membership.Model";
 import { sendWelcomeEmail } from "@/lib/email";
 import crypto from "crypto";
+import { requireAdmin } from "@/lib/apiAuth";
 
 interface FamilyMember {
 	firstName: string;
@@ -15,6 +16,9 @@ interface FamilyMember {
 
 export async function POST(request: Request) {
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 		
 		const { membershipId } = await request.json();

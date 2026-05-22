@@ -6,9 +6,13 @@ import Expense from "@/models/Expense.Model";
 import Donation from "@/models/Donation.Model";
 import EventRegistration from "@/models/EventRegistration.Model";
 import Event from "@/models/Event.Model";
+import { requireAdminOrExecutive } from "@/lib/apiAuth";
 
 export async function GET(request: Request) {
 	try {
+		const auth = await requireAdminOrExecutive();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 		const { searchParams } = new URL(request.url);
 		const period = searchParams.get("period") || "all"; // all, 1month, 3months, 6months, 1year

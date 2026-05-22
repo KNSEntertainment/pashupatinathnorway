@@ -1106,9 +1106,7 @@ export async function sendEmailVerificationEmail({ name, email, verificationToke
 	console.log("=== EMAIL VERIFICATION FUNCTION CALLED ===");
 	console.log("Sending to:", email);
 	console.log("Name:", name);
-	console.log("Verification URL:", `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/en/verify-email?token=${verificationToken}`);
 	console.log("Resend configured:", !!resend);
-	console.log("EMAIL_USER:", process.env.EMAIL_USER);
 	
 	const verificationUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/en/verify-email?token=${verificationToken}`;
 	

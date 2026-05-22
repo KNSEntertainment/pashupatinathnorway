@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Membership from "@/models/Membership.Model";
 import { sendBirthdayWishEmail } from "@/lib/email";
+import { requireAdmin } from "@/lib/apiAuth";
 
 // Helper function to extract birth date from Norwegian personal number
 const extractBirthDateFromPersonalNumber = (personalNumber: string): Date | null => {
@@ -44,6 +45,9 @@ const isBirthdayToday = (birthDate: Date): boolean => {
 
 export async function POST() {
     try {
+        const auth = await requireAdmin();
+        if (auth.response) return auth.response;
+
         await connectDB();
 
         console.log("Starting daily birthday wish process...");

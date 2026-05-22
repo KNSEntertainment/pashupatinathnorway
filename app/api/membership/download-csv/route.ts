@@ -4,7 +4,20 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import Membership from '@/models/Membership.Model';
 import AuditLog from '@/models/AuditLog.Model';
 import connectDB from '@/lib/mongodb';
-import * as XLSX from 'xlsx';
+
+const escapeCsvValue = (value: unknown) => {
+  const stringValue = String(value ?? "");
+  return `"${stringValue.replace(/"/g, '""')}"`;
+};
+
+const toCsv = (rows: Record<string, unknown>[]) => {
+  if (rows.length === 0) return "";
+  const headers = Object.keys(rows[0]);
+  return [
+    headers.map(escapeCsvValue).join(","),
+    ...rows.map(row => headers.map(header => escapeCsvValue(row[header])).join(",")),
+  ].join("\n");
+};
 
 const calculateAgeFromPersonalNumber = (personalNumber: string): number | null => {
   if (!personalNumber || personalNumber.length !== 11 || !/^\d{11}$/.test(personalNumber)) {
@@ -157,16 +170,12 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    // Convert to CSV string
-    const ws = XLSX.utils.json_to_sheet(csvData);
-    const csv = XLSX.utils.sheet_to_csv(ws);
-
     // Generate filename with timestamp
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
     const filename = `members_${timestamp}.csv`;
 
     // Create blob
-    const buffer = Buffer.from(csv, 'utf-8');
+    const buffer = Buffer.from(toCsv(csvData), 'utf-8');
 
     // Update audit log with successful results
     await AuditLog.findByIdAndUpdate(auditLog._id, {

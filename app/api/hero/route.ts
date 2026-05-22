@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Hero from "@/models/Hero.Model";
 import { deleteFromCloudinary } from "@/utils/saveFileToCloudinaryUtils";
+import { requireAdmin } from "@/lib/apiAuth";
 
 interface MultilingualField {
 	en: string;
@@ -87,6 +88,9 @@ export async function GET(request: NextRequest) {
 // POST - Create or update hero slides
 export async function POST(request: Request) {
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 
 		const body = await request.json();

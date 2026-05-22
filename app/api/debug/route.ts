@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import Membership from '@/models/Membership.Model';
+import { requireAdmin } from '@/lib/apiAuth';
 
 export async function GET() {
   try {
+    const auth = await requireAdmin();
+    if (auth.response) return auth.response;
+
     // Connect to database
     if (mongoose.connection.readyState !== 1) {
       await mongoose.connect(process.env.MONGODB_URI!);

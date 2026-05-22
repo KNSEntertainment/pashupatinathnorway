@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server";
-import { jwtVerify } from "jose";
 import connectDB from "@/lib/mongodb";
 import Event from "@/models/Event.Model";
 import { uploadToCloudinary, deleteFromCloudinary } from "@/utils/saveFileToCloudinaryUtils";
-
-const JWT_SECRET = process.env.JWT_SECRET_KEY;
+import { requireAdmin } from "@/lib/apiAuth";
 
 export const config = {
 	api: {
@@ -16,6 +14,9 @@ export async function PUT(request, { params }) {
 	const { id } = await params;
 
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 
 		const formData = await request.formData();
@@ -119,23 +120,10 @@ export async function DELETE(request, { params }) {
 	const { id } = await params;
 
 	try {
-		await connectDB();
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
 
-		const token = request.cookies.get("authToken")?.value;
-		if (!token) {
-			return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
-		}
-		let payload;
-		try {
-			const secretKey = new TextEncoder().encode(JWT_SECRET);
-			({ payload } = await jwtVerify(token, secretKey));
-		} catch {
-			return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
-		}
-		const role = payload?.role;
-		if (!role || !["admin"].includes(role)) {
-			return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
-		}
+		await connectDB();
 
 		const event = await Event.findById(id);
 		if (!event) {

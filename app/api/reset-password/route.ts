@@ -10,11 +10,10 @@ export async function POST(req: NextRequest) {
 		await connectDB();
 		const { token, password } = await req.json();
 
-		console.log("Reset password request received:", { 
-			token: token?.substring(0, 10) + "...", 
-			passwordLength: password?.length,
-			fullToken: token
-		});
+			console.log("Reset password request received:", { 
+				token: token?.substring(0, 10) + "...", 
+				passwordLength: password?.length
+			});
 
 		if (!token || !password) {
 			return NextResponse.json({ error: "Missing token or password" }, { status: 400 });
@@ -49,28 +48,10 @@ export async function POST(req: NextRequest) {
 			if (!membership) {
 				console.log("Setup token not found, checking reset token...");
 				// Try reset token for membership
-				console.log("=== LOOKING FOR RESET TOKEN ===");
-				console.log("Looking for reset token:", token.substring(0, 10) + "...");
-				console.log("Full token being searched:", token);
-				
-				// First, let's see all members with reset tokens
-				const allMembersWithResetTokens = await Membership.find({ passwordResetToken: { $exists: true, $ne: null } });
-				console.log("All members with reset tokens:", allMembersWithResetTokens.length);
-				
-				if (allMembersWithResetTokens.length > 0) {
-					console.log("Members with reset tokens:");
-					allMembersWithResetTokens.forEach((member, index) => {
-						console.log(`  ${index + 1}. Email: ${member.email}`);
-						console.log(`      Full Token: ${member.passwordResetToken}`);
-						console.log(`      Token Length: ${member.passwordResetToken?.length}`);
-						console.log(`      Expiry: ${member.passwordResetTokenExpiry}`);
-						console.log(`      Searched Token: ${token}`);
-						console.log(`      Searched Length: ${token.length}`);
-						console.log(`      Tokens Match: ${member.passwordResetToken === token}`);
-					});
-				}
-				
-				// First, find the token without expiry check
+					console.log("=== LOOKING FOR RESET TOKEN ===");
+					console.log("Looking for reset token:", token.substring(0, 10) + "...");
+					
+					// First, find the token without expiry check
 				const membershipWithResetToken = await Membership.findOne({
 					passwordResetToken: token
 				});

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Notice from "@/models/Notice.Model";
 import { uploadToCloudinary, deleteFromCloudinary } from "@/utils/saveFileToCloudinaryUtils";
+import { requireAdmin } from "@/lib/apiAuth";
 
 // GET single notice
 export async function GET(request, { params }) {
@@ -24,6 +25,9 @@ export async function GET(request, { params }) {
 // UPDATE notice
 export async function PUT(request, { params }) {
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 		const { id } = params;
 
@@ -72,6 +76,9 @@ export async function PUT(request, { params }) {
 // DELETE notice
 export async function DELETE(request, { params }) {
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 		const { id } = params;
 

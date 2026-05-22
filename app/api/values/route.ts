@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Values from "@/models/Values.Model";
+import { requireAdmin } from "@/lib/apiAuth";
 
 interface MultilingualField {
 	en: string;
@@ -121,6 +122,9 @@ export async function GET(request: NextRequest) {
 // POST - Create or update values content
 export async function POST(request: Request) {
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 
 		const body = await request.json();

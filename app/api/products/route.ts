@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Product from "@/models/Product.Model";
+import { requireAdmin } from "@/lib/apiAuth";
 
 interface ProductQuery {
 	isActive: boolean;
@@ -131,6 +132,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 
 		const body = await request.json();

@@ -3,10 +3,14 @@ import connectDB from "@/lib/mongodb";
 import User from "@/models/User.Model";
 import crypto from "crypto";
 import { sendEmail } from "@/lib/email";
+import { requireAdmin } from "@/lib/apiAuth";
 
 export async function POST(request, { params }) {
 	const { id } = params;
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 		const user = await User.findById(id);
 		if (!user) {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Rituals from "@/models/Rituals.Model";
+import { requireAdmin } from "@/lib/apiAuth";
 
 interface MultilingualField {
 	en: string;
@@ -203,6 +204,9 @@ export async function GET(request: NextRequest) {
 // POST - Create new ritual
 export async function POST(request: Request) {
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 
 		const body = await request.json();
@@ -272,6 +276,9 @@ export async function POST(request: Request) {
 // PUT - Update ritual
 export async function PUT(request: Request) {
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 
 		const body = await request.json();
@@ -354,6 +361,9 @@ export async function PUT(request: Request) {
 // DELETE - Delete ritual
 export async function DELETE(request: NextRequest) {
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 
 		const { searchParams } = new URL(request.url);

@@ -2,10 +2,14 @@ import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import User from "@/models/User.Model";
+import { requireAdmin } from "@/lib/apiAuth";
 
 export async function PUT(request, { params }) {
 	const { id } = params;
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 		const body = await request.json();
 		// Only allow updating certain fields for security
@@ -36,6 +40,9 @@ export async function DELETE(request, { params }) {
 	const { id } = await params;
 
 	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
 		await connectDB();
 
 		const userId = id;

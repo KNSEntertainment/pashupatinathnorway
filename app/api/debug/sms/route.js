@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { sendSMS } from "@/lib/sms";
+import { requireAdmin } from "@/lib/apiAuth";
 
 export async function POST(request) {
   try {
+    const auth = await requireAdmin();
+    if (auth.response) return auth.response;
+
     const { to, message } = await request.json();
     
     if (!to || !message) {

@@ -5,6 +5,7 @@ import Donation from "@/models/Donation.Model";
 import { encryptPersonalNumber } from "@/lib/encryption";
 import generateTaxId from "@/lib/taxIdGenerator";
 import { sendDonationThankYouEmail } from "@/lib/email";
+import { verifyCaptcha } from "@/lib/captcha";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 	apiVersion: "2026-02-25.clover",
@@ -16,16 +17,9 @@ export async function POST(request: Request) {
 
 		const { amount, donorName, donorEmail, donorPhone, personalNumber, membershipId, address, message, isAnonymous, causeId, donationType, captcha } = await request.json();
 
-		// Verify captcha - for custom math captcha, we just need to ensure it was completed
-    if (!captcha || !captcha.hash) {
-      return NextResponse.json({ error: "Captcha verification is required." }, { status: 400 });
-    }
-
-    // For the custom math captcha, we verify that a hash exists (indicating the user solved it)
-    // The actual verification happens client-side with sessionStorage
-    if (!captcha.hash || captcha.hash.length < 10) {
-      return NextResponse.json({ error: "Invalid captcha. Please try again." }, { status: 400 });
-    }
+		if (!verifyCaptcha(captcha)) {
+			return NextResponse.json({ error: "Invalid captcha. Please try again." }, { status: 400 });
+		}
 
 		// Validate amount
 		if (!amount || amount < 50) {
