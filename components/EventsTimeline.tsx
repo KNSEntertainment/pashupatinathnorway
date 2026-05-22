@@ -4,7 +4,7 @@ import { Calendar, MapPin, Clock } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import SectionHeader from "./SectionHeader";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 interface Event {
 	_id: string;
@@ -26,7 +26,7 @@ export default function EventsTimeline() {
 	const [events, setEvents] = useState<Event[]>([]);
 	const [loading, setLoading] = useState(true);
 
-	const getEventToDisplay = (allEvents: Event[]) => {
+	const getEventToDisplay = useMemo(() => (allEvents: Event[]) => {
 		const today = new Date();
 		today.setHours(0, 0, 0, 0); // Set to start of day for accurate comparison
 		
@@ -48,7 +48,7 @@ export default function EventsTimeline() {
 		
 		// Return the first future event if available, otherwise the most recent past event
 		return futureEvents.length > 0 ? [futureEvents[0]] : pastEvents.length > 0 ? [pastEvents[0]] : [];
-	};
+	}, []);
 
 	const getSectionTitle = () => {
 		if (events.length === 0) return t("title");
@@ -177,7 +177,12 @@ export default function EventsTimeline() {
 													src={event.eventposterUrl || "/pashupatinath.png"} 
 													alt={getLocalizedTitle(event)} 
 													fill 
-													className="object-cover bg-gray-50 transition-transform duration-700" 
+													className="object-cover bg-gray-50 transition-transform duration-700"
+													loading="lazy"
+													placeholder="blur"
+													blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+													sizes="(max-width: 768px) 100vw, 66vw"
+													quality={75}
 												/>
 												{/* Gradient Overlay */}
 												<div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>

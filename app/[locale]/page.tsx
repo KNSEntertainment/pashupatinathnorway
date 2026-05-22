@@ -1,9 +1,19 @@
 import { Metadata } from "next";
+import dynamic from "next/dynamic";
 import Hero from "@/components/Hero";
-// import About from "@/components/About";
-import AboutPreview from "@/components/AboutPreview";
-import EventsTimeline from "@/components/EventsTimeline";
-import NewsletterSection from "@/components/NewsletterSection";
+
+// Dynamic imports for non-critical components with loading states
+const AboutPreview = dynamic(() => import("@/components/AboutPreview"), {
+  loading: () => <div className="min-h-screen py-20 flex items-center justify-center"><div className="animate-pulse text-gray-500">Loading...</div></div>
+});
+
+const EventsTimeline = dynamic(() => import("@/components/EventsTimeline"), {
+  loading: () => <div className="py-20 flex items-center justify-center"><div className="animate-pulse text-gray-500">Loading events...</div></div>
+});
+
+const NewsletterSection = dynamic(() => import("@/components/NewsletterSection"), {
+  loading: () => <div className="py-20 flex items-center justify-center"><div className="animate-pulse text-gray-500">Loading newsletter...</div></div>
+});
 
 export const metadata: Metadata = {
 	title: "Home | Pashupatinath Norway Temple",

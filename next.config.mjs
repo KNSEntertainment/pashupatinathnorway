@@ -3,6 +3,23 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 const nextConfig = withNextIntl({
+	// Package optimization
+	experimental: {
+		optimizePackageImports: [
+			'lucide-react',
+			'@radix-ui/react-avatar',
+			'@radix-ui/react-dialog',
+			'@radix-ui/react-label',
+			'@radix-ui/react-select',
+			'@radix-ui/react-separator',
+			'@radix-ui/react-slider',
+			'@radix-ui/react-slot',
+			'@radix-ui/react-tabs',
+			'@radix-ui/react-toast',
+			'@radix-ui/react-alert-dialog',
+			'@radix-ui/react-checkbox'
+		]
+	},
 	// Image optimization
 	images: {
 		remotePatterns: [
@@ -49,6 +66,11 @@ const nextConfig = withNextIntl({
 	compress: true,
 	poweredByHeader: false,
 	
+	// Compiler optimizations
+	compiler: {
+		removeConsole: process.env.NODE_ENV === 'production',
+	},
+	
 	// Security headers
 	async headers() {
 		return [
@@ -82,42 +104,33 @@ const nextConfig = withNextIntl({
 		];
 	},
 	
-	// Bundle optimization
+	// Bundle optimization - simplified for dev mode
 	webpack: (config, { dev, isServer }) => {
-		// Optimize bundle size
+		// Only apply optimizations in production
 		if (!dev && !isServer) {
 			config.optimization.splitChunks = {
 				chunks: 'all',
 				cacheGroups: {
-					default: {
-						minChunks: 2,
-						priority: -20,
-						reuseExistingChunk: true,
-					},
-					vendor: {
-						test: /[\\/]node_modules[\\/]/,
-						name: 'vendors',
-						priority: -10,
-						chunks: 'all',
-					},
 					react: {
 						test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
 						name: 'react',
-						priority: 20,
+						priority: 30,
 						chunks: 'all',
 					},
-				
+					next: {
+						test: /[\\/]node_modules[\\/](next|next-intl)[\\/]/,
+						name: 'next',
+						priority: 25,
+						chunks: 'all',
+					},
+					heavy: {
+						test: /[\\/]node_modules[\\/](recharts|@dnd-kit|stripe|twilio|resend|mongoose|next-auth|jose|bcrypt|cloudinary|qrcode|yet-another-react-lightbox)[\\/]/,
+						name: 'heavy',
+						priority: 20,
+						chunks: 'async',
+					},
 				},
 			};
-		}
-		
-		// Reduce bundle size by excluding unnecessary modules
-		config.externals = config.externals || [];
-		if (!isServer) {
-			config.externals.push({
-				'canvas': '{}',
-				'jsdom': '{}',
-			});
 		}
 		
 		return config;

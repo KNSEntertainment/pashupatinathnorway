@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Users, RefreshCcw, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { useLocale } from "next-intl";
@@ -27,14 +27,14 @@ export default function AboutPreview() {
 	const [establishmentDate, setEstablishmentDate] = useState<Date | null>(null);
 	const [loading, setLoading] = useState(true);
 
-	// Calculate months active from establishment date to current date
-	const calculateMonthsActive = () => {
+	// Calculate months active from establishment date to current date - memoized for performance
+	const calculateMonthsActive = useMemo(() => {
 		if (!establishmentDate) return 1; // Default to 1 if no date is set
 		const currentDate = new Date();
 		const monthsDiff = (currentDate.getFullYear() - establishmentDate.getFullYear()) * 12 + 
 							(currentDate.getMonth() - establishmentDate.getMonth());
 		return Math.max(1, monthsDiff + 1); // At least 1 month
-	};
+	}, [establishmentDate]);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -221,7 +221,7 @@ export default function AboutPreview() {
 								<div
 									className="space-y-1"
 								>
-									<p className="text-2xl sm:text-3xl font-bold text-white">{calculateMonthsActive()}+</p>
+									<p className="text-2xl sm:text-3xl font-bold text-white">{calculateMonthsActive}+</p>
 									<p className="text-red-100 text-xs sm:text-sm font-medium">{aboutData.stats.months_active_label}</p>
 								</div>
 							</div>
@@ -249,7 +249,12 @@ export default function AboutPreview() {
 										alt="Pashupatinath Norway Temple - Community gathering and spiritual center" 
 										width={600} 
 										height={600} 
-										className="w-full h-auto object-cover transform group-hover:scale-105 transition-transform duration-700" 
+										className="w-full h-auto object-cover transform group-hover:scale-105 transition-transform duration-700"
+										loading="lazy"
+										placeholder="blur"
+										blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+										sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
+										quality={80}
 									/>
 									
 									{/* Overlay Gradient */}
