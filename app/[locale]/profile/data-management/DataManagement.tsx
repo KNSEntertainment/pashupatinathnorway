@@ -97,6 +97,8 @@ export default function DataManagement() {
             });
 
             if (response.ok) {
+                const data = await response.json();
+                
                 // Send notification email
                 await fetch('/api/email/account-deletion-notification', {
                     method: 'POST',
@@ -109,15 +111,32 @@ export default function DataManagement() {
                     }),
                 });
 
+                // Create detailed success message
+                let description = "Your account has been permanently deleted. You will be redirected to the home page.";
+                
+                if (data.deletedDataSummary) {
+                    const summary = data.deletedDataSummary;
+                    const deletedItems = [];
+                    if (summary.donations > 0) deletedItems.push(`${summary.donations} donation(s)`);
+                    if (summary.eventRegistrations > 0) deletedItems.push(`${summary.eventRegistrations} event registration(s)`);
+                    if (summary.messages > 0) deletedItems.push(`${summary.messages} message(s)`);
+                    if (summary.orders > 0) deletedItems.push(`${summary.orders} order(s)`);
+                    if (summary.attendance > 0) deletedItems.push(`${summary.attendance} attendance record(s)`);
+                    
+                    if (deletedItems.length > 0) {
+                        description += ` Also deleted: ${deletedItems.join(', ')}.`;
+                    }
+                }
+
                 toast({
                     title: "Account Deleted",
-                    description: "Your account has been permanently deleted. You will be redirected to the home page.",
+                    description: description,
                 });
                 
                 // Sign out and redirect to home
                 setTimeout(() => {
                     signOut({ callbackUrl: "/" });
-                }, 2000);
+                }, 3000);
             } else {
                 throw new Error('Failed to delete account');
             }
@@ -235,7 +254,7 @@ export default function DataManagement() {
 
                 return (
          <>
-                    <Card className="mt-6 shadow-lg border-0">
+                    <Card className="mt-6 shadow-sm border-0">
                         <CardHeader>
                             <CardTitle className="flex items-center text-2xl">
                                 <Download className="w-6 h-6 mr-2 text-blue-600" />

@@ -52,21 +52,15 @@ export default function IDCardPage() {
                 throw new Error("Failed to fetch membership data");
             }
             const data = await response.json();
-            console.log("Fetched membership data:", data);
-            console.log("Data type:", typeof data);
-            console.log("Is array?", Array.isArray(data));
+           
             
             // Handle case where API returns an array
             let membershipData = data;
             if (Array.isArray(data) && data.length > 0) {
                 membershipData = data[0];
-                console.log("Extracted from array:", membershipData);
             }
             
-            console.log("Final membership data:", membershipData);
-            console.log("Membership status:", membershipData.membershipStatus);
-            console.log("Status type:", typeof membershipData.membershipStatus);
-            console.log("Status comparison:", membershipData.membershipStatus === "approved");
+           
             setMembershipData(membershipData);
         } catch (error) {
             console.error("Error fetching membership data:", error);
@@ -166,10 +160,10 @@ export default function IDCardPage() {
 
 				{/* Member ID Card Section */}
 				{membershipData && membershipData.membershipStatus === "approved" && (
-					<Card className="">
+					<Card className="border-0 shadow-none">
 				
 						
-							<CardContent id="id-card-container">
+							<CardContent>
 								<MemberIDCard
 									memberData={{
 										_id: membershipData._id || "",

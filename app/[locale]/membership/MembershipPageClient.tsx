@@ -147,7 +147,14 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 					{/* ── Membership Form ── */}
 					<div className="md:col-span-2 md:mt-8 md:shadow-md p-8 md:px-12 bg-brand_primary relative overflow-hidden">
+						
 						<div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-50" />
+
+	<div className="absolute top-4 right-4 z-20">
+	<Link href="/membership-status" className="text-brand_secondary hover:text-red-700 underline text-sm font-medium transition-colors duration-200">
+		Check Membership Status
+	</Link>
+</div>
 
 						<div className="relative z-10 flex flex-col md:items-center md:justify-center">
 							<h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{t.title}</h2>

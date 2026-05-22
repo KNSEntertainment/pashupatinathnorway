@@ -8,6 +8,7 @@ export interface Message {
   subject: string;
   content: string;
   sender: {
+    _id: string;
     firstName: string;
     lastName: string;
     email: string;

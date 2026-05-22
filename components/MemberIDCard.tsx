@@ -62,7 +62,7 @@ export default function MemberIDCard({ memberData, settings }: MemberIDCardProps
 	});
 
 	return (
-		<div id="print-cards-container" className="flex flex-col items-center mt-6 space-y-8" key={cacheKey}>
+		<div id="print-cards-container" className="flex flex-col md:flex-row items-center mt-6 space-y-8 md:space-y-0 gap-4" key={cacheKey}>
 		
 
 			{/* ID Card - Front */}
@@ -80,7 +80,7 @@ export default function MemberIDCard({ memberData, settings }: MemberIDCardProps
 					</div>
 
 					{/* Content Section */}
-					<div className="p-6">
+					<div className="p-4">
 						{/* Membership Number - TOP LEFT */}
 						{/* <div className="text-xs text-center font-light text-gray-600">
 								#<span className="font-semibold">{membershipNumber}</span>
@@ -99,7 +99,7 @@ export default function MemberIDCard({ memberData, settings }: MemberIDCardProps
 							
 						</div>
 					</div>
-					<div className="relative grid grid-cols-1 ml-8 gap-2">
+					<div className="relative grid grid-cols-1 ml-8 gap-1">
 							{/* Member ID */}
 							<div>
 								<p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wide">Member ID</p>

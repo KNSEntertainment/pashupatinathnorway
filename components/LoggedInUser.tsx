@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { LayoutDashboard, LogOut, User, MessageSquare, Ticket } from "lucide-react";
+import { LayoutDashboard, LogOut, User } from "lucide-react";
 import { completeSignOut } from "@/utils/authUtils";
 
 interface SessionUser {
@@ -18,10 +18,19 @@ interface SessionUser {
 
 const LoggedInUser = ({ user }: { user: SessionUser }) => {
 	const userRef = useRef<HTMLDivElement>(null);
-	const avatarInitial = typeof user?.email === "string" && user.email ? user.email.charAt(0).toUpperCase() : "U";
+	// Get initial from firstName or fullName, fallback to email if not available
+	const getInitialLetter = () => {
+		if (user?.name) {
+			return user.name.charAt(0).toUpperCase();
+		}
+		if (typeof user?.email === "string" && user.email) {
+			return user.email.charAt(0).toUpperCase();
+		}
+		return "U";
+	};
+	const avatarInitial = getInitialLetter();
 	const [showUserDropdown, setShowUserDropdown] = useState(false);
 	const [memberPhoto, setMemberPhoto] = useState<string | null>(null);
-	const [unreadCount, setUnreadCount] = useState(0);
 	const lastEmailRef = useRef<string | null>(null);
 
 	// Fetch member profile photo and unread messages when user is a member
@@ -36,7 +45,6 @@ const LoggedInUser = ({ user }: { user: SessionUser }) => {
 				// Only reset if we're actually fetching a different email
 				if (lastEmailRef.current !== user.email) {
 					setMemberPhoto(null);
-					setUnreadCount(0);
 				}
 				
 				// Fetch profile photo
@@ -46,13 +54,6 @@ const LoggedInUser = ({ user }: { user: SessionUser }) => {
 					if (photoData.profilePhoto) {
 						setMemberPhoto(photoData.profilePhoto);
 					}
-				}
-				
-				// Fetch unread messages count
-				const messagesResponse = await fetch("/api/messages");
-				if (messagesResponse.ok) {
-					const messagesData = await messagesResponse.json();
-					setUnreadCount(messagesData.unreadCount || 0);
 				}
 			} catch (error) {
 				console.error("Failed to fetch member data:", error);
@@ -78,6 +79,7 @@ const LoggedInUser = ({ user }: { user: SessionUser }) => {
 		}
 	};
 
+	
 	// Close dropdown when clicking outside
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
@@ -97,8 +99,8 @@ const LoggedInUser = ({ user }: { user: SessionUser }) => {
 
 	return (
 		<div ref={userRef} className="relative">
-			<button onClick={() => setShowUserDropdown((v) => !v)} aria-label="User menu" aria-expanded={showUserDropdown} className="h-8 w-8 p-1 rounded-full border border-1 border-gray-600 text-gray-500 hover:text-gray-700 font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 text-sm md:text-base overflow-hidden flex items-center justify-center">
-				{memberPhoto ? <Image src={memberPhoto} alt={user.name || "User avatar"} width={44} height={44} className="w-full h-full object-cover" /> : avatarInitial}
+			<button onClick={() => setShowUserDropdown((v) => !v)} aria-label="User menu" aria-expanded={showUserDropdown} className="h-8 w-8 rounded-full border-2 border-gray-300 text-gray-700 hover:text-gray-900 font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 text-sm md:text-base overflow-hidden flex items-center justify-center bg-white">
+				{memberPhoto ? <Image src={memberPhoto} alt={user.name || "User avatar"} width={32} height={32} className="w-full h-full rounded-full object-cover" /> : avatarInitial}
 			</button>
 				{showUserDropdown && (
 					<div className="absolute right-0 mt-2 w-64 bg-white backdrop-blur-xl rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.12)] ring-1 ring-black/5 overflow-hidden">
@@ -112,25 +114,7 @@ const LoggedInUser = ({ user }: { user: SessionUser }) => {
 									<LayoutDashboard size={18} />
 									{user.role === "admin" ? "Admin Dashboard" : "Member Dashboard"}
 								</Link>
-								{user.isMember && (
-									<>
-										<Link href="/en/profile/my-events" onClick={() => setShowUserDropdown(false)} className="flex items-center gap-3 px-5 py-3.5 text-gray-700 hover:bg-red-50 w-full transition-all duration-200 font-medium">
-											<Ticket size={18} />
-											My Events
-										</Link>
-										<Link href="/en/profile/messages" onClick={() => setShowUserDropdown(false)} className="flex items-center gap-3 px-5 py-3.5 text-gray-700 hover:bg-red-50 w-full transition-all duration-200 font-medium">
-											<div className="relative">
-												<MessageSquare size={18} />
-												{unreadCount > 0 && (
-													<span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-medium">
-														{unreadCount > 9 ? "9+" : unreadCount}
-													</span>
-												)}
-											</div>
-											Messages
-										</Link>
-									</>
-								)}
+						
 							</>
 						) : (
 							<Link href="/en/profile" onClick={() => setShowUserDropdown(false)} className="flex items-center gap-3 px-5 py-3.5 text-brand_primary hover:bg-brand_primary/10 w-full transition-all duration-200 font-medium">

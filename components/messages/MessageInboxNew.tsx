@@ -7,6 +7,7 @@ export interface Message {
   subject: string;
   content: string;
   sender: {
+    _id: string;
     firstName: string;
     lastName: string;
     email: string;
@@ -66,8 +67,8 @@ export default function MessageInbox({
             {(messages || []).filter(Boolean).map((message) => (
               <div
                 key={message._id}
-                className={`flex items-start p-4 hover:bg-gray-50 cursor-pointer transition-colors ${
-                  message.status !== "read" ? "bg-blue-50" : ""
+                className={`flex items-start p-4 hover:bg-gray-50 cursor-pointer transition-all duration-200 ${
+                  message.status !== "read" ? "bg-slate-50 border-l-4 border-blue-400" : "border-l-4 border-transparent"
                 }`}
                 onClick={() => {
                   onMessageClick(message);
@@ -81,7 +82,7 @@ export default function MessageInbox({
                           <User className="w-4 h-4 text-gray-600" />
                         </div>
                         <span className={`text-sm truncate ${
-                          message.status !== "read" ? "font-semibold text-gray-900" : "text-gray-700"
+                          message.status !== "read" ? "font-semibold text-gray-900" : "font-medium text-gray-600"
                         }`}>
                           {message.type === "broadcast" ? "Admin" : "Unknown Sender"}
                         </span>
@@ -115,12 +116,14 @@ export default function MessageInbox({
                   </div>
                   
                   <h3 className={`text-sm truncate mb-1 ${
-                    message.status !== "read" ? "font-semibold text-gray-900" : "text-gray-800"
+                    message.status !== "read" ? "font-semibold text-gray-900" : "font-medium text-gray-700"
                   }`}>
                     {message.subject}
                   </h3>
                   
-                  <p className="text-sm text-gray-600 line-clamp-2 mb-2">
+                  <p className={`text-sm line-clamp-2 mb-2 ${
+                    message.status !== "read" ? "text-gray-700 font-medium" : "text-gray-500"
+                  }`}>
                     {message.content}
                   </p>
                   

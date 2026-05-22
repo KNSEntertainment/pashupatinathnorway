@@ -291,18 +291,6 @@ export default function MembershipStatusPage() {
                 </div>
               )}
 
-              {membershipData.membershipStatus === "approved" && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mt-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <CheckCircle className="text-green-500" size={20} />
-                    <h3 className="font-semibold text-green-800">Membership Benefits</h3>
-                  </div>
-                  <p className="text-green-700 text-sm">
-                    Congratulations! Your membership is active. You can now enjoy member benefits including discounted event registration, 
-                    exclusive content, and priority support.
-                  </p>
-                </div>
-              )}
             </div>
           </div>
         )}

@@ -33,8 +33,9 @@ function ProfileLayoutContent({ children }) {
 	}
 
 	return (
-		<div
-			className="flex flex-col pl-4 md:flex-row min-h-screen"
+	<div className="container mx-auto">
+			<div
+			className="flex flex-col pl-4 md:flex-row"
 			onClick={(e) => {
 				if (profileOpen && !(e.target.closest && e.target.closest("#member-profile-menu"))) {
 					setProfileOpen(false);
@@ -87,9 +88,10 @@ function ProfileLayoutContent({ children }) {
 			</div>
 
 			{/* Content Area */}
-			<main className="bg-brand_primary/5 flex-1 p-6 m-6">{children}</main>
+			<main className="flex-1 p-6 m-6">{children}</main>
 			<Toaster />
 		</div>
+	</div>
 	);
 }
 

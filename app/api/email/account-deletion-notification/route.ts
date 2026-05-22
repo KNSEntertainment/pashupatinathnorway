@@ -29,12 +29,17 @@ export async function POST(request: NextRequest) {
 					<p>Dear ${name || fullName},</p>
 					<p>We're sorry to see you go. Your account has been <strong>permanently deleted</strong> from our system.</p>
 					
-					<h3 style="color: #666; margin-top: 20px;">What was deleted:</h3>
+					<h3 style="color: #666; margin-top: 20px;">What was permanently deleted:</h3>
 					<ul style="color: #666;">
-						<li>Profile information</li>
-						<li>Membership details</li>
-						<li>Activity history</li>
-						<li>Uploaded photos</li>
+						<li>Profile information and membership details</li>
+						<li>Newsletter subscription preferences</li>
+						<li>All donation history and records</li>
+						<li>Event registrations and participation history</li>
+						<li>Contact form messages and communications</li>
+						<li>Order history and purchase records</li>
+						<li>Event attendance records</li>
+						<li>Uploaded profile photos</li>
+						<li>Family member information</li>
 					</ul>
 					
 					<p style="margin-top: 20px;">If this was a mistake or you have any questions, please contact our support team.</p>

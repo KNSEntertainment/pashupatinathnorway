@@ -227,7 +227,7 @@ export default function ProfileClient({ translations: t }: Props) {
 	};
 
 	return (
-			<div className="max-w-3xl space-y-6">
+			<div className=" space-y-6">
 			<div className="mb-8">
 				{/* Header */}
 				<div className="mb-8">
@@ -236,7 +236,7 @@ export default function ProfileClient({ translations: t }: Props) {
 
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 					{/* Profile Card */}
-					<Card className="md:col-span-1 shadow-lg border-0">
+					<Card className="md:col-span-1 shadow-sm border-0">
 						<CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
 							<div className="flex flex-col items-center">
 								<div className="relative w-24 h-24 rounded-full bg-white/20 flex items-center justify-center mb-4 group">
@@ -272,7 +272,7 @@ export default function ProfileClient({ translations: t }: Props) {
 					</Card>
 
 					{/* Personal Information */}
-					<Card className="md:col-span-2 shadow-lg border-0">
+					<Card className="md:col-span-2 shadow-sm border-0">
 						<CardHeader>
 							<CardTitle className="flex items-center text-2xl">
 								<User className="w-6 h-6 mr-2 text-brand_primary" />
@@ -318,7 +318,7 @@ export default function ProfileClient({ translations: t }: Props) {
 
 				{/* Membership Details */}
 				{membershipData && (
-					<Card className="mt-6 shadow-lg border-0">
+					<Card className="mt-6 shadow-sm border-0">
 						<CardHeader>
 							<CardTitle className="flex items-center text-2xl">
 								<Users className="w-6 h-6 mr-2 text-purple-600" />

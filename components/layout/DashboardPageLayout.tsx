@@ -52,7 +52,7 @@ export default function DashboardPageLayout({
               </h1>
             </div>
             {description && (
-              <p className="text-sm text-gray-500 mt-1 ml-11">
+              <p className="text-sm text-gray-500 ml-12">
                 {description}
               </p>
             )}

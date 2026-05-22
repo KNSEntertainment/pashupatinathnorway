@@ -10,29 +10,8 @@ const MessageInbox = dynamic(() => import("@/components/messages/MessageInboxNew
 const MessageDetail = dynamic(() => import("@/components/messages/MessageDetail"), { ssr: false });
 // const MessageCompose = dynamic(() => import("@/components/messages/MessageCompose"), { ssr: false });
 
-interface Message {
-  _id: string;
-  subject: string;
-  content: string;
-  sender: {
-    firstName: string;
-    lastName: string;
-    email: string;
-  };
-  type: "broadcast" | "personal" | "system" | "reply";
-  status: "sent" | "delivered" | "read";
-  readAt?: string;
-  createdAt: string;
-  isImportant: boolean;
-  isStarred: boolean;
-  attachments?: Array<{
-    filename: string;
-    url: string;
-    size: number;
-  }>;
-  threadMessages?: Message[];
-  parentMessage?: Message;
-}
+// Import Message type from components to ensure consistency
+type Message = import("@/components/messages/MessageInboxNew").Message;
 
 // interface Recipient {
 //   _id: string;
@@ -41,6 +20,7 @@ interface Message {
 //   email: string;
 //   membershipType: string;
 // }
+
 
 export default function MessagesPage() {
   const { data: session, status } = useSession();
@@ -280,16 +260,23 @@ export default function MessagesPage() {
   
   const handleMessageClick = (message: Message) => {
     setSelectedMessage(message);
+    
+    // Automatically mark as read if the message is unread
+    if (message.status !== "read") {
+      handleMarkAsRead(message._id);
+    }
   };
 
   // Filter messages based on search and filter criteria
   const filteredMessages = (messages || []).filter((message: Message) => {
     if (!message) return false;
     
-    const matchesSearch = message.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         message.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         (message.type === "broadcast" && "admin".includes(searchQuery.toLowerCase())) || 
-                         (message.sender && message.sender.email && message.sender.email.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesSearch = (message.subject && message.subject.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                         (message.content && message.content.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                         (message.sender && message.sender.firstName && message.sender.firstName.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                         (message.sender && message.sender.lastName && message.sender.lastName.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                         (message.sender && message.sender.email && message.sender.email.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                         (message.type === "broadcast" && "admin".includes(searchQuery.toLowerCase()));
     
     const matchesFilter = 
       filter === "all" ||
@@ -360,9 +347,9 @@ export default function MessagesPage() {
       </div>
 
       {/* Main Content - Clean 2 Column Layout */}
-      <div className="flex h-[calc(100vh-80px)]">
+      <div className="flex h-[calc(100vh-80px)] bg-white">
         {/* Column 1: Message List - Shows subject, sender, etc */}
-        <div className={`${selectedMessage ? "w-1/3" : "w-full"} border-r border-gray-200`}>
+        <div className={`${selectedMessage ? "w-1/3" : "w-full"} border-r border-gray-200 bg-white`}>
           <MessageInbox
             messages={filteredMessages}
             onMessageStar={handleMessageStar}
@@ -372,7 +359,7 @@ export default function MessagesPage() {
 
         {/* Column 2: Message Content - Shows full message with collapsible details */}
         {selectedMessage && (
-          <div className="flex-1">
+          <div className="flex-1 bg-white">
             <MessageDetail
               message={selectedMessage}
               onBack={() => setSelectedMessage(null)}
