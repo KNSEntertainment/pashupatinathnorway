@@ -1,40 +1,30 @@
 "use client";
-import Link from "next/link";
-import { useActiveMenu } from "@/context/ActiveMenuContext";
 import { useSession } from "next-auth/react";
-import { menuItems } from "@/components/DashboardMenuItems";
+import AnalyticsDashboard from "@/components/dashboard/AnalyticsDashboard";
+import DashboardPageLayout from "@/components/layout/DashboardPageLayout";
 
-export default function DashboardGrid() {
-	const { setActiveMenu } = useActiveMenu();
+export default function DashboardPage() {
 	const { data: session } = useSession();
 
-	const userRole = session?.user?.role;
-	const isMember = session?.user?.isMember;
-
-	// Filter menu items based on user role
-	const filteredMenuItems = menuItems.filter((item) => {
-		if (!item.role || item.role === "both") return true;
-		if (item.role === "admin" && userRole === "admin") return true;
-		if (item.role === "member" && isMember) return true;
-		return false;
-	});
+	// Only show analytics to admin users
+	if (!session || session.user.role !== "admin") {
+		return (
+			<div className="flex items-center justify-center h-64">
+				<div className="text-center">
+					<h2 className="text-xl font-semibold text-gray-900 mb-2">Access Denied</h2>
+					<p className="text-gray-600">This dashboard is only available to administrators.</p>
+				</div>
+			</div>
+		);
+	}
 
 	return (
-		<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-			{filteredMenuItems.map((item) => (
-				<Link key={item.label} href={item.href} className="group relative overflow-hidden rounded-lg shadow-lg transition-transform hover:scale-105" onClick={() => setActiveMenu(item.id)}>
-					<div className={`${item.color} p-6 h-auto`}>
-						<div className="flex items-center justify-between">
-							<div className="text-gray-200">
-								<h2 className="text-xl font-semibold mb-2">{item.label}</h2>
-								<p className="text-gray-200/80">View {item.label.toLowerCase()}</p>
-							</div>
-							<item.icon className="w-8 h-8 text-gray-200 opacity-80 group-hover:opacity-100 transition-opacity" />
-						</div>
-					</div>
-					<div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/30 opacity-0 group-hover:opacity-100 transition-opacity" />
-				</Link>
-			))}
-		</div>
+		<DashboardPageLayout
+			title="Analytics Dashboard"
+			description="Comprehensive overview of your organization's performance and metrics"
+			icon="Activity"
+		>
+			<AnalyticsDashboard />
+		</DashboardPageLayout>
 	);
 }
