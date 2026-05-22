@@ -1,14 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import nodemailer from "nodemailer";
-
-// Create nodemailer transporter using existing configuration
-const transporter = nodemailer.createTransport({
-	service: "gmail",
-	auth: {
-		user: process.env.EMAIL_USER,
-		pass: process.env.EMAIL_APP_PASS,
-	},
-});
+import { sendEmail } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
 	try {
@@ -21,9 +12,7 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		// Send notification email using nodemailer
-		const mailOptions = {
-			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER}>`,
+		await sendEmail({
 			to: email,
 			subject: 'Account Deletion Confirmation',
 			html: `
@@ -48,9 +37,7 @@ export async function POST(request: NextRequest) {
 					<p style="color: #999; font-size: 14px;">Best regards,<br>The Pashupatinath Norway Temple Team</p>
 				</div>
 			`,
-		};
-
-		await transporter.sendMail(mailOptions);
+		});
 
 		return NextResponse.json(
 			{ message: 'Email notification sent successfully' },

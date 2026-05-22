@@ -11,26 +11,24 @@ export async function GET(request: Request) {
 	try {
 		await connectDB();
 		const { searchParams } = new URL(request.url);
-		const period = searchParams.get('period') || 'all'; // all, 1month, 3months, 6months, 1year
-		
-		console.log("Overall report request - period:", period);
-		
+		const period = searchParams.get("period") || "all"; // all, 1month, 3months, 6months, 1year
+
 		// Build date filter based on period
 		let dateFilter = {};
 		const now = new Date();
-		
-		if (period !== 'all') {
+
+		if (period !== "all") {
 			switch (period) {
-				case '1month':
+				case "1month":
 					dateFilter = { $gte: new Date(now.getFullYear(), now.getMonth(), 1) };
 					break;
-				case '3months':
+				case "3months":
 					dateFilter = { $gte: new Date(now.getFullYear(), now.getMonth() - 3, 1) };
 					break;
-				case '6months':
+				case "6months":
 					dateFilter = { $gte: new Date(now.getFullYear(), now.getMonth() - 6, 1) };
 					break;
-				case '1year':
+				case "1year":
 					dateFilter = { $gte: new Date(now.getFullYear(), 0, 1) };
 					break;
 			}
@@ -282,14 +280,14 @@ export async function GET(request: Request) {
 		]);
 
 		// Calculate percentages
-		const incomeSourceBreakdown = incomeSourceBreakdownRaw.map(source => ({
+		const incomeSourceBreakdown = incomeSourceBreakdownRaw.map((source) => ({
 			...source,
-			percentage: incomeData.totalIncome > 0 ? (source.totalAmount / incomeData.totalIncome) * 100 : 0
+			percentage: incomeData.totalIncome > 0 ? (source.totalAmount / incomeData.totalIncome) * 100 : 0,
 		}));
 
-		const expenseCategoryBreakdown = expenseCategoryBreakdownRaw.map(category => ({
+		const expenseCategoryBreakdown = expenseCategoryBreakdownRaw.map((category) => ({
 			...category,
-			percentage: expenseData.totalExpenses > 0 ? (category.totalAmount / expenseData.totalExpenses) * 100 : 0
+			percentage: expenseData.totalExpenses > 0 ? (category.totalAmount / expenseData.totalExpenses) * 100 : 0,
 		}));
 
 		// Compile the comprehensive report
@@ -346,7 +344,6 @@ export async function GET(request: Request) {
 			generatedAt: new Date(),
 		};
 
-		console.log("Overall report generated successfully:", JSON.stringify(report, null, 2));
 		return NextResponse.json(report, { status: 200 });
 	} catch (error) {
 		console.error("Error generating overall report:", error);

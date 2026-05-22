@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Membership from "@/models/Membership.Model";
 import Subscriber from "@/models/Subscriber.Model";
-import { sendGeneralMemberWelcomeEmailNepali } from "@/lib/email";
+import { sendGeneralMemberWelcomeEmailNepali, sendWelcomeEmail } from "@/lib/email";
 import generateMembershipId from "@/lib/membershipIdGenerator";
+import crypto from "crypto";
 
 interface FamilyMember {
 	firstName: string;
@@ -25,6 +26,65 @@ async function addSubscriberIfNotExists(email: string) {
 	} catch (error) {
 		console.error(`Error adding subscriber ${email}:`, error);
 		// Don't fail the membership creation if subscriber creation fails
+	}
+}
+
+interface MemberDocument {
+	_id: string;
+	firstName: string;
+	middleName?: string;
+	lastName: string;
+	email: string;
+	membershipId: string;
+	membershipType: string;
+}
+
+// Helper function to send appropriate email based on member type
+async function sendMemberWelcomeEmail(member: MemberDocument, familyMembers: string[] = []) {
+	try {
+		const memberName = [member.firstName, member.middleName, member.lastName]
+			.filter(Boolean)
+			.join(' ');
+		
+		// Check if member type should receive password setup email
+		const passwordSetupTypes = ['Active', 'Executive', 'Advisor'];
+		const needsPasswordSetup = passwordSetupTypes.includes(member.membershipType);
+		
+		if (needsPasswordSetup) {
+			// Generate password setup token (valid for 24 hours)
+			const setupToken = crypto.randomBytes(32).toString('hex');
+			const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+			
+			// Update member with token and set status to approved
+			await Membership.findByIdAndUpdate(member._id, {
+				passwordSetupToken: setupToken,
+				passwordSetupTokenExpiry: tokenExpiry,
+				membershipStatus: 'approved'
+			});
+			
+			// Send password setup email
+			await sendWelcomeEmail({ 
+				name: memberName, 
+				email: member.email, 
+				setupToken,
+				familyMembers
+			});
+			
+			console.log(`Password setup email sent to ${member.membershipType} member: ${member.email}`);
+		} else {
+			// Send general welcome email
+			await sendGeneralMemberWelcomeEmailNepali({
+				name: memberName,
+				email: member.email,
+				membershipId: member.membershipId,
+				familyMembers
+			});
+			
+			console.log(`General welcome email sent to ${member.membershipType} member: ${member.email}`);
+		}
+	} catch (error) {
+		console.error(`Error sending welcome email to ${member.email}:`, error);
+		// Don't fail the membership creation if email fails
 	}
 }
 
@@ -167,35 +227,22 @@ export async function POST(req: NextRequest) {
 			}
 		}
 
-		// Send Nepali General Member welcome emails to all new members
+		// Send welcome emails to all new members based on their member type
 		try {
 			// Send to main applicant
-			const mainMemberName = [mainMembership.firstName, mainMembership.middleName, mainMembership.lastName]
-				.filter(Boolean)
-				.join(' ');
-			await sendGeneralMemberWelcomeEmailNepali({
-				name: mainMemberName,
-				email: mainMembership.email,
-				membershipId: mainMembership.membershipId,
-				familyMembers: familyMembers.map((fm: FamilyMember) => [fm.firstName, fm.middleName, fm.lastName].filter(Boolean).join(' ')),
-			});
+			const mainFamilyMemberNames = familyMembers.map((fm: FamilyMember) => 
+				[fm.firstName, fm.middleName, fm.lastName].filter(Boolean).join(' ')
+			);
+			await sendMemberWelcomeEmail(mainMembership, mainFamilyMemberNames);
 
 			// Send to family members
 			for (const familyMembership of familyMemberships) {
-				const familyMemberName = [familyMembership.firstName, familyMembership.middleName, familyMembership.lastName]
-					.filter(Boolean)
-					.join(' ');
-				await sendGeneralMemberWelcomeEmailNepali({
-					name: familyMemberName,
-					email: familyMembership.email,
-					membershipId: familyMembership.membershipId,
-					familyMembers: [], // Family members don't have additional family members
-				});
+				await sendMemberWelcomeEmail(familyMembership, []);
 			}
 
-			console.log(`Nepali General Member welcome emails sent to ${1 + familyMemberships.length} members`);
+			console.log(`Welcome emails sent to ${1 + familyMemberships.length} members based on their member types`);
 		} catch (emailError) {
-			console.error("Error sending Nepali General Member welcome emails:", emailError);
+			console.error("Error sending welcome emails:", emailError);
 			// Don't fail the membership creation if email fails
 		}
 		

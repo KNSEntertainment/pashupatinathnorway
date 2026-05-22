@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     console.log("Name:", fullName);
     console.log("Token:", verificationToken);
     console.log("EMAIL_USER configured:", !!process.env.EMAIL_USER);
-    console.log("EMAIL_APP_PASS configured:", !!process.env.EMAIL_APP_PASS);
+    console.log("RESEND_API_KEY configured:", !!process.env.RESEND_API_KEY);
     
     try {
       await sendEmailVerificationEmail({

@@ -6,7 +6,7 @@ export interface MenuItem {
 	icon: LucideIcon;
 	color: string;
 	href: string;
-	role?: "admin" | "member" | "both";
+	role?: "admin" | "member" | "both" | "executive";
 }
 
 export const menuItems: MenuItem[] = [
@@ -37,5 +37,5 @@ export const menuItems: MenuItem[] = [
 	{ id: "tax-document", label: "Tax Document", icon: FileText, color: "bg-green-600", href: "/en/dashboard/tax-document", role: "admin" },
 	{ id: "users", label: "Users", icon: User, color: "bg-success", href: "/en/dashboard/users", role: "admin" },
 	{ id: "values", label: "Values", icon: Sparkles, color: "bg-pink-600", href: "/en/dashboard/values", role: "admin" },
-	{ id: "messages", label: "Messages", icon: MessageSquare, color: "bg-blue-600", href: "/en/profile/messages", role: "member" },
+		{ id: "messages", label: "Messages", icon: MessageSquare, color: "bg-blue-600", href: "/en/profile/messages", role: "member" },
 ];

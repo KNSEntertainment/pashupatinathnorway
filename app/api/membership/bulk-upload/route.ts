@@ -5,6 +5,8 @@ import Membership from '@/models/Membership.Model';
 import AuditLog from '@/models/AuditLog.Model';
 import connectDB from '@/lib/mongodb';
 import generateMembershipId from '@/lib/membershipIdGenerator';
+import { sendWelcomeEmail } from '@/lib/email';
+import crypto from 'crypto';
 
 interface FamilyMemberData {
   firstName?: string;
@@ -270,7 +272,22 @@ export async function POST(request: NextRequest) {
 
         // Set default values
         memberData.membershipType = memberData.membershipType || 'General';
-        memberData.membershipStatus = memberData.membershipStatus || 'pending';
+        
+        // For Active Members, set status to approved and generate password setup token
+        const isActiveMember = memberData.membershipType === 'Active';
+        if (isActiveMember) {
+          memberData.membershipStatus = 'approved';
+          
+          // Generate password setup token (valid for 24 hours)
+          const setupToken = crypto.randomBytes(32).toString('hex');
+          const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+          
+          memberData.passwordSetupToken = setupToken;
+          memberData.passwordSetupTokenExpiry = tokenExpiry;
+        } else {
+          memberData.membershipStatus = memberData.membershipStatus || 'pending';
+        }
+        
         memberData.createdAt = new Date();
 
         // Generate membership ID
@@ -278,6 +295,28 @@ export async function POST(request: NextRequest) {
 
         // Insert member (all types including Executive/Advisor with positions)
         await Membership.create(memberData);
+        
+        // Send welcome email with password setup link to Active Members
+        if (isActiveMember && memberData.email) {
+          try {
+            // Extract family member names if they exist
+            const familyMemberNames = memberData.familyMembers && memberData.familyMembers.length > 0
+              ? memberData.familyMembers.map((member: FamilyMemberData) => `${member.firstName} ${member.lastName}`)
+              : [];
+
+            await sendWelcomeEmail({ 
+              name: `${memberData.firstName} ${memberData.lastName}`, 
+              email: memberData.email, 
+              setupToken: memberData.passwordSetupToken as string,
+              familyMembers: familyMemberNames
+            });
+            
+            console.log(`Welcome email sent to Active Member: ${memberData.email}`);
+          } catch (emailError) {
+            console.error(`Failed to send welcome email to Active Member ${memberData.email}:`, emailError);
+            // Don't fail the bulk upload process, just log the error
+          }
+        }
         
         results.success++;
         results.processedMembers.push({

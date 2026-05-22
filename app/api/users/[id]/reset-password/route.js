@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import User from "@/models/User.Model";
 import crypto from "crypto";
-import nodemailer from "nodemailer";
+import { sendEmail } from "@/lib/email";
 
 export async function POST(request, { params }) {
 	const { id } = params;
@@ -18,16 +18,8 @@ export async function POST(request, { params }) {
 		user.resetToken = resetToken;
 		user.resetTokenExpiry = Date.now() + 1000 * 60 * 60; // 1 hour
 		await user.save();
-		// Send email (replace with your SMTP config)
-		const transporter = nodemailer.createTransport({
-			service: "gmail",
-			auth: {
-				user: process.env.EMAIL_USER,
-				pass: process.env.EMAIL_APP_PASS,
-			},
-		});
-		const resetUrl = `/reset-password?token=${resetToken}`;
-		await transporter.sendMail({
+		const resetUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/en/reset-password?token=${resetToken}`;
+		await sendEmail({
 			to: user.email,
 			subject: "Password Reset Request",
 			html: `<p>Hello ${user.fullName},</p><p>Click <a href="${resetUrl}">here</a> to reset your password. This link is valid for 1 hour.</p>`,

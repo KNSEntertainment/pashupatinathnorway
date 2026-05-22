@@ -13,7 +13,7 @@ export default function MainHeader() {
 	const t = useTranslations("navigation");
 	const { data: session } = useSession();
 	const user = session?.user;
-
+	
 	const navItems = [
 		{
 			title: t("home"),

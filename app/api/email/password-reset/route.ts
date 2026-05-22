@@ -1,17 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import Membership from "@/models/Membership.Model";
 
-// Create nodemailer transporter using existing configuration
-const transporter = nodemailer.createTransport({
-	service: "gmail",
-	auth: {
-		user: process.env.EMAIL_USER,
-		pass: process.env.EMAIL_APP_PASS,
-	},
-});
+// Create Resend client
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: NextRequest) {
 	try {
@@ -60,10 +54,10 @@ export async function POST(request: NextRequest) {
 			passwordResetTokenExpiry: null
 		});
 
-		// Send password reset email
+		// Send password reset email using Resend
 		const mailOptions = {
-			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER}>`,
-			to: email,
+			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER!}>`,
+			to: [email],
 			subject: 'Password Reset - Pashupatinath Norway Temple Membership',
 			html: `
 				<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f8f9f9; border-radius: 8px;">
@@ -81,7 +75,7 @@ export async function POST(request: NextRequest) {
 					<div style="background: #fff3cd; padding: 15px; border-radius: 6px; margin: 20px 0;">
 						<h3 style="color: #721c24; margin-bottom: 10px;">Login Instructions:</h3>
 						<ol style="color: #721c24; font-size: 14px; line-height: 1.6;">
-							<li>Go to: <a href="https://http://pashupatinathnorway.vercel.app//en/login" style="color: #2563eb; text-decoration: none;">https://http://pashupatinathnorway.vercel.app//en/login</a></li>
+							<li>Go to: <a href="https://pashupatinathnorway.vercel.app/en/login" style="color: #2563eb; text-decoration: none;">https://pashupatinathnorway.vercel.app/en/login</a></li>
 							<li>Enter your email: <strong>${email}</strong></li>
 							<li>Use the temporary password: <strong>${newPassword}</strong></li>
 							<li>After logging in, click on "Profile" → "Change Password"</li>
@@ -101,7 +95,15 @@ export async function POST(request: NextRequest) {
 			`,
 		};
 
-		await transporter.sendMail(mailOptions);
+		const { error } = await resend.emails.send(mailOptions);
+
+		if (error) {
+			console.error('Resend email error:', error);
+			return NextResponse.json(
+				{ error: 'Failed to send password reset email' },
+				{ status: 500 }
+			);
+		}
 
 		return NextResponse.json(
 			{ 

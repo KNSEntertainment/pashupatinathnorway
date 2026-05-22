@@ -2,20 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import Membership from '@/models/Membership.Model';
-import nodemailer from 'nodemailer';
-
-// Create nodemailer transporter using existing configuration
-const transporter = nodemailer.createTransport({
-	service: "gmail",
-	auth: {
-		user: process.env.EMAIL_USER,
-		pass: process.env.EMAIL_APP_PASS,
-	},
-});
+import { sendEmail } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
 	try {
 		const { email, currentPassword, newPassword } = await request.json();
+		const loginUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/en/login`;
 
 		if (!email || !currentPassword || !newPassword) {
 			return NextResponse.json(
@@ -66,11 +58,13 @@ export async function POST(request: NextRequest) {
 		});
 
 		// Send password change notification email
-		const mailOptions = {
-			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER}>`,
-			to: email,
-			subject: 'Password Changed - Pashupatinath Norway Temple Membership',
-			html: `
+		let notificationSent = true;
+
+		try {
+			await sendEmail({
+				to: email,
+				subject: 'Password Changed - Pashupatinath Norway Temple Membership',
+				html: `
 				<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f8f9f9; border-radius: 8px;">
 					<h2 style="color: #333; margin-bottom: 20px;">Password Changed Successfully</h2>
 					<p>Dear ${member.fullName},</p>
@@ -99,7 +93,7 @@ export async function POST(request: NextRequest) {
 						<h3 style="color: #666; margin-bottom: 10px;">Login Information:</h3>
 						<p style="color: #666; font-size: 14px;">
 							You can login with your email: <strong>${email}</strong> and your new password at:<br>
-							<a href="https://http://pashupatinathnorway.vercel.app//en/login" style="color: #2563eb; text-decoration: none;">https://http://pashupatinathnorway.vercel.app//en/login</a>
+							<a href="${loginUrl}" style="color: #2563eb; text-decoration: none;">${loginUrl}</a>
 						</p>
 					</div>
 					
@@ -114,14 +108,19 @@ export async function POST(request: NextRequest) {
 					</p>
 				</div>
 			`,
-		};
-
-		await transporter.sendMail(mailOptions);
+			});
+		} catch (emailError) {
+			notificationSent = false;
+			console.error('Password changed, but failed to send notification email:', emailError);
+		}
 
 		return NextResponse.json(
 			{ 
-				message: 'Password changed successfully and notification email sent',
-				success: true
+				message: notificationSent
+					? 'Password changed successfully and notification email sent'
+					: 'Password changed successfully, but notification email could not be sent',
+				success: true,
+				notificationSent
 			},
 			{ status: 200 }
 		);

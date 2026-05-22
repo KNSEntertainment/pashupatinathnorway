@@ -332,12 +332,6 @@ export default function ProfileClient({ translations: t }: Props) {
 									<div>{getStatusBadge(membershipData.membershipStatus)}</div>
 								</div>
 
-<div className="flex flex-col w-fit space-y-2">
-<label className="text-sm font-semibold text-gray-900">{t.membershipType}</label>
-<Badge variant="outline" className={`capitalize ${membershipData.membershipType === 'General' ? 'bg-blue-50 text-blue-700 border-blue-200' : membershipData.membershipType === 'Active' ? 'bg-green-50 text-green-700 border-green-200' : membershipData.membershipType === 'Executive' ? 'bg-purple-50 text-purple-700 border-purple-200' : membershipData.membershipType === 'Advisor' ? 'bg-orange-50 text-orange-700 border-orange-200' : 'bg-gray-50 text-gray-700 border-gray-200'}`}>
-{membershipData.membershipType}
-</Badge>
-</div>
 	<div className="space-y-2">
 									<label className="text-sm font-semibold text-gray-900 flex items-center">
 										<Calendar className="w-4 h-4 mr-2" />
