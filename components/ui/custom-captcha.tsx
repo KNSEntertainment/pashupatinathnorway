@@ -29,7 +29,7 @@ export default function CustomCaptcha({ onVerify, onCaptchaChange, className = "
       const response = await fetch("/api/captcha", { cache: "no-store" });
       if (!response.ok) throw new Error("Failed to generate captcha");
       const data = await response.json();
-      setCaptchaText(`${data.question} = ?`);
+      setCaptchaText(data.question);
       setCaptchaToken(data.token);
       onCaptchaChange?.({ text: "", hash: data.token });
     } catch (error) {
@@ -40,12 +40,30 @@ export default function CustomCaptcha({ onVerify, onCaptchaChange, className = "
     }
   };
 
-  const verifyCaptcha = (input: string) => {
-    if (!input || !captchaText || !captchaToken) return;
+  const verifyUserInput = async (input: string) => {
+    if (!input || !captchaText || !captchaToken) {
+      setVerified(false);
+      onVerify(false);
+      return;
+    }
     
     try {
-      setVerified(true);
-      onVerify(true);
+      const response = await fetch("/api/captcha/verify", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          token: captchaToken,
+          answer: input,
+        }),
+      });
+
+      const data = await response.json();
+      const isValid = data.valid;
+      
+      setVerified(isValid);
+      onVerify(isValid);
       onCaptchaChange?.({ text: input, hash: captchaToken });
     } catch (error) {
       console.error("Error verifying captcha:", error);
@@ -57,7 +75,7 @@ export default function CustomCaptcha({ onVerify, onCaptchaChange, className = "
   const handleInputChange = (value: string) => {
     setUserInput(value);
     if (value.trim()) {
-      verifyCaptcha(value);
+      verifyUserInput(value);
     } else {
       setVerified(false);
       onVerify(false);

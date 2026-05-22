@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { createCaptchaToken } from "@/lib/captcha";
+import { captchaStore } from "@/lib/captcha-store";
 
 export async function GET() {
 	const operation = ["+", "-", "*"][crypto.randomInt(3)];
@@ -19,8 +19,14 @@ export async function GET() {
 		answer = num1 * num2;
 	}
 
+	const question = `${num1} ${operation === "*" ? "x" : operation} ${num2}`;
+	const token = captchaStore.generateToken();
+	
+	// Store the captcha data server-side
+	captchaStore.storeCaptcha(token, question, String(answer));
+
 	return NextResponse.json({
-		question: `${num1} ${operation === "*" ? "x" : operation} ${num2}`,
-		token: createCaptchaToken(answer),
+		question: `${question} = ?`,
+		token,
 	});
 }
