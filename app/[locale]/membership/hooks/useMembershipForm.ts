@@ -11,6 +11,7 @@ import {
 	validatePhoneNumber,
 	validateEmail,
 } from "@/components/membership/lib/validation";
+import { getPostalCodeInfo } from "@/lib/postalCodeLookup";
 
 export type PersonalNumberStatus = "" | "checking" | "available" | "exists";
 
@@ -63,7 +64,51 @@ export function useMembershipForm() {
 		if (name === "phone") value = value.replace(/\D/g, "").slice(0, 8);
 
 		// Postal code: digits only, max 4
-		if (name === "postalCode") value = value.replace(/\D/g, "").slice(0, 4);
+		if (name === "postalCode") {
+			const currentValue = formData.postalCode;
+			value = value.replace(/\D/g, "").slice(0, 4);
+			
+			// Check if user deleted digits (going from 4 digits to fewer)
+			if (currentValue.length === 4 && value.length < 4) {
+				// Clear auto-populated fields when user deletes from a 4-digit postal code
+				setFormData((prev) => ({
+					...prev,
+					[name]: value,
+					city: '',
+					bydel: '',
+					kommune: '',
+					fylke: ''
+				}));
+				return; // Exit early since we already updated the form data
+			}
+			
+			// Auto-populate city, bydel, kommune, and fylke when postal code is 4 digits
+			if (value.length === 4) {
+				const postalInfo = getPostalCodeInfo(value);
+				if (postalInfo.poststed) {
+					setFormData((prev) => ({
+						...prev,
+						[name]: value,
+						city: postalInfo.poststed,
+						bydel: postalInfo.bydel,
+						kommune: postalInfo.kommune,
+						fylke: postalInfo.fylke
+					}));
+					return; // Exit early since we already updated the form data
+				} else {
+					// Clear auto-populated fields if postal code is not found
+					setFormData((prev) => ({
+						...prev,
+						[name]: value,
+						city: '',
+						bydel: '',
+						kommune: '',
+						fylke: ''
+					}));
+					return; // Exit early since we already updated the form data
+				}
+			}
+		}
 
 		if (target.type === "checkbox") {
 			setFormData((prev) => ({ ...prev, [name]: target.checked }));
@@ -135,12 +180,13 @@ export function useMembershipForm() {
 		setFormData((prev) => ({ ...prev, address }));
 
 	const applyAddressSuggestion = (item: {
-		addressLine: string; label: string;
+		id: string; label: string;
+		addressLine: string;
 		city: string; postalCode: string; kommune: string; fylke: string;
 	}) => {
 		setFormData((prev) => ({
 			...prev,
-			address: item.addressLine || item.label,
+			address: item.addressLine,
 			city: item.city || prev.city,
 			postalCode: item.postalCode || prev.postalCode,
 			kommune: item.kommune || "",

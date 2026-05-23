@@ -52,6 +52,7 @@ export interface Membership {
 	address: string;
 	city: string;
 	postalCode: string;
+	bydel?: string;
 	personalNumber?: string;
 	gender: string;
 	fylke?: string;

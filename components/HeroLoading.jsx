@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import { useState, useEffect } from "react";
 
 export default function HeroLoading() {
@@ -16,18 +15,7 @@ export default function HeroLoading() {
 				<section className="relative h-[82vh] w-full flex items-center justify-center">
 					<div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-brand/10 to-purple-900/20" />
 					<div className="relative z-10">
-						<Image
-							src="/pashupatinath.png"
-							alt="Pashupatinath Norway Temple Norway Loading"
-							width={48}
-							height={48}
-							className="w-12 h-12 md:w-16 md:h-16 drop-shadow-2xl"
-							priority
-							placeholder="blur"
-							blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
-							sizes="(max-width: 768px) 48px, 64px"
-							quality={60}
-						/>
+						<div className="w-12 h-12 md:w-16 md:h-16 bg-brand_primary/20 rounded-full animate-pulse" />
 					</div>
 				</section>
 			</div>
@@ -58,19 +46,8 @@ export default function HeroLoading() {
 						{/* Simple Glow Effect */}
 						<div className="absolute inset-0 blur-xl bg-brand_primary/30 rounded-full scale-110" />
 						
-						{/* Logo Image */}
-						<Image
-							src="/pashupatinath.png"
-							alt="Pashupatinath Norway Temple Norway Loading"
-							width={48}
-							height={48}
-							className="w-12 h-12 md:w-16 md:h-16 relative z-10 drop-shadow-2xl"
-							priority
-							placeholder="blur"
-							blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
-							sizes="(max-width: 768px) 48px, 64px"
-							quality={60}
-						/>
+						{/* Loading Indicator */}
+						<div className="w-12 h-12 md:w-16 md:h-16 relative z-10 bg-brand_primary/20 rounded-full animate-pulse" />
 					</div>
 				</div>
 

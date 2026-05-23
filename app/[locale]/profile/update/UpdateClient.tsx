@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Lock, Eye, EyeOff, AlertTriangle, CheckCircle, User, MapPin, Loader2, Mail } from "lucide-react";
+import { Lock, Eye, EyeOff, AlertTriangle, CheckCircle, User, MapPin, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,37 +11,8 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Membership } from "@/types";
+import { getPostalCodeInfo } from "@/lib/postalCodeLookup";
 
-// Address autocomplete interfaces
-interface AddressSuggestion {
-  id: string;
-  label: string;
-  addressLine: string;
-  city: string;
-  postalCode: string;
-}
-
-interface GeoapifyProperties {
-  place_id?: string | number;
-  formatted?: string;
-  street?: string;
-  housenumber?: string;
-  city?: string;
-  town?: string;
-  village?: string;
-  municipality?: string;
-  county?: string;
-  postcode?: string;
-}
-
-interface GeoapifyFeature {
-  id?: string | number;
-  properties?: GeoapifyProperties;
-}
-
-interface GeoapifyResponse {
-  features?: GeoapifyFeature[];
-}
 
 interface Translations {
   title: string;
@@ -136,15 +107,6 @@ export default function UpdateClient({ translations: t }: Props) {
     console.log("Current profileForm:", profileForm);
   }, [profileForm]);
   
-  // Address autocomplete states
-  const [addressSuggestions, setAddressSuggestions] = useState<AddressSuggestion[]>([]);
-  const [addressLoading, setAddressLoading] = useState(false);
-  const [addressError, setAddressError] = useState("");
-  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
-  const [locating, setLocating] = useState(false);
-  const [isAddressFocused, setIsAddressFocused] = useState(false);
-  const [initialAddressLoaded, setInitialAddressLoaded] = useState(false);
-  const geoapifyKey = process.env.NEXT_PUBLIC_GEOAPIFY_KEY;
 
   useEffect(() => {
     console.log("=== UPDATE PROFILE USEEFFECT RUNNING ===");
@@ -524,169 +486,64 @@ export default function UpdateClient({ translations: t }: Props) {
   };
 
   const handleProfileFormChange = (field: string, value: string | string[] | boolean) => {
+    // Handle postal code auto-population
+    if (field === "postalCode" && typeof value === "string") {
+      // Get current value to check if user deleted digits
+      const currentValue = profileForm.postalCode;
+      // Clean input: digits only, max 4
+      const cleanValue = value.replace(/\D/g, "").slice(0, 4);
+      
+      // Check if user deleted digits (going from 4 digits to fewer)
+      if (currentValue.length === 4 && cleanValue.length < 4) {
+        // Clear auto-populated fields when user deletes from a 4-digit postal code
+        setProfileForm(prev => ({
+          ...prev,
+          [field]: cleanValue,
+          city: '',
+          kommune: '',
+          fylke: ''
+        }));
+        return;
+      }
+      
+      // Auto-populate city, kommune, and fylke when postal code is 4 digits
+      if (cleanValue.length === 4) {
+        const postalInfo = getPostalCodeInfo(cleanValue);
+        if (postalInfo.poststed) {
+          setProfileForm(prev => ({
+            ...prev,
+            [field]: cleanValue,
+            city: postalInfo.poststed,
+            kommune: postalInfo.kommune,
+            fylke: postalInfo.fylke
+          }));
+          return;
+        } else {
+          // Clear auto-populated fields if postal code is not found
+          setProfileForm(prev => ({
+            ...prev,
+            [field]: cleanValue,
+            city: '',
+            kommune: '',
+            fylke: ''
+          }));
+          return;
+        }
+      }
+      
+      setProfileForm(prev => ({
+        ...prev,
+        [field]: cleanValue
+      }));
+      return;
+    }
+    
     setProfileForm(prev => ({
       ...prev,
       [field]: value
     }));
   };
 
-  // Address autocomplete functions
-  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setProfileForm(prev => ({ ...prev, address: value }));
-    setAddressError("");
-    setActiveSuggestionIndex(-1);
-  };
-
-  const handleAddressFocus = () => {
-    setIsAddressFocused(true);
-    // Mark initial address as loaded when user first focuses on the field
-    if (!initialAddressLoaded) {
-      setInitialAddressLoaded(true);
-    }
-  };
-
-  const handleAddressBlur = () => {
-    setIsAddressFocused(false);
-    // Clear suggestions when user leaves the field
-    setTimeout(() => {
-      if (!isAddressFocused) {
-        setAddressSuggestions([]);
-        setActiveSuggestionIndex(-1);
-      }
-    }, 200);
-  };
-
-  useEffect(() => {
-    if (!geoapifyKey) {
-      setAddressSuggestions([]);
-      return;
-    }
-    if (!profileForm.address || profileForm.address.trim().length < 3) {
-      setAddressSuggestions([]);
-      return;
-    }
-    // Only trigger autocomplete if user is focused on address field and initial data is loaded
-    if (!isAddressFocused || !initialAddressLoaded) {
-      return;
-    }
-
-    const controller = new AbortController();
-    const timer = setTimeout(async () => {
-      try {
-        setAddressLoading(true);
-        const text = encodeURIComponent(profileForm.address.trim());
-        const url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${text}&filter=countrycode:no&type=street&limit=5&apiKey=${geoapifyKey}`;
-        const res = await fetch(url, { signal: controller.signal });
-        if (!res.ok) {
-          throw new Error("Failed to fetch address suggestions");
-        }
-        const data = (await res.json()) as GeoapifyResponse;
-        const suggestions: AddressSuggestion[] = (data.features || []).map((feature: GeoapifyFeature) => {
-          const props = feature.properties || {};
-          const addressLine = [props.street, props.housenumber].filter(Boolean).join(" ").trim() || props.formatted || "";
-          const city = props.city || props.town || props.village || props.municipality || props.county || "";
-          const postalCode = props.postcode || "";
-          return {
-            id: props.place_id?.toString() || feature?.id?.toString() || `${addressLine}-${postalCode}`,
-            label: props.formatted || addressLine || "Unknown address",
-            addressLine: addressLine || props.formatted || "",
-            city,
-            postalCode,
-          };
-        });
-        setAddressSuggestions(suggestions);
-        setActiveSuggestionIndex(suggestions.length > 0 ? 0 : -1);
-      } catch (err: unknown) {
-        if (!(err instanceof Error) || err.name !== "AbortError") {
-          setAddressError("Could not load address suggestions.");
-        }
-      } finally {
-        setAddressLoading(false);
-      }
-    }, 350);
-
-    return () => {
-      clearTimeout(timer);
-      controller.abort();
-    };
-  }, [profileForm.address, geoapifyKey, isAddressFocused, initialAddressLoaded]);
-
-  const applySuggestion = (item: AddressSuggestion) => {
-    setProfileForm((prev) => ({
-      ...prev,
-      address: item.addressLine || item.label,
-      city: item.city || prev.city,
-      postalCode: item.postalCode || prev.postalCode,
-    }));
-    setAddressSuggestions([]);
-    setActiveSuggestionIndex(-1);
-  };
-
-  const handleAddressKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (addressSuggestions.length === 0) return;
-
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setActiveSuggestionIndex((prev) => (prev + 1) % addressSuggestions.length);
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setActiveSuggestionIndex((prev) => (prev - 1 + addressSuggestions.length) % addressSuggestions.length);
-    } else if (e.key === "Enter") {
-      if (activeSuggestionIndex >= 0) {
-        e.preventDefault();
-        applySuggestion(addressSuggestions[activeSuggestionIndex]);
-      }
-    } else if (e.key === "Escape") {
-      setAddressSuggestions([]);
-      setActiveSuggestionIndex(-1);
-    }
-  };
-
-  const handleUseMyLocation = () => {
-    if (!geoapifyKey) {
-      setAddressError("Address lookup is not available.");
-      return;
-    }
-    if (!navigator.geolocation) {
-      setAddressError("Geolocation is not supported in this browser.");
-      return;
-    }
-    setLocating(true);
-    setAddressError("");
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const { latitude, longitude } = pos.coords;
-          const url = `https://api.geoapify.com/v1/geocode/reverse?lat=${latitude}&lon=${longitude}&type=street&format=geojson&apiKey=${geoapifyKey}`;
-          const res = await fetch(url);
-          if (!res.ok) throw new Error("Failed to reverse geocode location");
-          const data = await res.json();
-          const props = data?.features?.[0]?.properties || {};
-          const addressLine = [props.street, props.housenumber].filter(Boolean).join(" ").trim() || props.formatted || "";
-          const city = props.city || props.town || props.village || props.municipality || props.county || "";
-          const postalCode = props.postcode || "";
-          setProfileForm((prev) => ({
-            ...prev,
-            address: addressLine || prev.address,
-            city: city || prev.city,
-            postalCode: postalCode || prev.postalCode,
-          }));
-          setAddressSuggestions([]);
-          setActiveSuggestionIndex(-1);
-        } catch {
-          setAddressError("Could not fetch your address.");
-        } finally {
-          setLocating(false);
-        }
-      },
-      () => {
-        setAddressError("Unable to access your location.");
-        setLocating(false);
-      },
-      { enableHighAccuracy: true, timeout: 8000 },
-    );
-  };
 
   if (status === "loading") {
     return (
@@ -827,63 +684,10 @@ export default function UpdateClient({ translations: t }: Props) {
                         id="address"
                         type="text"
                         value={profileForm.address}
-                        onChange={handleAddressChange}
-                        onFocus={handleAddressFocus}
-                        onBlur={handleAddressBlur}
-                        onKeyDown={handleAddressKeyDown}
+                        onChange={(e) => handleProfileFormChange("address", e.target.value)}
                         placeholder="Enter your address"
-                        autoComplete="off"
                       />
-                      <div className="mt-2">
-                        <button 
-                          type="button" 
-                          onClick={handleUseMyLocation} 
-                          disabled={locating} 
-                          className={`text-sm font-medium px-3 py-1.5 rounded border border-gray-300 bg-white hover:bg-gray-50 transition-colors flex items-center gap-2 ${locating ? "opacity-60 cursor-not-allowed" : ""}`}
-                        >
-                          {locating ? (
-                            <>
-                              <Loader2 className="w-3 h-3 animate-spin" />
-                              Locating...
-                            </>
-                          ) : (
-                            <>
-                              <MapPin className="w-3 h-3" />
-                              Use current location
-                            </>
-                          )}
-                        </button>
-                      </div>
-                      {addressLoading && (
-                        <div className="absolute right-3 top-2.5 text-xs text-gray-500">
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        </div>
-                      )}
-                      {addressError && (
-                        <p className="text-xs text-red-600 mt-1">{addressError}</p>
-                      )}
-                      {addressSuggestions.length > 0 && (
-                        <ul className="absolute z-20 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
-                          {addressSuggestions.map((item, index) => (
-                            <li
-                              key={item.id}
-                              className={`px-3 py-2 text-sm text-gray-900 cursor-pointer ${
-                                index === activeSuggestionIndex ? "bg-gray-100" : "hover:bg-gray-50"
-                              }`}
-                              onMouseDown={(e) => {
-                                e.preventDefault();
-                                applySuggestion(item);
-                              }}
-                            >
-                              <div className="font-medium">{item.label}</div>
-                              <div className="text-xs text-gray-600">
-                                {[item.postalCode, item.city].filter(Boolean).join(" ")}
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
+                            </div>
                   </div>
                 </div>
 

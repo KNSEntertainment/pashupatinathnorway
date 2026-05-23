@@ -19,6 +19,7 @@ export interface FormData {
 	address: string;
 	city: string;
 	postalCode: string;
+	bydel: string;
 	kommune: string;
 	fylke: string;
 	personalNumber: string;
@@ -50,29 +51,6 @@ export interface AddressSuggestion {
 	fylke: string;
 }
 
-export interface GeoapifyProperties {
-	place_id?: string | number;
-	formatted?: string;
-	street?: string;
-	housenumber?: string;
-	city?: string;
-	town?: string;
-	village?: string;
-	municipality?: string;
-	county?: string;
-	postcode?: string;
-	suburb?: string;
-	iso3166_2?: string;
-}
-
-export interface GeoapifyFeature {
-	id?: string | number;
-	properties?: GeoapifyProperties;
-}
-
-export interface GeoapifyResponse {
-	features?: GeoapifyFeature[];
-}
 
 export interface MembershipTranslations {
 	welcome: string;
@@ -147,6 +125,7 @@ export const INITIAL_FORM_DATA: FormData = {
 	address: "",
 	city: "",
 	postalCode: "",
+	bydel: "",
 	kommune: "",
 	fylke: "",
 	personalNumber: "",

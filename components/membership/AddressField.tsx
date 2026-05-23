@@ -26,6 +26,7 @@ interface AddressFieldProps {
 	cityError?: string;
 	postalCode: string;
 	postalCodeError?: string;
+	bydel: string;
 	kommune: string;
 	fylke: string;
 	onFieldChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
@@ -45,7 +46,7 @@ export function AddressField({
 	addressLoading, locating, onUseLocation, onLocationResult,
 	locatingLabel, useCurrentLocationLabel,
 	city, cityError, postalCode, postalCodeError,
-	kommune, fylke, onFieldChange,
+	bydel, kommune, fylke, onFieldChange,
 	streetAddressLabel, streetAddressPlaceholder,
 	cityLabel, cityPlaceholder,
 	postalCodeLabel, postalCodePlaceholder,
@@ -152,6 +153,25 @@ export function AddressField({
 					hasError={!!cityError}
 					placeholder={cityPlaceholder}
 				/>
+			</FormField>
+
+			{/* Bydel */}
+			<FormField label="Bydel (Borough/District)">
+				<div className="relative">
+					<StyledInput
+						type="text"
+						name="bydel"
+						value={bydel}
+						onChange={onFieldChange}
+						className="bg-gray-50 text-gray-700"
+						placeholder="e.g., Sentrum"
+					/>
+					<div className="absolute right-3 top-2.5 text-gray-400">
+						<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+						</svg>
+					</div>
+				</div>
 			</FormField>
 
 			{/* Kommune */}

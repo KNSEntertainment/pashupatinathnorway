@@ -306,7 +306,17 @@ export default function ProfileClient({ translations: t }: Props) {
 										<Calendar className="w-4 h-4 mr-2" />
 										Address in Norway
 									</label>
-									<p className="text-gray-900 text-lg">{membershipData?.address + ", " + membershipData?.city + " " + membershipData?.postalCode || "N/A"}</p>
+									<p className="text-gray-900 text-lg">
+										{membershipData?.address && (
+											<>
+												{membershipData.address}
+												{membershipData.city && `, ${membershipData.city}`}
+												{membershipData.postalCode && ` ${membershipData.postalCode}`}
+												{membershipData.bydel && `, ${membershipData.bydel}`}
+												{membershipData.kommune && `, ${membershipData.kommune}`}
+											</>
+										) || "N/A"}
+									</p>
 								</div>
 							
 

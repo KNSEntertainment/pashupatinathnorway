@@ -340,6 +340,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 									cityError={form.errors.city}
 									postalCode={form.formData.postalCode}
 									postalCodeError={form.errors.postalCode}
+									bydel={form.formData.bydel}
 									kommune={form.formData.kommune}
 									fylke={form.formData.fylke}
 									onFieldChange={form.handleChange}

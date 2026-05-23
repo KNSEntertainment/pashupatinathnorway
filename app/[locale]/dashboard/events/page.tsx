@@ -1,11 +1,14 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
-import { Calendar, MapPin, Clock, Users, Ticket, ArrowRight, CreditCard, Star } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Calendar, MapPin, Clock, Users, Plus, Edit, Trash2, Search } from "lucide-react";
 import Image from "next/image";
-import { Link } from "@/i18n/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import DashboardPageLayout from "@/components/layout/DashboardPageLayout";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import EventForm from "@/components/EventForm";
 
 interface Event {
   _id: string;
@@ -19,115 +22,94 @@ interface Event {
   guestPrice?: number;
   maxAttendees?: number;
   registrationDeadline?: string;
-}
-
-interface EventRegistration {
-  _id: string;
-  eventId: Event;
-  registrationType: string;
-  registrationStatus: string;
-  paymentStatus: string;
-  attendeeCount: number;
-  registrationId: string;
   createdAt: string;
-  membershipRef?: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    membershipId: string;
-  };
+  updatedAt: string;
 }
 
-export default function MemberEventsPage() {
-  const [activeEvents, setActiveEvents] = useState<EventRegistration[]>([]);
-  const [pastEvents, setPastEvents] = useState<EventRegistration[]>([]);
-  const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
+export default function EventsManagementPage() {
+  const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState<"all" | "upcoming" | "past">("all");
+  const [showEventForm, setShowEventForm] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
 
-  const fetchEventData = useCallback(async () => {
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const fetchEvents = async () => {
     try {
       setLoading(true);
+      const response = await fetch("/api/events");
+      const data = await response.json();
       
-      // Fetch all events
-      const eventsResponse = await fetch("/api/events");
-      const eventsData = await eventsResponse.json();
-      
-      if (!eventsData.success) {
+      if (!data.success) {
         throw new Error("Failed to fetch events");
       }
-
-      // Fetch user registrations
-      const registrationsResponse = await fetch("/api/event-registration");
-      const registrationsData = await registrationsResponse.json();
-
-      const allEvents = eventsData.events;
-      const userRegistrations = Array.isArray(registrationsData) 
-        ? registrationsData.filter((reg: EventRegistration) => 
-            reg.membershipRef?.email === userEmail
-          )
-        : [];
-
-      // Categorize events
-      const now = new Date();
-      const active: EventRegistration[] = [];
-      const past: EventRegistration[] = [];
-      const upcoming: Event[] = [];
-
-      // Process registered events
-      userRegistrations.forEach((registration: EventRegistration) => {
-        if (registration.eventId && registration.eventId.eventdate) {
-          const eventDate = new Date(registration.eventId.eventdate);
-          if (eventDate >= now && registration.registrationStatus === "registered") {
-            active.push(registration);
-          } else if (eventDate < now) {
-            past.push(registration);
-          }
-        }
-      });
-
-      // Process upcoming events (not registered yet)
-      allEvents.forEach((event: Event) => {
-        const eventDate = new Date(event.eventdate);
-        const isRegistered = userRegistrations.some((reg: EventRegistration) => 
-          reg.eventId?._id === event._id
-        );
-        
-        if (eventDate >= now && !isRegistered) {
-          upcoming.push(event);
-        }
-      });
-
-      // Sort events by date
-      active.sort((a, b) => new Date(a.eventId.eventdate).getTime() - new Date(b.eventId.eventdate).getTime());
-      past.sort((a, b) => new Date(b.eventId.eventdate).getTime() - new Date(a.eventId.eventdate).getTime());
-      upcoming.sort((a, b) => new Date(a.eventdate).getTime() - new Date(b.eventdate).getTime());
-
-      setActiveEvents(active);
-      setPastEvents(past);
-      setUpcomingEvents(upcoming);
+      
+      setEvents(data.events || []);
     } catch (error) {
-      console.error("Error fetching event data:", error);
-      setError("Failed to load event data");
+      console.error("Error fetching events:", error);
+      setError("Failed to load events");
     } finally {
       setLoading(false);
     }
-  }, [userEmail]);
+  };
 
-  useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      const user = JSON.parse(userData);
-      setUserEmail(user.email);
+  const filteredEvents = events.filter(event => {
+    const matchesSearch = event.eventname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         event.eventvenue.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const eventDate = new Date(event.eventdate);
+    const now = new Date();
+    
+    const matchesFilter = filterStatus === "all" || 
+                         (filterStatus === "upcoming" && eventDate >= now) ||
+                         (filterStatus === "past" && eventDate < now);
+    
+    return matchesSearch && matchesFilter;
+  });
+
+  const handleDeleteEvent = async (eventId: string) => {
+    if (!confirm("Are you sure you want to delete this event?")) return;
+    
+    try {
+      const response = await fetch(`/api/events/${eventId}`, {
+        method: "DELETE",
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to delete event");
+      }
+      
+      fetchEvents(); // Refresh the list
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      alert("Failed to delete event");
     }
-    fetchEventData();
-  }, [fetchEventData]);
+  };
 
-  const generateQRCode = (registrationId: string) => {
-    // This would integrate with a QR code library
-    // For now, return a placeholder URL
-    return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${registrationId}`;
+  const getEventStatus = (eventDate: string) => {
+    const date = new Date(eventDate);
+    const now = new Date();
+    return date >= now ? "upcoming" : "past";
+  };
+
+  const getStatusBadge = (eventDate: string) => {
+    const status = getEventStatus(eventDate);
+    return (
+      <Badge className={status === "upcoming" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}>
+        {status === "upcoming" ? "Upcoming" : "Past"}
+      </Badge>
+    );
+  };
+
+  const handleCloseEventModal = () => {
+    setShowEventForm(false);
+    setEditingEvent(null);
+    fetchEvents(); // Refresh the events list after creating/updating
   };
 
   if (loading) {
@@ -151,204 +133,190 @@ export default function MemberEventsPage() {
 
   return (
     <DashboardPageLayout
-      title="My Events"
-      description="Manage your event tickets and discover upcoming events"
+      title="Events Management"
+      description="Create, edit, and manage organization events"
       icon="Calendar"
     >
-
-        {/* Active Events with QR Codes */}
-        {activeEvents.length > 0 && (
-          <section className="mb-12">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-              <Ticket className="w-6 h-6 text-green-600" />
-              Active Events
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {activeEvents.map((registration) => (
-                <Card key={registration._id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                  <CardHeader className="bg-gradient-to-r from-green-600 to-green-700 text-white">
-                    <CardTitle className="text-lg">{registration.eventId.eventname}</CardTitle>
-                    <div className="flex items-center gap-2 text-green-100 text-sm">
-                      <Calendar className="w-4 h-4" />
-                      {new Date(registration.eventId.eventdate).toLocaleDateString()}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-6">
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <Clock className="w-4 h-4" />
-                        <span className="text-sm">{registration.eventId.eventtime}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <MapPin className="w-4 h-4" />
-                        <span className="text-sm">{registration.eventId.eventvenue}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <Users className="w-4 h-4" />
-                        <span className="text-sm">{registration.attendeeCount} Attendees</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <CreditCard className="w-4 h-4" />
-                        <span className="text-sm capitalize">{registration.paymentStatus}</span>
-                      </div>
-                    </div>
-                    
-                    {/* QR Code Section */}
-                    <div className="mt-6 text-center">
-                      <div className="inline-block p-4 bg-white rounded-lg shadow-sm border">
-                        <Image   
-                          src={generateQRCode(registration.registrationId)}
-                          alt="Event QR Code"
-                          width={128}
-                          height={128}
-                        />
-                        <p className="text-xs text-gray-500 mt-2">Registration ID: {registration.registrationId}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+      <div className="space-y-6">
+        {/* Header Actions */}
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div className="flex flex-col sm:flex-row gap-3 flex-1">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                placeholder="Search events..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
             </div>
-          </section>
-        )}
-
-        {/* Past Events */}
-        {pastEvents.length > 0 && (
-          <section className="mb-12">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-              <Star className="w-6 h-6 text-blue-600" />
-              Past Events
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {pastEvents.map((registration) => (
-                <Card key={registration._id} className="overflow-hidden hover:shadow-lg transition-shadow opacity-75">
-                  <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-                    <CardTitle className="text-lg">{registration.eventId.eventname}</CardTitle>
-                    <div className="flex items-center gap-2 text-blue-100 text-sm">
-                      <Calendar className="w-4 h-4" />
-                      {new Date(registration.eventId.eventdate).toLocaleDateString()}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-6">
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <Clock className="w-4 h-4" />
-                        <span className="text-sm">{registration.eventId.eventtime}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <MapPin className="w-4 h-4" />
-                        <span className="text-sm">{registration.eventId.eventvenue}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <Users className="w-4 h-4" />
-                        <span className="text-sm">{registration.attendeeCount} Attendees</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <CreditCard className="w-4 h-4" />
-                        <span className="text-sm capitalize">{registration.paymentStatus}</span>
-                      </div>
-                    </div>
-                    <div className="mt-4 p-3 bg-gray-100 rounded-lg text-center">
-                      <span className="text-sm text-gray-600 font-medium">Event Completed</span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+            <div className="flex gap-2">
+              <Button
+                variant={filterStatus === "all" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFilterStatus("all")}
+              >
+                All
+              </Button>
+              <Button
+                variant={filterStatus === "upcoming" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFilterStatus("upcoming")}
+              >
+                Upcoming
+              </Button>
+              <Button
+                variant={filterStatus === "past" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFilterStatus("past")}
+              >
+                Past
+              </Button>
             </div>
-          </section>
-        )}
+          </div>
+          <Button
+            onClick={() => setShowEventForm(true)}
+            className="bg-red-700 hover:bg-red-800"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Event
+          </Button>
+        </div>
 
-        {/* Upcoming Events */}
-        {upcomingEvents.length > 0 && (
-          <section className="mb-12">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-              <Calendar className="w-6 h-6 text-purple-600" />
-              Upcoming Events
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {upcomingEvents.map((event) => (
-                <Card key={event._id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="relative h-48 bg-gray-200">
-                    <Image
-                      src={event.eventposterUrl || "/pashupatinath.png"}
-                      alt={event.eventname}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    />
+        {/* Events Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredEvents.map((event) => (
+            <Card key={event._id} className="overflow-hidden hover:shadow-lg transition-shadow">
+              <div className="relative h-48 bg-gray-200">
+                <Image
+                  src={event.eventposterUrl || "/pashupatinath.png"}
+                  alt={event.eventname}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+                <div className="absolute top-2 right-2">
+                  {getStatusBadge(event.eventdate)}
+                </div>
+              </div>
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <CardTitle className="text-lg line-clamp-1">{event.eventname}</CardTitle>
+                    <div className="flex items-center gap-2 text-gray-600 text-sm mt-1">
+                      <Calendar className="w-4 h-4" />
+                      {new Date(event.eventdate).toLocaleDateString()}
+                    </div>
                   </div>
-                  <CardContent className="p-6">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-3">{event.eventname}</h3>
-                    <div className="space-y-2 mb-4">
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <Calendar className="w-4 h-4" />
-                        <span className="text-sm">
-                          {new Date(event.eventdate).toLocaleDateString('en-US', { 
-                            weekday: 'long',
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <Clock className="w-4 h-4" />
-                        <span className="text-sm">{event.eventtime}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <MapPin className="w-4 h-4" />
-                        <span className="text-sm">{event.eventvenue}</span>
-                      </div>
-                      {(event.memberPrice || event.guestPrice) && (
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <CreditCard className="w-4 h-4" />
-                          <span className="text-sm">
-                            {event.memberPrice && `Member: ${event.memberPrice} NOK`}
-                            {event.memberPrice && event.guestPrice && " | "}
-                            {event.guestPrice && `Guest: ${event.guestPrice} NOK`}
-                          </span>
-                        </div>
-                      )}
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Clock className="w-4 h-4" />
+                    <span className="text-sm">{event.eventtime}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <MapPin className="w-4 h-4" />
+                    <span className="text-sm line-clamp-1">{event.eventvenue}</span>
+                  </div>
+                  {(event.memberPrice || event.guestPrice) && (
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Users className="w-4 h-4" />
+                      <span className="text-sm">
+                        {event.memberPrice && `Member: ${event.memberPrice} NOK`}
+                        {event.memberPrice && event.guestPrice && " | "}
+                        {event.guestPrice && `Guest: ${event.guestPrice} NOK`}
+                      </span>
                     </div>
-                    
-                    {event.eventdescription && (
-                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                        {event.eventdescription}
-                      </p>
-                    )}
+                  )}
+                </div>
+                
+                {event.eventdescription && (
+                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                    {event.eventdescription}
+                  </p>
+                )}
 
-                    <Link
-                      href={`/register?eventId=${event._id}`}
-                      className="inline-flex items-center justify-center w-full gap-2 bg-purple-600 text-white hover:bg-purple-700 px-4 py-2 rounded-lg font-medium text-sm transition-colors"
-                    >
-                      <ArrowRight className="w-4 h-4" />
-                      Register Now
-                    </Link>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </section>
-        )}
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => {
+                      setEditingEvent(event);
+                      setShowEventForm(true);
+                    }}
+                  >
+                    <Edit className="w-4 h-4 mr-1" />
+                    Edit
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-red-600 hover:text-red-700 hover:border-red-300"
+                    onClick={() => handleDeleteEvent(event._id)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
 
-        {/* No Events State */}
-        {activeEvents.length === 0 && pastEvents.length === 0 && upcomingEvents.length === 0 && (
+        {/* Empty State */}
+        {filteredEvents.length === 0 && (
           <div className="text-center py-16">
             <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
               <Calendar className="w-10 h-10 text-gray-400" />
             </div>
-            <h3 className="text-2xl font-semibold text-gray-900 mb-3">No Events Found</h3>
+            <h3 className="text-2xl font-semibold text-gray-900 mb-3">
+              {searchTerm || filterStatus !== "all" ? "No Events Found" : "No Events Yet"}
+            </h3>
             <p className="text-gray-600 max-w-md mx-auto mb-8">
-              You haven&apos;t registered for any events yet, and there are no upcoming events available.
+              {searchTerm || filterStatus !== "all" 
+                ? "Try adjusting your search or filter criteria."
+                : "Start by creating your first event to get started."
+              }
             </p>
-            <Link
-              href="/events"
-              className="inline-flex items-center gap-2 bg-red-700 text-white hover:bg-red-800 px-6 py-3 rounded-lg font-medium transition-colors"
-            >
-              Browse All Events
-            </Link>
+            {!searchTerm && filterStatus === "all" && (
+              <Button
+                onClick={() => setShowEventForm(true)}
+                className="bg-red-700 hover:bg-red-800"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Create Your First Event
+              </Button>
+            )}
           </div>
         )}
+
+        {/* Event Form Modal */}
+        {showEventForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold">
+                  {editingEvent ? "Edit Event" : "Create New Event"}
+                </h3>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCloseEventModal}
+                >
+                  ×
+                </Button>
+              </div>
+              <EventForm 
+                handleCloseEventModal={handleCloseEventModal}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                eventToEdit={editingEvent as any}
+              />
+            </div>
+          </div>
+        )}
+      </div>
     </DashboardPageLayout>
   );
 }

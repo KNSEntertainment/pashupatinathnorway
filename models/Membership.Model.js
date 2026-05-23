@@ -10,6 +10,7 @@ const MembershipSchema = new mongoose.Schema({
 	address: { type: String, required: true },
 	city: { type: String, required: true },
 	postalCode: { type: String, required: true },
+	bydel: { type: String },
 	kommune: { type: String },
 	fylke: { type: String },
 	personalNumber: { type: String, required: true, validate: { validator: function(v) { return /^\d{11}$/.test(v); }, message: 'Personal number must be exactly 11 digits' } },
