@@ -1,0 +1,42 @@
+[
+  {
+    "_id": "6a11a8b43da4a56b5deb8c66",
+    "title": {
+      "en": "Daily Puja & Aarti",
+      "no": "Daglig Puja & Aarti",
+      "ne": "दैनिक पूजा र आरती"
+    },
+    "description": {
+      "en": "Worship and prayers for peace and prosperity.",
+      "no": "Tilbeding og bønner for fred og velstand.",
+      "ne": "शान्ति र समृद्धिको लागि पूजा र प्रार्थना।"
+    },
+    "imageUrl": "https://res.cloudinary.com/dspsvccws/image/upload/v1779542195/rituals_images/a0gcrqowhu8qz2ymwujb.jpg",
+    "features": {
+      "en": [
+        "Morning and evening prayers",
+        "Sacred fire ceremony",
+        "Blessings for devotees"
+      ],
+      "no": [
+        "Morgen- og kveldsbønner",
+        "Hellig ild-seremoni",
+        "Velsignelser for tilbedere"
+      ],
+      "ne": [
+        "बिहान र बेलुकीको प्रार्थना",
+        "पवित्र आगुन समारोह",
+        "भक्तहरूको लागि आशीर्वाद"
+      ]
+    },
+    "timing": {
+      "en": "Daily: 6:00 AM & 6:00 PM",
+      "no": "Daglig: 06:00 & 18:00",
+      "ne": "दैनिक: बिहान ६:०० र बेलुका ६:००"
+    },
+    "order": 0,
+    "isActive": true,
+    "createdAt": "2026-05-23T13:16:36.788Z",
+    "updatedAt": "2026-05-23T13:16:36.788Z"
+  }
+]

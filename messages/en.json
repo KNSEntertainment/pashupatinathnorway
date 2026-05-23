@@ -723,5 +723,18 @@
 		"registration_details": "Registration Details",
 		"download_ticket": "Download Ticket",
 		"share_registration": "Share Registration"
+	},
+	"festivals": {
+		"title": "Festivals",
+		"subtitle": "Celebrate our rich cultural heritage through traditional Hindu festivals and spiritual gatherings",
+		"featured_festival": "Featured Festival"
+	},
+	"rituals": {
+		"title": "Rituals",
+		"subtitle": "Experience sacred Hindu ceremonies and traditional rituals that connect us to our spiritual heritage"
+	},
+	"publication": {
+		"annual_reports": "Annual Reports",
+		"annual_reports_subtitle": "Access our comprehensive collection of annual reports, including financial statements, activity summaries, membership statistics, and audit reports."
 	}
 }

@@ -2,20 +2,18 @@
 
 import { useState, useEffect } from "react";
 import { 
-  Flame, 
-  Building, 
-  Heart, 
-  Sparkles,
   Plus, 
   Edit, 
   Trash2, 
   Save, 
   X, 
   RefreshCw,
-  Clock,
   Eye,
-  EyeOff
+  EyeOff,
+  Upload,
+  Image as ImageIcon
 } from "lucide-react";
+import Image from "next/image";
 import { toast } from "react-hot-toast";
 
 interface MultilingualField {
@@ -34,19 +32,14 @@ interface Ritual {
   _id?: string;
   title: MultilingualField;
   description: MultilingualField;
-  icon: string;
+  imageUrl?: string;
+  imageFile?: File;
   features: MultilingualArray;
   timing: MultilingualField;
   order: number;
   isActive: boolean;
 }
 
-const iconOptions = [
-  { value: "Building", label: "Building", icon: Building },
-  { value: "Flame", label: "Flame", icon: Flame },
-  { value: "Heart", label: "Heart", icon: Heart },
-  { value: "Sparkles", label: "Sparkles", icon: Sparkles },
-];
 
 export default function RitualsAdmin() {
   const [rituals, setRituals] = useState<Ritual[]>([]);
@@ -65,7 +58,6 @@ export default function RitualsAdmin() {
   const emptyRitual: Ritual = {
     title: { en: "", no: "", ne: "" },
     description: { en: "", no: "", ne: "" },
-    icon: "Building",
     features: { en: [], no: [], ne: [] },
     timing: { en: "", no: "", ne: "" },
     order: 0,
@@ -137,17 +129,30 @@ export default function RitualsAdmin() {
         : "/api/rituals";
       const method = editingRitual._id ? "PUT" : "POST";
 
-      // For PUT requests, include the id as a separate field
-      const requestBody = editingRitual._id 
-        ? { ...editingRitual, id: editingRitual._id }
-        : editingRitual;
+      // Create FormData for image upload
+      const formData = new FormData();
+      
+      // Add all fields to FormData
+      formData.append("title", JSON.stringify(editingRitual.title));
+      formData.append("description", JSON.stringify(editingRitual.description));
+      formData.append("features", JSON.stringify(editingRitual.features));
+      formData.append("timing", JSON.stringify(editingRitual.timing));
+      formData.append("order", editingRitual.order.toString());
+      formData.append("isActive", editingRitual.isActive.toString());
+      
+      // Add image if available
+      if (editingRitual.imageFile) {
+        formData.append("image", editingRitual.imageFile);
+      }
+      
+      // For PUT requests, include the id
+      if (editingRitual._id) {
+        formData.append("id", editingRitual._id);
+      }
 
       const response = await fetch(url, {
         method,
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(requestBody)
+        body: formData
       });
 
       if (response.ok) {
@@ -174,13 +179,24 @@ export default function RitualsAdmin() {
         method: "DELETE"
       });
 
+      const data = await response.json();
+
       if (response.ok) {
         toast.success("Ritual deleted successfully!");
         fetchRituals();
       } else {
-        toast.error("Failed to delete ritual");
+        console.error("Delete failed:", data);
+        if (data.error?.includes("not found")) {
+          toast.error("Ritual not found. Refreshing data...");
+          fetchRituals();
+        } else if (data.error?.includes("Unauthorized")) {
+          toast.error("You must be logged in as admin to delete rituals");
+        } else {
+          toast.error(data.error || "Failed to delete ritual");
+        }
       }
-    } catch {
+    } catch (error) {
+      console.error("Delete error:", error);
       toast.error("Failed to delete ritual");
     } finally {
       setLoading(false);
@@ -228,11 +244,7 @@ export default function RitualsAdmin() {
     setIsCreating(false);
   };
 
-  const getIconComponent = (iconName: string) => {
-    const icon = iconOptions.find(opt => opt.value === iconName);
-    return icon ? icon.icon : Building;
-  };
-
+  
   const getLocalizedField = (field: MultilingualField | MultilingualArray): string | string[] => {
     if (Array.isArray(field)) {
       return field[activeTab] || field.en || [];
@@ -301,7 +313,7 @@ export default function RitualsAdmin() {
                 onClick={() => setActiveTab(locale.code as "en" | "no" | "ne")}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
                   activeTab === locale.code
-                    ? "bg-brand_primary text-white"
+                    ? "bg-brand_primary text-gray-700"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
@@ -340,27 +352,62 @@ export default function RitualsAdmin() {
               />
             </div>
 
-            {/* Icon */}
+            {/* Image Upload */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Icon</label>
-              <div className="flex gap-2">
-                {iconOptions.map(option => {
-                  const IconComponent = option.icon;
-                  return (
-                    <button
-                      key={option.value}
-                      onClick={() => handleFieldChange("icon", option.value)}
-                      className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors ${
-                        editingRitual.icon === option.value
-                          ? "border-brand_primary bg-brand_primary/10 text-brand_primary"
-                          : "border-gray-300 hover:border-gray-400"
-                      }`}
-                    >
-                      <IconComponent className="w-4 h-4" />
-                      <span className="text-sm">{option.label}</span>
-                    </button>
-                  );
-                })}
+              <label className="block text-sm font-medium text-gray-700 mb-1">Ritual Image</label>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setEditingRitual(prev => ({
+                          ...prev!,
+                          imageFile: file
+                        }));
+                      }
+                    }}
+                    className="hidden"
+                    id="ritual-image-upload"
+                  />
+                  <label
+                    htmlFor="ritual-image-upload"
+                    className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                  >
+                    <Upload className="w-4 h-4" />
+                    <span className="text-sm">Choose Image</span>
+                  </label>
+                </div>
+                
+                {/* Show current image or uploaded image preview */}
+                {(editingRitual.imageUrl || editingRitual.imageFile) && (
+                  <div className="mt-2">
+                    <div className="relative inline-block">
+                      {editingRitual.imageFile ? (
+                        <Image
+                          src={URL.createObjectURL(editingRitual.imageFile)}
+                          alt="Ritual image preview"
+                          width={128}
+                          height={128}
+                          className="object-cover rounded-lg border"
+                        />
+                      ) : editingRitual.imageUrl ? (
+                        <Image
+                          src={editingRitual.imageUrl}
+                          alt="Current ritual image"
+                          width={128}
+                          height={128}
+                          className="object-cover rounded-lg border"
+                        />
+                      ) : null}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {editingRitual.imageFile ? "New image selected" : "Current image"}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -423,7 +470,7 @@ export default function RitualsAdmin() {
               <button
                 onClick={handleSave}
                 disabled={loading}
-                className="flex items-center gap-2 px-4 py-2 bg-brand_primary text-white rounded-lg font-medium hover:bg-brand_primary/90 transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2 bg-brand_primary text-gray-700 rounded-lg font-medium hover:bg-brand_primary/90 transition-colors disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
                 {loading ? "Saving..." : (isCreating ? "Create" : "Update")}
@@ -447,15 +494,7 @@ export default function RitualsAdmin() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Ritual
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Description
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Timing
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Order
-                  </th>
+                 
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
                   </th>
@@ -468,14 +507,23 @@ export default function RitualsAdmin() {
                 {rituals
                   .filter(ritual => showInactive || ritual.isActive)
                   .map((ritual) => {
-                    const IconComponent = getIconComponent(ritual.icon);
                     return (
                       <tr key={ritual._id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <div className="w-10 h-10 bg-brand_primary/10 rounded-lg flex items-center justify-center mr-3">
-                              <IconComponent className="w-5 h-5 text-brand_primary" />
-                            </div>
+                            {ritual.imageUrl ? (
+                              <Image
+                                src={ritual.imageUrl}
+                                alt={ritual.title.en}
+                                width={40}
+                                height={40}
+                                className="rounded-lg object-cover mr-3"
+                              />
+                            ) : (
+                              <div className="w-10 h-10 bg-brand_primary/10 rounded-lg flex items-center justify-center mr-3">
+                                <ImageIcon className="w-5 h-5 text-brand_primary" />
+                              </div>
+                            )}
                             <div>
                               <div className="text-sm font-medium text-gray-900">
                                 {ritual.title.en}
@@ -486,22 +534,7 @@ export default function RitualsAdmin() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900 max-w-xs truncate">
-                            {ritual.description.en}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center text-sm text-gray-900">
-                            <Clock className="w-4 h-4 mr-1 text-gray-400" />
-                            {ritual.timing.en || "-"}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
-                            {ritual.order}
-                          </div>
-                        </td>
+                     
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                             ritual.isActive
@@ -545,7 +578,7 @@ export default function RitualsAdmin() {
 
           {rituals.filter(ritual => showInactive || ritual.isActive).length === 0 && (
             <div className="text-center py-12">
-              <Flame className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No rituals found</h3>
               <p className="text-gray-500 mb-4">
                 {showInactive ? "No inactive rituals found" : "Get started by creating your first ritual"}

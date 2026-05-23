@@ -754,5 +754,18 @@
 		"registration_details": "Registreringsdetaljer",
 		"download_ticket": "Last Ned Billett",
 		"share_registration": "Del Registrering"
+	},
+	"festivals": {
+		"title": "Festivaler",
+		"subtitle": "Feire vår rike kulturarv gjennom tradisjonelle hinduistiske festivaler og åndelige samlinger",
+		"featured_festival": "Utvalgt Festival"
+	},
+	"rituals": {
+		"title": "Ritualer",
+		"subtitle": "Opplev hellige hinduistiske seremonier og tradisjonelle ritualer som kobler oss til vår åndelige arv"
+	},
+	"publication": {
+		"annual_reports": "Årsrapporter",
+		"annual_reports_subtitle": "Få tilgang til vår omfattende samling av årsrapporter, inkludert finansielle uttalelser, aktivitetssammendrag, medlemsstatistikk og revisjonsrapporter."
 	}
 }

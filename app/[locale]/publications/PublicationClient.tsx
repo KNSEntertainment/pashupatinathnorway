@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Search, Download, Calendar, FileText, Filter, ChevronDown } from "lucide-react";
 import SectionHeader from "@/components/SectionHeader";
+import { useTranslations } from "next-intl";
 
 interface AnnualReport {
   id: string;
@@ -32,6 +33,7 @@ const languages = [
 
 
 export default function PublicationClient() {
+  const t = useTranslations();
   const [publications, setPublications] = useState<AnnualReport[]>([]);
   const [filteredPublications, setFilteredPublications] = useState<AnnualReport[]>([]);
   const [reportTypes, setReportTypes] = useState<ReportType[]>([]);
@@ -40,6 +42,7 @@ export default function PublicationClient() {
   const [selectedType, setSelectedType] = useState("all");
   const [selectedLanguage, setSelectedLanguage] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
+  
 
   // Fetch publications from API
   const fetchPublications = async () => {
@@ -132,10 +135,10 @@ export default function PublicationClient() {
       <div className="bg-gradient-to-b from-red-50 to-red-100 text-gray-700">
         
         <div className="container mx-auto px-4 pt-12 pb-1">
-            <SectionHeader 
-              heading="Annual Reports"
-              subtitle="Access our comprehensive collection of annual reports, including financial statements, activity summaries, membership statistics, and audit reports."
-            />
+          <SectionHeader 
+  heading={t("publication.annual_reports")}
+  subtitle={t("publication.annual_reports_subtitle")}
+/>
         </div>
       </div>
 

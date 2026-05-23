@@ -12,10 +12,9 @@ const RitualsSchema = new mongoose.Schema(
 			required: true,
 			default: { en: '', no: '', ne: '' }
 		},
-		icon: {
+		imageUrl: {
 			type: String,
-			required: true,
-			default: "Building"
+			required: false
 		},
 		features: {
 			type: mongoose.Schema.Types.Mixed,
@@ -34,6 +33,14 @@ const RitualsSchema = new mongoose.Schema(
 		isActive: {
 			type: Boolean,
 			default: true
+		},
+		isDeleted: {
+			type: Boolean,
+			default: false
+		},
+		deletedAt: {
+			type: Date,
+			default: null
 		}
 	},
 	{

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Rituals from "@/models/Rituals.Model";
 import { requireAdmin } from "@/lib/apiAuth";
+import { uploadToCloudinary } from "@/utils/saveFileToCloudinaryUtils";
 
 interface MultilingualField {
 	en: string;
@@ -49,10 +50,12 @@ export async function GET(request: NextRequest) {
 			return NextResponse.json(localizedRitual);
 		}
 
-		// Get all rituals
-		const rituals = await Rituals.find({ isActive: true }).sort({ order: 1, createdAt: 1 });
+		// Get all rituals (exclude deleted ones)
+		const rituals = await Rituals.find({ isActive: true, isDeleted: false }).sort({ order: 1, createdAt: 1 });
 
-		if (rituals.length === 0) {
+		// Only return default content if absolutely no rituals exist (including soft-deleted ones)
+		const allRituals = await Rituals.find({});
+		if (allRituals.length === 0) {
 			// Return default content if no rituals exist yet
 			const defaultContent = [
 				{
@@ -209,7 +212,49 @@ export async function POST(request: Request) {
 
 		await connectDB();
 
-		const body = await request.json();
+		const contentType = request.headers.get("content-type");
+		let body: Record<string, unknown>;
+		let imageUrl: string | null = null;
+
+		if (contentType && contentType.includes("multipart/form-data")) {
+			// Handle multipart/form-data for image uploads
+			const formData = await request.formData();
+			
+			// Upload image if provided
+			const image = formData.get("image") as File;
+			if (image && image.size > 0) {
+				imageUrl = await uploadToCloudinary(image, "rituals_images");
+			}
+
+			// Extract other fields from formData
+			body = {
+				title: formData.get("title"),
+				description: formData.get("description"),
+				features: formData.get("features"),
+				timing: formData.get("timing"),
+				order: formData.get("order"),
+				isActive: formData.get("isActive")
+			};
+
+			// Parse JSON fields
+			["title", "description", "features", "timing"].forEach(field => {
+				if (body[field]) {
+					try {
+						body[field] = JSON.parse(body[field] as string);
+					} catch {
+						// Keep as is if parsing fails
+					}
+				}
+			});
+
+			// Parse numeric and boolean fields
+			if (body.order) body.order = parseInt(String(body.order));
+			if (body.isActive !== undefined) body.isActive = String(body.isActive) === "true";
+
+		} else {
+			// Handle regular JSON request
+			body = await request.json();
+		}
 
 		// Helper function to normalize multilingual field
 		const normalizeMultilingualField = (field: MultilingualField | string): MultilingualField => {
@@ -243,13 +288,13 @@ export async function POST(request: Request) {
 
 		// Process the data
 		const processedData = {
-			title: normalizeMultilingualField(body.title),
-			description: normalizeMultilingualField(body.description),
-			icon: body.icon || "Building",
-			features: normalizeMultilingualArray(body.features),
-			timing: normalizeMultilingualField(body.timing),
-			order: body.order || 0,
-			isActive: body.isActive !== undefined ? body.isActive : true
+			title: normalizeMultilingualField(body.title as MultilingualField | string),
+			description: normalizeMultilingualField(body.description as MultilingualField | string),
+			imageUrl: imageUrl || (body.imageUrl as string) || null,
+			features: normalizeMultilingualArray(body.features as MultilingualArray | string[]),
+			timing: normalizeMultilingualField(body.timing as MultilingualField | string),
+			order: Number(body.order) || 0,
+			isActive: body.isActive !== undefined ? Boolean(body.isActive) : true
 		};
 
 		// Validate required fields
@@ -281,8 +326,54 @@ export async function PUT(request: Request) {
 
 		await connectDB();
 
-		const body = await request.json();
-		const { id } = body;
+		const contentType = request.headers.get("content-type");
+		let body: Record<string, unknown>;
+		let imageUrl: string | null = null;
+		let id: string;
+
+		if (contentType && contentType.includes("multipart/form-data")) {
+			// Handle multipart/form-data for image uploads
+			const formData = await request.formData();
+			
+			// Upload image if provided
+			const image = formData.get("image") as File;
+			if (image && image.size > 0) {
+				imageUrl = await uploadToCloudinary(image, "rituals_images");
+			}
+
+			// Extract other fields from formData
+			body = {
+				title: formData.get("title"),
+				description: formData.get("description"),
+				features: formData.get("features"),
+				timing: formData.get("timing"),
+				order: formData.get("order"),
+				isActive: formData.get("isActive")
+			};
+
+			// Parse JSON fields
+			["title", "description", "features", "timing"].forEach(field => {
+				if (body[field]) {
+					try {
+						body[field] = JSON.parse(body[field] as string);
+					} catch {
+						// Keep as is if parsing fails
+					}
+				}
+			});
+
+			// Parse numeric and boolean fields
+			if (body.order) body.order = parseInt(String(body.order));
+			if (body.isActive !== undefined) body.isActive = String(body.isActive) === "true";
+
+			// Get ID from formData
+			id = formData.get("id") as string;
+
+		} else {
+			// Handle regular JSON request
+			body = await request.json();
+			id = body.id as string;
+		}
 
 		if (!id) {
 			return NextResponse.json({ error: "Ritual ID is required" }, { status: 400 });
@@ -318,15 +409,21 @@ export async function PUT(request: Request) {
 			}
 		};
 
+		// Get existing ritual to preserve current imageUrl if no new image is uploaded
+		const existingRitual = await Rituals.findById(id);
+		if (!existingRitual) {
+			return NextResponse.json({ error: "Ritual not found" }, { status: 404 });
+		}
+
 		// Process the data
 		const processedData = {
-			title: normalizeMultilingualField(body.title),
-			description: normalizeMultilingualField(body.description),
-			icon: body.icon,
-			features: normalizeMultilingualArray(body.features),
-			timing: normalizeMultilingualField(body.timing),
-			order: body.order,
-			isActive: body.isActive
+			title: normalizeMultilingualField(body.title as MultilingualField | string),
+			description: normalizeMultilingualField(body.description as MultilingualField | string),
+			imageUrl: imageUrl || (body.imageUrl as string) || existingRitual.imageUrl,
+			features: normalizeMultilingualArray(body.features as MultilingualArray | string[]),
+			timing: normalizeMultilingualField(body.timing as MultilingualField | string),
+			order: Number(body.order) || existingRitual.order,
+			isActive: body.isActive !== undefined ? Boolean(body.isActive) : existingRitual.isActive
 		};
 
 		// Validate required fields
@@ -343,10 +440,6 @@ export async function PUT(request: Request) {
 			processedData,
 			{ new: true, runValidators: true }
 		);
-
-		if (!ritual) {
-			return NextResponse.json({ error: "Ritual not found" }, { status: 404 });
-		}
 
 		return NextResponse.json({
 			message: "Ritual updated successfully",
@@ -373,7 +466,15 @@ export async function DELETE(request: NextRequest) {
 			return NextResponse.json({ error: "Ritual ID is required" }, { status: 400 });
 		}
 
-		const ritual = await Rituals.findByIdAndDelete(id);
+		const ritual = await Rituals.findByIdAndUpdate(
+			id,
+			{
+				isDeleted: true,
+				deletedAt: new Date(),
+				isActive: false
+			},
+			{ new: true }
+		);
 
 		if (!ritual) {
 			return NextResponse.json({ error: "Ritual not found" }, { status: 404 });
@@ -387,3 +488,4 @@ export async function DELETE(request: NextRequest) {
 		return NextResponse.json({ error: "Failed to delete ritual" }, { status: 500 });
 	}
 }
+

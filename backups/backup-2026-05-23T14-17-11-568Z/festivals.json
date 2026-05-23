@@ -1,0 +1,287 @@
+[
+  {
+    "_id": "6a0d665bad1863bfb862a908",
+    "title": {
+      "en": "Rakshabandhan / Janai Purnima",
+      "no": "Rakshabandhan / Janai Purnima",
+      "ne": "रक्षाबन्धन / जनै पूर्णिमा"
+    },
+    "description": {
+      "en": "Rakshabandhan / Janai Purnima is an important Hindu festival celebrated in Nepal with devotion, family gatherings, and traditional rituals. On this day, Hindu priests tie a sacred thread called raksha bandhan (doro) around the wrists of devotees for protection and blessings. Brahmin and Chhetri men also change their sacred thread (janai), symbolizing spiritual purification and renewal. Sisters often tie rakhi on their brothers’ wrists, praying for their well-being and strong family bonds. The festival is also marked by special foods such as kwati, a traditional mixed bean soup.",
+      "no": "Rakshabandhan / Janai Purnima er en viktig hinduistisk festival som feires i Nepal med religiøse ritualer, familiesamlinger og tradisjonelle skikker. På denne dagen knytter prester en hellig beskyttelsestråd (raksha bandhan eller doro) rundt håndleddet til de troende som et symbol på beskyttelse og velsignelse. Brahmin- og Chhetri-menn bytter også sin hellige tråd (janai), som symboliserer åndelig renselse og fornyelse. Søstre knytter ofte rakhi på brødrenes håndledd og ber for deres trygghet og sterke familiebånd. Festivalen markeres også med tradisjonell mat som kwati, en suppe laget av ulike bønner.",
+      "ne": "रक्षाबन्धन / जनै पूर्णिमा नेपालमा हिन्दू धर्मावलम्बीहरूले श्रद्धा, पारिवारिक भेटघाट र धार्मिक परम्परासहित मनाउने महत्वपूर्ण चाड हो। यस दिन पुरोहितहरूले भक्तजनहरूको हातमा रक्षा र आशीर्वादको प्रतीक स्वरूप रक्षाबन्धनको डोरो बाँधिदिन्छन्। ब्राह्मण तथा क्षेत्री पुरुषहरूले आफ्नो जनै फेर्ने परम्परा पनि यसै दिन हुन्छ, जसले आत्मिक शुद्धीकरण र नयाँ सुरुवातको प्रतीक मानिन्छ। दिदीबहिनीहरूले दाजुभाइको हातमा राखी बाँधेर दीर्घायु, सुरक्षा र स्नेहको कामना गर्छन्। यस अवसरमा क्वाँटी जस्ता परम्परागत परिकार खाने चलन पनि छ।"
+    },
+    "features": {
+      "en": [],
+      "no": [],
+      "ne": []
+    },
+    "timing": {
+      "en": "Full moon day in August",
+      "no": "Fullmånedagen i august",
+      "ne": "अगस्ट"
+    },
+    "highlight": false,
+    "order": 0,
+    "isActive": true,
+    "createdAt": "2026-05-20T07:44:27.881Z",
+    "updatedAt": "2026-05-20T07:44:27.881Z",
+    "deletedAt": null,
+    "isDeleted": false
+  },
+  {
+    "_id": "6a0d67bcafaca1e8c1bd199d",
+    "title": {
+      "en": "Haritalika Teej",
+      "no": "Haritalika Teej",
+      "ne": "हरितालिका तीज"
+    },
+    "description": {
+      "en": "Haritalika Teej is one of the most important festivals celebrated by Hindu women in Nepal. Dedicated to Goddess Parvati and Lord Shiva, the festival symbolizes love, devotion, and marital happiness. Women dress in red traditional clothing, gather in temples, sing and dance, and observe fasting for the well-being of their husbands and families. Unmarried women also pray for a good life partner. The festival is celebrated with religious rituals, social gatherings, and traditional food shared with family and friends.",
+      "no": "Haritalika Teej er en viktig hinduistisk festival som feires av kvinner i Nepal med stor hengivenhet og glede. Festivalen er viet til gudinnen Parvati og guden Shiva, og symboliserer kjærlighet, troskap og lykke i ekteskapet. Kvinner kler seg i røde tradisjonelle klær, samles i templer, synger og danser, og mange faster for sine ektemenns og familiens velvære. Ugifte kvinner ber også om en god livspartner. Festivalen feires med religiøse ritualer, sosiale sammenkomster og tradisjonell mat.",
+      "ne": "हरितालिका तीज नेपालका हिन्दू महिलाहरूले श्रद्धा र उत्साहका साथ मनाउने महत्वपूर्ण पर्व हो। यो पर्व देवी पार्वती र भगवान शिवप्रति समर्पित छ, जसले प्रेम, समर्पण र दाम्पत्य सुखको प्रतीक मानिन्छ। महिलाहरू रातो साडी, गहना र परम्परागत पोशाकमा सजिएर मन्दिरमा पूजा गर्छन्, गीत गाउँछन्, नाचगान गर्छन् र व्रत बस्छन्। विवाहित महिलाहरूले श्रीमान् तथा परिवारको सुख-समृद्धिका लागि व्रत बस्ने गर्छन् भने अविवाहित महिलाहरूले राम्रो जीवनसाथीको कामना गर्छन्। तीज धार्मिक पूजा, सामाजिक भेटघाट र परम्परागत परिकारसहित मनाइन्छ।"
+    },
+    "features": {
+      "en": [],
+      "no": [],
+      "ne": []
+    },
+    "timing": {
+      "en": "August / September",
+      "no": "august / september",
+      "ne": "अगस्ट वा सेप्टेम्बर"
+    },
+    "highlight": false,
+    "order": 0,
+    "isActive": true,
+    "createdAt": "2026-05-20T07:50:20.366Z",
+    "updatedAt": "2026-05-20T07:50:20.366Z",
+    "deletedAt": null,
+    "isDeleted": false
+  },
+  {
+    "_id": "6a0d68b3666b5a56e8b05874",
+    "title": {
+      "en": "Dashain",
+      "no": "Dashain",
+      "ne": "दशैं"
+    },
+    "description": {
+      "en": "Dashain is the biggest and most widely celebrated Hindu festival in Nepal. The festival symbolizes the victory of good over evil and honors Goddess Durga. Families gather together to receive blessings, fly kites, enjoy traditional foods, and celebrate with music and cultural activities. Elders place tika (a mixture of rice, yogurt, and vermillion) and jamara on the foreheads of younger family members while giving blessings for health, happiness, and prosperity. Dashain is also a time for family reunions, travel, and celebration across the country.",
+      "no": "Dashain er den største og mest populære hinduistiske festivalen i Nepal. Festivalen symboliserer det godes seier over det onde og hedrer gudinnen Durga. Familier samles for å motta velsignelser, fly drager, spise tradisjonell mat og delta i kulturelle aktiviteter. Eldre familiemedlemmer setter tika (en blanding av ris, yoghurt og rødt pulver) og jamara på pannen til yngre familiemedlemmer mens de gir velsignelser for helse, lykke og velstand. Dashain er også en tid for familiegjenforening, reiser og feiring over hele Nepal.",
+      "ne": "दशैं नेपालकै सबैभन्दा ठूलो र लोकप्रिय हिन्दू पर्व हो। यो पर्व असत्यमाथि सत्यको विजय र देवी दुर्गाको शक्तिको सम्मानको प्रतीक मानिन्छ। दशैंमा परिवारका सदस्यहरू एक ठाउँमा भेला भएर टीका, जमरा र आशीर्वाद ग्रहण गर्छन्। मान्यजनहरूले निधारमा टीका र जमरा लगाइदिँदै स्वास्थ्य, सुख, समृद्धि र दीर्घायुको आशीर्वाद दिन्छन्। यस अवसरमा पिङ खेल्ने, चङ्गा उडाउने, नयाँ लुगा लगाउने र मिठा परिकार खाने चलन पनि छ। दशैं परिवार पुनर्मिलन, यात्रा र खुसी साटासाट गर्ने पर्वका रूपमा मनाइन्छ।"
+    },
+    "features": {
+      "en": [],
+      "no": [],
+      "ne": []
+    },
+    "timing": {
+      "en": "September / October",
+      "no": "september / oktober",
+      "ne": "सेप्टेम्बर / अक्टोबर"
+    },
+    "highlight": true,
+    "order": 0,
+    "isActive": true,
+    "createdAt": "2026-05-20T07:54:27.437Z",
+    "updatedAt": "2026-05-20T07:57:55.460Z",
+    "deletedAt": null,
+    "isDeleted": false
+  },
+  {
+    "_id": "6a0d6979666b5a56e8b05878",
+    "title": {
+      "en": "Tihar",
+      "no": "Tihar",
+      "ne": "तिहार"
+    },
+    "description": {
+      "en": "Tihar, also known as the Festival of Lights, is one of the most important Hindu festivals celebrated in Nepal. The five-day festival honors animals, nature, family relationships, and the goddess Laxmi, the goddess of wealth and prosperity. Homes are decorated with oil lamps, candles, colorful lights, and rangoli patterns. People sing Deusi and Bhailo songs, visit relatives and neighbors, and share festive meals and sweets. Brothers and sisters also celebrate the special bond of family during Bhai Tika, the final day of the festival.",
+      "no": "Tihar, også kjent som lysfestivalen, er en av de viktigste hinduistiske festivalene i Nepal. Den fem dager lange festivalen hedrer dyr, natur, familiebånd og gudinnen Laxmi, som står for rikdom og velstand. Hjem dekoreres med oljelamper, stearinlys, lyslenker og fargerike rangoli-mønstre. Folk synger Deusi og Bhailo, besøker familie og naboer, og deler tradisjonell mat og søtsaker. På den siste dagen, Bhai Tika, feires båndet mellom søsken med velsignelser og ritualer.",
+      "ne": "तिहार, जसलाई दीपावली पनि भनिन्छ, नेपालमा मनाइने सबैभन्दा महत्वपूर्ण हिन्दू पर्वहरूमध्ये एक हो। पाँच दिनसम्म मनाइने यो पर्वमा जनावर, प्रकृति, पारिवारिक सम्बन्ध तथा धन र समृद्धिकी देवी लक्ष्मीको पूजा गरिन्छ। घरहरू दियो, बत्ती, फूल र रंगोलीले सजाइन्छन्। मानिसहरूले देउसी र भैलो खेलेर रमाइलो गर्छन्, आफन्त तथा छिमेकीसँग भेटघाट गर्छन् र मिठा परिकार साटासाट गर्छन्। तिहारको अन्तिम दिन भाइटीका मनाइन्छ, जहाँ दिदीबहिनीहरूले दाजुभाइलाई दीर्घायु र सुखको कामना गर्दै टीका लगाउँछन्।"
+    },
+    "features": {
+      "en": [],
+      "no": [],
+      "ne": []
+    },
+    "timing": {
+      "en": "October / November",
+      "no": "oktober / november",
+      "ne": "अक्टोबर / नोभेम्बर"
+    },
+    "highlight": true,
+    "order": 0,
+    "isActive": true,
+    "createdAt": "2026-05-20T07:57:45.585Z",
+    "updatedAt": "2026-05-20T07:58:07.540Z",
+    "deletedAt": null,
+    "isDeleted": false
+  },
+  {
+    "_id": "6a0d6a23666b5a56e8b0587f",
+    "title": {
+      "en": "Swasthani Brata",
+      "no": "Swasthani Brata",
+      "ne": "स्वस्थानी व्रत"
+    },
+    "description": {
+      "en": "Swasthani Brata is a month-long Hindu religious festival and fasting ritual observed mainly by women in Nepal. Dedicated to Goddess Swasthani and Lord Shiva, the festival is associated with devotion, spiritual purification, and prayers for health, prosperity, and family well-being. During this period, devotees read or listen to the sacred Swasthani Brata Katha every evening, visit temples, and observe fasting and religious rituals. The festival also brings families and communities together through prayer and traditional worship practices.",
+      "no": "Swasthani Brata er en månedslang hinduistisk faste- og religiøs tradisjon som hovedsakelig observeres av kvinner i Nepal. Festivalen er viet til gudinnen Swasthani og guden Shiva, og forbindes med hengivenhet, åndelig renselse og bønner for helse, velstand og familiens velferd. I denne perioden leser eller lytter de troende til den hellige Swasthani Brata Katha hver kveld, besøker templer og gjennomfører faste og religiøse ritualer. Festivalen samler også familier og lokalsamfunn gjennom bønn og tradisjonell tilbedelse.",
+      "ne": "स्वस्थानी व्रत नेपालमा विशेषगरी महिलाहरूले श्रद्धापूर्वक मनाउने एक महिना लामो हिन्दू धार्मिक व्रत तथा पर्व हो। यो पर्व देवी स्वस्थानी र भगवान शिवप्रति समर्पित छ, जसलाई भक्ति, आत्मिक शुद्धीकरण तथा परिवारको सुख, स्वास्थ्य र समृद्धिको कामनासँग जोडेर हेरिन्छ। यस अवधिमा भक्तजनहरूले प्रत्येक साँझ स्वस्थानी व्रत कथा वाचन वा श्रवण गर्छन्, मन्दिर दर्शन गर्छन् र व्रत तथा पूजा-अर्चना गर्छन्। यस पर्वले परिवार र समुदायलाई धार्मिक आस्था र परम्परामार्फत एकताबद्ध बनाउने काम पनि गर्छ।"
+    },
+    "features": {
+      "en": [],
+      "no": [],
+      "ne": []
+    },
+    "timing": {
+      "en": "January / February",
+      "no": "januar / februar",
+      "ne": "जनवरी / फेब्रुअरी"
+    },
+    "highlight": false,
+    "order": 0,
+    "isActive": true,
+    "createdAt": "2026-05-20T08:00:35.984Z",
+    "updatedAt": "2026-05-20T08:00:35.984Z",
+    "deletedAt": null,
+    "isDeleted": false
+  },
+  {
+    "_id": "6a0d6afcafaca1e8c1bd19a2",
+    "title": {
+      "en": "Saraswati Puja",
+      "no": "Saraswati Puja",
+      "ne": "सरस्वती पूजा"
+    },
+    "description": {
+      "en": "Saraswati Puja is a Hindu festival dedicated to Goddess Saraswati, the goddess of wisdom, learning, music, and arts. In Nepal, the festival is especially important for students, teachers, writers, and artists. Devotees visit temples and schools to offer prayers, flowers, books, and musical instruments to Goddess Saraswati, seeking knowledge and success in education and creativity. Many children are introduced to reading and writing for the first time on this auspicious day.",
+      "no": "Saraswati Puja er en hinduistisk festival viet til gudinnen Saraswati, som representerer kunnskap, læring, musikk og kunst. I Nepal er festivalen spesielt viktig for studenter, lærere, forfattere og kunstnere. De troende besøker templer og skoler for å be, og de ofrer blomster, bøker og musikkinstrumenter til gudinnen Saraswati for å søke kunnskap, utdanning og kreativ suksess. Mange barn begynner også å lære å lese og skrive på denne lykkebringende dagen.",
+      "ne": "सरस्वती पूजा ज्ञान, शिक्षा, संगीत र कलाकी देवी सरस्वतीको आराधना गर्ने हिन्दू पर्व हो। नेपालमा यो पर्व विशेषगरी विद्यार्थी, शिक्षक, लेखक तथा कलाकारहरूका लागि महत्वपूर्ण मानिन्छ। भक्तजनहरूले मन्दिर तथा विद्यालयमा गई देवी सरस्वतीलाई पूजा, फूल, किताब र वाद्यवादन अर्पण गर्छन् र ज्ञान, सफलता तथा सिर्जनात्मकताको कामना गर्छन्। धेरै बालबालिकालाई यस शुभ दिनमा पहिलो पटक अक्षर चिनाउने तथा लेखपढ सुरु गराउने परम्परा पनि छ।"
+    },
+    "features": {
+      "en": [],
+      "no": [],
+      "ne": []
+    },
+    "timing": {
+      "en": "January / February",
+      "no": "januar / februar",
+      "ne": "जनवरी / फेब्रुअरी"
+    },
+    "highlight": false,
+    "order": 0,
+    "isActive": true,
+    "createdAt": "2026-05-20T08:04:12.268Z",
+    "updatedAt": "2026-05-20T08:04:12.268Z",
+    "deletedAt": null,
+    "isDeleted": false
+  },
+  {
+    "_id": "6a0d6bb8afaca1e8c1bd19a6",
+    "title": {
+      "en": "Maha Shivaratri",
+      "no": "Maha Shivaratri",
+      "ne": "महाशिवरात्रि"
+    },
+    "description": {
+      "en": "Maha Shivaratri is one of the most sacred Hindu festivals dedicated to Lord Shiva. In Nepal, thousands of devotees gather at temples, especially at the famous Pashupatinath Temple in Kathmandu, to offer prayers, light oil lamps, chant hymns, and worship Lord Shiva. Many people observe fasting and stay awake throughout the night as a sign of devotion and spiritual discipline. The festival symbolizes the victory over darkness and ignorance and is celebrated with deep religious faith and cultural traditions.",
+      "no": "Maha Shivaratri er en av de helligste hinduistiske festivalene og er viet til guden Shiva. I Nepal samles tusenvis av troende ved templer, spesielt det berømte Pashupatinath-tempelet i Kathmandu, for å be, tenne oljelamper, synge religiøse sanger og tilbe Shiva. Mange faster og holder seg våkne gjennom natten som et tegn på hengivenhet og åndelig disiplin. Festivalen symboliserer seier over mørke og uvitenhet og feires med stor religiøs tro og kulturelle tradisjoner.",
+      "ne": "महाशिवरात्रि भगवान शिवको आराधना गरिने हिन्दू धर्मको अत्यन्त पवित्र पर्व हो। नेपालमा यस अवसरमा हजारौं भक्तजनहरू विशेषगरी काठमाडौंको प्रसिद्ध पशुपतिनाथ मन्दिरमा भेला भएर पूजा, आराधना, भजन-कीर्तन तथा दीप प्रज्वलन गर्छन्। धेरै भक्तजनहरूले व्रत बस्ने र रातभर जाग्राम बस्ने परम्परा पालन गर्छन्, जसलाई भक्ति र आत्मिक अनुशासनको प्रतीक मानिन्छ। यो पर्व अन्धकार र अज्ञानतामाथि विजयको प्रतीकका रूपमा श्रद्धापूर्वक मनाइन्छ।"
+    },
+    "features": {
+      "en": [],
+      "no": [],
+      "ne": []
+    },
+    "timing": {
+      "en": "February / March",
+      "no": "februar / mars",
+      "ne": "फेब्रुअरी / मार्च"
+    },
+    "highlight": true,
+    "order": 0,
+    "isActive": true,
+    "createdAt": "2026-05-20T08:07:20.899Z",
+    "updatedAt": "2026-05-20T08:07:20.899Z",
+    "deletedAt": null,
+    "isDeleted": false
+  },
+  {
+    "_id": "6a0d6c76666b5a56e8b05883",
+    "title": {
+      "en": "Holi",
+      "no": "Holi",
+      "ne": "होली"
+    },
+    "description": {
+      "en": "Holi, also known as the Festival of Colors, is a joyful Hindu festival celebrated in Nepal and many parts of South Asia. The festival marks the arrival of spring and symbolizes the victory of good over evil. People celebrate by throwing colored powders and water, dancing, singing, and gathering with family and friends. Holi is a time of happiness, forgiveness, and social harmony, bringing communities together in celebration.",
+      "no": "Holi, også kjent som fargefestivalen, er en glad hinduistisk festival som feires i Nepal og mange deler av Sør-Asia. Festivalen markerer starten på våren og symboliserer det godes seier over det onde. Folk feirer ved å kaste farget pulver og vann på hverandre, danse, synge og samles med familie og venner. Holi er en tid for glede, tilgivelse og sosialt fellesskap, der lokalsamfunn kommer sammen for å feire.",
+      "ne": "होली, जसलाई रंगहरूको पर्व पनि भनिन्छ, नेपाल तथा दक्षिण एसियाका विभिन्न स्थानहरूमा हर्षोल्लासका साथ मनाइने हिन्दू पर्व हो। यो पर्व वसन्त ऋतुको आगमन तथा असत्यमाथि सत्यको विजयको प्रतीक मानिन्छ। मानिसहरूले एकअर्कामाथि अबिर र रंगीन पानी छ्यापेर, गीत-संगीत र नाचगान गर्दै परिवार तथा साथीभाइसँग रमाइलो गर्छन्। होलीलाई खुसी, मेलमिलाप र सामाजिक सद्भावको पर्वका रूपमा पनि मनाइन्छ।"
+    },
+    "features": {
+      "en": [],
+      "no": [],
+      "ne": [
+        "फेब्रुअरी / मार्च"
+      ]
+    },
+    "timing": {
+      "en": "February / March",
+      "no": "februar / mars",
+      "ne": "February / March"
+    },
+    "highlight": false,
+    "order": 0,
+    "isActive": true,
+    "createdAt": "2026-05-20T08:10:30.806Z",
+    "updatedAt": "2026-05-20T08:10:30.806Z",
+    "deletedAt": null,
+    "isDeleted": false
+  },
+  {
+    "_id": "6a11b2c8cf3990ed324bf57e",
+    "title": {
+      "en": "Maha Shivaratri",
+      "no": "Maha Shivaratri",
+      "ne": "महा शिवरात्रि"
+    },
+    "description": {
+      "en": "A grand celebration of Lord Shiva with night-long prayers and rituals. Annual General Meeting will be arranged on this occasion.",
+      "no": "En stor feiring av Lord Shiva med nattlange bønner og ritualer. Årsmøte vil bli arrangert i denne anledningen.",
+      "ne": "भगवान शिवको ठूलो उत्सव रातभरि प्रार्थना र अनुष्ठानहरूसहित। यस अवसरमा वार्षिक साधारण बैठक आयोजना गरिनेछ।"
+    },
+    "imageUrl": "https://res.cloudinary.com/dspsvccws/image/upload/v1779544775/festivals_images/wrsf1vswd2yqvqyk5pgv.jpg",
+    "features": {
+      "en": [
+        "Night-long prayers and meditation",
+        "Sacred Shiva lingam abhishek",
+        "Annual General Meeting"
+      ],
+      "no": [
+        "Nattlange bønner og meditasjon",
+        "Hellig Shiva lingam abhishek",
+        "Årsmøte"
+      ],
+      "ne": [
+        "रातभरि प्रार्थना र ध्यान",
+        "पवित्र शिव लिङ्ग अभिषेक",
+        "वार्षिक साधारण बैठक"
+      ]
+    },
+    "timing": {
+      "en": "February/March annually",
+      "no": "Februar/mars årlig",
+      "ne": "फेब्रुअरी/मार्च वार्षिक"
+    },
+    "highlight": true,
+    "order": 0,
+    "isActive": false,
+    "isDeleted": true,
+    "deletedAt": "2026-05-23T14:07:52.808Z",
+    "createdAt": "2026-05-23T13:59:36.652Z",
+    "updatedAt": "2026-05-23T14:07:52.809Z"
+  }
+]

@@ -152,7 +152,7 @@ export default function EventForm({ handleCloseEventModal, eventToEdit = null })
 
 				<div>
 					<label htmlFor="memberPrice" className="block mb-2 font-bold">
-						Member Price ($)
+						Member Price (kr)
 					</label>
 					<input 
 						type="number" 
@@ -169,7 +169,7 @@ export default function EventForm({ handleCloseEventModal, eventToEdit = null })
 
 				<div>
 					<label htmlFor="guestPrice" className="block mb-2 font-bold">
-						Guest Price ($)
+						Guest Price (kr)
 					</label>
 					<input 
 						type="number" 

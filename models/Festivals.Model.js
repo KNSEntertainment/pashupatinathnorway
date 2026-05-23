@@ -12,10 +12,9 @@ const FestivalsSchema = new mongoose.Schema(
 			required: true,
 			default: { en: '', no: '', ne: '' }
 		},
-		icon: {
+		imageUrl: {
 			type: String,
-			required: true,
-			default: "Star"
+			required: false
 		},
 		features: {
 			type: mongoose.Schema.Types.Mixed,
@@ -38,6 +37,14 @@ const FestivalsSchema = new mongoose.Schema(
 		isActive: {
 			type: Boolean,
 			default: true
+		},
+		isDeleted: {
+			type: Boolean,
+			default: false
+		},
+		deletedAt: {
+			type: Date,
+			default: null
 		}
 	},
 	{
