@@ -117,8 +117,8 @@ export default function Management() {
 
 
       {/* Current Board Members Section */}
-      <div className="container mx-auto px-6">
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-16">
+      <div className="container mx-auto px-6 max-w-5xl">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-16">
           {executiveMembers.map((member: BoardMember, index: number) => (
             <div
               key={member._id || index}
@@ -151,22 +151,22 @@ export default function Management() {
 
       {/* Advisors Section */}
       <div className="bg-gray-50 py-16">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-6 max-w-5xl">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-3">
-              <Lightbulb className="w-8 h-8 text-purple-600" />
+              <Lightbulb className="w-8 h-8 text-red-600" />
               {t("advisors_title")}
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4  mx-auto">
             {advisors.map((advisor: BoardMember, index: number) => (
               <div
                 key={advisor._id || index}
-                className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-6 border border-purple-100"
+                className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-6 border border-red-100"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-purple-400 rounded-full flex items-center justify-center text-white font-bold">
+                  <div className="w-8 h-8 bg-gradient-to-br from-red-600 to-red-400 rounded-full flex items-center justify-center text-white font-bold">
                     {advisor.name.charAt(0)}
                   </div>
                   <div>

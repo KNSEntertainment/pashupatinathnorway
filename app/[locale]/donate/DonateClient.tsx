@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 import DonationForm from "@/components/DonationForm";
 import DonateCTA from "@/components/DonateCTA";
 import ScrollingDonorList from "@/components/ScrollingDonorList";
-import CauseProgressBar from "@/components/CauseProgressBar";
 import { Heart, Building, Star } from "lucide-react";
 import Link from "next/link";
 import SectionHeader from "@/components/SectionHeader";
@@ -79,60 +78,183 @@ export default function DonatePageClient({ locale }: DonatePageClientProps) {
 					<SectionHeader heading={t("hero_title")} subtitle={t("hero_description")} />
 		
 					{/* Total Donations Display with Auto-Scrolling Donors */}
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
-						{/* Left Side - Total Donations */}
-						<div className="p-6 col-span-1 md:col-span-2 flex justify-center items-center">
-						<div className="text-center">
-								<h3 className="text-lg font-semibold text-gray-700 mb-4">
-								{t("total_donations") || "Total Donations till now"}
-							</h3>
-							<div className="text-3xl md:text-8xl font-bold bg-gradient-to-r from-brand_primary to-brand_secondary bg-clip-text text-transparent mb-4">
-								{loading ? (
-									<div className="flex items-center justify-center">
-										<svg className="animate-spin h-8 w-8 text-brand_primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-											<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-											<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-										</svg>
-									</div>
-								) : (
-									totalAmount.toLocaleString('nb-NO', { 
-										style: 'currency', 
-										currency: 'NOK',
-										minimumFractionDigits: 0,
-										maximumFractionDigits: 0 
-									})
-								)}
-							</div>
-							{/* Progress Bar */}
-							{!loading && totalGoalAmount > 0 && (
-								<div className="mt-6 max-w-md mx-auto">
-									<CauseProgressBar 
-										currentAmount={totalAmount}
-										goalAmount={totalGoalAmount}
-										donationCount={totalDonations}
-										className="bg-white rounded-lg p-4 shadow-sm"
-									/>
-								</div>
-							)}
-						</div>
-						</div>
+			{/* ── Donation Impact Section ─────────────────────────────────────────── */}
+<div className="relative my-12 mx-auto max-w-6xl bg-red-900">
 
-						{/* Right Side - Auto-Scrolling Donors */}
-						<div className="p-2 col-span-1 md:col-span-1">
-							<div className="flex justify-between items-center mb-4">
-								<h3 className="text-lg font-semibold text-gray-700">
-									{t("recent_donors") || "All Donors"}
-								</h3>
-								<Link 
-									href={`/${locale}/donors`} 
-									className="text-sm text-brand_secondary/70 hover:text-brand_secondary underline font-medium transition-colors"
-								>
-									View All Donors
-								</Link>
-							</div>
-							<ScrollingDonorList donors={donors} />
-						</div>
-					</div>
+  {/* Soft ambient glow behind the whole block */}
+  <div
+    className="pointer-events-none absolute -inset-8 opacity-30"
+
+  />
+
+  <div className="relative grid grid-cols-1 lg:grid-cols-5 gap-0 overflow-hidden shadow-md">
+
+    {/* ── LEFT: Total Donations (spans 3 cols) ─────────────────────── */}
+    <div className="lg:col-span-3 flex flex-col items-center justify-center px-8 py-12 lg:py-16 text-center relative "
+    >
+     
+
+      {/* Small label */}
+      <p
+        className="relative z-10 text-md md:text-lg font-semibold uppercase mb-3 text-gray-200"
+      >
+        ✦ &nbsp;{t("total_donations") || "Total Donations till now"}&nbsp; ✦
+      </p>
+
+      {/* Amount */}
+      <div className="relative z-10 mb-6">
+        {loading ? (
+          <div className="flex items-center justify-center h-24">
+            <svg
+              className="animate-spin h-10 w-10"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
+            </svg>
+          </div>
+        ) : (
+          <span
+            className="block font-black leading-none"
+            style={{
+              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontSize: "clamp(2.8rem, 8vw, 5.5rem)",
+              background: "linear-gradient(135deg, #FFD580 0%, #FF8C42 50%, #FFD580 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            {totalAmount.toLocaleString("nb-NO", {
+              style: "currency",
+              currency: "NOK",
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0,
+            })}
+          </span>
+        )}
+      </div>
+
+      {/* Donor count badge */}
+      {!loading && totalDonations > 0 && (
+        <p className="relative z-10 text-sm mb-8 text-gray-200">
+          
+          <span className="font-bold" >
+            {totalDonations}
+          </span>
+          &nbsp;{t("generous_donors")}
+        </p>
+      )}
+
+      {/* Progress bar */}
+      {!loading && totalGoalAmount > 0 && (
+        <div className="relative z-10 w-full max-w-sm">
+          {/* Track */}
+          <div className="h-2 rounded-full overflow-hidden bg-gray-600">
+            <div
+              className="h-full rounded-full transition-all duration-1000"
+              style={{
+                width: `${Math.min(100, (totalAmount / totalGoalAmount) * 100).toFixed(1)}%`,
+                background: "linear-gradient(90deg, #FF8C42, #FFD580)",
+              }}
+            />
+          </div>
+          <div className="flex justify-between mt-2">
+            <span className="text-xs text-gray-200">
+              {Math.min(100, Math.round((totalAmount / totalGoalAmount) * 100))} {t("of_goal")}
+            </span>
+            <span className="text-xs text-gray-200">
+              {totalGoalAmount.toLocaleString("nb-NO", {
+                style: "currency",
+                currency: "NOK",
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              })}
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
+
+    {/* ── RIGHT: Donor list (spans 2 cols) ─────────────────────────── */}
+    <div
+      className="lg:col-span-2 flex flex-col"
+      style={{ background: "#FDF6EC" }}
+    >
+      {/* Header strip */}
+      <div
+        className="px-6 py-4 flex items-center justify-between border-b"
+        style={{ borderColor: "rgba(181,69,27,0.12)" }}
+      >
+        <div className="flex items-center gap-2">
+          {/* Pulse dot */}
+          <span className="relative flex h-2 w-2">
+            <span
+              className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+              style={{ background: "#B5451B" }}
+            />
+            <span
+              className="relative inline-flex rounded-full h-2 w-2"
+              style={{ background: "#B5451B" }}
+            />
+          </span>
+          <h3
+            className="text-sm font-bold tracking-wide uppercase"
+            style={{ color: "#3B1200", letterSpacing: "0.1em" }}
+          >
+            {t("our_donors")}
+          </h3>
+        </div>
+        <Link
+          href={`/${locale}/donors`}
+          className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all duration-200 hover:scale-105"
+          style={{
+            background: "rgba(181,69,27,0.1)",
+            color: "#B5451B",
+            border: "1px solid rgba(181,69,27,0.2)",
+          }}
+        >
+          {t("view_all")}
+        </Link>
+      </div>
+
+      {/* Scrolling list */}
+      <div className="flex-1 overflow-hidden relative min-h-[260px]">
+        {/* Top fade */}
+        <div
+          className="pointer-events-none absolute top-0 left-0 right-0 h-8 z-10"
+          style={{ background: "linear-gradient(to bottom, #FDF6EC, transparent)" }}
+        />
+        {/* Bottom fade */}
+        <div
+          className="pointer-events-none absolute bottom-0 left-0 right-0 h-8 z-10"
+          style={{ background: "linear-gradient(to top, #FDF6EC, transparent)" }}
+        />
+
+        <ScrollingDonorList donors={donors} />
+      </div>
+
+      {/* Footer strip */}
+      <div
+        className="px-6 py-3 border-t text-center"
+        style={{ borderColor: "rgba(181,69,27,0.1)" }}
+      >
+        <p className="text-sm md:text-md" style={{ color: "rgba(59,18,0,0.4)" }}>
+          {t("every_contribution_matters")}
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+{/* ── End Donation Impact Section ───────────────────────────────────────── */}
 			
 				<div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
 					{/* Donation Form */}

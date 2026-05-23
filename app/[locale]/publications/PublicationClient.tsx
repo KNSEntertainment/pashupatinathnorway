@@ -151,7 +151,7 @@ export default function PublicationClient() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search reports by title or description..."
+                placeholder={t("publication.search_placeholder")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
@@ -164,7 +164,7 @@ export default function PublicationClient() {
               className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <Filter className="w-4 h-4" />
-              Filters
+              {t("publication.filters")}
               <ChevronDown className={`w-4 h-4 transform transition-transform ${showFilters ? 'rotate-180' : ''}`} />
             </button>
           </div>
@@ -196,7 +196,7 @@ export default function PublicationClient() {
 
           {/* Results Count */}
           <div className="mt-4 text-sm text-gray-600">
-            Found {filteredPublications.length} report{filteredPublications.length !== 1 ? 's' : ''}
+            {t("publication.found_reports", { count: filteredPublications.length })}
           </div>
         </div>
       </div>
@@ -210,8 +210,8 @@ export default function PublicationClient() {
         ) : filteredPublications.length === 0 ? (
           <div className="text-center py-12">
             <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">No reports found</h3>
-            <p className="text-gray-500">Try adjusting your search criteria or filters.</p>
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">{t("publication.no_reports_found")}</h3>
+            <p className="text-gray-500">{t("publication.try_adjusting_filters")}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -252,7 +252,7 @@ export default function PublicationClient() {
                     className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                   >
                     <Download className="w-4 h-4" />
-                    Download
+                    {t("publication.download")}
                   </button>
                 </div>
               </div>

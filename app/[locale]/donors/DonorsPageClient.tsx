@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search, ArrowUpDown, ArrowUp, ArrowDown, Heart, Users, Calendar, DollarSign, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 interface Donor {
 	name: string;
@@ -37,6 +38,7 @@ type FilterType = "all" | "anonymous" | "named";
 export default function DonorsPageClient() {
 	const params = useParams();
 	const locale = params.locale as string;
+	const t = useTranslations("donors");
 	const [donors, setDonors] = useState<Donor[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [searchTerm, setSearchTerm] = useState("");
@@ -131,13 +133,13 @@ export default function DonorsPageClient() {
 			<div className="max-w-7xl mx-auto">
 				{/* Header */}
 				<div className="text-center mb-12">
-					<h1 className="text-4xl font-bold text-gray-900 mb-4">All Donors</h1>
+					<h1 className="text-4xl font-bold text-gray-900 mb-4">{t("title")}</h1>
 					<p className="text-lg text-gray-600">
-						View all donors who have contributed to building the Pashupatinath Temple in Norway
+						{t("subtitle")}
 					</p>
 				</div>
 				<Link href={`/${locale}/donate`} className="text-brand_secondary/80 hover:text-brand_secondary font-medium mb-6 inline-block">
-					← Back to Donate Form
+					{t("back_to_donate")}
 				</Link>
 
 				{/* Statistics Cards */}
@@ -147,7 +149,7 @@ export default function DonorsPageClient() {
 							<div className="flex items-center gap-3">
 								<Users className="w-8 h-8 text-brand_primary" />
 								<div>
-									<p className="text-sm text-gray-600">Total Donors</p>
+									<p className="text-sm text-gray-600">{t("total_donors")}</p>
 									<p className="text-2xl font-bold text-gray-900">{stats.totalDonors}</p>
 								</div>
 							</div>
@@ -159,7 +161,7 @@ export default function DonorsPageClient() {
 							<div className="flex items-center gap-3">
 								<Heart className="w-8 h-8 text-brand_secondary" />
 								<div>
-									<p className="text-sm text-gray-600">Named Donors</p>
+									<p className="text-sm text-gray-600">{t("named_donors")}</p>
 									<p className="text-2xl font-bold text-gray-900">{stats.namedDonors}</p>
 								</div>
 							</div>
@@ -171,7 +173,7 @@ export default function DonorsPageClient() {
 							<div className="flex items-center gap-3">
 								<Users className="w-8 h-8 text-gray-400" />
 								<div>
-									<p className="text-sm text-gray-600">Anonymous</p>
+									<p className="text-sm text-gray-600">{t("anonymous")}</p>
 									<p className="text-2xl font-bold text-gray-900">{stats.anonymousDonors}</p>
 								</div>
 							</div>
@@ -183,7 +185,7 @@ export default function DonorsPageClient() {
 							<div className="flex items-center gap-3">
 								<DollarSign className="w-8 h-8 text-green-600" />
 								<div>
-									<p className="text-sm text-gray-600">Total Amount</p>
+									<p className="text-sm text-gray-600">{t("total_amount")}</p>
 									<p className="text-2xl font-bold text-gray-900">
 										{stats.totalAmount.toLocaleString('nb-NO', {
 											style: 'currency',
@@ -201,7 +203,7 @@ export default function DonorsPageClient() {
 				{/* Filters and Search */}
 				<Card className="bg-white mb-8">
 					<CardHeader>
-						<CardTitle className="text-xl font-semibold">Search & Filter</CardTitle>
+						<CardTitle className="text-xl font-semibold">{t("search_filter")}</CardTitle>
 					</CardHeader>
 					<CardContent>
 						<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -209,7 +211,7 @@ export default function DonorsPageClient() {
 							<div className="relative">
 								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
 								<Input
-									placeholder="Search donors..."
+									placeholder={t("search_placeholder")}
 									value={searchTerm}
 									onChange={(e) => setSearchTerm(e.target.value)}
 									className="pl-10"
@@ -219,24 +221,24 @@ export default function DonorsPageClient() {
 							{/* Filter Type */}
 							<Select value={filterType} onValueChange={(value: FilterType) => setFilterType(value)}>
 								<SelectTrigger>
-									<SelectValue placeholder="Filter by type" />
+									<SelectValue placeholder={t("filter_by_type")} />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="all">All Donors</SelectItem>
-									<SelectItem value="named">Named Donors</SelectItem>
-									<SelectItem value="anonymous">Anonymous Donors</SelectItem>
+									<SelectItem value="all">{t("all_donors")}</SelectItem>
+									<SelectItem value="named">{t("named_donors_filter")}</SelectItem>
+									<SelectItem value="anonymous">{t("anonymous_donors")}</SelectItem>
 								</SelectContent>
 							</Select>
 
 							{/* Sort Field */}
 							<Select value={sortField} onValueChange={(value: SortField) => setSortField(value)}>
 								<SelectTrigger>
-									<SelectValue placeholder="Sort by" />
+									<SelectValue placeholder={t("sort_by")} />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="date">Date</SelectItem>
-									<SelectItem value="amount">Amount</SelectItem>
-									<SelectItem value="name">Name</SelectItem>
+									<SelectItem value="date">{t("date")}</SelectItem>
+									<SelectItem value="amount">{t("amount")}</SelectItem>
+									<SelectItem value="name">{t("name")}</SelectItem>
 								</SelectContent>
 							</Select>
 
@@ -248,7 +250,7 @@ export default function DonorsPageClient() {
 							>
 								<ArrowUpDown className="w-4 h-4" />
 								{sortDirection === "asc" ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />}
-								{sortDirection === "asc" ? "Ascending" : "Descending"}
+								{sortDirection === "asc" ? t("ascending") : t("descending")}
 							</Button>
 						</div>
 					</CardContent>
@@ -256,14 +258,14 @@ export default function DonorsPageClient() {
 
 				{/* Results Count */}
 				<div className="mb-4 text-gray-600">
-					Showing {donors.length} of {pagination.total} donors (Page {currentPage} of {pagination.pages})
+					{t("showing_donors", { showing: donors.length, total: pagination.total, page: currentPage, pages: pagination.pages })}
 				</div>
 
 				{/* Donors List */}
 				<Card className="bg-white">
 					<CardHeader>
 						<div className="flex justify-between items-center">
-							<CardTitle className="text-xl font-semibold">Donors List</CardTitle>
+							<CardTitle className="text-xl font-semibold">{t("donors_list")}</CardTitle>
 							
 							{/* Top Pagination */}
 							{pagination.pages > 1 && (
@@ -275,7 +277,7 @@ export default function DonorsPageClient() {
 										size="sm"
 									>
 										<ChevronLeft className="w-4 h-4" />
-										<span className="hidden sm:inline">Previous</span>
+										<span className="hidden sm:inline">{t("previous")}</span>
 									</Button>
 									
 									<div className="flex items-center gap-1 hidden sm:flex">
@@ -311,7 +313,7 @@ export default function DonorsPageClient() {
 										variant="outline"
 										size="sm"
 									>
-										<span className="hidden sm:inline">Next</span>
+										<span className="hidden sm:inline">{t("next")}</span>
 										<ChevronRight className="w-4 h-4" />
 									</Button>
 								</div>
@@ -322,8 +324,8 @@ export default function DonorsPageClient() {
 						{donors.length === 0 ? (
 							<div className="text-center py-12 text-gray-500">
 								<Heart className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-								<p className="text-lg">No donors found</p>
-								<p className="text-sm">Try adjusting your search or filters</p>
+								<p className="text-lg">{t("no_donors_found")}</p>
+								<p className="text-sm">{t("try_adjusting_search")}</p>
 							</div>
 						) : (
 							<>
@@ -331,10 +333,10 @@ export default function DonorsPageClient() {
 									<table className="w-full">
 										<thead>
 											<tr className="border-b border-gray-200">
-												<th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Donor</th>
-												<th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Amount</th>
-												<th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 hidden sm:table-cell">Date</th>
-												<th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 hidden sm:table-cell">Message</th>
+												<th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">{t("donor")}</th>
+												<th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">{t("amount")}</th>
+												<th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 hidden sm:table-cell">{t("date")}</th>
+												<th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 hidden sm:table-cell">{t("message")}</th>
 											</tr>
 										</thead>
 										<tbody>
@@ -347,7 +349,7 @@ export default function DonorsPageClient() {
 																<div>
 																	<p className="font-medium text-gray-900">{donor.name}</p>
 																	{donor.isAnonymous && (
-																		<p className="text-xs text-gray-500">Anonymous</p>
+																		<p className="text-xs text-gray-500">{t("anonymous")}</p>
 																	)}
 																</div>
 															</div>
@@ -378,7 +380,7 @@ export default function DonorsPageClient() {
 															<td colSpan={2} className="py-3 px-4 pt-0 text-sm text-gray-600">
 																<div className="pl-6 border-l-2 border-gray-200 ml-4">
 																	<div className="bg-gray-50 rounded-r p-3 -ml-px">
-																		<span className="font-medium text-gray-700 text-xs block mb-1">Message:</span>
+																		<span className="font-medium text-gray-700 text-xs block mb-1">{t("message")}:</span>
 																		<div className="text-gray-600">{donor.message}</div>
 																	</div>
 																</div>
@@ -395,7 +397,7 @@ export default function DonorsPageClient() {
 								{pagination.pages > 1 && (
 									<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-6 pt-6 border-t border-gray-200">
 										<div className="text-sm text-gray-600 text-center sm:text-left">
-											Showing {((currentPage - 1) * pagination.limit) + 1} to {Math.min(currentPage * pagination.limit, pagination.total)} of {pagination.total} donors
+											{t("showing_range", { from: ((currentPage - 1) * pagination.limit) + 1, to: Math.min(currentPage * pagination.limit, pagination.total), total: pagination.total })}
 										</div>
 										<div className="flex items-center justify-between sm:justify-end gap-2">
 											<Button
@@ -405,7 +407,7 @@ export default function DonorsPageClient() {
 												size="sm"
 											>
 												<ChevronLeft className="w-4 h-4" />
-												<span className="hidden sm:inline">Previous</span>
+												<span className="hidden sm:inline">{t("previous")}</span>
 											</Button>
 											
 											<div className="flex items-center gap-1 hidden sm:flex">
@@ -441,7 +443,7 @@ export default function DonorsPageClient() {
 												variant="outline"
 												size="sm"
 											>
-												<span className="hidden sm:inline">Next</span>
+												<span className="hidden sm:inline">{t("next")}</span>
 												<ChevronRight className="w-4 h-4" />
 											</Button>
 										</div>
