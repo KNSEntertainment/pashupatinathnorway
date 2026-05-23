@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { Calendar, MapPin, Clock, Users, ArrowLeft, Share2 } from "lucide-react";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
+import UniversalLoader from "@/components/ui/UniversalLoader";
 
 interface Event {
   _id: string;
@@ -74,7 +75,7 @@ export default function EventDetailPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-700"></div>
+        <UniversalLoader size="lg" variant="spinner" text="Loading event details..." />
       </div>
     );
   }

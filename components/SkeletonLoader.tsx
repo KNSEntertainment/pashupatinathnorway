@@ -1,7 +1,7 @@
 "use client";
 
 interface SkeletonLoaderProps {
-  type: "hero" | "about" | "blogs" | "gallery" | "events" | "newsletter";
+  type: "hero" | "about" | "gallery" | "events" | "newsletter";
 }
 
 export default function SkeletonLoader({ type }: SkeletonLoaderProps) {
@@ -46,27 +46,7 @@ export default function SkeletonLoader({ type }: SkeletonLoaderProps) {
           </section>
         );
 
-      case "blogs":
-        return (
-          <section className="py-16">
-            <div className="container mx-auto px-6">
-              <div className="h-12 bg-gray-200 rounded w-1/3 mb-8 animate-pulse" />
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="bg-white rounded-lg shadow-lg overflow-hidden animate-pulse">
-                    <div className="h-48 bg-gray-200" />
-                    <div className="p-6 space-y-3">
-                      <div className="h-4 bg-gray-200 rounded w-3/4" />
-                      <div className="h-4 bg-gray-200 rounded w-full" />
-                      <div className="h-4 bg-gray-200 rounded w-5/6" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-        );
-
+      
       case "gallery":
         return (
           <section className="py-16">

@@ -6,6 +6,7 @@ import { Calendar, MapPin, Clock, Users, Ticket, ArrowRight, CreditCard, Star } 
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import UniversalLoader from "@/components/ui/UniversalLoader";
 
 interface Event {
   _id: string;
@@ -96,7 +97,7 @@ export default function MemberEventsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-700"></div>
+        <UniversalLoader size="lg" variant="spinner" text="Loading your events..." />
       </div>
     );
   }

@@ -3,6 +3,7 @@
 import { useMembershipData } from "@/hooks/useMembershipData";
 import ExecutiveFinancialSummary from "@/components/executive/ExecutiveFinancialSummary";
 import { Shield, AlertCircle } from "lucide-react";
+import UniversalLoader from "@/components/ui/UniversalLoader";
 
 export default function FinancialsPage() {
   const { isExecutive, loading } = useMembershipData();
@@ -10,10 +11,7 @@ export default function FinancialsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
+        <UniversalLoader size="lg" variant="spinner" text="Loading financial data..." />
       </div>
     );
   }

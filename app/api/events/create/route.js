@@ -36,9 +36,6 @@ export async function POST(request) {
 			return NextResponse.json({ success: false, error: "Invalid file upload for eventposter" }, { status: 400 });
 		}
 
-		const eventposter2 = formData.get("eventposter2");
-		const eventposter3 = formData.get("eventposter3");
-		const eventvideo = formData.get("eventvideo");
 
 		// Validate input
 		if (!eventname || !eventposter) {
@@ -50,9 +47,6 @@ export async function POST(request) {
 
 		// Upload images to Cloudinary
 		const eventposterUrl = await uploadToCloudinary(eventposter, "rspnorway_event_images");
-		const eventposter2Url = eventposter2 ? await uploadToCloudinary(eventposter2, "rspnorway_event_images") : null;
-		const eventposter3Url = eventposter3 ? await uploadToCloudinary(eventposter3, "rspnorway_event_images") : null;
-		const eventvideoUrl = eventvideo ? await uploadToCloudinary(eventvideo, "rspnorway_event_images") : null;
 
 		// Save event to MongoDB
 		console.log("Creating event in database");
@@ -63,9 +57,6 @@ export async function POST(request) {
 			eventdate: formattedDate,
 			eventtime,
 			eventposterUrl,
-			eventposter2Url,
-			eventposter3Url,
-			eventvideoUrl,
 			// New pricing and registration fields
 			memberPrice: memberPrice ? parseFloat(memberPrice) : 0,
 			guestPrice: guestPrice ? parseFloat(guestPrice) : 0,

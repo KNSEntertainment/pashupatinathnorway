@@ -118,7 +118,7 @@ export default function CustomCaptcha({ onVerify, onCaptchaChange, className = "
           value={userInput}
           onChange={(e) => handleInputChange(e.target.value)}
           placeholder="Enter your answer"
-          className={`w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${
+          className={`w-full md:w-64 px-4 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${
             error
               ? "border-red-300 focus:ring-red-500 focus:border-red-500"
               : verified

@@ -3,7 +3,6 @@ import connectDB from "@/lib/mongodb";
 import User from "@/models/User.Model";
 import Donation from "@/models/Donation.Model";
 import Event from "@/models/Event.Model";
-import Blog from "@/models/Blog.Model";
 import Membership from "@/models/Membership.Model";
 import Expense from "@/models/Expense.Model";
 import Income from "@/models/Income.Model";
@@ -27,7 +26,6 @@ export async function GET() {
       totalMembers,
       totalDonations,
       totalEvents,
-      totalBlogs,
       totalSubscribers,
       totalMessages,
       totalAttendance
@@ -36,7 +34,6 @@ export async function GET() {
       Membership.countDocuments(),
       Donation.countDocuments(),
       Event.countDocuments(),
-      Blog.countDocuments(),
       Subscriber.countDocuments(),
       Message.countDocuments(),
       Attendance.countDocuments()
@@ -179,7 +176,6 @@ export async function GET() {
         totalMembers,
         totalDonations,
         totalEvents,
-        totalBlogs,
         totalSubscribers,
         totalMessages,
         totalAttendance

@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, Package, ArrowLeft, Home, Mail } from 'lucide-react';
+import UniversalLoader from '@/components/ui/UniversalLoader';
 
 interface OrderItem {
 	productSnapshot: {
@@ -72,10 +73,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ params }) => {
 		return (
 			<div className="container mx-auto px-4 py-8">
 				<div className="flex items-center justify-center min-h-[60vh]">
-					<div className="text-center">
-						<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-						<p>Processing your order...</p>
-					</div>
+					<UniversalLoader size="lg" variant="spinner" text="Processing your order..." />
 				</div>
 			</div>
 		);

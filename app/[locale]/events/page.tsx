@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Calendar, MapPin, Clock, Users, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
+import UniversalLoader from "@/components/ui/UniversalLoader";
 
 interface Event {
   _id: string;
@@ -67,7 +68,7 @@ export default function EventsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-700"></div>
+        <UniversalLoader size="lg" variant="spinner" text="Loading events..." />
       </div>
     );
   }

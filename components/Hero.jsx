@@ -20,7 +20,7 @@ export default function FullWidthHero() {
 			primaryButton: "Become a Member",
 			secondaryLink: "/donate",
 			secondaryButton: "Donate",
-			image: "/pashupatinathcover.png"
+			image: "/pashupaticover.png"
 		}
 	]);
 	const [loading] = useState(false);
@@ -63,7 +63,7 @@ export default function FullWidthHero() {
 				{/* Background Layer */}
 					<div key={currentSlide} className="absolute inset-0 z-0">
 						<Image 
-							src={slides[currentSlide]?.image || "/pashupatinathcover.png"} 
+							src={slides[currentSlide]?.image || "/pashupaticover.webp"} 
 							alt="Background" 
 							fill 
 							className="object-cover object-top" 

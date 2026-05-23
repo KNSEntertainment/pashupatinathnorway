@@ -1,9 +1,9 @@
-
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import UniversalLoader from "@/components/ui/UniversalLoader";
 
 // Dynamically import the message components to avoid SSR issues
 const MessageInbox = dynamic(() => import("@/components/messages/MessageInboxNew"), { ssr: false });
@@ -290,7 +290,7 @@ export default function MessagesPage() {
   if (status === "loading" || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-600"></div>
+        <UniversalLoader size="lg" variant="spinner" text="Loading messages..." />
       </div>
     );
   }

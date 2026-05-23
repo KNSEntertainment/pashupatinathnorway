@@ -1,7 +1,6 @@
 // components/membership/AddressField.tsx
 "use client";
 import { useRef } from "react";
-import { LocateIcon } from "lucide-react";
 import { AddressSuggestion } from "@/components/membership/types/membership";
 import { FormField, StyledInput } from "./FormField";
 
@@ -14,12 +13,6 @@ interface AddressFieldProps {
 	suggestions: AddressSuggestion[];
 	activeSuggestionIndex: number;
 	onSelectSuggestion: (item: AddressSuggestion) => void;
-	addressLoading: boolean;
-	locating: boolean;
-	onUseLocation: (callback: (data: { address: string; city: string; postalCode: string }) => void) => void;
-	onLocationResult: (data: { address: string; city: string; postalCode: string }) => void;
-	locatingLabel: string;
-	useCurrentLocationLabel: string;
 
 	// City / postal
 	city: string;
@@ -43,8 +36,6 @@ interface AddressFieldProps {
 export function AddressField({
 	address, addressError, onAddressChange, onAddressKeyDown,
 	suggestions, activeSuggestionIndex, onSelectSuggestion,
-	addressLoading, locating, onUseLocation, onLocationResult,
-	locatingLabel, useCurrentLocationLabel,
 	city, cityError, postalCode, postalCodeError,
 	bydel, kommune, fylke, onFieldChange,
 	streetAddressLabel, streetAddressPlaceholder,
@@ -74,26 +65,6 @@ export function AddressField({
 							placeholder={streetAddressPlaceholder}
 							autoComplete="off"
 						/>
-						<div className="mt-2">
-							<button
-								type="button"
-								onClick={() => onUseLocation(onLocationResult)}
-								disabled={locating}
-								className={`text-sm font-medium px-3 py-1.5 rounded border border-light hover:bg-light transition-colors ${locating ? "opacity-60 cursor-not-allowed" : ""}`}
-							>
-								{locating ? (
-									locatingLabel
-								) : (
-									<div className="flex items-center">
-										<LocateIcon className="w-4 h-4 mr-1 text-blue-600" />
-										{useCurrentLocationLabel}
-									</div>
-								)}
-							</button>
-						</div>
-						{addressLoading && (
-							<div className="absolute right-3 top-2.5 text-xs text-gray-500">Loading…</div>
-						)}
 
 						{/* Suggestions dropdown */}
 						{suggestions.length > 0 && (
@@ -144,16 +115,18 @@ export function AddressField({
 			</FormField>
 
 			{/* City */}
-			<FormField label={cityLabel} required error={cityError}>
-				<StyledInput
-					type="text"
+			{cityLabel && (
+				<FormField label={cityLabel} required error={cityError}>
+					<StyledInput
+						type="text"
 					name="city"
 					value={city}
 					onChange={onFieldChange}
 					hasError={!!cityError}
 					placeholder={cityPlaceholder}
-				/>
-			</FormField>
+					/>
+				</FormField>
+			)}
 
 			{/* Bydel */}
 			<FormField label="Bydel (Borough/District)">

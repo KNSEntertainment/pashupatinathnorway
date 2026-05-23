@@ -496,6 +496,7 @@ export default async function TermsAndConditionsPage() {
           {/* ── Section 2 ── */}
           <Section number="2" title="The Parties">
               The seller and buyer details are as follows:
+
             <div className="contact-card">
               <strong>{orgName}</strong>
               <span>

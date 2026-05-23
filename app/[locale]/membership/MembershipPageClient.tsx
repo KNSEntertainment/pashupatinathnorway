@@ -8,6 +8,7 @@ import { ChevronDown, Users } from "lucide-react";
 import { MembershipTranslations } from "@/components/membership/types/membership";
 import { useMembershipForm } from "@/app/[locale]/membership/hooks/useMembershipForm";
 import { useOTPVerification } from "@/app/[locale]/membership/hooks/useOTPVerification";
+import UniversalLoader from "@/components/ui/UniversalLoader";
 import { useAddressAutocomplete } from "@/app/[locale]/membership/hooks/useAddressAutocomplete";
 import { OTPModal } from "@/components/membership/OTPModal";
 import { SuccessModal } from "@/components/membership/SuccessModal";
@@ -265,10 +266,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 											)}
 											{otp.otpSending && (
 												<div className="absolute right-3 top-2.5">
-													<svg className="w-5 h-5 animate-spin text-gray-400" fill="none" viewBox="0 0 24 24">
-														<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-														<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-													</svg>
+													<UniversalLoader size="sm" variant="spinner" showLogo={false} />
 												</div>
 											)}
 										</div>
@@ -330,14 +328,10 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 									suggestions={address.suggestions}
 									activeSuggestionIndex={address.activeSuggestionIndex}
 									onSelectSuggestion={address.applySuggestion}
-									addressLoading={address.loading}
-									locating={address.locating}
-									onUseLocation={address.useCurrentLocation}
-									onLocationResult={form.applyLocationResult}
-									locatingLabel={t.locating}
-									useCurrentLocationLabel={t.use_current_location}
-									city={form.formData.city}
-									cityError={form.errors.city}
+																		city=""
+									cityError=""
+									cityLabel=""
+									cityPlaceholder=""
 									postalCode={form.formData.postalCode}
 									postalCodeError={form.errors.postalCode}
 									bydel={form.formData.bydel}
@@ -346,9 +340,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 									onFieldChange={form.handleChange}
 									streetAddressLabel={t.street_address}
 									streetAddressPlaceholder={t.street_address_ph}
-									cityLabel={t.city}
-									cityPlaceholder={t.city_ph}
-									postalCodeLabel={t.postal_code}
+																		postalCodeLabel={t.postal_code}
 									postalCodePlaceholder={t.postal_code_ph}
 								/>
 							</section>
@@ -362,7 +354,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 							</section>
 
 							{/* ── Terms ── */}
-							<div className="bg-light rounded-lg p-2 md:p-6">
+							<div className="rounded-lg p-2 md:p-6">
 								<label className="flex items-start cursor-pointer">
 									<input
 										type="checkbox"

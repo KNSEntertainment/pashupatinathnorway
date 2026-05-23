@@ -16,7 +16,7 @@ export const ActiveMenuProvider = ({ children }) => {
 
 	useEffect(() => {
 		// Extract menu id from pathname
-		// e.g. /dashboard/blogs => blogs, /dashboard => dashboard
+		// e.g. /dashboard/events => events, /dashboard => dashboard
 		let menuId = "dashboard";
 		if (pathname.startsWith("/en/dashboard")) {
 			const parts = pathname.split("/").filter(Boolean); // removes empty

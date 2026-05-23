@@ -79,24 +79,7 @@ export async function PUT(request, { params }) {
 		};
 
 		await handleUpload("eventposter", "eventposterUrl");
-		await handleUpload("eventposter2", "eventposter2Url");
-		await handleUpload("eventposter3", "eventposter3Url");
-		await handleUpload("eventvideo", "eventvideoUrl");
 
-		const removeEventPoster2 = formData.get("removeEventPoster2") === "true";
-		const removeEventPoster3 = formData.get("removeEventPoster3") === "true";
-
-		const handleRemove = async (removeFlag, urlField) => {
-			if (!removeFlag) return;
-			if (eventData[urlField]) return;
-			if (event[urlField]) {
-				eventData[urlField] = null;
-				urlsToDelete.push(event[urlField]);
-			}
-		};
-
-		await handleRemove(removeEventPoster2, "eventposter2Url");
-		await handleRemove(removeEventPoster3, "eventposter3Url");
 
 		const updatedEvent = await Event.findByIdAndUpdate(eventId, eventData, { new: true });
 
@@ -134,9 +117,6 @@ export async function DELETE(request, { params }) {
 
 		// Delete images from Cloudinary
 		if (event.eventposterUrl) await deleteFromCloudinary(event.eventposterUrl);
-		if (event.eventposter2Url) await deleteFromCloudinary(event.eventposter2Url);
-		if (event.eventposter3Url) await deleteFromCloudinary(event.eventposter3Url);
-		if (event.eventvideoUrl) await deleteFromCloudinary(event.eventvideoUrl);
 
 		return NextResponse.json({ success: true, message: "Event deleted successfully" }, { status: 200 });
 	} catch (error) {

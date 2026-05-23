@@ -8,6 +8,7 @@ import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import UniversalLoader from '@/components/ui/UniversalLoader';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'react-hot-toast';
@@ -486,17 +487,8 @@ const StorePage: React.FC<StorePageProps> = () => {
 
 			{/* Products Grid */}
 			{loading ? (
-				<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-					{[...Array(8)].map((_, i) => (
-						<div key={i} className="animate-pulse">
-							<div className="bg-gray-200 aspect-square rounded-sm mb-4"></div>
-							<div className="space-y-2">
-								<div className="h-4 bg-gray-200 rounded"></div>
-								<div className="h-4 bg-gray-200 rounded w-3/4"></div>
-								<div className="h-8 bg-gray-200 rounded"></div>
-							</div>
-						</div>
-					))}
+				<div className="flex items-center justify-center min-h-[60vh]">
+					<UniversalLoader size="lg" variant="dots" text="Loading products..." />
 				</div>
 			) : products.length === 0 ? (
 				<div className="text-center py-12">

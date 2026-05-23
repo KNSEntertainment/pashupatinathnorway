@@ -22,7 +22,6 @@ export function useAddressAutocomplete({ address, onApply }: UseAddressAutocompl
   const [loading] = useState(false);
   const [error, setError] = useState("");
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
-  const [locating] = useState(false);
   const lastAppliedAddress = useRef("");
 
   useEffect(() => {
@@ -56,10 +55,6 @@ export function useAddressAutocomplete({ address, onApply }: UseAddressAutocompl
     }
   };
 
-  const useCurrentLocation = () => {
-    setError("Address lookup is not available.");
-    return;
-  };
 
   const clearError = () => setError("");
 
@@ -68,10 +63,8 @@ export function useAddressAutocomplete({ address, onApply }: UseAddressAutocompl
     loading,
     error,
     activeSuggestionIndex,
-    locating,
     applySuggestion,
     handleKeyDown,
-    useCurrentLocation,
     clearError,
   };
 }

@@ -7,9 +7,6 @@ const eventSchema = new mongoose.Schema({
 	eventdate: { type: String, required: false },
 	eventtime: { type: String, required: false },
 	eventposterUrl: { type: String, required: true },
-	eventposter2Url: { type: String, required: false },
-	eventposter3Url: { type: String, required: false },
-	eventvideoUrl: { type: String, required: false },
 	// New fields for registration and pricing
 	memberPrice: { type: Number, default: 0 },
 	guestPrice: { type: Number, default: 0 },

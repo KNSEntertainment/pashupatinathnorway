@@ -33,7 +33,6 @@ interface DashboardStats {
     totalMembers: number;
     totalDonations: number;
     totalEvents: number;
-    totalBlogs: number;
     totalSubscribers: number;
     totalMessages: number;
     totalAttendance: number;
