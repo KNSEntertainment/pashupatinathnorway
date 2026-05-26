@@ -11,7 +11,6 @@ import {
   DollarSign,
   TrendingDown,
   Calendar,
-  CreditCard,
   FileText,
   Filter,
   Receipt,
@@ -32,7 +31,7 @@ interface Budget {
 
 interface Expense {
   _id?: string;
-  eventId: string | null;
+  eventId: string | Event | null;
   title: string;
   amount: number;
   expenseCategory: string;
@@ -405,7 +404,7 @@ export default function ExpenseManagement() {
                   Event
                 </label>
                 <select
-                  value={formData.eventId || ""}
+                  value={typeof formData.eventId === 'string' ? formData.eventId : ''}
                   onChange={(e) => setFormData({ ...formData, eventId: e.target.value || null })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
@@ -513,8 +512,6 @@ export default function ExpenseManagement() {
               <tr>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Title</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Event</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Category</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Payment Method</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Amount</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Date</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Receipt</th>
@@ -533,25 +530,14 @@ export default function ExpenseManagement() {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    {expense.event ? (
+                    {expense.eventId && typeof expense.eventId === 'object' && 'eventname' in expense.eventId ? (
                       <div>
-                        <p className="font-medium text-gray-900">{expense.event.eventname}</p>
-                        <p className="text-sm text-gray-500">{expense.event.eventdate}</p>
+                        <p className="font-medium text-gray-900">{expense.eventId.eventname}</p>
+                        <p className="text-sm text-gray-500">{expense.eventId.eventdate}</p>
                       </div>
                     ) : (
                       <span className="text-gray-400">No Event</span>
                     )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded">
-                      {expense.expenseCategory}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <CreditCard size={16} className="text-gray-400" />
-                      <span className="text-sm text-gray-600">{expense.paymentMethod || "N/A"}</span>
-                    </div>
                   </td>
                   <td className="px-4 py-3 font-medium text-red-600">
                     kr{expense.amount.toLocaleString()}

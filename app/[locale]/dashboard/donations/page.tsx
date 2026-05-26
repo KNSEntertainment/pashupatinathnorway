@@ -154,14 +154,12 @@ export default function DonationsManagement() {
 	const filteredDonations = donations.filter((donation) => {
 		const searchLower = searchTerm.toLowerCase();
 		const donorName = donation.isAnonymous ? "anonymous" : donation.donorName.toLowerCase();
-		const donorEmail = donation.donorEmail.toLowerCase();
 		const message = donation.message?.toLowerCase() || "";
 		const donorPhone = donation.donorPhone?.toLowerCase() || "";
 		const address = donation.address?.toLowerCase() || "";
 
 		return (
 			donorName.includes(searchLower) ||
-			donorEmail.includes(searchLower) ||
 			message.includes(searchLower) ||
 			donorPhone.includes(searchLower) ||
 			address.includes(searchLower)
@@ -309,7 +307,6 @@ export default function DonationsManagement() {
 														{donation.donorPhone && <p>📱 {donation.donorPhone}</p>}
 														{donation.address && <p>📍 {donation.address}</p>}
 														<p>🕒 {formatDate(donation.createdAt)}</p>
-														{donation.donorEmail && <p>✉️ {donation.donorEmail}</p>}
 													</div>
 												</div>
 											</td>

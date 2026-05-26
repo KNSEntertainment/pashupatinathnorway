@@ -16,12 +16,29 @@ export async function GET(request: Request) {
 		await connectDB();
 		const { searchParams } = new URL(request.url);
 		const period = searchParams.get("period") || "all"; // all, 1month, 3months, 6months, 1year
+		const fromDate = searchParams.get("from");
+		const toDate = searchParams.get("to");
 
-		// Build date filter based on period
+		// Build date filter based on period or custom dates
 		let dateFilter = {};
 		const now = new Date();
 
-		if (period !== "all") {
+		if (fromDate && toDate) {
+			// Handle custom date range
+			const from = new Date(fromDate);
+			const to = new Date(toDate);
+			
+			// Validate dates
+			if (isNaN(from.getTime()) || isNaN(to.getTime())) {
+				return NextResponse.json({ error: "Invalid date format" }, { status: 400 });
+			}
+			
+			// Set end of day for to date
+			to.setHours(23, 59, 59, 999);
+			
+			dateFilter = { $gte: from, $lte: to };
+		} else if (period !== "all") {
+			// Handle preset periods
 			switch (period) {
 				case "1month":
 					dateFilter = { $gte: new Date(now.getFullYear(), now.getMonth(), 1) };

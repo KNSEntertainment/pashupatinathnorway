@@ -101,11 +101,44 @@ export default function GlobalFinancialDashboard() {
   const [report, setReport] = useState<OverallReport | null>(null);
   const [loading, setLoading] = useState(false);
   const [period, setPeriod] = useState("all");
+  const [showCustomDateRange, setShowCustomDateRange] = useState(false);
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
 
-  const fetchReport = useCallback(async () => {
+  const convertToISODate = (dateString: string) => {
+    if (!dateString) return '';
+    const parts = dateString.split('/');
+    if (parts.length !== 3) {
+      console.error('Invalid date format:', dateString);
+      return '';
+    }
+    
+    const day = parts[0].padStart(2, '0');
+    const month = parts[1].padStart(2, '0');
+    const year = parts[2];
+    
+    const isoDate = `${year}-${month}-${day}`;
+    console.log('Converting date:', dateString, '->', isoDate);
+    return isoDate;
+  };
+
+  const fetchReport = useCallback(async (customFromDate?: string, customToDate?: string) => {
     try {
       setLoading(true);
-      const url = `/api/reports/overall${period !== "all" ? `?period=${period}` : ""}`;
+      let url = '/api/reports/overall';
+      
+      if (customFromDate && customToDate) {
+        const isoFromDate = convertToISODate(customFromDate);
+        const isoToDate = convertToISODate(customToDate);
+        url += `?from=${isoFromDate}&to=${isoToDate}`;
+        console.log('Custom date range URL:', url);
+        console.log('Original dates:', customFromDate, customToDate);
+        console.log('ISO dates:', isoFromDate, isoToDate);
+      } else if (period !== "all") {
+        url += `?period=${period}`;
+        console.log('Period URL:', url);
+      }
+      
       const response = await fetch(url);
       if (!response.ok) throw new Error("Failed to fetch report");
       const data = await response.json();
@@ -120,14 +153,54 @@ export default function GlobalFinancialDashboard() {
   }, [period]);
 
   useEffect(() => {
-    fetchReport();
-  }, [fetchReport]);
+    if (period !== 'custom') {
+      fetchReport();
+    }
+  }, [fetchReport, period]);
+
+  const handleCustomDateRange = () => {
+    if (period === 'custom') {
+      setShowCustomDateRange(true);
+    } else {
+      setShowCustomDateRange(false);
+      setFromDate('');
+      setToDate('');
+    }
+  };
+
+  useEffect(() => {
+    handleCustomDateRange();
+  }, [period, handleCustomDateRange]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('nb-NO', {
       style: 'currency',
       currency: 'NOK',
     }).format(amount);
+  };
+
+  const handleDateInput = (value: string, type: 'from' | 'to') => {
+    let formatted = value.replace(/\D/g, ''); // Remove non-digits
+    
+    if (formatted.length >= 2 && formatted.length <= 4) {
+      formatted = formatted.slice(0, 2) + '/' + formatted.slice(2);
+    } else if (formatted.length > 4) {
+      formatted = formatted.slice(0, 2) + '/' + formatted.slice(2, 4) + '/' + formatted.slice(4, 8);
+    }
+    
+    if (type === 'from') {
+      setFromDate(formatted);
+    } else {
+      setToDate(formatted);
+    }
+  };
+
+  const handleShowReport = () => {
+    if (fromDate && toDate) {
+      fetchReport(fromDate, toDate);
+    } else {
+      toast.error('Please select both from and to dates');
+    }
   };
 
   const formatMonth = (year: number, month: number) => {
@@ -178,6 +251,7 @@ export default function GlobalFinancialDashboard() {
             <option value="3months">Last 3 Months</option>
             <option value="6months">Last 6 Months</option>
             <option value="1year">Last Year</option>
+            <option value="custom">Custom Date Range</option>
           </select>
           <button
             onClick={exportReport}
@@ -189,6 +263,44 @@ export default function GlobalFinancialDashboard() {
           </button>
         </div>
       </div>
+
+      {/* Custom Date Range Inputs */}
+      {showCustomDateRange && (
+        <div className="bg-white p-4 rounded-lg shadow border border-gray-200">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700">From:</label>
+              <input
+                type="text"
+                value={fromDate}
+                onChange={(e) => handleDateInput(e.target.value, 'from')}
+                placeholder="DD/MM/YYYY"
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-32"
+                maxLength={10}
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700">To:</label>
+              <input
+                type="text"
+                value={toDate}
+                onChange={(e) => handleDateInput(e.target.value, 'to')}
+                placeholder="DD/MM/YYYY"
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-32"
+                maxLength={10}
+              />
+            </div>
+            <button
+              onClick={handleShowReport}
+              disabled={!fromDate || !toDate || loading}
+              className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-300"
+            >
+              {loading ? <RefreshCw className="animate-spin" size={16} /> : null}
+              Show Report
+            </button>
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div className="flex items-center justify-center min-h-screen">
@@ -263,13 +375,13 @@ export default function GlobalFinancialDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-500 text-sm">Profit/Loss</p>
-                  <p className={`text-2xl font-bold ${getProfitLossColor(report.summary.totalProfitLoss)}`}>
-                    {formatCurrency(report.summary.totalProfitLoss)}
+                  <p className={`text-2xl font-bold ${getProfitLossColor((report.summary.totalIncome + report.summary.totalDonations) - report.summary.totalExpenses)}`}>
+                    {formatCurrency((report.summary.totalIncome + report.summary.totalDonations) - report.summary.totalExpenses)}
                   </p>
                 </div>
-                {React.createElement(getProfitLossIcon(report.summary.totalProfitLoss), {
+                {React.createElement(getProfitLossIcon((report.summary.totalIncome + report.summary.totalDonations) - report.summary.totalExpenses), {
                   size: 24,
-                  className: getProfitLossColor(report.summary.totalProfitLoss)
+                  className: getProfitLossColor((report.summary.totalIncome + report.summary.totalDonations) - report.summary.totalExpenses)
                 })}
               </div>
             </div>
