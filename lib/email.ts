@@ -281,7 +281,7 @@ export async function sendActiveMemberApprovalEmailEnglish({ name, email, setupT
 		from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER}>`,
 		to: email,
 		subject: "Congratulations! You are now an Active Member - Pashupatinath Norway Temple",
-			text: `Hello ${name},\n\nCongratulations! Your membership has been approved and you are now an <strong>Active Member</strong> of Pashupatinath Norway Temple!${familyMembersText}\n\nYour application has been reviewed and approved by our admin team. You now have full access to all member benefits and can participate actively in our temple activities.\n\nPlease set your password by clicking the link below to access your member dashboard:\n${setupUrl}\n\nThis link is valid for 1 year.\n\nAs an Active Member, you can:\n• Access your member dashboard\n• Update your profile information\n• Participate in temple events and cultural programs\n• Contribute to our temple construction mission\n• Connect with fellow Nepalese community members\n• Help preserve our cultural and religious heritage\n• Vote in community decisions\n• Access exclusive member resources\n\nWe are thrilled to have you as an Active Member of our sacred mission to build the first Nepali Hindu temple in Norway.\n\nBest regards,\nPashupatinath Temple Norway Team`,
+			text: `Hello ${name},\n\nCongratulations! Your membership has been approved and you are now an <strong>Active Member</strong> of Pashupatinath Norway Temple!${familyMembersText}\n\nYour application has been reviewed and approved by our admin team. You now have full access to all member benefits and can participate actively in our temple activities.\n\nPlease set your password by clicking the link below to access your member dashboard:\n${setupUrl}\n\nThis link is valid for 24 hours.\n\nAs an Active Member, you can:\n• Access your member dashboard\n• Update your profile information\n• Participate in temple events and cultural programs\n• Contribute to our temple construction mission\n• Connect with fellow Nepalese community members\n• Help preserve our cultural and religious heritage\n• Vote in community decisions\n• Access exclusive member resources\n\nWe are thrilled to have you as an Active Member of our sacred mission to build the first Nepali Hindu temple in Norway.\n\nBest regards,\nPashupatinath Temple Norway Team`,
 		html: `
 			<!DOCTYPE html>
 			<html>
@@ -324,7 +324,7 @@ export async function sendActiveMemberApprovalEmailEnglish({ name, email, setupT
 						</center>
 						<p>Or copy and paste this link in your browser:</p>
 						<p style="background: white; padding: 10px; border-radius: 5px; word-break: break-all;">${setupUrl}</p>
-						<p><strong>Note:</strong> This link is valid for 1 year. If it expires, please contact our support team.</p>
+						<p><strong>Note:</strong> This link is valid for 24 hours. If it expires, please contact our support team.</p>
 						
 						<div class="benefits-list">
 							<h4 style="margin: 0 0 20px 0;">🌟 Active Member Benefits:</h4>
@@ -456,7 +456,7 @@ export async function sendActiveMemberApprovalEmail({ name, email, setupToken, f
 						</center>
 						<p>वा यो लिंक आफ्नो ब्राउजरमा कपी गर्नुहोस्:</p>
 						<p style="background: white; padding: 10px; border-radius: 5px; word-break: break-all;">${setupUrl}</p>
-						<p><strong>नोट:</strong> यो लिंक १ वर्षको लागि मान्य छ। यो समय सकिएमा, कृपया हाम्रो समर्थन टोलीलाई सम्पर्क गर्नुहोस्।</p>
+						<p><strong>नोट:</strong> यो लिंक २४ घण्टाको लागि मान्य छ। यो समय सकिएमा, कृपया हाम्रो समर्थन टोलीलाई सम्पर्क गर्नुहोस्।</p>
 						
 						<div class="benefits-list">
 							<h4 style="margin: 0 0 20px 0;">🌟 सक्रिय सदस्य सुविधाहरू:</h4>
@@ -829,7 +829,7 @@ export async function sendOsloVerificationApprovalEmail({ name, email, setupToke
 						
 						<p><strong>आफ्नो खाता सुरु गर्नुहोस्:</strong></p>
 						<a href="${setupUrl}" class="button">पासवर्ड सेट गर्नुहोस्</a>
-						<p style="text-align: center; color: #666; font-size: 14px; margin-top: 10px;">यो लिंक १ वर्षको लागि मान्य छ</p>
+						<p style="text-align: center; color: #666; font-size: 14px; margin-top: 10px;">यो लिंक २४ घण्टाको लागि मान्य छ</p>
 						
 						<div class="features">
 							<h4 style="margin: 0 0 15px 0; color: #374151;">🌟 सदस्य लाभहरू:</h4>
@@ -935,7 +935,7 @@ export async function sendWelcomeEmail({ name, email, setupToken, familyMembers 
 						</center>
 						<p>वा यो लिंक आफ्नो ब्राउजरमा कपी गर्नुहोस्:</p>
 						<p style="background: white; padding: 10px; border-radius: 5px; word-break: break-all;">${setupUrl}</p>
-						<p><strong>नोट:</strong> यो लिंक १ वर्षको लागि मान्य छ। यो समय सकिएमा, कृपया हाम्रो समर्थन टोलीलाई सम्पर्क गर्नुहोस्।</p>
+						<p><strong>नोट:</strong> यो लिंक २४ घण्टाको लागि मान्य छ। यो समय सकिएमा, कृपया हाम्रो समर्थन टोलीलाई सम्पर्क गर्नुहोस्।</p>
 						<p>एकपटक तपाईंले आफ्नो पासवर्ड सेट गरेपछि, तपाईंले गर्न सक्नुहुन्छ:</p>
 						<ul>
 							<li>आफ्नो सदस्य ड्यासबोर्ड पहुँच गर्नुहोस्</li>

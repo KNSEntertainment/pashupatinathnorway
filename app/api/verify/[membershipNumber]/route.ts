@@ -61,15 +61,13 @@ export async function GET(
     // Check if membership is active
     const isActive = member.membershipStatus === 'approved';
     
-    // Calculate expiry date (1 year from creation)
+    // Membership never expires
     const issuedDate = new Date(member.createdAt);
-    const expiryDate = new Date(issuedDate);
-    expiryDate.setFullYear(expiryDate.getFullYear() + 1);
-    const isExpired = new Date() > expiryDate;
+    const isExpired = false;
 
     // Generate verification response
     const verificationData = {
-      valid: isActive && !isExpired,
+      valid: isActive,
       member: {
         memberId: member._id,
         membershipNumber: member._id.toString().slice(-6).toUpperCase(),
@@ -80,7 +78,6 @@ export async function GET(
         city: member.city,
         membershipStatus: member.membershipStatus,
         issuedDate: issuedDate.toISOString().split('T')[0],
-        expiryDate: expiryDate.toISOString().split('T')[0],
         photoUrl: member.profilePhoto || null
       },
       organization: {
@@ -235,8 +232,6 @@ export async function POST(
 
     // Return member verification data along with attendance confirmation
     const issuedDate = new Date(member.createdAt);
-    const expiryDate = new Date(issuedDate);
-    expiryDate.setFullYear(expiryDate.getFullYear() + 1);
 
     return NextResponse.json({
       success: true,
@@ -257,7 +252,6 @@ export async function POST(
         city: member.city,
         membershipStatus: member.membershipStatus,
         issuedDate: issuedDate.toISOString().split('T')[0],
-        expiryDate: expiryDate.toISOString().split('T')[0],
         photoUrl: member.profilePhoto || null
       },
       event: {

@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 
     for (const member of verifiedMembers) {
       const setupToken = crypto.randomBytes(32).toString('hex');
-      const setupTokenExpiry = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 year
+      const setupTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
       // Update member with approval status and setup token
       await Membership.updateOne(

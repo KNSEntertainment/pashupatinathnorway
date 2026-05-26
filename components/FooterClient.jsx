@@ -2,13 +2,12 @@
 
 "use client";
 import { MapPin, Mail, Phone, Facebook, ArrowUpRight } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 
 export default function FooterClient({ settings }) {
 	const t = useTranslations("footer");
-	const locale = useLocale();
 
 	return (
 		<footer className="relative bg-stone-950 text-white overflow-hidden">
@@ -41,7 +40,7 @@ export default function FooterClient({ settings }) {
 
 				{/* ── Top: Logo + tagline centred on mobile, left on desktop ── */}
 				<div className="flex flex-col mb-12">
-					<Link href="/" locale={locale} className="flex items-center gap-3 group mb-4">
+					<Link href="/" className="flex items-center gap-3 group mb-4">
 						<Image
 							src="/pashupatinath.png"
 							alt="Logo"
@@ -118,7 +117,7 @@ export default function FooterClient({ settings }) {
 							
 						</div>
 						<div className="mt-4">
-							<Link href="/en/membership-status" className="text-md text-stone-400 hover:text-amber-400 transition-colors duration-300">
+							<Link href="/membership-status" className="text-md text-stone-400 hover:text-amber-400 transition-colors duration-300">
 								{t("check_membership_status")}
 							</Link>
 						</div>
@@ -128,9 +127,9 @@ export default function FooterClient({ settings }) {
 					<div>
 						<SectionLabel>{t("about_us")}</SectionLabel>
 						<nav className="flex flex-col gap-3 mt-5">
-							<LegalLink href={`/${locale}/terms-and-conditions`} label={t("terms")} />
-							<LegalLink href={`/${locale}/privacy-policy`} label={t("privacy")} />
-							<LegalLink href={`/${locale}/sales-terms-and-conditions`} label={t("sales_terms")} />
+							<LegalLink href="/terms-and-conditions" label={t("terms")} />
+							<LegalLink href="/privacy-policy" label={t("privacy")} />
+							<LegalLink href="/sales-terms-and-conditions" label={t("sales_terms")} />
 						</nav>
 					</div>
 				</div>

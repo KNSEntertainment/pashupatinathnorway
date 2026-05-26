@@ -56,8 +56,12 @@ export async function POST(request: Request) {
 		const resetUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/en/reset-password?token=${resetToken}`;
 
 		// Send password reset email
+		const fullName = [member.firstName, member.middleName, member.lastName]
+			.filter(Boolean)
+			.join(' ');
+		
 		await sendPasswordResetEmail({ 
-			name: member.fullName, 
+			name: fullName, 
 			email, 
 			resetUrl,
 			userType: "member"

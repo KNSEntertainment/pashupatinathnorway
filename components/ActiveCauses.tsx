@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { formatNOK } from "@/lib/norwegianCurrency";
 import { useIsAdmin } from "@/utils/adminUtils";
 import DonationModal from "./DonationModal";
@@ -151,7 +151,7 @@ export default function ActiveCauses({ locale, onSupportCause }: ActiveCausesPro
 					{/* Admin-only Reports Link */}
 					{isAdmin && (
 						<div className="text-center mt-8 mb-12 md:mt-12 md:mb-20">
-							<Link href={`/${locale}/donate/reports`}>
+							<Link href="/donate/reports">
 								<button className="inline-flex items-center gap-2 text-brand_secondary hover:text-brand_secondary_light font-medium transition-colors duration-200">
 									{t("view_all_reports") || "View All Donation Reports"}
 									<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
