@@ -46,7 +46,7 @@ interface Income {
   };
 }
 
-const sourceTypes = ["donation", "membership", "registration", "sponsorship", "other"];
+const sourceTypes = ["donation", "membership", "registration", "sponsorship", "grants", "other"];
 const paymentMethods = ["cash", "bank_transfer", "stripe", "vipps", "paypal", "other"];
 
 export default function IncomeManagement() {
@@ -459,6 +459,7 @@ export default function IncomeManagement() {
               <tr>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Title</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Event</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Source Type</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Amount</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Date</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Reference</th>
@@ -485,6 +486,11 @@ export default function IncomeManagement() {
                     ) : (
                       <span className="text-gray-400">No Event</span>
                     )}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded">
+                      {income.sourceType ? income.sourceType.charAt(0).toUpperCase() + income.sourceType.slice(1) : 'N/A'}
+                    </span>
                   </td>
                   <td className="px-4 py-3 font-medium text-green-600">
                     kr{income.amount.toLocaleString()}

@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Calendar, MapPin, Clock, Users, Plus, Edit, Trash2, Search } from "lucide-react";
+import { Calendar, MapPin, Clock, Plus, Edit, Trash2, Search } from "lucide-react";
 import Image from "next/image";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import DashboardPageLayout from "@/components/layout/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,14 @@ interface Event {
   guestPrice?: number;
   maxAttendees?: number;
   registrationDeadline?: string;
+  festivalId?: string | {
+    _id: string;
+    title: {
+      en?: string;
+      no?: string;
+      ne?: string;
+    };
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -183,86 +191,131 @@ export default function EventsManagementPage() {
           </Button>
         </div>
 
-        {/* Events Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredEvents.map((event) => (
-            <Card key={event._id} className="overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="relative h-48 bg-gray-200">
-                <Image
-                  src={event.eventposterUrl || "/pashupatinath.png"}
-                  alt={event.eventname}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                />
-                <div className="absolute top-2 right-2">
-                  {getStatusBadge(event.eventdate)}
-                </div>
-              </div>
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="text-lg line-clamp-1">{event.eventname}</CardTitle>
-                    <div className="flex items-center gap-2 text-gray-600 text-sm mt-1">
-                      <Calendar className="w-4 h-4" />
-                      {new Date(event.eventdate).toLocaleDateString()}
-                    </div>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Clock className="w-4 h-4" />
-                    <span className="text-sm">{event.eventtime}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <MapPin className="w-4 h-4" />
-                    <span className="text-sm line-clamp-1">{event.eventvenue}</span>
-                  </div>
-                  {(event.memberPrice || event.guestPrice) && (
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <Users className="w-4 h-4" />
-                      <span className="text-sm">
-                        {event.memberPrice && `Member: ${event.memberPrice} NOK`}
-                        {event.memberPrice && event.guestPrice && " | "}
-                        {event.guestPrice && `Guest: ${event.guestPrice} NOK`}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                
-                {event.eventdescription && (
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                    {event.eventdescription}
-                  </p>
-                )}
-
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => {
-                      setEditingEvent(event);
-                      setShowEventForm(true);
-                    }}
-                  >
-                    <Edit className="w-4 h-4 mr-1" />
-                    Edit
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-red-600 hover:text-red-700 hover:border-red-300"
-                    onClick={() => handleDeleteEvent(event._id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        {/* Events Table */}
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-gray-50">
+                  <TableHead className="font-semibold text-gray-900">Event Name</TableHead>
+                  <TableHead className="font-semibold text-gray-900">Date</TableHead>
+                  <TableHead className="font-semibold text-gray-900">Time</TableHead>
+                  <TableHead className="font-semibold text-gray-900">Venue</TableHead>
+                  <TableHead className="font-semibold text-gray-900">Festival</TableHead>
+                  <TableHead className="font-semibold text-gray-900">Pricing</TableHead>
+                  <TableHead className="font-semibold text-gray-900">Status</TableHead>
+                  <TableHead className="font-semibold text-gray-900 text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredEvents.map((event) => (
+                  <TableRow key={event._id} className="hover:bg-gray-50">
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gray-200 rounded overflow-hidden flex-shrink-0">
+                          <Image
+                            src={event.eventposterUrl || "/pashupatinath.png"}
+                            alt={event.eventname}
+                            width={40}
+                            height={40}
+                            className="object-cover"
+                          />
+                        </div>
+                        <div>
+                          <div className="font-medium text-gray-900 line-clamp-1">
+                            {event.eventname}
+                          </div>
+                          {event.eventdescription && (
+                            <div className="text-sm text-gray-500 line-clamp-1 max-w-xs">
+                              {event.eventdescription}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2 text-gray-900">
+                        <Calendar className="w-4 h-4 text-gray-400" />
+                        {new Date(event.eventdate).toLocaleDateString()}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2 text-gray-900">
+                        <Clock className="w-4 h-4 text-gray-400" />
+                        <span className="text-sm">{event.eventtime || "Not set"}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2 text-gray-900">
+                        <MapPin className="w-4 h-4 text-gray-400" />
+                        <span className="text-sm line-clamp-1 max-w-xs">
+                          {event.eventvenue || "Not set"}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        {typeof event.festivalId === 'object' && event.festivalId?.title ? (
+                          <Badge 
+                            variant="outline" 
+                            className="text-xs"
+                          >
+                            {event.festivalId.title?.en || event.festivalId.title?.no || event.festivalId.title?.ne || 'Unknown Festival'}
+                          </Badge>
+                        ) : (
+                          <Badge 
+                            variant="outline" 
+                            className="text-xs text-gray-500"
+                          >
+                            General Event
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {(event.memberPrice || event.guestPrice) ? (
+                        <div className="text-sm">
+                          {event.memberPrice && (
+                            <div className="text-gray-900">Member: {event.memberPrice} NOK</div>
+                          )}
+                          {event.guestPrice && (
+                            <div className="text-gray-600">Guest: {event.guestPrice} NOK</div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-500">Free</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {getStatusBadge(event.eventdate)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center gap-2 justify-end">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setEditingEvent(event);
+                            setShowEventForm(true);
+                          }}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-red-600 hover:text-red-700 hover:border-red-300"
+                          onClick={() => handleDeleteEvent(event._id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
 
         {/* Empty State */}

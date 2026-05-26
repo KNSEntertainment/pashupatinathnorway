@@ -46,7 +46,7 @@ export default function FooterClient({ settings }) {
 							alt="Logo"
 							width={40}
 							height={40}
-							className="h-14 w-auto drop-shadow-[0_0_8px_rgba(251,191,36,0.4)] group-hover:drop-shadow-[0_0_14px_rgba(251,191,36,0.7)] transition-all duration-500"
+							className="h-14 w-auto"
 							priority
 						/>
 						<div className="flex flex-col leading-snug">

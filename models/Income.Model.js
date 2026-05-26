@@ -17,7 +17,7 @@ const IncomeSchema = new mongoose.Schema(
 		sourceType: {
 			type: String,
 			required: true,
-			enum: ["donation", "membership", "registration", "sponsorship", "other"],
+			enum: ["donation", "membership", "registration", "sponsorship", "grants", "events", "other"],
 		},
 		paymentMethod: {
 			type: String,

@@ -1,5 +1,5 @@
-import FestivalsAdmin from "@/components/admin/FestivalsAdmin";
+import FestivalForm from "@/components/admin/FestivalForm";
 
 export default function FestivalsPage() {
-  return <FestivalsAdmin />;
+  return <FestivalForm />;
 }

@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
 				stats: {
 					active_members: "200+",
 					months_active: "6+",
-					active_members_label: { en: "Active Members", no: "Aktive Medlemmer", ne: "सक्रिय सदस्यहरू" },
+					active_members_label: { en: "Members", no: "Medlemmer", ne: "सदस्यहरू" },
 					months_active_label: { en: "Months Active", no: "Måneder Aktiv", ne: "महिना सक्रिय" }
 				}
 			};
@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
 			stats: {
 				active_members: (aboutUsObj as AboutUsDocument).stats?.active_members || "200+",
 				months_active: (aboutUsObj as AboutUsDocument).stats?.months_active || "6+",
-				active_members_label: (aboutUsObj as AboutUsDocument).stats?.active_members_label?.[locale as keyof MultilingualField] || (aboutUsObj as AboutUsDocument).stats?.active_members_label?.en || "Active Members",
+				active_members_label: (aboutUsObj as AboutUsDocument).stats?.active_members_label?.[locale as keyof MultilingualField] || (aboutUsObj as AboutUsDocument).stats?.active_members_label?.en || "Members",
 				months_active_label: (aboutUsObj as AboutUsDocument).stats?.months_active_label?.[locale as keyof MultilingualField] || (aboutUsObj as AboutUsDocument).stats?.months_active_label?.en || "Months Active"
 			}
 		};

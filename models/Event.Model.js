@@ -7,6 +7,8 @@ const eventSchema = new mongoose.Schema({
 	eventdate: { type: String, required: false },
 	eventtime: { type: String, required: false },
 	eventposterUrl: { type: String, required: true },
+	// Festival linkage
+	festivalId: { type: mongoose.Schema.Types.ObjectId, ref: "Festivals", default: null }, // Direct reference to festival
 	// New fields for registration and pricing
 	memberPrice: { type: Number, default: 0 },
 	guestPrice: { type: Number, default: 0 },
@@ -21,4 +23,12 @@ const eventSchema = new mongoose.Schema({
 	createdAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.models.Event || mongoose.model("Event", eventSchema);
+// Clear the model cache to ensure schema changes take effect
+if (mongoose.models.Event) {
+  delete mongoose.models.Event;
+}
+if (mongoose.modelSchemas && mongoose.modelSchemas.Event) {
+  delete mongoose.modelSchemas.Event;
+}
+
+export default mongoose.model("Event", eventSchema);

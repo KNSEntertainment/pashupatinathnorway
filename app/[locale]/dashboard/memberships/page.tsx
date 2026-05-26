@@ -71,6 +71,15 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 
 
 
+const maskPersonalNumber = (personalNumber: string): string => {
+	if (!personalNumber || personalNumber.length < 5) {
+		return personalNumber || 'Not provided';
+	}
+	const visiblePart = personalNumber.slice(0, -5);
+	const maskedPart = '*****';
+	return visiblePart + maskedPart;
+};
+
 export default function MembershipsPage() {
 	const [activeTab, setActiveTab] = useState<"members" | "executive">("members");
 	const [search, setSearch] = useState("");
@@ -633,7 +642,10 @@ export default function MembershipsPage() {
 	};
 
 	const formatDateTime = (date: string) => {
-		return new Date(date).toLocaleString("en-US", {
+		if (!date) return 'Not available';
+		const dateObj = new Date(date);
+		if (isNaN(dateObj.getTime())) return 'Invalid date';
+		return dateObj.toLocaleString("en-US", {
 			year: "numeric",
 			month: "short",
 			day: "numeric",
@@ -1120,7 +1132,7 @@ disabled={passwordResetLoading.includes(member._id)}
 										</div>
 										<div>
 											<p className="text-sm text-gray-500">Personal Number</p>
-											<p className="font-medium">{viewingMember.personalNumber || 'Not provided'}</p>
+											<p className="font-medium">{maskPersonalNumber(viewingMember.personalNumber || '')}</p>
 										</div>
 									</div>
 								</div>
@@ -1177,7 +1189,9 @@ disabled={passwordResetLoading.includes(member._id)}
 										</div>
 										<div>
 											<p className="text-sm text-gray-500">Last Updated</p>
-											<p className="font-medium">{formatDateTime(viewingMember.updatedAt)}</p>
+											<p className="font-medium">
+												{viewingMember.updatedAt ? formatDateTime(viewingMember.updatedAt) : 'Not available'}
+											</p>
 										</div>
 									</div>
 								</div>
@@ -1285,8 +1299,14 @@ disabled={passwordResetLoading.includes(member._id)}
 										<label className="block text-sm font-medium text-gray-900 mb-2">Personal Number *</label>
 										<input
 											type="text"
-											value={editFormData.personalNumber || ''}
+											value={editFormData.personalNumber ? maskPersonalNumber(editFormData.personalNumber) : ''}
 											onChange={(e) => handleEditChange('personalNumber', e.target.value)}
+											onFocus={(e) => {
+												if (editFormData.personalNumber && e.target.value === maskPersonalNumber(editFormData.personalNumber)) {
+													e.target.value = editFormData.personalNumber;
+													handleEditChange('personalNumber', editFormData.personalNumber);
+												}
+											}}
 											placeholder="11-digit personal number (DDMMYYXXXXX)"
 											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 											pattern="\d{11}"
@@ -1356,17 +1376,35 @@ disabled={passwordResetLoading.includes(member._id)}
 									
 									<div>
 										<label className="block text-sm font-medium text-gray-900 mb-2">Membership Type *</label>
-										<select
-											value={editFormData.membershipType || 'General'}
-											onChange={(e) => handleEditChange('membershipType', e.target.value)}
-											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-											required
-										>
-											<option value="General">General Member</option>
-											<option value="Active">Active Member</option>
-											<option value="Executive">Executive Member</option>
-											<option value="Advisor">Advisor</option>
-										</select>
+										{(() => {
+											const age = calculateAgeFromPersonalNumber(editFormData.personalNumber || '');
+											const isUnder15 = age !== null && age < 15;
+											return (
+												<>
+													<select
+														value={editFormData.membershipType || 'General'}
+														onChange={(e) => handleEditChange('membershipType', e.target.value)}
+														className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-transparent ${
+															isUnder15 
+																? 'border-gray-300 bg-gray-100 text-gray-500 cursor-not-allowed' 
+																: 'border-gray-300 focus:ring-blue-500 focus:border-transparent'
+														}`}
+														disabled={isUnder15}
+														required
+													>
+														<option value="General">General Member</option>
+														<option value="Active">Active Member</option>
+														<option value="Executive">Executive Member</option>
+														<option value="Advisor">Advisor</option>
+													</select>
+													{isUnder15 && (
+														<p className="text-sm text-orange-600 mt-1">
+															Membership type cannot be changed for members under 15 years old
+														</p>
+													)}
+												</>
+											);
+										})()}
 									</div>
 
 									{/* Position field - only show for Executive/Advisor types */}

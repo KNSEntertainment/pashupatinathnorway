@@ -101,13 +101,13 @@ export default function MembershipStatusPage() {
   const getStatusText = (status: string) => {
     switch (status) {
       case "approved":
-        return "Approved - Your membership is active";
+        return "approved";
       case "pending":
-        return "Pending - Your membership is under review";
+        return "pending";
       case "rejected":
-        return "Rejected - Your membership application was not approved";
+        return "rejected";
       default:
-        return "Unknown - Status not available";
+        return "unknown";
     }
   };
 
@@ -215,83 +215,33 @@ export default function MembershipStatusPage() {
         {membershipData && (
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <div className={`p-6 border-2 ${getStatusColor(membershipData.membershipStatus)}`}>
-              <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-start gap-4">
                 {getStatusIcon(membershipData.membershipStatus)}
-                <div>
-                  <h2 className="text-xl font-semibold">Membership Status</h2>
-                  <p className="text-sm opacity-75">{getStatusText(membershipData.membershipStatus)}</p>
+                <div className="flex-1">
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-lg font-medium">
+                        Dear {membershipData.firstName}, your membership status is {getStatusText(membershipData.membershipStatus)}.
+                      </p>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                      <div className="bg-white bg-opacity-50 rounded-lg p-3">
+                        <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Membership ID</p>
+                        <p className="text-lg font-semibold mt-1">{membershipData.membershipId}</p>
+                      </div>
+                      <div className="bg-white bg-opacity-50 rounded-lg p-3">
+                        <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Membership Type</p>
+                        <p className="text-lg font-semibold capitalize mt-1">
+                          {membershipData.membershipType || "Standard"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="p-6 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-gray-500">Full Name</p>
-                  <p className="font-medium">
-                    {membershipData.firstName} {membershipData.middleName || ""} {membershipData.lastName}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Email</p>
-                  <p className="font-medium">{membershipData.email}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Phone</p>
-                  <p className="font-medium">{membershipData.phone || "Not provided"}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Membership Type</p>
-                  <p className="font-medium capitalize">{membershipData.membershipType || "Standard"}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Membership ID</p>
-                  <p className="font-medium">{membershipData.membershipId}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Application Date</p>
-                  <p className="font-medium">
-                    {membershipData.createdAt 
-                      ? new Date(membershipData.createdAt).toLocaleDateString()
-                      : "Not available"}
-                  </p>
-                </div>
-              </div>
-
-              {membershipData.address && (
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Address</p>
-                  <p className="font-medium">{membershipData.address}</p>
-                </div>
-              )}
-
-              {/* Status-specific messages */}
-              {membershipData.membershipStatus === "pending" && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Clock className="text-yellow-500" size={20} />
-                    <h3 className="font-semibold text-yellow-800">What happens next?</h3>
-                  </div>
-                  <p className="text-yellow-700 text-sm">
-                    Your membership application is currently under review. You will receive an email once a decision has been made. 
-                    This process typically takes 3-5 business days.
-                  </p>
-                </div>
-              )}
-
-              {membershipData.membershipStatus === "rejected" && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <XCircle className="text-red-500" size={20} />
-                    <h3 className="font-semibold text-red-800">What can I do?</h3>
-                  </div>
-                  <p className="text-red-700 text-sm">
-                    If you believe this is an error or would like to reapply, please contact our support team for assistance.
-                  </p>
-                </div>
-              )}
-
-            </div>
           </div>
         )}
       </div>

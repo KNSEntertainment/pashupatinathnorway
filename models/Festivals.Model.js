@@ -45,7 +45,9 @@ const FestivalsSchema = new mongoose.Schema(
 		deletedAt: {
 			type: Date,
 			default: null
-		}
+		},
+		// Event relationships
+		events: [{ type: mongoose.Schema.Types.ObjectId, ref: "Event" }] // Array of associated event IDs
 	},
 	{
 		timestamps: true,

@@ -40,6 +40,7 @@ export default function DonorsPageClient() {
 	const locale = params.locale as string;
 	const t = useTranslations("donors");
 	const [donors, setDonors] = useState<Donor[]>([]);
+	const [allDonors, setAllDonors] = useState<Donor[]>([]); // For statistics
 	const [loading, setLoading] = useState(true);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [sortField, setSortField] = useState<SortField>("amount");
@@ -60,7 +61,7 @@ export default function DonorsPageClient() {
 	useEffect(() => {
 		const fetchDonors = async () => {
 			try {
-				// Build query parameters
+				// Fetch paginated data for display
 				const params = new URLSearchParams({
 					page: currentPage.toString(),
 					limit: pagination.limit.toString(),
@@ -70,11 +71,28 @@ export default function DonorsPageClient() {
 					search: searchTerm
 				});
 				
-				const response = await fetch(`/api/donations/donors?${params}`);
-				if (response.ok) {
-					const data = await response.json();
-					setDonors(data.donors);
-					setPagination(data.pagination);
+				// Fetch all data for statistics (without pagination)
+				const allParams = new URLSearchParams({
+					page: "1",
+					limit: "10000", // Large number to get all data
+					sortBy: sortField,
+					sortOrder: sortDirection,
+					filter: filterType,
+					search: searchTerm
+				});
+				
+				const [paginatedResponse, allResponse] = await Promise.all([
+					fetch(`/api/donations/donors?${params}`),
+					fetch(`/api/donations/donors?${allParams}`)
+				]);
+				
+				if (paginatedResponse.ok && allResponse.ok) {
+					const paginatedData = await paginatedResponse.json();
+					const allData = await allResponse.json();
+					
+					setDonors(paginatedData.donors);
+					setAllDonors(allData.donors);
+					setPagination(paginatedData.pagination);
 				}
 			} catch (error) {
 				console.error("Error fetching donors:", error);
@@ -94,9 +112,9 @@ export default function DonorsPageClient() {
 	// Calculate statistics
 	const stats = useMemo(() => {
 		const totalDonors = pagination.total;
-		const anonymousDonors = donors.filter(d => d.isAnonymous).length;
+		const anonymousDonors = allDonors.filter(d => d.isAnonymous).length;
 		const namedDonors = totalDonors - anonymousDonors;
-		const totalAmount = donors.reduce((sum, d) => sum + d.amount, 0);
+		const totalAmount = allDonors.reduce((sum, d) => sum + d.amount, 0);
 
 		return {
 			totalDonors,
@@ -104,7 +122,7 @@ export default function DonorsPageClient() {
 			namedDonors,
 			totalAmount
 		};
-	}, [pagination.total, donors]);
+	}, [pagination.total, allDonors]);
 
 	const toggleSortDirection = () => {
 		setSortDirection(sortDirection === "asc" ? "desc" : "asc");

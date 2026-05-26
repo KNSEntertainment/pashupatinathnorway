@@ -18,9 +18,38 @@ export default function EventForm({ handleCloseEventModal, eventToEdit = null })
 		allowGuestRegistration: true,
 		registrationDeadline: "",
 		maxAttendees: "",
+		// Festival linkage fields
+		festivalId: "",
 	});
 	const [submitting, setSubmitting] = useState(false);
 	const [error, setError] = useState("");
+	const [festivals, setFestivals] = useState([]);
+
+	useEffect(() => {
+		// Fetch festivals for dropdown
+		const fetchFestivals = async () => {
+			try {
+				const response = await fetch("/api/festivals");
+				const data = await response.json();
+				// Handle both array response and object with success property
+				console.log("Festivals API response:", data);
+				if (Array.isArray(data)) {
+					console.log("Setting festivals from array:", data.length);
+					setFestivals(data);
+				} else if (data.success && data.festivals) {
+					console.log("Setting festivals from object:", data.festivals.length);
+					setFestivals(data.festivals);
+				} else {
+					console.log("No festivals found, setting empty array");
+					setFestivals([]);
+				}
+			} catch (error) {
+				console.error("Error fetching festivals:", error);
+				setFestivals([]);
+			}
+		};
+		fetchFestivals();
+	}, []);
 
 	useEffect(() => {
 		if (eventToEdit) {
@@ -42,6 +71,8 @@ export default function EventForm({ handleCloseEventModal, eventToEdit = null })
 				allowGuestRegistration: eventToEdit.allowGuestRegistration ?? true,
 				registrationDeadline: registrationDeadlineValue,
 				maxAttendees: eventToEdit.maxAttendees ? String(eventToEdit.maxAttendees) : "",
+				// Festival linkage fields
+				festivalId: eventToEdit.festivalId || "",
 			}));
 		}
 	}, [eventToEdit]);
@@ -55,7 +86,8 @@ export default function EventForm({ handleCloseEventModal, eventToEdit = null })
 			const form = new FormData();
 			const payload = { ...formData };
 			Object.keys(payload).forEach((key) => {
-					if (payload[key]) {
+					// Always include festivalId field, even if empty (to set it to null)
+					if (key === 'festivalId' || payload[key]) {
 					form.append(key, payload[key]);
 				}
 			});
@@ -92,6 +124,8 @@ export default function EventForm({ handleCloseEventModal, eventToEdit = null })
 					allowGuestRegistration: true,
 					registrationDeadline: "",
 					maxAttendees: "",
+					// Festival linkage fields
+					festivalId: "",
 				});
 				// Reset eventposter input
 				const eventposterInput = document.getElementById("eventposter");
@@ -143,6 +177,35 @@ export default function EventForm({ handleCloseEventModal, eventToEdit = null })
 						Event Time
 					</label>
 					<input type="text" id="eventtime" value={formData.eventtime} onChange={(e) => setFormData({ ...formData, eventtime: e.target.value })} className="w-full p-2 border rounded" />
+				</div>
+
+				{/* Festival Linkage Fields */}
+				<div className="md:col-span-2 border-t pt-4">
+					<h3 className="text-lg font-semibold mb-4 text-gray-800">Festival Linkage Settings</h3>
+				</div>
+
+				<div>
+					<label htmlFor="festivalId" className="block mb-2 font-bold">
+						Associated Festival
+					</label>
+					<select 
+						id="festivalId" 
+						value={formData.festivalId} 
+						onChange={(e) => setFormData({ ...formData, festivalId: e.target.value })} 
+						className="w-full p-2 border rounded"
+					>
+						<option value="">None (General Event)</option>
+						{festivals.map((festival) => {
+							console.log("Rendering festival option:", festival.title);
+							return (
+								<option key={festival._id} value={festival._id}>
+									{typeof festival.title === 'string' ? festival.title : 
+									 (festival.title?.en || festival.title?.no || festival.title?.ne || 'Unknown Festival')}
+								</option>
+							);
+						})}
+					</select>
+					<p className="text-xs text-gray-500 mt-1">Select the festival this event belongs to (optional)</p>
 				</div>
 
 				{/* New Pricing and Registration Fields */}

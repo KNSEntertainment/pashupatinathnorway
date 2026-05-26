@@ -32,6 +32,9 @@ export async function POST(request) {
 		const allowGuestRegistration = formData.get("allowGuestRegistration") === "true";
 		const registrationDeadline = formData.get("registrationDeadline");
 		const maxAttendees = formData.get("maxAttendees");
+		
+		// Festival linkage fields
+		const festivalId = formData.get("festivalId");
 		if (!eventposter || typeof eventposter.arrayBuffer !== "function") {
 			return NextResponse.json({ success: false, error: "Invalid file upload for eventposter" }, { status: 400 });
 		}
@@ -63,6 +66,8 @@ export async function POST(request) {
 			allowGuestRegistration,
 			registrationDeadline: registrationDeadline ? new Date(registrationDeadline) : null,
 			maxAttendees: maxAttendees ? parseInt(maxAttendees) : null,
+			// Festival linkage fields
+			festivalId: festivalId || null,
 		});
 		console.log("Event created successfully:", event);
 

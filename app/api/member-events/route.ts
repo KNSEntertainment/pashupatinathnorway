@@ -113,7 +113,7 @@ export async function GET(request: Request) {
     });
 
     // Process upcoming events (not registered yet)
-    const events = allEvents as PopulatedEvent[];
+    const events = allEvents as unknown as PopulatedEvent[];
     events.forEach(event => {
       const eventDate = new Date(event.eventdate);
       if (eventDate >= now && !registeredEventIds.has(event._id.toString())) {

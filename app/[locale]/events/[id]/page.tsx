@@ -18,35 +18,75 @@ interface Event {
   eventposterUrl?: string;
 }
 
+// Utility function to check if event is today or in the future
+const isEventTodayOrFuture = (eventDate: string): boolean => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Set to start of day for comparison
+  const event = new Date(eventDate);
+  return event >= today;
+};
+
 export default function EventDetailPage() {
   const t = useTranslations("events");
   const params = useParams();
   const [event, setEvent] = useState<Event | null>(null);
+  const [latestEvents, setLatestEvents] = useState<Event[]>([]);
+  const [eventFinancials, setEventFinancials] = useState<{ totalIncome: number; totalExpenses: number } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const eventId = params.id as string;
 
   useEffect(() => {
-    const fetchEvent = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/events/${eventId}`);
-        const data = await response.json();
-        if (data.event) {
-          setEvent(data.event);
+        
+        // Fetch current event
+        const eventResponse = await fetch(`/api/events/${eventId}`);
+        const eventData = await eventResponse.json();
+        
+        // Fetch latest events (excluding current event)
+        const latestResponse = await fetch('/api/events?limit=3');
+        const latestData = await latestResponse.json();
+        
+        if (eventData.event) {
+          setEvent(eventData.event);
         } else {
           setError('Event not found');
+          return;
         }
-      } catch {
-        setError('Failed to fetch event');
+        
+        // Filter out current event from latest events and take only 3
+        if (latestData.events) {
+          const filteredEvents = latestData.events
+            .filter((e: Event) => e._id !== eventId)
+            .slice(0, 3);
+          setLatestEvents(filteredEvents);
+        }
+        
+        // Fetch event financial data (optional, doesn't block main functionality)
+        try {
+          const financialResponse = await fetch(`/api/events/${eventId}/financials`);
+          const financialData = await financialResponse.json();
+          
+          if (financialData.financials) {
+            setEventFinancials(financialData.financials);
+          }
+        } catch {
+          // Financial data is optional, don't fail the entire fetch
+          console.log('Financial data not available for this event');
+        }
+      } catch (error) {
+        console.error('Error fetching event data:', error);
+        setError('Failed to fetch data');
       } finally {
         setLoading(false);
       }
     };
 
     if (eventId) {
-      fetchEvent();
+      fetchData();
     }
   }, [eventId]);
 
@@ -75,7 +115,7 @@ export default function EventDetailPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <UniversalLoader size="lg" variant="spinner" text="Loading event details..." />
+        <UniversalLoader size="lg" variant="spinner" />
       </div>
     );
   }
@@ -167,7 +207,7 @@ export default function EventDetailPage() {
 
       {/* Event Details */}
       <div className="container mx-auto px-4 py-6 md:py-12">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-8">
@@ -177,12 +217,18 @@ export default function EventDetailPage() {
                   <h2 className="text-2xl font-bold text-gray-900">
                     {t("about_this_event") || "About This Event"}
                   </h2>
-                  <Link
-                    href={`/register?eventId=${event._id}`}
-                    className="inline-flex justify-center items-center gap-2 px-6 py-3 bg-red-700 text-white font-medium rounded-lg hover:bg-red-800 transition-colors"
-                  >
-                    {t("register") || "Register"}
-                  </Link>
+                  {isEventTodayOrFuture(event.eventdate) ? (
+                    <Link
+                      href={`/register?eventId=${event._id}`}
+                      className="inline-flex justify-center items-center gap-2 px-6 py-3 bg-red-700 text-white font-medium rounded-lg hover:bg-red-800 transition-colors"
+                    >
+                      {t("register") || "Register"}
+                    </Link>
+                  ) : (
+                    <div className="inline-flex justify-center items-center gap-2 bg-gray-300 text-gray-600 px-6 py-3 rounded-lg font-medium cursor-not-allowed">
+                      {t("event_completed") || "Event Completed"}
+                    </div>
+                  )}
                 </div>
                 {event.eventdescription ? (
                   <div className="prose prose-lg text-gray-600">
@@ -266,15 +312,127 @@ export default function EventDetailPage() {
                 </div>
               </div>
 
+              {/* Event Financial Summary - Only show for completed events */}
+              {event && !isEventTodayOrFuture(event.eventdate) && eventFinancials && (
+                <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">
+                    {t("event_financial_summary") || "Event Financial Summary"}
+                  </h3>
+                  <div className="grid grid-cols-1 gap-4">
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                          <span className="text-white text-sm font-bold">↑</span>
+                        </div>
+                        <h4 className="font-semibold text-green-800">
+                          {t("total_income") || "Total Income"}
+                        </h4>
+                      </div>
+                      <p className="text-2xl font-bold text-green-700">
+                        {eventFinancials.totalIncome.toLocaleString('nb-NO', {
+                          style: 'currency',
+                          currency: 'NOK',
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0
+                        })}
+                      </p>
+                    </div>
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                          <span className="text-white text-sm font-bold">↓</span>
+                        </div>
+                        <h4 className="font-semibold text-red-800">
+                          {t("total_expenses") || "Total Expenses"}
+                        </h4>
+                      </div>
+                      <p className="text-2xl font-bold text-red-700">
+                        {eventFinancials.totalExpenses.toLocaleString('nb-NO', {
+                          style: 'currency',
+                          currency: 'NOK',
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 font-medium">
+                        {t("net_result") || "Net Result"}
+                      </span>
+                      <span className={`text-xl font-bold ${
+                        (eventFinancials.totalIncome - eventFinancials.totalExpenses) >= 0 
+                          ? 'text-green-600' 
+                          : 'text-red-600'
+                      }`}>
+                        {(eventFinancials.totalIncome - eventFinancials.totalExpenses).toLocaleString('nb-NO', {
+                          style: 'currency',
+                          currency: 'NOK',
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Related Events */}
               <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">
                   {t("more_events") || "More Events"}
                 </h3>
+                
+                {latestEvents.length > 0 ? (
+                  <div className="space-y-3 mb-6">
+                    {latestEvents.map((latestEvent) => (
+                      <Link
+                        key={latestEvent._id}
+                        href={`/events/${latestEvent._id}`}
+                        className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:shadow-md transition-shadow group"
+                      >
+                        <div className="relative w-16 h-16 flex-shrink-0">
+                          {latestEvent.eventposterUrl ? (
+                            <Image
+                              src={latestEvent.eventposterUrl}
+                              alt={latestEvent.eventname}
+                              fill
+                              className="object-cover rounded-md"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gray-200 rounded-md flex items-center justify-center">
+                              <Calendar size={20} className="text-gray-400" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-gray-900 group-hover:text-red-700 transition-colors truncate">
+                            {latestEvent.eventname}
+                          </h4>
+                          <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+                            <div className="flex items-center gap-1">
+                              <Calendar size={12} />
+                              {new Date(latestEvent.eventdate).toLocaleDateString()}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Clock size={12} />
+                              {latestEvent.eventtime}
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500 text-sm mb-6">
+                    {t("no_other_events") || "No other events available at the moment."}
+                  </p>
+                )}
+                
                 <Link
                   href="/events"
-                  className="text-red-700 hover:text-red-800 font-medium text-sm"
+                  className="text-red-700 hover:text-red-800 font-medium text-sm inline-flex items-center gap-1"
                 >
                   {t("view_all_events") || "View All Events"} →
                 </Link>

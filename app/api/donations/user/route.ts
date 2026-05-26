@@ -26,32 +26,45 @@ export async function GET() {
     console.log("Using user ID from session:", userId);
     console.log("Session user keys:", Object.keys(session.user));
 
-    // Try to find member record with personal number as primary identifier
+    // Try to find member record with personal number and phone as primary identifiers
     let personalNumber = null;
+    let phoneNumber = null;
     try {
       const membership = await Membership.findOne({ email: session.user.email });
       if (membership) {
         personalNumber = membership.personalNumber;
+        phoneNumber = membership.phone;
         console.log("Found personal number for member:", personalNumber);
+        console.log("Found phone number for member:", phoneNumber);
       }
     } catch {
       console.log("No membership record found for user:", session.user.email);
     }
 
-    // Build donation query - prioritize personal number as primary identifier
+    // Build donation query - prioritize personal number and phone as primary identifiers
     let donationQuery: Record<string, unknown>;
 
-    if (personalNumber) {
-      // Primary: Use personal number for exact member identification
+    if (personalNumber || phoneNumber) {
+      // Primary: Use personal number and phone for exact member identification
+      const orConditions = [];
+      
+      if (personalNumber) {
+        orConditions.push({ personalNumber: personalNumber });
+      }
+      
+      if (phoneNumber) {
+        orConditions.push({ donorPhone: phoneNumber });
+      }
+      
+      // Always include email and userId as fallbacks
+      orConditions.push({ donorEmail: session.user.email });
+      orConditions.push({ userId: userId });
+      
       donationQuery = {
-        $or: [
-          { personalNumber: personalNumber },
-          { donorEmail: session.user.email },
-          { userId: userId }
-        ]
+        $or: orConditions
       };
     } else {
-      // Fallback: Use email and userId if no personal number found
+      // Fallback: Use email and userId if no personal number or phone found
       donationQuery = {
         $or: [
           { donorEmail: session.user.email },
@@ -101,6 +114,7 @@ export async function GET() {
       donations,
       stats,
       personalNumber: personalNumber, // Include personal number info for UI
+      phoneNumber: phoneNumber, // Include phone number info for debugging
     });
 
   } catch (error) {

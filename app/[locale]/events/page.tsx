@@ -192,7 +192,7 @@ export default function EventsPage() {
                       </p>
                     )}
 
-                    <div className="flex gap-3">
+                    <div className="flex justify-between gap-3">
                       {isEventTodayOrFuture(event.eventdate) ? (
                         <Link
                           href={`/register?eventId=${event._id}`}
@@ -201,7 +201,7 @@ export default function EventsPage() {
                           {t("register") || "Register"}
                         </Link>
                       ) : (
-                        <div className="inline-flex flex-1 justify-center items-center gap-2 bg-gray-300 text-gray-600 px-4 py-2 rounded-lg font-medium text-sm cursor-not-allowed">
+                        <div className="inline-flex justify-center items-center gap-2 bg-gray-300 text-gray-600 px-4 py-2 rounded-lg font-medium text-sm cursor-not-allowed">
                           {t("event_completed") || "Event Completed"}
                         </div>
                       )}

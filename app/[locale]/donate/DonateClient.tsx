@@ -79,7 +79,7 @@ export default function DonatePageClient({ locale }: DonatePageClientProps) {
 		
 					{/* Total Donations Display with Auto-Scrolling Donors */}
 			{/* ── Donation Impact Section ─────────────────────────────────────────── */}
-<div className="relative my-12 mx-auto max-w-6xl bg-red-900">
+<div className="relative my-12 mx-auto max-w-6xl bg-black">
 
   {/* Soft ambient glow behind the whole block */}
   <div

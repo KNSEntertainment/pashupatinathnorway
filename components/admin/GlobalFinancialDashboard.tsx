@@ -14,6 +14,8 @@ import {
   Download
 } from "lucide-react";
 import { toast } from "react-hot-toast";
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface OverallReport {
   summary: {
@@ -158,7 +160,7 @@ export default function GlobalFinancialDashboard() {
     }
   }, [fetchReport, period]);
 
-  const handleCustomDateRange = () => {
+  const handleCustomDateRange = useCallback(() => {
     if (period === 'custom') {
       setShowCustomDateRange(true);
     } else {
@@ -166,7 +168,7 @@ export default function GlobalFinancialDashboard() {
       setFromDate('');
       setToDate('');
     }
-  };
+  }, [period]);
 
   useEffect(() => {
     handleCustomDateRange();
@@ -222,18 +224,192 @@ export default function GlobalFinancialDashboard() {
     return Target;
   };
 
-  const exportReport = () => {
+  const formatNOK = (amount: number): string => {
+    return amount.toLocaleString('nb-NO', {
+      style: 'currency',
+      currency: 'NOK',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    });
+  };
+
+  const exportReportPDF = () => {
     if (!report) return;
     
-    const dataStr = JSON.stringify(report, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    // Create new PDF document
+    const doc = new jsPDF();
     
-    const exportFileDefaultName = `financial-report-${period}-${new Date().toISOString().split('T')[0]}.json`;
+    // Add custom font for better Norwegian support
+    doc.setFont('helvetica');
     
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
+    // Set up page dimensions
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    
+    // Header
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Pashupatinath Norway', pageWidth / 2, 25, { align: 'center' });
+    
+    doc.setFontSize(14);
+    doc.text('Financial Report', pageWidth / 2, 38, { align: 'center' });
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Period: ${period}`, pageWidth / 2, 48, { align: 'center' });
+    doc.text(`Date: ${new Date().toLocaleDateString('en-US')}`, pageWidth / 2, 54, { align: 'center' });
+    
+    // Calculate total income including donations
+    const totalIncomeWithDonations = report.summary.totalIncome + report.summary.totalDonations;
+    const adjustedProfitLoss = totalIncomeWithDonations - report.summary.totalExpenses;
+    
+    // Summary Section
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Summary', 20, 68);
+    
+    const summaryData = [
+      ['Total Income (incl. donations)', formatNOK(totalIncomeWithDonations)],
+      ['Total Expenses', formatNOK(report.summary.totalExpenses)],
+      ...(adjustedProfitLoss >= 0 ? [['Profit', formatNOK(adjustedProfitLoss)]] : [['Loss', formatNOK(Math.abs(adjustedProfitLoss))]])
+    ];
+    
+    // Create summary table
+    autoTable(doc, {
+      startY: 75,
+      head: [['Description', 'Amount']],
+      body: summaryData,
+      theme: 'grid',
+      styles: { fontSize: 9, cellPadding: 3 },
+      headStyles: { fillColor: [59, 130, 246], textColor: 255 },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
+      margin: { left: 15, right: 15 }
+    });
+    
+    // Income Section
+    const finalY = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 8;
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Income Details', 20, finalY);
+    
+    const incomeData = [
+      ['Total Income (incl. donations)', formatNOK(totalIncomeWithDonations)],
+      ['Income Count', report.details.income.incomeCount.toString()],
+      ['Average Income', formatNOK(report.details.income.averageIncome)],
+      ['Total Donations', formatNOK(report.details.donations.totalDonations)],
+      ['Donation Count', report.details.donations.donationCount.toString()],
+      ['Average Donation', formatNOK(report.details.donations.averageDonation)]
+    ];
+    
+    autoTable(doc, {
+      startY: finalY + 6,
+      head: [['Description', 'Value']],
+      body: incomeData,
+      theme: 'grid',
+      styles: { fontSize: 8, cellPadding: 3 },
+      headStyles: { fillColor: [34, 197, 94], textColor: 255 },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
+      margin: { left: 15, right: 15 }
+    });
+    
+    // Expenses Section
+    const expensesY = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 8;
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Expense Details', 20, expensesY);
+    
+    const expenseData = [
+      ['Total Expenses', formatNOK(report.details.expenses.totalExpenses)],
+      ['Expense Count', report.details.expenses.expenseCount.toString()],
+      ['Average Expense', formatNOK(report.details.expenses.averageExpense)]
+    ];
+    
+    autoTable(doc, {
+      startY: expensesY + 6,
+      head: [['Description', 'Value']],
+      body: expenseData,
+      theme: 'grid',
+      styles: { fontSize: 8, cellPadding: 3 },
+      headStyles: { fillColor: [239, 68, 68], textColor: 255 },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
+      margin: { left: 15, right: 15 }
+    });
+    
+        
+    // Footer
+    const footerY = pageHeight - 30;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'italic');
+    doc.text('Generated by Pashupatinath Norway Temple', pageWidth / 2, footerY, { align: 'center' });
+    doc.text('Page 1', pageWidth / 2, footerY + 7, { align: 'center' });
+    
+    // Save the PDF
+    const fileName = `financial-report-${period}-${new Date().toISOString().split('T')[0]}.pdf`;
+    doc.save(fileName);
+    
+    toast.success('Financial report downloaded as PDF');
+  };
+
+  const exportReportCSV = () => {
+    if (!report) return;
+    
+    // Calculate total income including donations
+    const totalIncomeWithDonations = report.summary.totalIncome + report.summary.totalDonations;
+    const adjustedProfitLoss = totalIncomeWithDonations - report.summary.totalExpenses;
+    
+    // Create CSV content
+    const csvContent = [
+      ['Pashupatinath Norway - Financial Report'],
+      [`Period: ${period}`],
+      [`Date: ${new Date().toLocaleDateString('en-US')}`],
+      [''],
+      ['SUMMARY'],
+      ['Description', 'Amount'],
+      ['Total Income (incl. donations)', totalIncomeWithDonations.toString()],
+      ['Total Expenses', report.summary.totalExpenses.toString()],
+      ...(adjustedProfitLoss >= 0 ? [['Profit', adjustedProfitLoss.toString()]] : [['Loss', Math.abs(adjustedProfitLoss).toString()]]),
+      [''],
+      ['INCOME DETAILS'],
+      ['Description', 'Value'],
+      ['Total Income (incl. donations)', totalIncomeWithDonations.toString()],
+      ['Income Count', report.details.income.incomeCount.toString()],
+      ['Average Income', report.details.income.averageIncome.toString()],
+      ['Total Donations', report.details.donations.totalDonations.toString()],
+      ['Donation Count', report.details.donations.donationCount.toString()],
+      ['Average Donation', report.details.donations.averageDonation.toString()],
+      [''],
+      ['EXPENSE DETAILS'],
+      ['Description', 'Value'],
+      ['Total Expenses', report.details.expenses.totalExpenses.toString()],
+      ['Expense Count', report.details.expenses.expenseCount.toString()],
+      ['Average Expense', report.details.expenses.averageExpense.toString()]
+    ];
+    
+    // Convert to CSV string
+    const csvString = csvContent.map(row => 
+      row.map(field => {
+        // Escape quotes and wrap in quotes if contains comma or quote
+        if (field.toString().includes(',') || field.toString().includes('"')) {
+          return `"${field.toString().replace(/"/g, '""')}"`;
+        }
+        return field.toString();
+      }).join(',')
+    ).join('\n');
+    
+    // Create blob and download
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', `financial-report-${period}-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast.success('Financial report downloaded as CSV');
   };
 
   return (
@@ -253,14 +429,24 @@ export default function GlobalFinancialDashboard() {
             <option value="1year">Last Year</option>
             <option value="custom">Custom Date Range</option>
           </select>
-          <button
-            onClick={exportReport}
-            disabled={!report}
-            className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors disabled:bg-gray-300"
-          >
-            <Download size={20} />
-            Export
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={exportReportPDF}
+              disabled={!report}
+              className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-300"
+            >
+              <Download size={20} />
+              Export PDF
+            </button>
+            <button
+              onClick={exportReportCSV}
+              disabled={!report}
+              className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors disabled:bg-gray-300"
+            >
+              <Download size={20} />
+              Export CSV
+            </button>
+          </div>
         </div>
       </div>
 
@@ -332,11 +518,11 @@ export default function GlobalFinancialDashboard() {
             <div className="bg-white p-6 rounded-lg shadow border border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-500 text-sm">Total Income</p>
+                  <p className="text-gray-500 text-sm">Total Income (incl. donations)</p>
                   <p className="text-3xl font-bold text-green-600">
-                    {formatCurrency(report.summary.totalIncome)}
+                    {formatCurrency(report.summary.totalIncome + report.summary.totalDonations)}
                   </p>
-                  <p className="text-sm text-gray-500 mt-1">{report.details.income.incomeCount} transactions</p>
+                  <p className="text-sm text-gray-500 mt-1">{report.details.income.incomeCount} income + {report.details.donations.donationCount} donations</p>
                 </div>
                 <TrendingUp className="text-green-500" size={32} />
               </div>

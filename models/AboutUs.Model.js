@@ -42,7 +42,7 @@ const AboutUsSchema = new mongoose.Schema(
 			},
 			active_members_label: {
 				type: mongoose.Schema.Types.Mixed,
-				default: { en: 'Active Members', no: 'Aktive Medlemmer', ne: 'सक्रिय सदस्यहरू' }
+				default: { en: 'Members', no: 'Medlemmer', ne: 'सदस्यहरू' }
 			},
 			months_active_label: {
 				type: mongoose.Schema.Types.Mixed,

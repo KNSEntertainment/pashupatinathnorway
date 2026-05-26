@@ -323,7 +323,7 @@
 		"about_us_title": "Om Oss",
 		"about_us_description": "Pashupatinath Norway Temple er en religiøs organisasjon dedikert til å tjene den nepalesiske hindu-samfunnet i Norge. Organisasjonen ble grunnlagt med visjonen om å bygge en nepalsk hindu-tempel i Norge, og gi et hellig rom for tilbeding, spirituelle samlinger og religiøse seremonier.",
 		"about_description_3": "Gjennom regelmessige bønner, kulturelle arrangementer og samfunnstjeneste, streber vi etter å opprettholde vår åndelige forbindelse samtidig som vi bygger et sterkt fundament for fremtidige generasjoner i Norge.",
-		"stat_members": "Dedikerte Medlemmer",
+		"stat_members": "Aktive Medlemmer",
 		"months_active": "Aktive Måneder",
 		"vision_title": "Vår Visjon",
 		"vision_description": "Å bygge en nepalsk hindu-tempel i Norge som tjener som et spirituell hjem for vårt samfunn, og bevare vårt kulturelle arv og religiøse tradisjoner for fremtidige generasjoner.",
@@ -739,7 +739,7 @@
 		"temple_name": "events.temple_name",
 		"get_involved": "events.get_involved",
 		"share_with_friends": "events.share_with_friends",
-		"more_events": "events.more_events",
+		"more_events": "Flere Arrangementer",
 		"view_all_events": "Se Alle Arrangementer",
 		"see_all": "Se Alle",
 		"loading": "Laster...",
@@ -747,7 +747,12 @@
 		"event_description_soon": "Arrangementsbeskrivelse vil være tilgjengelig snart. Takk for din tålmodighet.",
 		"event_gallery": "Arrangementsgalleri",
 		"upcoming_events": "Kommende Arrangementer",
-		"special_occasions": "Spesielle Anledninger"
+		"special_occasions": "Spesielle Anledninger",
+		"event_financial_summary": "Arrangement Finansiell Oppsummering",
+		"total_income": "Total Inntekt",
+		"total_expenses": "Total Utgifter",
+		"net_result": "Netto Resultat",
+		"no_other_events": "Ingen andre arrangementer tilgjengelig for øyeblikket."
 	},
 	"registration": {
 		"title": "Arrangementsregistrering",

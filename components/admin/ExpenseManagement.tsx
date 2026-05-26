@@ -27,6 +27,7 @@ interface Event {
 interface Budget {
   _id: string;
   name: string;
+  category: string;
 }
 
 interface Expense {
@@ -41,6 +42,7 @@ interface Expense {
   date: string;
   event?: Event;
   budget?: Budget;
+  budgetId?: string | Budget | null;
   createdBy?: {
     _id: string;
     name: string;
@@ -48,12 +50,13 @@ interface Expense {
   };
 }
 
-const expenseCategories = ["food", "venue", "transport", "equipment", "marketing", "maintenance", "other"];
+const expenseCategories = ["food", "venue", "transport", "equipment", "marketing", "maintenance", "vipps", "operational", "website", "other"];
 const paymentMethods = ["cash", "bank_transfer", "stripe", "vipps", "paypal", "other"];
 
 export default function ExpenseManagement() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
+  const [budgets, setBudgets] = useState<Budget[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -68,7 +71,8 @@ export default function ExpenseManagement() {
     paymentMethod: "other",
     receiptUrl: "",
     notes: "",
-    date: new Date().toISOString().split('T')[0]
+    date: new Date().toISOString().split('T')[0],
+    budgetId: null
   });
 
   const fetchExpenses = useCallback(async () => {
@@ -112,10 +116,23 @@ export default function ExpenseManagement() {
     }
   }, []);
 
+  const fetchBudgets = useCallback(async () => {
+    try {
+      const response = await fetch("/api/budget");
+      if (!response.ok) throw new Error("Failed to fetch budgets");
+      const data = await response.json();
+      setBudgets(data || []);
+    } catch (error) {
+      console.error("Failed to load budgets:", error);
+      setBudgets([]);
+    }
+  }, []);
+
   useEffect(() => {
     fetchExpenses();
     fetchEvents();
-  }, [fetchExpenses, fetchEvents]);
+    fetchBudgets();
+  }, [fetchExpenses, fetchEvents, fetchBudgets]);
 
   const resetForm = () => {
     setFormData({
@@ -126,7 +143,8 @@ export default function ExpenseManagement() {
       paymentMethod: "other",
       receiptUrl: "",
       notes: "",
-      date: new Date().toISOString().split('T')[0]
+      date: new Date().toISOString().split('T')[0],
+      budgetId: null
     });
     setIsCreating(false);
     setEditingId(null);
@@ -192,7 +210,8 @@ export default function ExpenseManagement() {
       paymentMethod: expense.paymentMethod,
       receiptUrl: expense.receiptUrl || "",
       notes: expense.notes || "",
-      date: expense.date ? new Date(expense.date).toISOString().split('T')[0] : ""
+      date: expense.date ? new Date(expense.date).toISOString().split('T')[0] : "",
+      budgetId: expense.budgetId || null
     });
     setEditingId(expense._id!);
     setIsCreating(true);
@@ -419,6 +438,24 @@ export default function ExpenseManagement() {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Budget
+                </label>
+                <select
+                  value={typeof formData.budgetId === 'string' ? formData.budgetId : ''}
+                  onChange={(e) => setFormData({ ...formData, budgetId: e.target.value || null })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select Budget (Optional)</option>
+                  {budgets.map(budget => (
+                    <option key={budget._id} value={budget._id}>
+                      {budget.name} - {budget.category}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Date *
                 </label>
                 <input
@@ -512,6 +549,7 @@ export default function ExpenseManagement() {
               <tr>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Title</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Event</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Budget</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Amount</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Date</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Receipt</th>
@@ -537,6 +575,16 @@ export default function ExpenseManagement() {
                       </div>
                     ) : (
                       <span className="text-gray-400">No Event</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    {expense.budgetId && typeof expense.budgetId === 'object' && 'name' in expense.budgetId ? (
+                      <div>
+                        <p className="font-medium text-gray-900">{expense.budgetId.name}</p>
+                        <p className="text-sm text-gray-500">{expense.budgetId.category || 'N/A'}</p>
+                      </div>
+                    ) : (
+                      <span className="text-gray-400">No Budget</span>
                     )}
                   </td>
                   <td className="px-4 py-3 font-medium text-red-600">

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Expense from "@/models/Expense.Model";
+import Budget from "@/models/Budget.Model";
 import mongoose from "mongoose";
 import { requireAdmin } from "@/lib/apiAuth";
 
@@ -43,7 +44,7 @@ export async function GET(request: Request) {
 		
 		const expenses = await Expense.find(query)
 			.populate('eventId', 'eventname eventdate')
-			.populate('budgetId', 'name')
+			.populate('budgetId', 'name category')
 			.populate('createdBy', 'name email')
 			.sort({ date: -1 });
 			
@@ -108,9 +109,33 @@ export async function POST(request: Request) {
 		console.log("Processed expense data:", body);
 		
 		const expense = await Expense.create(body);
+		
+		// Update budget spentAmount if budgetId is provided
+		if (body.budgetId) {
+			try {
+				const budget = await Budget.findById(body.budgetId);
+				if (budget) {
+					// Calculate total expenses for this budget
+					const allExpenses = await Expense.find({ budgetId: body.budgetId });
+					const totalSpent = allExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+					
+					// Update budget with new spent amount and recalculate remaining
+					await Budget.findByIdAndUpdate(body.budgetId, {
+						spentAmount: totalSpent,
+						remainingAmount: budget.allocatedAmount - totalSpent
+					});
+					
+					console.log(`Updated budget ${budget.name} spentAmount to ${totalSpent}`);
+				}
+			} catch (budgetError) {
+				console.error("Error updating budget spentAmount:", budgetError);
+				// Continue with expense creation even if budget update fails
+			}
+		}
+		
 		const populatedExpense = await Expense.findById(expense._id)
 			.populate('eventId', 'eventname eventdate')
-			.populate('budgetId', 'name')
+			.populate('budgetId', 'name category')
 			.populate('createdBy', 'name email');
 			
 		return NextResponse.json(populatedExpense, { status: 201 });
@@ -170,16 +195,77 @@ export async function PUT(request: Request) {
 			}
 		}
 		
+		// Get the original expense before update to track budget changes
+		const originalExpense = await Expense.findById(id);
+		if (!originalExpense) {
+			return NextResponse.json({ error: "Expense not found" }, { status: 404 });
+		}
+
 		const expense = await Expense.findByIdAndUpdate(
 			id,
 			updateData,
 			{ new: true, runValidators: true }
 		).populate('eventId', 'eventname eventdate')
-		 .populate('budgetId', 'name')
+		 .populate('budgetId', 'name category')
 		 .populate('createdBy', 'name email');
 		
-		if (!expense) {
-			return NextResponse.json({ error: "Expense not found" }, { status: 404 });
+		// Update budgets if budgetId or amount changed
+		const originalBudgetId = originalExpense.budgetId;
+		const newBudgetId = expense.budgetId;
+		const originalAmount = originalExpense.amount;
+		const newAmount = expense.amount;
+
+		// If budget changed, update both old and new budgets
+		if (String(originalBudgetId) !== String(newBudgetId)) {
+			// Update old budget (subtract original amount)
+			if (originalBudgetId) {
+				try {
+					const oldBudgetExpenses = await Expense.find({ budgetId: originalBudgetId });
+					const oldBudgetTotal = oldBudgetExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+					const oldBudget = await Budget.findById(originalBudgetId);
+					if (oldBudget) {
+						await Budget.findByIdAndUpdate(originalBudgetId, {
+							spentAmount: oldBudgetTotal,
+							remainingAmount: oldBudget.allocatedAmount - oldBudgetTotal
+						});
+					}
+				} catch (error) {
+					console.error("Error updating old budget:", error);
+				}
+			}
+
+			// Update new budget (add new amount)
+			if (newBudgetId) {
+				try {
+					const newBudgetExpenses = await Expense.find({ budgetId: newBudgetId });
+					const newBudgetTotal = newBudgetExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+					const newBudget = await Budget.findById(newBudgetId);
+					if (newBudget) {
+						await Budget.findByIdAndUpdate(newBudgetId, {
+							spentAmount: newBudgetTotal,
+							remainingAmount: newBudget.allocatedAmount - newBudgetTotal
+						});
+					}
+				} catch (error) {
+					console.error("Error updating new budget:", error);
+				}
+			}
+		} 
+		// If same budget but amount changed, update that budget
+		else if (originalBudgetId && originalAmount !== newAmount) {
+			try {
+				const budgetExpenses = await Expense.find({ budgetId: originalBudgetId });
+				const budgetTotal = budgetExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+				const budget = await Budget.findById(originalBudgetId);
+				if (budget) {
+					await Budget.findByIdAndUpdate(originalBudgetId, {
+						spentAmount: budgetTotal,
+						remainingAmount: budget.allocatedAmount - budgetTotal
+					});
+				}
+			} catch (error) {
+				console.error("Error updating budget after amount change:", error);
+			}
 		}
 		
 		return NextResponse.json(expense, { status: 200 });
@@ -202,10 +288,36 @@ export async function DELETE(request: Request) {
 			return NextResponse.json({ error: "Expense ID is required" }, { status: 400 });
 		}
 		
-		const expense = await Expense.findByIdAndDelete(id);
+		const expense = await Expense.findById(id);
 		
 		if (!expense) {
 			return NextResponse.json({ error: "Expense not found" }, { status: 404 });
+		}
+
+		// Delete the expense
+		await Expense.findByIdAndDelete(id);
+
+		// Update budget spentAmount if this expense was linked to a budget
+		if (expense.budgetId) {
+			try {
+				const budget = await Budget.findById(expense.budgetId);
+				if (budget) {
+					// Calculate remaining expenses for this budget
+					const remainingExpenses = await Expense.find({ budgetId: expense.budgetId });
+					const totalSpent = remainingExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+					
+					// Update budget with new spent amount and recalculate remaining
+					await Budget.findByIdAndUpdate(expense.budgetId, {
+						spentAmount: totalSpent,
+						remainingAmount: budget.allocatedAmount - totalSpent
+					});
+					
+					console.log(`Updated budget ${budget.name} spentAmount to ${totalSpent} after expense deletion`);
+				}
+			} catch (budgetError) {
+				console.error("Error updating budget spentAmount after expense deletion:", budgetError);
+				// Continue with expense deletion even if budget update fails
+			}
 		}
 		
 		return NextResponse.json({ message: "Expense deleted successfully" }, { status: 200 });

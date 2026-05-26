@@ -290,7 +290,7 @@
 		"about_us_description": "Pashupatinath Norway Temple is a religious organization dedicated to serving the Nepali Hindu community in Norway. The organization was founded with the vision of building a Nepali Hindu temple in Norway, providing a sacred space for worship, spiritual gatherings, and religious ceremonies.",
 		"about_description_3": "Through regular prayers, cultural events, and community service, we strive to maintain our spiritual connection while building a strong foundation for future generations in Norway.",
 		"stat_members": "Members",
-		"months_active": "Active Months",
+		"months_active": "Months Active",
 		"vision_title": "Our Vision",
 		"vision_description": "To build a Nepali Hindu temple in Norway that serves as a spiritual home for our community, preserving our cultural heritage and religious traditions for future generations.",
 		"current_board_members": "Current Board Members",
@@ -716,7 +716,12 @@
 		"event_description_soon": "Event description will be available soon. Thank you for your patience.",
 		"event_gallery": "Event Gallery",
 		"upcoming_events": "Upcoming Events",
-		"special_occasions": "Special Occasions"
+		"special_occasions": "Special Occasions",
+		"event_financial_summary": "Event Financial Summary",
+		"total_income": "Total Income",
+		"total_expenses": "Total Expenses",
+		"net_result": "Net Result",
+		"no_other_events": "No other events available at the moment."
 	},
 	"registration": {
 		"title": "Event Registration",
@@ -757,8 +762,8 @@
 		"about_description_1": "Pashupatinath Norway Temple is a religious organization dedicated to serving the Nepali Hindu community in Norway. The organization was founded with the vision of building a Nepali Hindu temple in Norway, providing a sacred space for worship, spiritual gatherings, and religious ceremonies.",
 		"about_description_2": "Our goal is to build the first Nepali Hindu temple in Norway, where devotees can gather for prayers, rituals, and festivals that honor our rich traditions.",
 		"about_description_3": "Through regular prayers, cultural events, and community service, we strive to maintain our spiritual connection while building a strong foundation for future generations in Norway.",
-		"stat_members": "Dedicated Members",
-		"months_active": "Active Months",
+		"stat_members": "Active Members",
+		"months_active": "Months Active",
 		"mission_title": "Our Mission",
 		"mission_description": "To serve the Nepali Hindu community in Norway by providing a sacred space for worship, preserving our cultural heritage, and fostering spiritual growth through religious ceremonies and cultural events.",
 		"vision_title": "Our Vision",

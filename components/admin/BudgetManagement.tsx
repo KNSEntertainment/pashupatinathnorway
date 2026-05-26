@@ -37,6 +37,16 @@ interface Budget {
   status: string;
   createdBy?: string;
   event?: Event;
+  expenses?: Expense[];
+  expenseCount?: number;
+}
+
+interface Expense {
+  _id: string;
+  title: string;
+  amount: number;
+  budgetId: string;
+  date: string;
 }
 
 const categories = [
@@ -48,8 +58,10 @@ const periods = ["monthly", "quarterly", "yearly"];
 const statuses = ["active", "inactive", "completed"];
 
 export default function BudgetManagement() {
+  const [rawBudgets, setRawBudgets] = useState<Budget[]>([]);
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -66,13 +78,25 @@ export default function BudgetManagement() {
     status: "active"
   });
 
+  const fetchExpenses = useCallback(async () => {
+    try {
+      const response = await fetch("/api/expense");
+      if (!response.ok) throw new Error("Failed to fetch expenses");
+      const data = await response.json();
+      setExpenses(data);
+    } catch (error) {
+      console.error("Failed to load expenses:", error);
+      setExpenses([]);
+    }
+  }, []);
+
   const fetchBudgets = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch("/api/budget");
       if (!response.ok) throw new Error("Failed to fetch budgets");
       const data = await response.json();
-      setBudgets(data);
+      setRawBudgets(data);
     } catch (error) {
       toast.error("Failed to load budgets");
       console.error(error);
@@ -94,9 +118,38 @@ export default function BudgetManagement() {
   }, []);
 
   useEffect(() => {
+    fetchExpenses();
     fetchBudgets();
     fetchEvents();
-  }, [fetchBudgets, fetchEvents]);
+  }, [fetchExpenses, fetchBudgets, fetchEvents]);
+
+  // Calculate budget expenses separately to avoid re-renders
+  useEffect(() => {
+    if (rawBudgets.length > 0) {
+      const budgetsWithExpenses = rawBudgets.map((budget: Budget) => {
+        const budgetExpenses = expenses.filter(expense => {
+          // Handle both string and ObjectId comparison
+          if (!expense.budgetId) return false;
+          
+          const expenseBudgetId = typeof expense.budgetId === 'string' 
+            ? expense.budgetId 
+            : String(expense.budgetId);
+          return expenseBudgetId === budget._id;
+        });
+        const totalSpent = budgetExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+        
+        return {
+          ...budget,
+          spentAmount: totalSpent,
+          remainingAmount: budget.allocatedAmount - totalSpent,
+          expenses: budgetExpenses,
+          expenseCount: budgetExpenses.length
+        };
+      });
+      
+      setBudgets(budgetsWithExpenses);
+    }
+  }, [rawBudgets, expenses]);
 
   const resetForm = () => {
     setFormData({
@@ -347,24 +400,6 @@ export default function BudgetManagement() {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Spent Amount
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={formData.spentAmount}
-                  onChange={(e) => setFormData({ 
-                    ...formData, 
-                    spentAmount: parseFloat(e.target.value) || 0,
-                    remainingAmount: calculateRemaining(formData.allocatedAmount || 0, parseFloat(e.target.value) || 0)
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Start Date *
                 </label>
                 <input
@@ -455,6 +490,7 @@ export default function BudgetManagement() {
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Category</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Allocated</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Spent</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Expenses</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Remaining</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Period</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Status</th>
@@ -496,6 +532,24 @@ export default function BudgetManagement() {
                   </td>
                   <td className="px-4 py-3 font-medium text-red-600">
                     kr{(budget.spentAmount || 0).toLocaleString()}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded">
+                        {budget.expenseCount || 0} expenses
+                      </span>
+                      {budget.expenseCount && budget.expenseCount > 0 && (
+                        <button
+                          onClick={() => {
+                            // TODO: Add functionality to show expense details
+                            toast(`View ${budget.expenseCount} expense(s) for ${budget.name}`);
+                          }}
+                          className="text-blue-500 hover:text-blue-700 text-sm"
+                        >
+                          View
+                        </button>
+                      )}
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     <span className={`font-medium ${

@@ -137,8 +137,9 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { ImageIcon } from "lucide-react";
+import { ImageIcon, Calendar, Clock, MapPin, Ticket } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import SectionHeader from "./SectionHeader";
 
 interface Festival {
@@ -151,6 +152,30 @@ interface Festival {
   highlight?: boolean;
   order: number;
   isActive: boolean;
+  relatedEvents?: FestivalEvent[];
+  upcomingEvents?: FestivalEvent[];
+  recentEvents?: FestivalEvent[];
+}
+
+interface FestivalEvent {
+  _id: string;
+  eventname: string;
+  eventdescription?: string;
+  eventvenue?: string;
+  eventdate: string;
+  eventtime?: string;
+  eventposterUrl: string;
+  category: string;
+  festivalTags: string[];
+  memberPrice: number;
+  guestPrice: number;
+  allowGuestRegistration: boolean;
+  registrationDeadline?: Date;
+  enableAttendance: boolean;
+  attendanceStatus: "not_started" | "active" | "closed";
+  maxAttendees?: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // Warm temple palette — one accent per card, cycling
@@ -161,16 +186,141 @@ const ACCENTS = [
   { bg: "#4A5240", light: "#EFF2EB", dot: "#7A8C6E" }, // temple moss
 ];
 
+// EventCard component for displaying individual events
+function EventCard({ event, accent, locale }: { event: FestivalEvent; accent: (typeof ACCENTS)[0]; locale: string }) {
+  const isUpcoming = new Date(event.eventdate) > new Date();
+  const hasRegistration = event.allowGuestRegistration || event.memberPrice > 0;
+  
+  return (
+    <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-100">
+      {/* Event poster */}
+      <div className="relative h-32 overflow-hidden" style={{ background: accent.bg }}>
+        {event.eventposterUrl ? (
+          <Image
+            src={event.eventposterUrl}
+            alt={event.eventname}
+            fill
+            className="object-cover opacity-90"
+            sizes="(max-width: 768px) 100vw, 200px"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <Calendar className="w-8 h-8 opacity-40" style={{ color: accent.light }} />
+          </div>
+        )}
+        
+        {/* Status badge */}
+        <div className="absolute top-2 right-2">
+          <span
+            className={`px-2 py-1 text-xs font-semibold rounded-full ${
+              isUpcoming 
+                ? "bg-green-100 text-green-700" 
+                : "bg-gray-100 text-gray-600"
+            }`}
+          >
+            {isUpcoming ? "Upcoming" : "Past"}
+          </span>
+        </div>
+      </div>
+      
+      {/* Event details */}
+      <div className="p-4">
+        <h4 className="font-semibold text-gray-900 mb-2 line-clamp-1">{event.eventname}</h4>
+        
+        {event.eventdescription && (
+          <p className="text-sm text-gray-600 mb-3 line-clamp-2">{event.eventdescription}</p>
+        )}
+        
+        {/* Event info */}
+        <div className="space-y-2 text-xs text-gray-500">
+          <div className="flex items-center gap-2">
+            <Calendar className="w-3 h-3" />
+            {new Date(event.eventdate).toLocaleDateString()}
+          </div>
+          
+          {event.eventtime && (
+            <div className="flex items-center gap-2">
+              <Clock className="w-3 h-3" />
+              {event.eventtime}
+            </div>
+          )}
+          
+          {event.eventvenue && (
+            <div className="flex items-center gap-2">
+              <MapPin className="w-3 h-3" />
+              {event.eventvenue}
+            </div>
+          )}
+        </div>
+        
+        {/* Registration section */}
+        {hasRegistration && isUpcoming && (
+          <div className="mt-3 pt-3 border-t border-gray-100">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-1">
+                <Ticket className="w-3 h-3" style={{ color: accent.bg }} />
+                <span className="text-xs font-medium" style={{ color: accent.bg }}>
+                  Registration
+                </span>
+              </div>
+              
+              <div className="text-xs text-gray-600">
+                {event.memberPrice > 0 && (
+                  <span>Members: {event.memberPrice} kr</span>
+                )}
+                {event.guestPrice > 0 && event.allowGuestRegistration && (
+                  <span className="ml-2">Guests: {event.guestPrice} kr</span>
+                )}
+                {(event.memberPrice === 0 && event.guestPrice === 0) && (
+                  <span>Free</span>
+                )}
+              </div>
+            </div>
+            
+            <Link
+              href={`/${locale}/register?eventId=${event._id}`}
+              className="block w-full text-center px-3 py-2 text-xs font-medium rounded-lg transition-colors"
+              style={{ 
+                background: accent.bg, 
+                color: "white" 
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = "0.9";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = "1";
+              }}
+            >
+              Register Now
+            </Link>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function FestivalCard({
   festival,
   index,
   accent,
+  locale,
 }: {
   festival: Festival;
   index: number;
   accent: (typeof ACCENTS)[0];
+  locale: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  
+  // Debug: Check if events are present
+  if (festival.title.includes('Maha Shivaratri')) {
+    console.log('🎊 FestivalCard Maha Shivaratri:', {
+      upcoming: festival.upcomingEvents?.length || 0,
+      recent: festival.recentEvents?.length || 0,
+      related: festival.relatedEvents?.length || 0
+    });
+  }
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -312,6 +462,77 @@ function FestivalCard({
               ))}
             </ul>
           )}
+
+          {/* Events Section */}
+          {((festival.upcomingEvents?.length || 0) > 0 || (festival.recentEvents?.length || 0) > 0 || (festival.relatedEvents?.length || 0) > 0) && (
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className="flex items-center gap-2 mb-4">
+                <Calendar className="w-4 h-4" style={{ color: accent.bg }} />
+                <h4 className="font-semibold text-gray-900" style={{ color: accent.bg }}>
+                  Events & Activities
+                </h4>
+              </div>
+
+              {/* Upcoming Events */}
+              {festival.upcomingEvents && festival.upcomingEvents.length > 0 && (
+                <div className="mb-4">
+                  <h5 className="text-sm font-medium text-gray-700 mb-2">Upcoming Events</h5>
+                  <div className="grid gap-2">
+                    {festival.upcomingEvents.slice(0, 2).map((event) => (
+                      <EventCard key={event._id} event={event} accent={accent} locale={locale} />
+                    ))}
+                  </div>
+                  {festival.upcomingEvents.length > 2 && (
+                    <div className="text-center mt-2">
+                      <span className="text-xs text-gray-500">
+                        +{festival.upcomingEvents.length - 2} more upcoming events
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Recent Events */}
+              {festival.recentEvents && festival.recentEvents.length > 0 && (
+                <div>
+                  <h5 className="text-sm font-medium text-gray-700 mb-2">Recent Events</h5>
+                  <div className="grid gap-2">
+                    {festival.recentEvents.slice(0, 2).map((event) => (
+                      <EventCard key={event._id} event={event} accent={accent} locale={locale} />
+                    ))}
+                  </div>
+                  {festival.recentEvents.length > 2 && (
+                    <div className="text-center mt-2">
+                      <span className="text-xs text-gray-500">
+                        +{festival.recentEvents.length - 2} more recent events
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Related Events (shown when no upcoming or recent events) */}
+              {(!festival.upcomingEvents || festival.upcomingEvents.length === 0) && 
+               (!festival.recentEvents || festival.recentEvents.length === 0) && 
+               festival.relatedEvents && festival.relatedEvents.length > 0 && (
+                <div>
+                  <h5 className="text-sm font-medium text-gray-700 mb-2">Related Events</h5>
+                  <div className="grid gap-2">
+                    {festival.relatedEvents.slice(0, 3).map((event) => (
+                      <EventCard key={event._id} event={event} accent={accent} locale={locale} />
+                    ))}
+                  </div>
+                  {festival.relatedEvents.length > 3 && (
+                    <div className="text-center mt-2">
+                      <span className="text-xs text-gray-500">
+                        +{festival.relatedEvents.length - 3} more related events
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -328,11 +549,31 @@ export default function Festivals() {
     const fetchFestivals = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/festivals?locale=${locale}`);
+        const response = await fetch(`/api/festivals/events?locale=${locale}`);
         const data = await response.json();
+        console.log('🎉 Festivals data received:', data.length, 'festivals');
+        if (data.length > 0) {
+          const mahaShivaratri = data.find((f: Festival) => f.title.includes('Maha Shivaratri'));
+          if (mahaShivaratri) {
+            console.log('📊 Maha Shivaratri events:', {
+              related: mahaShivaratri.relatedEvents?.length || 0,
+              upcoming: mahaShivaratri.upcomingEvents?.length || 0,
+              recent: mahaShivaratri.recentEvents?.length || 0
+            });
+          }
+        }
         setFestivals(Array.isArray(data) ? data : []);
       } catch (error) {
-        console.error("Error fetching festivals:", error);
+        console.error("Error fetching festivals with events:", error);
+        // Fallback to regular festivals API if events API fails
+        try {
+          const fallbackResponse = await fetch(`/api/festivals?locale=${locale}`);
+          const fallbackData = await fallbackResponse.json();
+          setFestivals(Array.isArray(fallbackData) ? fallbackData : []);
+        } catch (fallbackError) {
+          console.error("Error fetching fallback festivals:", fallbackError);
+          setFestivals([]);
+        }
       } finally {
         setLoading(false);
       }
@@ -395,6 +636,7 @@ export default function Festivals() {
                 festival={festival}
                 index={index}
                 accent={ACCENTS[index % ACCENTS.length]}
+                locale={locale}
               />
             ))}
 

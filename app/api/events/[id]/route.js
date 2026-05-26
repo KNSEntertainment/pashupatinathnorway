@@ -65,6 +65,12 @@ export async function PUT(request, { params }) {
 			const maxAttendees = formData.get("maxAttendees");
 			eventData.maxAttendees = maxAttendees ? parseInt(maxAttendees) : null;
 		}
+		
+		// Handle festival linkage fields
+		if (formData.has("festivalId")) {
+			const festivalId = formData.get("festivalId");
+			eventData.festivalId = festivalId || null;
+		}
 
 		const handleUpload = async (formKey, urlField) => {
 			const file = formData.get(formKey);
