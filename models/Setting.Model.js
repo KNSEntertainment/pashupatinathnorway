@@ -15,6 +15,7 @@ const SettingSchema = new mongoose.Schema({
 	companyLogo: String,
 	organizationNumber: String,
 	dateOfEstablishment: String,
+	website: String,
 });
 
 export default mongoose.models.Setting || mongoose.model("Setting", SettingSchema);

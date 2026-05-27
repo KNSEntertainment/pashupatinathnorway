@@ -2,12 +2,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
 import UniversalLoader from "@/components/ui/UniversalLoader";
 
-// Dynamically import the message components to avoid SSR issues
-const MessageInbox = dynamic(() => import("@/components/messages/MessageInboxNew"), { ssr: false });
-const MessageDetail = dynamic(() => import("@/components/messages/MessageDetail"), { ssr: false });
 // const MessageCompose = dynamic(() => import("@/components/messages/MessageCompose"), { ssr: false });
 
 // Import Message type from components to ensure consistency
@@ -27,12 +23,11 @@ export default function MessagesPage() {
   const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([]);
   // const [recipients, setRecipients] = useState<Recipient[]>([]);
-  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
+  const [expandedMessage, setExpandedMessage] = useState<string | null>(null);
     // const [showCompose, setShowCompose] = useState(false);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filter, setFilter] = useState<"all" | "unread" | "starred" | "important">("all");
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -106,14 +101,6 @@ export default function MessagesPage() {
         ));
         
         setUnreadCount(prev => Math.max(0, prev - 1));
-        
-        if (selectedMessage && selectedMessage._id === messageId) {
-          setSelectedMessage(prev => prev ? ({
-            ...prev,
-            status: "read" as const,
-            readAt: new Date().toISOString()
-          }) : null);
-        }
 
         // Dispatch event to notify other components of message status change
         window.dispatchEvent(new CustomEvent('messageStatusChanged'));
@@ -121,22 +108,8 @@ export default function MessagesPage() {
     } catch (error) {
       console.error("Error marking message as read:", error);
     }
-  }, [selectedMessage]);
+  }, []);
 
-  // Auto-select first message when messages are loaded
-  useEffect(() => {
-    if (messages.length > 0 && !selectedMessage) {
-      const firstMessage = messages[0];
-      setSelectedMessage(firstMessage);
-      
-      // Mark the first message as read if it's unread
-      if (firstMessage.status !== "read") {
-        handleMarkAsRead(firstMessage._id);
-      }
-    }
-  }, [messages, selectedMessage, handleMarkAsRead]);
-
-  
   const handleMessageDelete = async (messageId: string) => {
     try {
       const response = await fetch(`/api/messages/${messageId}`, {
@@ -145,7 +118,7 @@ export default function MessagesPage() {
       
       if (response.ok) {
         setMessages(prev => prev.filter(msg => msg._id !== messageId));
-        setSelectedMessage(null);
+        setExpandedMessage(null);
       } else {
         console.error("Failed to delete message");
       }
@@ -154,120 +127,17 @@ export default function MessagesPage() {
     }
   };
 
-  const handleMessageStar = async (messageId: string) => {
-    try {
-      const message = messages.find(msg => msg._id === messageId);
-      const action = message?.isStarred ? "unstar" : "star";
-      
-      const response = await fetch(`/api/messages/${messageId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ action }),
-      });
-      
-      if (response.ok) {
-        setMessages(prev => prev.map(msg => 
-          msg._id === messageId 
-            ? { ...msg, isStarred: !msg.isStarred }
-            : msg
-        ));
-        
-        if (selectedMessage && selectedMessage._id === messageId) {
-          setSelectedMessage(prev => prev ? ({
-            ...prev,
-            isStarred: !prev.isStarred
-          }) : null);
-        }
-      }
-    } catch (error) {
-      console.error("Error updating message:", error);
-    }
-  };
-
-  
-  const handleMarkAsUnread = async (messageId: string) => {
-    try {
-      const response = await fetch(`/api/messages/${messageId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ action: "markAsUnread" }),
-      });
-      
-      if (response.ok) {
-        setMessages(prev => prev.map(msg => 
-          msg._id === messageId 
-            ? { ...msg, status: "sent" as const, readAt: undefined }
-            : msg
-        ));
-        
-        setUnreadCount(prev => prev + 1);
-        
-        if (selectedMessage && selectedMessage._id === messageId) {
-          setSelectedMessage(prev => prev ? ({
-            ...prev,
-            status: "sent" as const,
-            readAt: undefined
-          }) : null);
-        }
-
-        // Dispatch event to notify other components of message status change
-        window.dispatchEvent(new CustomEvent('messageStatusChanged'));
-      }
-    } catch (error) {
-      console.error("Error marking message as unread:", error);
-    }
-  };
-
-  // const handleSendMessage = async (messageData: {
-  //   recipients: string[];
-  //   subject: string;
-  //   content: string;
-  //   type: "personal";
-  // }) => {
-  //   try {
-  //     const response = await fetch("/api/messages", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify(messageData),
-  //     });
-      
-  //     if (response.ok) {
-  //       fetchMessages(); // Refresh messages
-  //     } else {
-  //       console.error("Failed to send message");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error sending message:", error);
-  //   }
-  // };
-
-  // const handleReply = (message: Message) => {
-  //   setSelectedMessage(message);
-  //   setShowCompose(true);
-  // };
-
-  // const handleForward = (message: Message) => {
-  //   setSelectedMessage(message);
-  //   setShowCompose(true);
-  // };
-
-  
-  const handleMessageClick = (message: Message) => {
-    setSelectedMessage(message);
+  const toggleMessageExpand = (messageId: string) => {
+    setExpandedMessage(prev => prev === messageId ? null : messageId);
     
-    // Automatically mark as read if the message is unread
-    if (message.status !== "read") {
-      handleMarkAsRead(message._id);
+    // Mark as read when expanded
+    const message = messages.find(msg => msg._id === messageId);
+    if (message && message.status !== "read") {
+      handleMarkAsRead(messageId);
     }
   };
 
-  // Filter messages based on search and filter criteria
+  // Simple search filtering
   const filteredMessages = (messages || []).filter((message: Message) => {
     if (!message) return false;
     
@@ -278,13 +148,7 @@ export default function MessagesPage() {
                          (message.sender && message.sender.email && message.sender.email.toLowerCase().includes(searchQuery.toLowerCase())) ||
                          (message.type === "broadcast" && "admin".includes(searchQuery.toLowerCase()));
     
-    const matchesFilter = 
-      filter === "all" ||
-      (filter === "unread" && message.status !== "read") ||
-      (filter === "starred" && message.isStarred) ||
-      (filter === "important" && message.isImportant);
-    
-    return matchesSearch && matchesFilter;
+    return matchesSearch;
   });
 
   if (status === "loading" || loading) {
@@ -298,8 +162,8 @@ export default function MessagesPage() {
   return (
     <div className="h-full bg-white">
       {/* Header */}
-      <div className="border-b border-gray-200 p-4 bg-white">
-        <div className="flex items-center justify-between mb-4">
+      <div className="border-b border-gray-200 p-0 md:p-4 bg-white">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
           <div className="flex items-center space-x-4">
             <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
             {unreadCount > 0 && (
@@ -308,19 +172,10 @@ export default function MessagesPage() {
               </span>
             )}
           </div>
-          {/* <button
-            onClick={() => setShowCompose(true)}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            <span>Compose</span>
-          </button> */}
         </div>
 
-        {/* Search and Filters */}
-        <div className="flex items-center space-x-4">
+        {/* Search Only */}
+        <div className="flex flex-col md:flex-row md:items-center gap-4">
           <div className="relative flex-1 max-w-md">
             <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -333,63 +188,116 @@ export default function MessagesPage() {
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value as "all" | "unread" | "starred" | "important")}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="all">All Messages</option>
-            <option value="unread">Unread</option>
-            <option value="starred">Starred</option>
-            <option value="important">Important</option>
-          </select>
         </div>
       </div>
 
-      {/* Main Content - Clean 2 Column Layout */}
-      <div className="flex h-[calc(100vh-80px)] bg-white">
-        {/* Column 1: Message List - Shows subject, sender, etc */}
-        <div className={`${selectedMessage ? "w-1/3" : "w-full"} border-r border-gray-200 bg-white`}>
-          <MessageInbox
-            messages={filteredMessages}
-            onMessageStar={handleMessageStar}
-            onMessageClick={handleMessageClick}
-          />
-        </div>
-
-        {/* Column 2: Message Content - Shows full message with collapsible details */}
-        {selectedMessage && (
-          <div className="flex-1 bg-white">
-            <MessageDetail
-              message={selectedMessage}
-              onBack={() => setSelectedMessage(null)}
-              onReply={() => {}}
-              onForward={() => {}}
-              onDelete={handleMessageDelete}
-              onStar={handleMessageStar}
-              onMarkAsRead={handleMarkAsRead}
-              onMarkAsUnread={handleMarkAsUnread}
-            />
+      {/* Simple Message List */}
+      <div className="py-4 md:p-4 space-y-2">
+        {filteredMessages.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            <svg className="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+            </svg>
+            <p>No messages found</p>
           </div>
+        ) : (
+          filteredMessages.map((message) => (
+            <div
+              key={message._id}
+              className={`border rounded-lg p-4 cursor-pointer transition-colors ${
+                message.status !== "read" ? "bg-blue-50 border-blue-200" : "bg-white border-gray-200"
+              } ${expandedMessage === message._id ? "shadow-md" : "hover:shadow-sm"}`}
+              onClick={() => toggleMessageExpand(message._id)}
+            >
+              {/* Message Header */}
+              <div className="flex items-start justify-between mb-2">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={`text-sm font-medium ${
+                      message.status !== "read" ? "text-blue-900" : "text-gray-900"
+                    }`}>
+                      {message.sender ? 
+                        `${message.sender.firstName} ${message.sender.lastName}` : 
+                        (message.type === "broadcast" ? "Temple Admin" : "Unknown Sender")
+                      }
+                    </span>
+                    {message.status !== "read" && (
+                      <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">New</span>
+                    )}
+                  </div>
+                  <h3 className={`font-medium mb-1 ${
+                    message.status !== "read" ? "text-blue-900 font-semibold" : "text-gray-900"
+                  }`}>
+                    {message.subject || "No Subject"}
+                  </h3>
+                </div>
+                <div className="text-xs text-gray-500 ml-4">
+                  {new Date(message.createdAt).toLocaleDateString()}
+                </div>
+              </div>
+
+              {/* Message Content - Show preview or full content */}
+              <div className="text-sm text-gray-600">
+                {expandedMessage === message._id ? (
+                  <div className="space-y-3">
+                    {/* Full Content */}
+                    <div className="prose prose-sm max-w-none">
+                      <p className="text-gray-700 whitespace-pre-wrap">
+                        {message.content || "No content"}
+                      </p>
+                    </div>
+                    
+                    {/* Action Buttons */}
+                    <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                      <div className="text-xs text-gray-500">
+                        {new Date(message.createdAt).toLocaleString()}
+                      </div>
+                      <div className="flex gap-3">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleMessageExpand(message._id);
+                          }}
+                          className="text-blue-600 hover:text-blue-700 text-sm"
+                        >
+                          Collapse
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMessageDelete(message._id);
+                          }}
+                          className="text-red-600 hover:text-red-700 text-sm"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  /* Preview with expand button */
+                  <div>
+                    <p className="line-clamp-2">
+                      {message.content || "No content"}
+                    </p>
+                    {(message.content && message.content.length > 100) && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleMessageExpand(message._id);
+                        }}
+                        className="text-blue-600 hover:text-blue-700 text-sm mt-1"
+                      >
+                        Read more
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))
         )}
       </div>
-
-      {/* Compose Modal */}
-      {/* {showCompose && (
-        <MessageCompose
-          recipients={recipients}
-          onClose={() => {
-            setShowCompose(false);
-            setSelectedMessage(null);
-          }}
-          onSend={handleSendMessage}
-          isReplying={!!selectedMessage}
-          replyToMessage={selectedMessage ? {
-            subject: selectedMessage.subject,
-            recipientName: selectedMessage.sender ? `${selectedMessage.sender.firstName} ${selectedMessage.sender.lastName}` : 'Unknown Sender'
-          } : undefined}
-        />
-      )} */}
     </div>
   );
 }

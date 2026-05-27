@@ -227,14 +227,14 @@ export default function ProfileClient({ translations: t }: Props) {
 	};
 
 	return (
-			<div className=" space-y-6">
+			<div className="space-y-6">
 			<div className="mb-8">
 				{/* Header */}
 				<div className="mb-8">
 					<h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{t.title}</h1>
 				</div>
 
-				<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
 					{/* Profile Card */}
 					<Card className="md:col-span-1 shadow-sm border-0">
 						<CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
@@ -253,7 +253,7 @@ export default function ProfileClient({ translations: t }: Props) {
 								</Badge>
 							</div>
 						</CardHeader>
-						<CardContent className="pt-6 space-y-3">
+						<CardContent className="pt-4 md:pt-6 space-y-3">
 							<Button onClick={() => fileInputRef.current?.click()} disabled={uploading} variant="outline" className="w-full">
 								<Upload className="w-4 h-4 mr-2" />
 								{uploading ? "Uploading..." : "Upload Photo"}
@@ -279,8 +279,8 @@ export default function ProfileClient({ translations: t }: Props) {
 								{t.personalInfo}
 							</CardTitle>
 						</CardHeader>
-						<CardContent>
-							<div className="grid grid-cols-1 gap-6">
+						<CardContent className="px-4 md:px-0">
+							<div className="grid grid-cols-1 gap-4 md:gap-6">
 							
 
 
@@ -335,8 +335,8 @@ export default function ProfileClient({ translations: t }: Props) {
 								{t.membershipDetails}
 							</CardTitle>
 						</CardHeader>
-						<CardContent>
-							<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+						<CardContent className="px-4 md:px-0">
+							<div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
 								<div className="space-y-2">
 									<label className="text-sm font-semibold text-gray-900">{t.membershipStatus}</label>
 									<div>{getStatusBadge(membershipData.membershipStatus)}</div>

@@ -35,6 +35,7 @@ export default function MemberPublicationsClient() {
   const [selectedType, setSelectedType] = useState("all");
   const [selectedLanguage, setSelectedLanguage] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
+  const [expandedDescriptions, setExpandedDescriptions] = useState<Set<string>>(new Set());
   // Get user access levels based on role
   const getUserAccessLevels = useCallback(() => {
     if (!session?.user?.role) return ["all"]; // Default to all if no role
@@ -149,14 +150,30 @@ export default function MemberPublicationsClient() {
       default: return "🌐";
     }
   };
+
+  const toggleDescription = (publicationId: string) => {
+    setExpandedDescriptions(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(publicationId)) {
+        newSet.delete(publicationId);
+      } else {
+        newSet.add(publicationId);
+      }
+      return newSet;
+    });
+  };
+
+  const getWordCount = (text: string) => {
+    return text.trim().split(/\s+/).length;
+  };
   return (
     <div className="min-h-screen">
       {/* Header */}
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Member Publications</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Member Publications</h1>
  
       {/* Search and Filters */}
       <div className="border-b sticky top-0 z-10 shadow-sm">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 md:px-0 py-8">
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Search Bar */}
             <div className="flex max-w-lg relative">
@@ -227,77 +244,153 @@ export default function MemberPublicationsClient() {
             </p>
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Publication
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Type
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Language
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Published Date
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {filteredPublications.map((publication: Publication, index) => (
-                    <tr key={publication.id} className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-red-50 transition-colors`}>
-                      <td className="px-6 py-4 max-w-sm">
-                        <div>
-                          <div className="text-sm font-medium text-gray-900 line-clamp-2 mb-1">
-                            {publication.title}
-                          </div>
-                          <div className="text-sm text-gray-500 line-clamp-2">
-                            {publication.description}
-                          </div>
+          <>
+            {/* Mobile: Simple Div Layout */}
+            <div className="md:hidden bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              <div className="divide-y divide-gray-200">
+                {filteredPublications.map((publication: Publication) => (
+                  <div key={publication.id} className="p-4 hover:bg-red-50 transition-colors">
+                    <div className="space-y-3">
+                      <div>
+                        <h3 className="font-medium text-gray-900 md:line-clamp-2 mb-1">
+                          {publication.title}
+                        </h3>
+                        <div className="text-sm text-gray-500">
+                          {publication.description && (
+                            <>
+                              {getWordCount(publication.description) > 20 && !expandedDescriptions.has(publication.id) ? (
+                                <>
+                                  <span className="line-clamp-2">
+                                    {publication.description.split(' ').slice(0, 20).join(' ')}...
+                                  </span>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      toggleDescription(publication.id);
+                                    }}
+                                    className="text-blue-600 hover:text-blue-700 text-xs ml-1"
+                                  >
+                                    See more
+                                  </button>
+                                </>
+                              ) : (
+                                <>
+                                  <span className={expandedDescriptions.has(publication.id) ? '' : 'md:line-clamp-2'}>
+                                    {publication.description}
+                                  </span>
+                                  {getWordCount(publication.description) > 20 && expandedDescriptions.has(publication.id) && (
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        toggleDescription(publication.id);
+                                      }}
+                                      className="text-blue-600 hover:text-blue-700 text-xs ml-1"
+                                    >
+                                      See less
+                                    </button>
+                                  )}
+                                </>
+                              )}
+                            </>
+                          )}
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full border ${getTypeColor(publication.type)}`}>
-                          {getTypeLabel(publication.type)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <span className="text-2xl mr-2">{getLanguageFlag(publication.language)}</span>
-                          <span className="text-sm text-gray-600">
-                            {publication.language === 'en' ? 'English' : 
-                             publication.language === 'ne' ? 'नेपाली' : 
-                             publication.language === 'no' ? 'Norsk' : 'Unknown'}
-                          </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                          <span>{getLanguageFlag(publication.language)}</span>
+                          <span>{new Date(publication.publishedDate).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric',
+                            year: '2-digit'
+                          })}</span>
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <div className="flex items-center">
-                          <Calendar className="w-4 h-4 mr-2" />
-                          {new Date(publication.publishedDate).toLocaleDateString()}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <button
                           onClick={() => window.open(publication.downloadUrl, '_blank')}
-                          className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                          className="flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-xs"
                         >
-                          <Download className="w-4 h-4" />
+                          <Download className="w-3 h-3" />
                           Download
                         </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+
+            {/* Desktop: Table Layout */}
+            <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Publication
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Type
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Language
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Published Date
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {filteredPublications.map((publication: Publication, index) => (
+                      <tr key={publication.id} className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-red-50 transition-colors`}>
+                        <td className="px-6 py-4 md:max-w-sm">
+                          <div>
+                            <div className="text-sm font-medium text-gray-900 line-clamp-2 mb-1">
+                              {publication.title}
+                            </div>
+                            <div className="text-sm text-gray-500 line-clamp-2">
+                              {publication.description}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full border ${getTypeColor(publication.type)}`}>
+                            {getTypeLabel(publication.type)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <span className="text-2xl mr-2">{getLanguageFlag(publication.language)}</span>
+                            <span className="text-sm text-gray-600">
+                              {publication.language === 'en' ? 'English' : 
+                               publication.language === 'ne' ? 'नेपाली' : 
+                               publication.language === 'no' ? 'Norsk' : 'Unknown'}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <div className="flex items-center">
+                            <Calendar className="w-4 h-4 mr-2" />
+                            {new Date(publication.publishedDate).toLocaleDateString()}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <button
+                            onClick={() => window.open(publication.downloadUrl, '_blank')}
+                            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                          >
+                            <Download className="w-4 h-4" />
+                            Download
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
         )}
       </div>
     </div>

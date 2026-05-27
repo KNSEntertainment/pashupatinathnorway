@@ -20,6 +20,7 @@ interface Settings {
 	companyLogo?: string;
 	organizationNumber?: string;
 	dateOfEstablishment?: string;
+	website?: string;
 }
 
 interface MemberIDCardProps {
@@ -103,7 +104,7 @@ export default function MemberIDCard({ memberData, settings }: MemberIDCardProps
 							{/* Member ID */}
 							<div>
 								<p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wide">Member ID</p>
-								<p className="text-sm font-bold text-brand_primary">{memberData.membershipId || membershipNumber}</p>
+								<p className="text-sm font-bold text-brand_secondary">{memberData.membershipId || membershipNumber}</p>
 							</div>
 							{/* Name */}
 							<div>
@@ -156,7 +157,7 @@ export default function MemberIDCard({ memberData, settings }: MemberIDCardProps
 					<div className="absolute bottom-0 w-full bg-brand_secondary px-6 py-4">
 								
 								<div className="flex justify-center items-center">
-									<p className="text-xs text-gray-100">http://pashupatinathnorway.vercel.app/</p>
+									<p className="text-xs text-gray-100">{settings?.[0]?.website || 'www.nepalihindu.no'}</p>
 								</div>
 					</div>
 				</div>
@@ -206,7 +207,7 @@ export default function MemberIDCard({ memberData, settings }: MemberIDCardProps
 
 						{/* Organization Info */}
 						<div className="border-t border-light pt-3">
-							<p className="text-[10px] font-bold text-brand_primary mb-1">Pashupatinath Norway Temple</p>
+							<p className="text-[10px] font-bold text-brand_secondary mb-1">{settings?.[0]?.name || 'Pashupatinath Norway Temple'}</p>
 							<p className="text-[9px] text-gray-600 mt-1">Org nr. {settings?.[0]?.organizationNumber || '926499211'}</p>
 						</div>
 					</div>

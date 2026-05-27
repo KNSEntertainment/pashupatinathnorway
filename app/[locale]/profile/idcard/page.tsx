@@ -145,8 +145,8 @@ export default function IDCardPage() {
     }
 
     return (
-        <div className="space-y-6">
-            <div className="mb-8 flex gap-4">
+        <div className="px-4 md:px-0 space-y-6">
+            <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">My ID Card</h1>
                 <Button onClick={handlePrint} variant="outline" className="border-brand text-brand_secondary hover:bg-brand_secondary/10">
 					<Printer className="w-4 h-4" />
@@ -189,7 +189,7 @@ export default function IDCardPage() {
             {/* Show message if membership is not approved */}
             {membershipData && membershipData.membershipStatus !== "approved" && (
                 <Card className="border-orange-200 bg-orange-50">
-                    <CardContent className="p-6 text-center">
+                    <CardContent className="p-4 md:p-6 text-center">
                         <CreditCard className="w-12 h-12 mx-auto mb-4 text-orange-600" />
                         <h3 className="text-lg font-semibold text-orange-900 mb-2">Membership Not Approved</h3>
                         <p className="text-orange-700">
@@ -205,7 +205,7 @@ export default function IDCardPage() {
             {/* Show message if no membership data */}
             {!membershipData && (
                 <Card className="border-gray-200 bg-gray-50">
-                    <CardContent className="p-6 text-center">
+                    <CardContent className="p-4 md:p-6 text-center">
                         <CreditCard className="w-12 h-12 mx-auto mb-4 text-gray-400" />
                         <h3 className="text-lg font-semibold text-gray-700 mb-2">No Membership Data Found</h3>
                         <p className="text-gray-600">

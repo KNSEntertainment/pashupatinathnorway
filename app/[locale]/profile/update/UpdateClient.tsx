@@ -583,7 +583,7 @@ export default function UpdateClient({ translations: t }: Props) {
         {/* Personal Information Card */}
         <Card className="shadow-lg border-0 mb-6 bg-brand_primary/10">
           <CardHeader>
-            <CardTitle className="flex items-center text-2xl">
+            <CardTitle className="flex items-center text-xl md:text-2xl">
               <User className="w-6 h-6 mr-2 text-blue-600" />
               {t.personalInfo || "Personal Information"}
             </CardTitle>
@@ -597,7 +597,7 @@ export default function UpdateClient({ translations: t }: Props) {
                   Personal Information
                 </h3>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="firstName" className="text-sm font-semibold text-gray-900">
                       First Name
@@ -773,7 +773,7 @@ export default function UpdateClient({ translations: t }: Props) {
         {/* Change Email Card */}
         <Card className="shadow-lg border-0">
           <CardHeader>
-            <CardTitle className="flex items-center text-2xl">
+            <CardTitle className="flex items-center text-xl md:text-2xl">
               <Mail className="w-6 h-6 mr-2 text-blue-600" />
               {t.changeEmail || "Change Email"}
             </CardTitle>
@@ -932,7 +932,7 @@ export default function UpdateClient({ translations: t }: Props) {
         {/* Change Password Card */}
         <Card className="shadow-lg border-0 bg-brand_primary/10">
           <CardHeader>
-            <CardTitle className="flex items-center text-2xl">
+            <CardTitle className="flex items-center text-xl md:text-2xl">
               <Lock className="w-6 h-6 mr-2 text-blue-600" />
               {t.changePassword || "Change Password"}
             </CardTitle>

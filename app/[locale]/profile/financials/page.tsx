@@ -19,7 +19,7 @@ export default function FinancialsPage() {
   if (!isExecutive) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full mx-4">
+        <div className="bg-white p-6 md:p-8 rounded-lg shadow-lg max-w-md w-full mx-4">
           <div className="flex items-center justify-center mb-4">
             <Shield className="text-red-500" size={48} />
           </div>

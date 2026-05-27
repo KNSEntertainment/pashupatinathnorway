@@ -19,6 +19,7 @@ export default function EmployeeForm({ settingdata }) {
 		companyLogo: "",
 		organizationNumber: "",
 		dateOfEstablishment: "",
+		website: "",
 	});
 	const [submitting, setSubmitting] = useState(false);
 	const [message, setMessage] = useState("");

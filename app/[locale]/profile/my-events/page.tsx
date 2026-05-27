@@ -114,11 +114,11 @@ export default function MemberEventsPage() {
   }
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="min-h-screen px-4 md:px-6 py-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Events</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">My Events</h1>
           <p className="text-gray-600">Manage your event tickets and discover upcoming events</p>
         </div>
 
@@ -129,7 +129,7 @@ export default function MemberEventsPage() {
               <Ticket className="w-6 h-6 text-green-600" />
               Active Events
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {activeEvents.map((registration) => (
                 <Card key={registration._id} className="overflow-hidden hover:shadow-lg transition-shadow">
                   <CardHeader className="bg-gradient-to-r from-green-600 to-green-700 text-white">
@@ -139,7 +139,7 @@ export default function MemberEventsPage() {
                       {new Date(registration.eventId.eventdate).toLocaleDateString()}
                     </div>
                   </CardHeader>
-                  <CardContent className="p-6">
+                  <CardContent className="p-4 md:p-6">
                     <div className="space-y-3">
                       <div className="flex items-center gap-2 text-gray-600">
                         <Clock className="w-4 h-4" />
@@ -195,7 +195,7 @@ export default function MemberEventsPage() {
                       {new Date(registration.eventId.eventdate).toLocaleDateString()}
                     </div>
                   </CardHeader>
-                  <CardContent className="p-6">
+                  <CardContent className="p-4 md:p-6">
                     <div className="space-y-3">
                       <div className="flex items-center gap-2 text-gray-600">
                         <Clock className="w-4 h-4" />
@@ -243,7 +243,7 @@ export default function MemberEventsPage() {
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                   </div>
-                  <CardContent className="p-6">
+                  <CardContent className="p-4 md:p-6">
                     <h3 className="text-xl font-semibold text-gray-900 mb-3">{event.eventname}</h3>
                     <div className="space-y-2 mb-4">
                       <div className="flex items-center gap-2 text-gray-600">
@@ -303,8 +303,8 @@ export default function MemberEventsPage() {
             <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
               <Calendar className="w-10 h-10 text-gray-400" />
             </div>
-            <h3 className="text-2xl font-semibold text-gray-900 mb-3">No Events Found</h3>
-            <p className="text-gray-600 max-w-md mx-auto mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">No Events Found</h3>
+            <p className="text-sm text-gray-600 max-w-md mx-auto mb-8">
               You haven&apos;t registered for any events yet, and there are no upcoming events available.
             </p>
             <Link

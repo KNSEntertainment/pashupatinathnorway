@@ -140,7 +140,7 @@ export default function MemberDonationPage() {
 	console.log("Stats:", stats);
 
 	return (
-		<div className="space-y-6">
+		<div className="px-4 md:px-0 space-y-6">
 			{/* Header */}
 			<div className="mb-8">
 				<h1 className="text-3xl font-bold text-gray-900 mb-2">Donations</h1>
@@ -151,7 +151,7 @@ export default function MemberDonationPage() {
 			{/* Donation Stats */}
 			<div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
 				<Card>
-					<CardContent className="p-6">
+					<CardContent className="p-4 md:p-6">
 						<div className="flex items-center">
 							<DollarSign className="h-8 w-8 text-blue-600" />
 							<div className="ml-4">
@@ -163,7 +163,7 @@ export default function MemberDonationPage() {
 				</Card>
 
 				<Card>
-					<CardContent className="p-6">
+					<CardContent className="p-4 md:p-6">
 						<div className="flex items-center">
 							<Heart className="h-8 w-8 text-red-600" />
 							<div className="ml-4">
@@ -175,7 +175,7 @@ export default function MemberDonationPage() {
 				</Card>
 
 				<Card>
-					<CardContent className="p-6">
+					<CardContent className="p-4 md:p-6">
 						<div className="flex items-center">
 							<TrendingUp className="h-8 w-8 text-green-600" />
 							<div className="ml-4">
@@ -187,7 +187,7 @@ export default function MemberDonationPage() {
 				</Card>
 
 				<Card>
-					<CardContent className="p-6">
+					<CardContent className="p-4 md:p-6">
 						<div className="flex items-center">
 							<Calendar className="h-8 w-8 text-purple-600" />
 							<div className="ml-4">
@@ -199,7 +199,7 @@ export default function MemberDonationPage() {
 				</Card>
 			</div>
 
-		<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+		<div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
 				
 			{/* Make a Donation Section */}
 			<Card className="col-span-2">

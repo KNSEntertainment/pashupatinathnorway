@@ -254,16 +254,16 @@ export default function DataManagement() {
 
                 return (
          <>
-                    <Card className="mt-6 shadow-sm border-0">
+                    <Card className="mt-2 md:mt-6 shadow-sm border-0">
                         <CardHeader>
                             <CardTitle className="flex items-center text-2xl">
                                 <Download className="w-6 h-6 mr-2 text-blue-600" />
                                 Data Management
                             </CardTitle>
                         </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <CardContent className="px-4 md:px-0">
+                            <div className="space-y-3 md:space-y-4">
+                                <div className="flex flex-col md:flex-row md:items-center md:justify-between p-4 bg-gray-50 rounded-lg gap-3">
                                     <div className="flex-1">
                                         <h3 className="font-semibold text-gray-900 mb-1">Download Your Data</h3>
                                         <p className="text-sm text-gray-600">Export all your personal data in CSV format</p>
@@ -279,7 +279,7 @@ export default function DataManagement() {
                                     </Button>
                                 </div>
        
-                                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                <div className="flex flex-col md:flex-row md:items-center md:justify-between p-4 bg-gray-50 rounded-lg gap-3">
                                     <div className="flex-1">
                                         <h3 className="font-semibold text-gray-900 mb-1">Email Subscription</h3>
                                         <p className="text-sm text-gray-600">
@@ -311,7 +311,7 @@ export default function DataManagement() {
                                     )}
                                 </div>
        
-                                <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-200">
+                                <div className="flex flex-col md:flex-row md:items-center md:justify-between p-4 bg-red-50 rounded-lg border border-red-200 gap-3">
                                     <div className="flex-1">
                                         <h3 className="font-semibold text-red-600 mb-1">Delete Account</h3>
                                         <p className="text-sm text-red-600">Permanently delete your account and all data</p>
