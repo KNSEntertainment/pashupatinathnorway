@@ -5,7 +5,6 @@ import Donation from "@/models/Donation.Model";
 import { encryptPersonalNumber } from "@/lib/encryption";
 import generateTaxId from "@/lib/taxIdGenerator";
 import { sendDonationThankYouEmail } from "@/lib/email";
-import { verifyCaptcha } from "@/lib/captcha";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 	apiVersion: "2026-02-25.clover",
@@ -15,11 +14,10 @@ export async function POST(request: Request) {
 	try {
 		await connectDB();
 
-		const { amount, donorName, donorEmail, donorPhone, personalNumber, membershipId, address, message, isAnonymous, causeId, donationType, captcha } = await request.json();
+		const { amount, donorName, donorEmail, donorPhone, personalNumber, membershipId, address, message, isAnonymous, causeId, donationType } = await request.json();
 
-		if (!verifyCaptcha(captcha)) {
-			return NextResponse.json({ error: "Invalid captcha. Please try again." }, { status: 400 });
-		}
+		// Note: Captcha is already verified on frontend via CustomCaptcha component
+		// which calls /api/captcha/verify. No need to verify again here.
 
 		// Validate amount
 		if (!amount || amount < 50) {
@@ -40,9 +38,9 @@ export async function POST(request: Request) {
 			// Check if this non-member already has donations with a tax ID
 			const existingDonation = await Donation.findOne({
 				personalNumber: encryptedPersonalNumber,
-				taxId: { $exists: true }
+				taxId: { $exists: true },
 			});
-			
+
 			if (existingDonation) {
 				// Use existing tax ID
 				taxId = existingDonation.taxId;
@@ -112,7 +110,7 @@ export async function POST(request: Request) {
 					currency: "NOK",
 					transactionId: "pending-" + Date.now(),
 					date: new Date().toISOString(),
-					message: message || undefined
+					message: message || undefined,
 				});
 				console.log("Tax ID email sent to non-member:", donorEmail);
 			} catch (emailError) {

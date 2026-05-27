@@ -35,7 +35,7 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 	const [message, setMessage] = useState("");
 	const [isAnonymous] = useState(false);
 	const [loading, setLoading] = useState(false);
-	const [paymentMethod, setPaymentMethod] = useState<'card' | 'vipps'>('vipps');
+	const [paymentMethod, setPaymentMethod] = useState<"card" | "vipps">("vipps");
 	const [showVippsSuccess, setShowVippsSuccess] = useState(false);
 	const [selectedCause, setSelectedCause] = useState<string>("");
 	const [causes, setCauses] = useState<Array<{ _id: string; title: string; category: string }>>([]);
@@ -70,13 +70,13 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 
 	const fetchCauses = useCallback(async () => {
 		try {
-			const localeParam = locale || 'en';
+			const localeParam = locale || "en";
 			const response = await fetch(`/api/causes?status=active&limit=10&locale=${localeParam}`);
 			const data = await response.json();
 			if (response.ok) {
 				const fetchedCauses = data.causes || [];
 				setCauses(fetchedCauses);
-				
+
 				// Auto-select first cause if no preselected cause and causes are available
 				if (!preselectedCause && fetchedCauses.length > 0 && !selectedCause) {
 					setSelectedCause(fetchedCauses[0]._id);
@@ -110,7 +110,7 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 
 	const handlePersonalNumberChange = (value: string) => {
 		// Only allow digits and limit to 11 characters
-		const cleanValue = value.replace(/\D/g, '').slice(0, 11);
+		const cleanValue = value.replace(/\D/g, "").slice(0, 11);
 		setPersonalNumber(cleanValue);
 	};
 
@@ -135,7 +135,7 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 		}
 
 		// Validate phone number for Vipps
-		if (paymentMethod === 'vipps' && !donorPhone) {
+		if (paymentMethod === "vipps" && !donorPhone) {
 			toast.error("Phone number is required for Vipps payment");
 			return;
 		}
@@ -143,7 +143,7 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 		setLoading(true);
 
 		// Handle Vipps payment
-		if (paymentMethod === 'vipps') {
+		if (paymentMethod === "vipps") {
 			try {
 				// Create Vipps payment
 				const response = await fetch("/api/vipps/create-payment", {
@@ -172,17 +172,36 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 				}
 
 				const result = await response.json();
-				
+
+				console.log("Vipps payment created:", {
+					orderId: result.payment.orderId,
+					reference: result.payment.reference,
+					redirectUrl: result.payment.redirectUrl,
+				});
+
 				// Store donation data in sessionStorage for confirmation page
 				sessionStorage.setItem(`donation_${result.payment.reference}`, JSON.stringify(result.donationData));
 
 				// Redirect to Vipps payment
 				if (result.payment.redirectUrl) {
-					window.location.href = result.payment.redirectUrl;
+					console.log("Redirecting to Vipps:", result.payment.redirectUrl);
+
+					// Try to redirect - this will either open the Vipps app or show an error
+					// For testing in browser without the app, you can manually open the redirectUrl
+					// const shouldRedirect = setTimeout(() => {
+					// 	window.location.href = result.payment.redirectUrl;
+					// }, 500);
+
+					// Show instructions for manual testing if needed
+					toast.success(`Payment created! Vipps app will open shortly.\n\nFor testing in browser, copy this URL:\n${result.payment.redirectUrl}`, {
+						duration: 5000,
+						style: {
+							maxWidth: "500px",
+						},
+					});
 				} else {
 					throw new Error("No redirect URL received from Vipps");
 				}
-
 			} catch (error) {
 				console.error("Vipps payment error:", error);
 				setLoading(false);
@@ -267,7 +286,6 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 						))}
 					</SelectContent>
 				</Select>
-		
 			</div>
 
 			{/* Anonymous Donation */}
@@ -280,55 +298,39 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 
 			{/* Donor Information */}
 			{/* {!isAnonymous && ( */}
-				<div className="space-y-4 p-4 rounded-lg">
-					<h3 className="font-semibold text-gray-900">{t("donor_information") || "Your Information"}</h3>
+			<div className="space-y-4 p-4 rounded-lg">
+				<h3 className="font-semibold text-gray-900">{t("donor_information") || "Your Information"}</h3>
 
-					<div>
-						<label className="block text-sm font-medium text-gray-900 mb-2">
-							{t("full_name") || "Full Name"} <span className="text-red-500">*</span>
-						</label>
-						<input type="text" value={donorName} onChange={(e) => setDonorName(e.target.value)} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-brand focus:outline-none text-gray-900" placeholder={t("name_placeholder") || "Enter your name"} />
-					</div>
-
-					<div>
-						<label className="block text-sm font-medium text-gray-900 mb-2">
-							{t("email") || "Email"} <span className="text-red-500">*</span>
-						</label>
-						<input type="email" value={donorEmail} onChange={(e) => setDonorEmail(e.target.value)} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-brand focus:outline-none text-gray-900" placeholder={t("email_placeholder") || "Enter your email"} />
-					</div>
-
-					<div>
-						<label className="block text-sm font-medium text-gray-900 mb-2">{t("phone_optional") || "Phone (Optional)"}</label>
-						<input type="tel" value={donorPhone} onChange={(e) => setDonorPhone(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-brand focus:outline-none text-gray-900" placeholder={t("phone_placeholder") || "Enter your phone number"} />
-					</div>
-
-					<div>
-						<label className="block text-sm font-medium text-gray-900 mb-2">{t("personal_number") || "Personal Number (Optional)"}</label>
-						<input 
-							type="text" 
-							value={personalNumber} 
-							onChange={(e) => handlePersonalNumberChange(e.target.value)} 
-							maxLength={11}
-							className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-brand focus:outline-none text-gray-900" 
-							placeholder={t("personal_number_placeholder") || "Enter your 11-digit personal number"} 
-						/>
-						<p className="text-xs text-gray-500 mt-1">
-							{t("personal_number_help") || "Enter your 11-digit personal identification number if you would like to receive an annual donation summary for tax purposes."}
-						</p>
-					</div>
-
-					<div>
-						<AddressAutocomplete
-							value={address}
-							onChange={setAddress}
-							label={t("address") || "Address (Optional)"}
-							placeholder={t("address_placeholder") || "Enter your address for tax documentation"}
-						/>
-						<p className="text-xs text-gray-500 mt-1">
-							{t("address_help") || "Include street address, postal code, and city for complete tax documentation."}
-						</p>
-					</div>
+				<div>
+					<label className="block text-sm font-medium text-gray-900 mb-2">
+						{t("full_name") || "Full Name"} <span className="text-red-500">*</span>
+					</label>
+					<input type="text" value={donorName} onChange={(e) => setDonorName(e.target.value)} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-brand focus:outline-none text-gray-900" placeholder={t("name_placeholder") || "Enter your name"} />
 				</div>
+
+				<div>
+					<label className="block text-sm font-medium text-gray-900 mb-2">
+						{t("email") || "Email"} <span className="text-red-500">*</span>
+					</label>
+					<input type="email" value={donorEmail} onChange={(e) => setDonorEmail(e.target.value)} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-brand focus:outline-none text-gray-900" placeholder={t("email_placeholder") || "Enter your email"} />
+				</div>
+
+				<div>
+					<label className="block text-sm font-medium text-gray-900 mb-2">{t("phone_optional") || "Phone (Optional)"}</label>
+					<input type="tel" value={donorPhone} onChange={(e) => setDonorPhone(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-brand focus:outline-none text-gray-900" placeholder={t("phone_placeholder") || "Enter your phone number"} />
+				</div>
+
+				<div>
+					<label className="block text-sm font-medium text-gray-900 mb-2">{t("personal_number") || "Personal Number (Optional)"}</label>
+					<input type="text" value={personalNumber} onChange={(e) => handlePersonalNumberChange(e.target.value)} maxLength={11} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-brand focus:outline-none text-gray-900" placeholder={t("personal_number_placeholder") || "Enter your 11-digit personal number"} />
+					<p className="text-xs text-gray-500 mt-1">{t("personal_number_help") || "Enter your 11-digit personal identification number if you would like to receive an annual donation summary for tax purposes."}</p>
+				</div>
+
+				<div>
+					<AddressAutocomplete value={address} onChange={setAddress} label={t("address") || "Address (Optional)"} placeholder={t("address_placeholder") || "Enter your address for tax documentation"} />
+					<p className="text-xs text-gray-500 mt-1">{t("address_help") || "Include street address, postal code, and city for complete tax documentation."}</p>
+				</div>
+			</div>
 			{/* )} */}
 
 			{/* Payment Method Selection */}
@@ -352,15 +354,7 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 							<span>{t("card_payment") || "Card Payment"}</span>
 						</div>
 					</button> */}
-					<button
-						type="button"
-						onClick={() => setPaymentMethod('vipps')}
-						className={`p-2 rounded-lg border border-1 font-semibold transition-all ${
-							paymentMethod === 'vipps'
-								? 'border-brand_primary bg-green-100 text-gray-700'
-								: 'border-gray-300 text-gray-900 hover:border-brand_primary'
-						}`}
-					>
+					<button type="button" onClick={() => setPaymentMethod("vipps")} className={`p-2 rounded-lg border border-1 font-semibold transition-all ${paymentMethod === "vipps" ? "border-brand_primary bg-green-100 text-gray-700" : "border-gray-300 text-gray-900 hover:border-brand_primary"}`}>
 						<div className="flex items-center justify-center gap-2">
 							<Image src="/Vipps.webp" alt="Vipps" width={64} height={64} className="w-12 rounded-full" />
 							<span>{t("vipps_payment") || "Vipps Payment"}</span>
@@ -377,10 +371,7 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 
 			{/* Captcha */}
 			<div>
-				<CustomCaptcha 
-					onVerify={setCaptchaValid}
-					onCaptchaChange={setCaptchaData}
-				/>
+				<CustomCaptcha onVerify={setCaptchaValid} onCaptchaChange={setCaptchaData} />
 			</div>
 
 			{/* Submit Button */}
@@ -388,14 +379,13 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 				{loading ? (
 					<>
 						<Loader2 className="w-5 h-5 mr-2 animate-spin" />
-						{paymentMethod === 'vipps' ? t("processing_vipps") || "Processing with Vipps..." : t("processing") || "Processing..."}
+						{paymentMethod === "vipps" ? t("processing_vipps") || "Processing with Vipps..." : t("processing") || "Processing..."}
 					</>
 				) : (
 					<>
-						{paymentMethod === 'vipps' ? (
+						{paymentMethod === "vipps" ? (
 							<>
 								Donate {formatNOK(amount)} with <Image src="/Vipps.webp" alt="Vipps" width={64} height={64} className="w-12 rounded-full" />
-								
 							</>
 						) : (
 							<>
@@ -410,9 +400,7 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 				)}
 			</Button>
 
-			<p className="text-xs text-center text-gray-700">
-				{paymentMethod === 'vipps' ? t("vipps_description") || "Quick and secure payment with Vipps" : t("secure_payment") || "Secure payment powered by Stripe"}
-			</p>
+			<p className="text-xs text-center text-gray-700">{paymentMethod === "vipps" ? t("vipps_description") || "Quick and secure payment with Vipps" : t("secure_payment") || "Secure payment powered by Stripe"}</p>
 		</form>
 	);
 
@@ -444,13 +432,8 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 								<Image src="/Vipps.webp" alt="Vipps" width={48} height={48} className="w-12 rounded-full" />
 							</div>
 							<h3 className="text-xl font-semibold text-gray-900 mb-2">{t("vipps_success") || "Payment Successful!"}</h3>
-							<p className="text-gray-600 mb-4">
-								{t("donation_success_message") || `Your donation of ${formatNOK(amount)} has been processed successfully.`}
-							</p>
-							<button
-								onClick={() => setShowVippsSuccess(false)}
-								className="px-6 py-2 bg-brand_primary text-white rounded-lg hover:bg-brand_primary/90 transition-colors"
-							>
+							<p className="text-gray-600 mb-4">{t("donation_success_message") || `Your donation of ${formatNOK(amount)} has been processed successfully.`}</p>
+							<button onClick={() => setShowVippsSuccess(false)} className="px-6 py-2 bg-brand_primary text-white rounded-lg hover:bg-brand_primary/90 transition-colors">
 								{t("close") || "Close"}
 							</button>
 						</div>

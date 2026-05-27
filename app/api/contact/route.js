@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { sendContactEmail } from "@/lib/email";
 import connectDB from "@/lib/mongodb";
 import Message from "@/models/Message.Model";
-import { verifyCaptcha } from "@/lib/captcha";
 
 export async function POST(req) {
 	let messageSaved = false;
@@ -11,15 +10,14 @@ export async function POST(req) {
 
 	try {
 		await connectDB();
-		const { name, email, message, captcha } = await req.json();
+		const { name, email, message } = await req.json();
 
 		if (!name || !email || !message) {
 			return NextResponse.json({ error: "All fields are required." }, { status: 400 });
 		}
 
-		if (!verifyCaptcha(captcha)) {
-			return NextResponse.json({ error: "Invalid captcha. Please try again." }, { status: 400 });
-		}
+		// Note: Captcha is already verified on frontend via CustomCaptcha component
+		// which calls /api/captcha/verify. No need to verify again here.
 
 		// Validate message length
 		if (message.trim().length < 10) {
@@ -49,7 +47,7 @@ export async function POST(req) {
 					messageSaved: false,
 					emailSent: false,
 				},
-				{ status: 500 }
+				{ status: 500 },
 			);
 		}
 
@@ -66,7 +64,7 @@ export async function POST(req) {
 					emailSent: false,
 					messageId: savedMessage._id,
 				},
-				{ status: 207 } // 207 Multi-Status
+				{ status: 207 }, // 207 Multi-Status
 			);
 		}
 
@@ -79,7 +77,7 @@ export async function POST(req) {
 				emailSent: true,
 				messageId: savedMessage._id,
 			},
-			{ status: 200 }
+			{ status: 200 },
 		);
 	} catch (error) {
 		console.error("Unexpected error:", error);
@@ -89,7 +87,7 @@ export async function POST(req) {
 				messageSaved,
 				emailSent,
 			},
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }

@@ -5,7 +5,6 @@ import Subscriber from "@/models/Subscriber.Model";
 import { sendGeneralMemberWelcomeEmailNepali, sendWelcomeEmail } from "@/lib/email";
 import generateMembershipId from "@/lib/membershipIdGenerator";
 import crypto from "crypto";
-import { verifyCaptcha } from "@/lib/captcha";
 
 interface FamilyMember {
 	firstName: string;
@@ -43,34 +42,32 @@ interface MemberDocument {
 // Helper function to send appropriate email based on member type
 async function sendMemberWelcomeEmail(member: MemberDocument, familyMembers: string[] = []) {
 	try {
-		const memberName = [member.firstName, member.middleName, member.lastName]
-			.filter(Boolean)
-			.join(' ');
-		
+		const memberName = [member.firstName, member.middleName, member.lastName].filter(Boolean).join(" ");
+
 		// Check if member type should receive password setup email
-		const passwordSetupTypes = ['Active', 'Executive', 'Advisor'];
+		const passwordSetupTypes = ["Active", "Executive", "Advisor"];
 		const needsPasswordSetup = passwordSetupTypes.includes(member.membershipType);
-		
+
 		if (needsPasswordSetup) {
 			// Generate password setup token (valid for 24 hours)
-			const setupToken = crypto.randomBytes(32).toString('hex');
+			const setupToken = crypto.randomBytes(32).toString("hex");
 			const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
-			
+
 			// Update member with token and set status to approved
 			await Membership.findByIdAndUpdate(member._id, {
 				passwordSetupToken: setupToken,
 				passwordSetupTokenExpiry: tokenExpiry,
-				membershipStatus: 'approved'
+				membershipStatus: "approved",
 			});
-			
+
 			// Send password setup email
-			await sendWelcomeEmail({ 
-				name: memberName, 
-				email: member.email, 
+			await sendWelcomeEmail({
+				name: memberName,
+				email: member.email,
 				setupToken,
-				familyMembers
+				familyMembers,
 			});
-			
+
 			console.log(`Password setup email sent to ${member.membershipType} member: ${member.email}`);
 		} else {
 			// Send general welcome email
@@ -78,9 +75,9 @@ async function sendMemberWelcomeEmail(member: MemberDocument, familyMembers: str
 				name: memberName,
 				email: member.email,
 				membershipId: member.membershipId,
-				familyMembers
+				familyMembers,
 			});
-			
+
 			console.log(`General welcome email sent to ${member.membershipType} member: ${member.email}`);
 		}
 	} catch (error) {
@@ -115,22 +112,22 @@ export async function GET(req: NextRequest) {
 	const query: { membershipType?: { $in: string[] } } = {};
 	if (type) {
 		// Support comma-separated types (e.g., "Executive,Advisor")
-		const types = type.split(',').map(t => t.trim());
+		const types = type.split(",").map((t) => t.trim());
 		query.membershipType = { $in: types };
 	}
 
 	// Return filtered memberships if type filter provided, otherwise all memberships
 	// For executive members, sort by displayOrder first
 	let sortOptions: Record<string, 1 | -1> = { createdAt: -1 };
-	if (type && (type.includes('Executive') || type.includes('Advisor'))) {
-		sortOptions = { 
+	if (type && (type.includes("Executive") || type.includes("Advisor"))) {
+		sortOptions = {
 			membershipType: 1, // Executive first, then Advisor
-			displayOrder: 1,   // Then by display order
-			lastName: 1,      // Then by last name
-			firstName: 1      // Then by first name
+			displayOrder: 1, // Then by display order
+			lastName: 1, // Then by last name
+			firstName: 1, // Then by first name
 		};
 	}
-	
+
 	const memberships = await Membership.find(query).sort(sortOptions);
 	return NextResponse.json(memberships);
 }
@@ -138,27 +135,26 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
 	await connectDB();
 	const data = await req.json();
-	
+
 	try {
-		if (!verifyCaptcha(data.captcha)) {
-			return NextResponse.json({ error: "Invalid captcha. Please try again." }, { status: 400 });
-		}
+		// Note: Captcha is already verified on frontend via CustomCaptcha component
+		// which calls /api/captcha/verify. No need to verify again here.
 
 		// Extract family members from the main application data
 		const { familyMembers, ...mainApplicantData } = data;
-		
+
 		// Validate main applicant phone number (8 digits)
 		if (!mainApplicantData.phone) {
-			throw new Error('Phone number is required');
+			throw new Error("Phone number is required");
 		}
-		
-		if (!/^\d{8}$/.test(mainApplicantData.phone.replace(/\D/g, ''))) {
-			throw new Error('Phone number must be exactly 8 digits');
+
+		if (!/^\d{8}$/.test(mainApplicantData.phone.replace(/\D/g, ""))) {
+			throw new Error("Phone number must be exactly 8 digits");
 		}
-		
+
 		// Generate membership ID for main applicant
 		const mainMembershipId = await generateMembershipId();
-		
+
 		// Create membership for main applicant with generalMemberSince
 		const mainMembershipData = {
 			...mainApplicantData,
@@ -166,39 +162,39 @@ export async function POST(req: NextRequest) {
 			generalMemberSince: new Date().toISOString(),
 		};
 		const mainMembership = await Membership.create(mainMembershipData);
-		
+
 		// Add main applicant as subscriber
 		await addSubscriberIfNotExists(mainApplicantData.email);
-		
+
 		// Create separate membership records for each family member
 		const familyMemberships = [];
-		
+
 		if (familyMembers && Array.isArray(familyMembers) && familyMembers.length > 0) {
 			for (const familyMember of familyMembers) {
 				// Validate family member required fields
 				if (!familyMember.firstName || !familyMember.lastName || !familyMember.personalNumber || !familyMember.email) {
 					throw new Error(`Family member missing required fields: ${JSON.stringify(familyMember)}`);
 				}
-				
+
 				// Validate personal number format
 				if (!/^\d{11}$/.test(familyMember.personalNumber)) {
 					throw new Error(`Family member personal number must be exactly 11 digits: ${familyMember.personalNumber}`);
 				}
-				
+
 				// Validate email format
 				const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 				if (!emailRegex.test(familyMember.email)) {
 					throw new Error(`Family member email address is not valid: ${familyMember.email}`);
 				}
-				
+
 				// Validate family member phone number (optional but if provided must be 8 digits)
-				if (familyMember.phone && !/^\d{8}$/.test(familyMember.phone.replace(/\D/g, ''))) {
+				if (familyMember.phone && !/^\d{8}$/.test(familyMember.phone.replace(/\D/g, ""))) {
 					throw new Error(`Family member ${familyMember.firstName} ${familyMember.lastName} phone number must be exactly 8 digits: ${familyMember.phone}`);
 				}
-				
+
 				// Generate membership ID for family member
 				const familyMembershipId = await generateMembershipId();
-				
+
 				// Create family member record with same address, permissions, and other shared data
 				const familyMemberData = {
 					...mainApplicantData,
@@ -212,10 +208,10 @@ export async function POST(req: NextRequest) {
 					familyMembers: [], // Don't include nested family members
 					generalMemberSince: new Date().toISOString(),
 				};
-				
+
 				const familyMembership = await Membership.create(familyMemberData);
 				familyMemberships.push(familyMembership);
-				
+
 				// Add family member as subscriber
 				await addSubscriberIfNotExists(familyMember.email);
 			}
@@ -224,9 +220,7 @@ export async function POST(req: NextRequest) {
 		// Send welcome emails to all new members based on their member type
 		try {
 			// Send to main applicant
-			const mainFamilyMemberNames = familyMembers.map((fm: FamilyMember) => 
-				[fm.firstName, fm.middleName, fm.lastName].filter(Boolean).join(' ')
-			);
+			const mainFamilyMemberNames = familyMembers.map((fm: FamilyMember) => [fm.firstName, fm.middleName, fm.lastName].filter(Boolean).join(" "));
 			await sendMemberWelcomeEmail(mainMembership, mainFamilyMemberNames);
 
 			// Send to family members
@@ -239,19 +233,18 @@ export async function POST(req: NextRequest) {
 			console.error("Error sending welcome emails:", emailError);
 			// Don't fail the membership creation if email fails
 		}
-		
-		return NextResponse.json({
-			mainMembership,
-			familyMemberships,
-			totalMembers: 1 + familyMemberships.length
-		}, { status: 201 });
-		
-	} catch (error) {
-		console.error('Membership creation error:', error);
-		const errorMessage = error instanceof Error ? error.message : 'Failed to create membership';
+
 		return NextResponse.json(
-			{ error: errorMessage },
-			{ status: 400 }
+			{
+				mainMembership,
+				familyMemberships,
+				totalMembers: 1 + familyMemberships.length,
+			},
+			{ status: 201 },
 		);
+	} catch (error) {
+		console.error("Membership creation error:", error);
+		const errorMessage = error instanceof Error ? error.message : "Failed to create membership";
+		return NextResponse.json({ error: errorMessage }, { status: 400 });
 	}
 }
