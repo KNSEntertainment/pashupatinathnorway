@@ -424,12 +424,12 @@ export default function BulkMembershipUpload() {
           </CardContent>
         </Card>
 
-        {/* Oslo Kommune Verification Card */}
+        {/* BRREG Verification Card */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Search className="h-5 w-5" />
-              Oslo Kommune Verification
+              BRREG Verification
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -562,7 +562,7 @@ export default function BulkMembershipUpload() {
               {verificationResult.verifiedList.length > 0 && (
                 <div className="border rounded-lg p-4 bg-green-50">
                   <h4 className="font-semibold text-green-800 mb-2">
-                    ✅ Verified by Oslo Kommune ({verificationResult.verifiedList.length})
+                    ✅ Verified by BRREG ({verificationResult.verifiedList.length})
                   </h4>
                   <div className="space-y-1 max-h-40 overflow-y-auto">
                     {verificationResult.verifiedList.map((member, index) => (
@@ -579,7 +579,7 @@ export default function BulkMembershipUpload() {
                 <div className="border rounded-lg p-4 bg-red-50">
                   <h4 className="font-semibold text-red-800 mb-2 flex items-center gap-2">
                     <XCircle className="h-4 w-4" />
-                    ❌ Not Verified by Oslo Kommune ({verificationResult.unverifiedList.length})
+                    ❌ Not Verified by BRREG ({verificationResult.unverifiedList.length})
                   </h4>
                   <div className="space-y-1 max-h-40 overflow-y-auto">
                     {verificationResult.unverifiedList.map((member, index) => (

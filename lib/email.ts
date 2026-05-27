@@ -534,14 +534,6 @@ type sendVerificationFollowupEmail = {
 	personalNumber: string;
 };
 
-// Non-member donation thank you email with tax ID
-// type sendNonMemberDonationThankYouEmail = {
-// 	name: string;
-// 	email: string;
-// 	amount: number;
-// 	taxId: string;
-// 	donationDate: Date;
-// };
 
 // General donation thank you email for all donors (members and non-members)
 type sendDonationThankYouEmail = {
@@ -866,13 +858,13 @@ export async function sendVerificationFollowupEmail({ name, email, personalNumbe
 }
 
 // Oslo verification approval email with password setup link
-type sendOsloVerificationApprovalEmail = {
+type sendBRREGVerificationApprovalEmail = {
 	name: string;
 	email: string;
 	setupToken: string;
 };
 
-export async function sendOsloVerificationApprovalEmail({ name, email, setupToken }: sendOsloVerificationApprovalEmail) {
+export async function sendBRREGVerificationApprovalEmail({ name, email, setupToken }: sendBRREGVerificationApprovalEmail) {
 	const setupUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/ne/set-password?token=${setupToken}`;
 
 	const mailOptions = {

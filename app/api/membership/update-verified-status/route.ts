@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Membership from '@/models/Membership.Model';
-import { sendOsloVerificationApprovalEmail } from '@/lib/email';
+import { sendBRREGVerificationApprovalEmail } from '@/lib/email';
 import crypto from 'crypto';
 import { requireAdmin } from '@/lib/apiAuth';
 
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
 
       // Add email sending promise
       emailPromises.push(
-        sendOsloVerificationApprovalEmail({
+        sendBRREGVerificationApprovalEmail({
           name: `${member.firstName} ${member.lastName}`,
           email: member.email,
           setupToken

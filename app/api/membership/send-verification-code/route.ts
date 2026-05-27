@@ -44,7 +44,7 @@ export async function POST(request: Request) {
 
     if (!membership) {
       return NextResponse.json(
-        { error: "No membership found with the provided email and personal number" },
+        { error: "Please double check your email and/or personal number." },
         { status: 404 }
       );
     }

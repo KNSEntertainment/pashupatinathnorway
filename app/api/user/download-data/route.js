@@ -59,7 +59,7 @@ export async function GET() {
       "Membership Details": {
         "Membership Type": membership.membershipType || "",
         "Membership Status": membership.membershipStatus || "",
-        "Oslo Verification Status": membership.osloVerificationStatus || "",
+        "BRREG Verification Status": membership.osloVerificationStatus || "",
         "Member Since": membership.createdAt ? new Date(membership.createdAt).toISOString() : "",
         "Profile Photo": membership.profilePhoto || "",
       },
