@@ -563,6 +563,90 @@ type sendEmail = {
 	html?: string;
 };
 
+// Membership lookup verification email
+type sendMembershipLookupVerificationEmail = {
+	name: string;
+	email: string;
+	verificationCode: string;
+};
+
+export async function sendMembershipLookupVerificationEmail({ name, email, verificationCode }: sendMembershipLookupVerificationEmail) {
+	const mailOptions = {
+		from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER}>`,
+		to: email,
+		subject: "Membership Status Verification Code",
+		text: `Hello ${name},\n\nYou requested to check your membership status with Pashupatinath Norway Temple.\n\nYour verification code is: ${verificationCode}\n\nThis code will expire in 2 minutes. Please enter it on the verification page to proceed with your membership status lookup.\n\nIf you did not request this, please ignore this email.\n\nBest regards,\nPashupatinath Norway Temple Team`,
+		html: `
+			<!DOCTYPE html>
+			<html>
+			<head>
+				<style>
+					body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+					.container { max-width: 600px; margin: 0 auto; padding: 20px; }
+					.header { background: linear-gradient(135deg, #ffc445 0%, #FF7722 100%); color: #000000; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+					.content { background: #ffffff; padding: 30px; border-radius: 0 0 10px 10px; }
+					.code-box { background: #f8f9fa; border: 2px solid #ffc445; padding: 20px; margin: 20px 0; border-radius: 8px; text-align: center; }
+					.code { font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #FF7722; font-family: monospace; }
+					.timer { color: #666; font-size: 14px; margin-top: 10px; }
+					.footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+				</style>
+			</head>
+			<body>
+				<div class="container">
+					<div class="header">
+						<h1>Membership Status Verification</h1>
+						<p style="margin: 10px 0 0 0; font-size: 18px;">Pashupatinath Norway Temple</p>
+					</div>
+					<div class="content">
+						<p>Hello <strong>${name}</strong>,</p>
+						<p>You requested to check your membership status with Pashupatinath Norway Temple.</p>
+						
+						<div class="code-box">
+							<p style="margin: 0 0 10px 0; font-weight: bold; color: #333;">Your Verification Code:</p>
+							<div class="code">${verificationCode}</div>
+							<p class="timer">⏰ This code will expire in 2 minutes</p>
+						</div>
+						
+						<p>Please enter this code on the verification page to proceed with your membership status lookup.</p>
+						
+						<div style="background: #fff3cd; border-left: 4px solid #ffc445; padding: 15px; margin: 20px 0; border-radius: 5px;">
+							<p style="margin: 0; color: #856404;"><strong>Security Notice:</strong> Never share this code with anyone. Our team will never ask for your verification code.</p>
+						</div>
+						
+						<p>If you did not request this, please ignore this email.</p>
+						
+						<p>Best regards,<br><strong>Pashupatinath Norway Temple Team</strong></p>
+					</div>
+					<div class="footer">
+						<p>This is an automated email. Please do not reply to this message.</p>
+					</div>
+				</div>
+			</body>
+			</html>
+		`,
+	};
+
+	try {
+		const { error } = await resend.emails.send({
+			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER!}>`,
+			to: [email],
+			subject: mailOptions.subject,
+			text: mailOptions.text,
+			html: mailOptions.html,
+		});
+		
+		if (error) {
+			console.error("Error sending membership lookup verification email:", error);
+			throw new Error("Failed to send membership lookup verification email");
+		}
+		
+		console.log("Membership lookup verification email sent to:", email);
+	} catch (error) {
+		console.error("Error sending membership lookup verification email:", error);
+		throw new Error("Failed to send membership lookup verification email");
+	}
+}
+
 export async function sendEmail({ to, subject, text, html }: sendEmail) {
 	try {
 		const mailOptions = {
