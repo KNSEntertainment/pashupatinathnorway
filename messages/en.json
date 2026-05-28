@@ -117,6 +117,8 @@
 		"goal": "Goal",
 		"full_name": "Full Name",
 		"email": "Email",
+		"phone": "Phone",
+		"phone_help": "Required for Vipps payment.",
 		"phone_optional": "Phone (Optional)",
 		"personal_number": "Personal Number (Optional)",
 		"personal_number_placeholder": "Enter your 11-digit personal number",

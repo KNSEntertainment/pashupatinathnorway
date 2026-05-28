@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Donation from "@/models/Donation.Model";
+import mongoose from "mongoose";
 
 export async function GET(
   request: Request,
@@ -38,7 +39,7 @@ export async function PUT(
     console.log("Donation ID:", id);
     
     // Validate fields - allow partial updates, only validate if provided
-    const { donorName, donorEmail, amount, paymentStatus } = updateData;
+    const { donorName, donorEmail, amount, paymentStatus, donationType, donationPurpose, createdAt } = updateData;
     
     // Only validate if the field is provided in the update
     if (donorName !== undefined) {
@@ -73,12 +74,40 @@ export async function PUT(
       // Convert to number if it was passed as string
       updateData.amount = numAmount;
     }
+
+    if (createdAt !== undefined) {
+      const donationDate = new Date(createdAt);
+      if (Number.isNaN(donationDate.getTime())) {
+        return NextResponse.json({
+          error: "Invalid createdAt provided - must be a valid date"
+        }, { status: 400 });
+      }
+      updateData.createdAt = donationDate;
+    }
     
     if (paymentStatus !== undefined) {
       const validStatuses = ['pending', 'completed', 'failed', 'refunded'];
       if (!validStatuses.includes(paymentStatus)) {
         return NextResponse.json({ 
           error: "Invalid paymentStatus provided - must be one of: " + validStatuses.join(', ')
+        }, { status: 400 });
+      }
+    }
+
+    if (donationType !== undefined) {
+      const validDonationTypes = ['general', 'cause_specific'];
+      if (!validDonationTypes.includes(donationType)) {
+        return NextResponse.json({
+          error: "Invalid donationType provided - must be one of: " + validDonationTypes.join(', ')
+        }, { status: 400 });
+      }
+    }
+
+    if (donationPurpose !== undefined) {
+      const validDonationPurposes = ['general', 'cause', 'event'];
+      if (!validDonationPurposes.includes(donationPurpose)) {
+        return NextResponse.json({
+          error: "Invalid donationPurpose provided - must be one of: " + validDonationPurposes.join(', ')
         }, { status: 400 });
       }
     }
@@ -89,7 +118,59 @@ export async function PUT(
         error: "Invalid isAnonymous provided - must be true or false" 
       }, { status: 400 });
     }
+
+    const optionalFields = [
+      "donorEmail",
+      "donorPhone",
+      "personalNumber",
+      "membershipId",
+      "taxId",
+      "address",
+      "message",
+      "stripeSessionId",
+      "stripePaymentIntentId",
+      "causeId",
+      "eventId",
+      "linkedRegistrationId",
+    ];
+
+    for (const field of optionalFields) {
+      if (updateData[field] === "") {
+        updateData[field] = undefined;
+      }
+    }
     
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json({ error: "Invalid donation ID" }, { status: 400 });
+    }
+
+    const donationId = new mongoose.Types.ObjectId(id);
+
+    if (updateData.createdAt !== undefined) {
+      const { createdAt: donationDate, ...otherUpdateData } = updateData;
+      const donationBeforeDateUpdate = await Donation.findByIdAndUpdate(
+        id,
+        { $set: otherUpdateData },
+        { new: true, runValidators: true }
+      );
+
+      if (!donationBeforeDateUpdate) {
+        return NextResponse.json({ error: "Donation not found" }, { status: 404 });
+      }
+
+      await Donation.collection.updateOne(
+        { _id: donationId },
+        { $set: { createdAt: donationDate } }
+      );
+
+      const donation = await Donation.findById(id);
+
+      return NextResponse.json({ 
+        message: "Donation updated successfully", 
+        donation 
+      }, { status: 200 });
+    }
+
     // Find and update the donation
     const donation = await Donation.findByIdAndUpdate(
       id,

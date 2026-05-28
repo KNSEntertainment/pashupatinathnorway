@@ -149,6 +149,8 @@
 		"goal": "Mål",
 		"full_name": "Fullt Navn",
 		"email": "E-post",
+		"phone": "Telefon",
+		"phone_help": "Påkrevd for Vipps-betaling.",
 		"phone_optional": "Telefon (Valgfritt)",
 		"personal_number": "Personnummer (Valgfritt)",
 		"personal_number_placeholder": "Skriv inn ditt 11-siffer personnummer",

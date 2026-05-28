@@ -92,6 +92,7 @@ interface OverallReport {
     eventdate: string;
     totalIncome: number;
     totalExpenses: number;
+    totalDonations: number;
     totalRegistrations: number;
     profitOrLoss: number;
   }>;
@@ -717,6 +718,7 @@ export default function GlobalFinancialDashboard() {
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Event</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Date</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Income</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Donations</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Expenses</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Registrations</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Profit/Loss</th>
@@ -728,6 +730,7 @@ export default function GlobalFinancialDashboard() {
                       <td className="px-4 py-3 font-medium text-gray-900">{event.eventname}</td>
                       <td className="px-4 py-3 text-sm text-gray-600">{event.eventdate}</td>
                       <td className="px-4 py-3 font-medium text-green-600">{formatCurrency(event.totalIncome)}</td>
+                      <td className="px-4 py-3 font-medium text-blue-600">{formatCurrency(event.totalDonations)}</td>
                       <td className="px-4 py-3 font-medium text-red-600">{formatCurrency(event.totalExpenses)}</td>
                       <td className="px-4 py-3 text-sm text-gray-600">{event.totalRegistrations}</td>
                       <td className={`px-4 py-3 font-medium ${getProfitLossColor(event.profitOrLoss)}`}>
@@ -737,7 +740,7 @@ export default function GlobalFinancialDashboard() {
                   ))}
                   {report.eventComparison.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                      <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
                         No event data available
                       </td>
                     </tr>

@@ -127,6 +127,8 @@
 		"goal": "लक्ष्य",
 		"full_name": "पूरा नाम",
 		"email": "इमेल",
+		"phone": "फोन",
+		"phone_help": "Vipps भुक्तानीका लागि आवश्यक छ।",
 		"phone_optional": "फोन (वैकल्पिक)",
 		"personal_number": "व्यक्तिगत नम्बर (वैकल्पिक)",
 		"personal_number_placeholder": "आफ्नो ११ अंकको व्यक्तिगत नम्बर राख्नुहोस्",

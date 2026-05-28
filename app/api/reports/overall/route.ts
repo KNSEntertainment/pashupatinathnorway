@@ -253,11 +253,20 @@ export async function GET(request: Request) {
 				},
 			},
 			{
+				$lookup: {
+					from: "donations",
+					localField: "_id",
+					foreignField: "eventId",
+					as: "eventDonations",
+				},
+			},
+			{
 				$project: {
 					eventname: 1,
 					eventdate: 1,
 					totalIncome: { $sum: "$eventIncome.amount" },
 					totalExpenses: { $sum: "$eventExpenses.amount" },
+					totalDonations: { $sum: "$eventDonations.amount" },
 					totalRegistrations: {
 						$sum: {
 							$filter: {
@@ -267,7 +276,15 @@ export async function GET(request: Request) {
 						},
 					},
 					profitOrLoss: {
-						$subtract: [{ $sum: "$eventIncome.amount" }, { $sum: "$eventExpenses.amount" }],
+						$subtract: [
+							{
+								$add: [
+									{ $sum: "$eventIncome.amount" },
+									{ $sum: "$eventDonations.amount" },
+								],
+							},
+							{ $sum: "$eventExpenses.amount" },
+						],
 					},
 				},
 			},

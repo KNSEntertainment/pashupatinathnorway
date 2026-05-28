@@ -2,7 +2,7 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import SimpleMemberStats from "@/components/membership/SimpleMemberStats";
+// import SimpleMemberStats from "@/components/membership/SimpleMemberStats";
 import { useState } from "react";
 import { ChevronDown, Users } from "lucide-react";
 import { MembershipTranslations } from "@/components/membership/types/membership";
@@ -130,7 +130,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 			</div>
 
 			{/* Mobile: Animated SimpleMemberStats */}
-			<div className="md:hidden">
+			{/* <div className="md:hidden">
 				<div 
 					className={`overflow-hidden transition-all duration-500 ease-in-out ${
 						showStats ? 'max-h-none opacity-100 my-4' : 'max-h-0 opacity-0'
@@ -138,12 +138,12 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 				>
 					<SimpleMemberStats />
 				</div>
-			</div>
+			</div> */}
 
 			{/* Desktop: Always show SimpleMemberStats */}
-			<div className="hidden md:block">
+			{/* <div className="hidden md:block">
 				<SimpleMemberStats />
-			</div>
+			</div> */}
 
 			<div className="container mx-auto md:px-4 md:pb-12">
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -442,7 +442,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 										</div>
 										<div className="flex items-start gap-3">
 											<div className="w-2 h-2 rounded-full bg-brand_primary mt-2 flex-shrink-0" />
-											<p className="text-gray-700 leading-relaxed text-sm"><a href="https://person.brreg.no/en/minside/tros-og-livssyn" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline" aria-label="View existing memberships with other organizations on Brreg website (opens in new tab)">Click to View</a> (https://person.brreg.no/en/minside) your existing memberships with other organizations. To cancel, <a href="/utmeldingsblankett-juli2006.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline" aria-label="Download membership cancellation form (PDF, opens in new tab)">fill out this form</a> and send it to the respective temple/organization. </p>
+											<p className="min-w-0 break-words text-gray-700 leading-relaxed text-sm"><a href="https://person.brreg.no/en/minside/tros-og-livssyn" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline break-all" aria-label="View existing memberships with other organizations on Brreg website (opens in new tab)">Click to View</a> <span className="break-all">(https://person.brreg.no/en/minside)</span> your existing memberships with other organizations. To cancel, <a href="/utmeldingsblankett-juli2006.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline" aria-label="Download membership cancellation form (PDF, opens in new tab)">fill out this form</a> and send it to the respective temple/organization. </p>
 										</div>
 										<div className="flex items-start gap-3">
 											<div className="w-2 h-2 rounded-full bg-brand_primary mt-2 flex-shrink-0" />

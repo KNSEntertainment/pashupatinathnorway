@@ -16,13 +16,32 @@ interface Donation {
 	donorName: string;
 	donorEmail: string;
 	donorPhone?: string;
+	personalNumber?: string;
+	membershipId?: string;
+	taxId?: string;
 	amount: number;
 	currency: string;
 	message?: string;
 	address?: string;
 	isAnonymous: boolean;
 	paymentStatus: "pending" | "completed" | "failed" | "refunded";
+	stripeSessionId?: string;
+	stripePaymentIntentId?: string;
+	causeId?: string | null;
+	donationType?: "general" | "cause_specific";
+	donationPurpose?: "general" | "cause" | "event";
+	eventId?: string;
+	linkedRegistrationId?: string;
 	createdAt: string;
+}
+
+type DonationFormData = Partial<Omit<Donation, "_id">>;
+
+interface Event {
+	_id: string;
+	eventname: string;
+	eventdate?: string;
+	eventtime?: string;
 }
 
 export default function DonationsManagement() {
@@ -41,22 +60,32 @@ export default function DonationsManagement() {
 		totalAmount: 0,
 	});
 	const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-	const [newDonation, setNewDonation] = useState<Partial<Donation>>({
+	const [events, setEvents] = useState<Event[]>([]);
+	const getDefaultNewDonation = (): DonationFormData => ({
 		donorName: "",
 		donorEmail: "",
 		donorPhone: "",
+		personalNumber: "",
+		address: "",
 		amount: 0,
 		currency: "NOK",
 		message: "",
-		address: "",
 		isAnonymous: false,
 		paymentStatus: "completed",
+		donationType: "general",
+		donationPurpose: "general",
+		eventId: "",
 		createdAt: new Date().toISOString(),
 	});
+	const [newDonation, setNewDonation] = useState<DonationFormData>(getDefaultNewDonation);
 
 	useEffect(() => {
 		fetchDonations(currentPage, itemsPerPage);
 	}, [currentPage, itemsPerPage]);
+
+	useEffect(() => {
+		fetchEvents();
+	}, []);
 
 	const fetchDonations = async (page: number = 1, limit: number = 10) => {
 		try {
@@ -80,6 +109,17 @@ export default function DonationsManagement() {
 			console.error("Error fetching donations:", error);
 		} finally {
 			setLoading(false);
+		}
+	};
+
+	const fetchEvents = async () => {
+		try {
+			const response = await fetch("/api/events");
+			const data = await response.json();
+			setEvents(data.events || []);
+		} catch (error) {
+			console.error("Error fetching events:", error);
+			setEvents([]);
 		}
 	};
 
@@ -128,8 +168,23 @@ export default function DonationsManagement() {
 		});
 	};
 
+	const toDateTimeLocalValue = (dateString?: string) => {
+		if (!dateString) return "";
+		const date = new Date(dateString);
+		if (Number.isNaN(date.getTime())) return "";
+		const offsetMs = date.getTimezoneOffset() * 60 * 1000;
+		return new Date(date.getTime() - offsetMs).toISOString().slice(0, 16);
+	};
+
+	const fromDateTimeLocalValue = (value: string) => {
+		if (!value) return "";
+		const date = new Date(value);
+		if (Number.isNaN(date.getTime())) return "";
+		return date.toISOString();
+	};
+
 	const handleEditDonation = (donation: Donation) => {
-		setEditingDonation(donation);
+		setEditingDonation({ ...donation, personalNumber: "" });
 		setIsEditModalOpen(true);
 	};
 
@@ -140,24 +195,23 @@ export default function DonationsManagement() {
 
 	const handleCloseAddModal = () => {
 		setIsAddModalOpen(false);
-		setNewDonation({
-			donorName: "",
-			donorEmail: "",
-			donorPhone: "",
-			amount: 0,
-			currency: "NOK",
-			message: "",
-			address: "",
-			isAnonymous: false,
-			paymentStatus: "completed",
-			createdAt: new Date().toISOString(),
-		});
+		setNewDonation(getDefaultNewDonation());
 	};
 
 	const handleSaveDonation = async (updatedDonation: Partial<Donation>) => {
 		if (!editingDonation) return;
 
 		try {
+			if (!updatedDonation.donorName?.trim()) {
+				alert("Donor name is required");
+				return;
+			}
+
+			if (!updatedDonation.amount || Number(updatedDonation.amount) <= 0) {
+				alert("Amount must be greater than 0");
+				return;
+			}
+
 			const response = await fetch(`/api/donations/${editingDonation._id}`, {
 				method: "PUT",
 				headers: {
@@ -171,15 +225,28 @@ export default function DonationsManagement() {
 				fetchDonations(currentPage, itemsPerPage);
 				handleCloseEditModal();
 			} else {
-				console.error("Failed to update donation");
+				const error = await response.json();
+				console.error("Failed to update donation:", error);
+				alert(error.error || error.details || "Failed to update donation");
 			}
 		} catch (error) {
 			console.error("Error updating donation:", error);
+			alert(error instanceof Error ? error.message : "Error updating donation");
 		}
 	};
 
 	const handleAddDonation = async () => {
 		try {
+			if (!newDonation.donorName?.trim()) {
+				alert("Donor name is required");
+				return;
+			}
+
+			if (!newDonation.amount || Number(newDonation.amount) <= 0) {
+				alert("Amount must be greater than 0");
+				return;
+			}
+
 			const response = await fetch("/api/donations", {
 				method: "POST",
 				headers: {
@@ -195,9 +262,11 @@ export default function DonationsManagement() {
 			} else {
 				const error = await response.json();
 				console.error("Failed to add donation:", error);
+				alert(error.error || error.details || "Failed to add donation");
 			}
 		} catch (error) {
 			console.error("Error adding donation:", error);
+			alert(error instanceof Error ? error.message : "Error adding donation");
 		}
 	};
 
@@ -399,7 +468,7 @@ export default function DonationsManagement() {
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div>
 									<label className="block text-sm font-medium text-gray-700 mb-1">Donation Date</label>
-									<Input type="datetime-local" defaultValue={editingDonation.createdAt ? new Date(editingDonation.createdAt).toISOString().slice(0, 16) : ""} onChange={(e) => setEditingDonation({ ...editingDonation, createdAt: new Date(e.target.value).toISOString() })} />
+									<Input type="datetime-local" value={toDateTimeLocalValue(editingDonation.createdAt)} onChange={(e) => setEditingDonation({ ...editingDonation, createdAt: fromDateTimeLocalValue(e.target.value) })} />
 								</div>
 								<div>
 									<label className="block text-sm font-medium text-gray-700 mb-1">Donor Name</label>
@@ -410,11 +479,22 @@ export default function DonationsManagement() {
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div>
 									<label className="block text-sm font-medium text-gray-700 mb-1">Donor Email</label>
-									<Input defaultValue={editingDonation.donorEmail} onChange={(e) => setEditingDonation({ ...editingDonation, donorEmail: e.target.value })} placeholder="Enter donor email" />
+									<Input type="text" value={editingDonation.donorEmail || ""} onChange={(e) => setEditingDonation({ ...editingDonation, donorEmail: e.target.value })} placeholder="Enter donor email" />
 								</div>
 								<div>
 									<label className="block text-sm font-medium text-gray-700 mb-1">Donor Phone</label>
-									<Input defaultValue={editingDonation.donorPhone || ""} onChange={(e) => setEditingDonation({ ...editingDonation, donorPhone: e.target.value })} placeholder="Enter donor phone" />
+									<Input value={editingDonation.donorPhone || ""} onChange={(e) => setEditingDonation({ ...editingDonation, donorPhone: e.target.value })} placeholder="Enter donor phone" />
+								</div>
+							</div>
+
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div>
+									<label className="block text-sm font-medium text-gray-700 mb-1">Personal Number</label>
+									<Input value={editingDonation.personalNumber || ""} onChange={(e) => setEditingDonation({ ...editingDonation, personalNumber: e.target.value })} placeholder="11 digits" />
+								</div>
+								<div>
+									<label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+									<Input value={editingDonation.address || ""} onChange={(e) => setEditingDonation({ ...editingDonation, address: e.target.value })} placeholder="Enter donor address" />
 								</div>
 							</div>
 
@@ -435,8 +515,26 @@ export default function DonationsManagement() {
 							</div>
 
 							<div>
-								<label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-								<Input defaultValue={editingDonation.address || ""} onChange={(e) => setEditingDonation({ ...editingDonation, address: e.target.value })} placeholder="Enter donor address" />
+								<label className="block text-sm font-medium text-gray-700 mb-1">Event</label>
+								<select
+									value={editingDonation.eventId || ""}
+									onChange={(e) =>
+										setEditingDonation({
+											...editingDonation,
+											eventId: e.target.value,
+											donationPurpose: e.target.value ? "event" : "general",
+										})
+									}
+									className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand_primary"
+								>
+									<option value="">No event</option>
+									{events.map((event) => (
+										<option key={event._id} value={event._id}>
+											{event.eventname}
+										
+										</option>
+									))}
+								</select>
 							</div>
 
 							<div>
@@ -478,7 +576,7 @@ export default function DonationsManagement() {
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div>
 									<label className="block text-sm font-medium text-gray-700 mb-1">Donation Date</label>
-									<Input type="datetime-local" value={newDonation.createdAt ? new Date(newDonation.createdAt as string).toISOString().slice(0, 16) : ""} onChange={(e) => setNewDonation({ ...newDonation, createdAt: new Date(e.target.value).toISOString() })} />
+									<Input type="datetime-local" value={toDateTimeLocalValue(newDonation.createdAt)} onChange={(e) => setNewDonation({ ...newDonation, createdAt: fromDateTimeLocalValue(e.target.value) })} />
 								</div>
 								<div>
 									<label className="block text-sm font-medium text-gray-700 mb-1">Donor Name</label>
@@ -488,8 +586,37 @@ export default function DonationsManagement() {
 
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div>
+									<label className="block text-sm font-medium text-gray-700 mb-1">Amount (NOK)</label>
+									<Input type="number" value={newDonation.amount || ""} onChange={(e) => setNewDonation({ ...newDonation, amount: parseInt(e.target.value) || 0 })} placeholder="Enter amount" />
+								</div>
+								<div>
+									<label className="block text-sm font-medium text-gray-700 mb-1">Event</label>
+									<select
+										value={newDonation.eventId || ""}
+										onChange={(e) =>
+											setNewDonation({
+												...newDonation,
+												eventId: e.target.value,
+												donationPurpose: e.target.value ? "event" : "general",
+											})
+										}
+										className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand_primary"
+									>
+										<option value="">No event</option>
+										{events.map((event) => (
+											<option key={event._id} value={event._id}>
+												{event.eventname}
+										
+											</option>
+										))}
+									</select>
+								</div>
+							</div>
+
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div>
 									<label className="block text-sm font-medium text-gray-700 mb-1">Donor Email</label>
-									<Input type="email" value={newDonation.donorEmail || ""} onChange={(e) => setNewDonation({ ...newDonation, donorEmail: e.target.value })} placeholder="Enter donor email" />
+									<Input type="text" value={newDonation.donorEmail || ""} onChange={(e) => setNewDonation({ ...newDonation, donorEmail: e.target.value })} placeholder="Enter donor email" />
 								</div>
 								<div>
 									<label className="block text-sm font-medium text-gray-700 mb-1">Donor Phone</label>
@@ -499,35 +626,18 @@ export default function DonationsManagement() {
 
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div>
-									<label className="block text-sm font-medium text-gray-700 mb-1">Amount (NOK)</label>
-									<Input type="number" value={newDonation.amount || ""} onChange={(e) => setNewDonation({ ...newDonation, amount: parseInt(e.target.value) || 0 })} placeholder="Enter amount" />
+									<label className="block text-sm font-medium text-gray-700 mb-1">Personal Number</label>
+									<Input value={newDonation.personalNumber || ""} onChange={(e) => setNewDonation({ ...newDonation, personalNumber: e.target.value })} placeholder="11 digits" />
 								</div>
 								<div>
-									<label className="block text-sm font-medium text-gray-700 mb-1">Payment Status</label>
-									<select value={newDonation.paymentStatus || "completed"} onChange={(e) => setNewDonation({ ...newDonation, paymentStatus: e.target.value as "pending" | "completed" | "failed" | "refunded" })} className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand_primary">
-										<option value="pending">Pending</option>
-										<option value="completed">Completed</option>
-										<option value="failed">Failed</option>
-										<option value="refunded">Refunded</option>
-									</select>
+									<label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+									<Input value={newDonation.address || ""} onChange={(e) => setNewDonation({ ...newDonation, address: e.target.value })} placeholder="Enter donor address" />
 								</div>
-							</div>
-
-							<div>
-								<label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-								<Input value={newDonation.address || ""} onChange={(e) => setNewDonation({ ...newDonation, address: e.target.value })} placeholder="Enter donor address" />
 							</div>
 
 							<div>
 								<label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
 								<textarea value={newDonation.message || ""} onChange={(e) => setNewDonation({ ...newDonation, message: e.target.value })} placeholder="Enter donation message" className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand_primary" rows={3} />
-							</div>
-
-							<div className="flex items-center gap-2">
-								<input type="checkbox" checked={newDonation.isAnonymous || false} onChange={(e) => setNewDonation({ ...newDonation, isAnonymous: e.target.checked })} className="w-4 h-4 text-brand_primary border-gray-300 rounded focus:ring-brand_primary" id="anonymous-add" />
-								<label htmlFor="anonymous-add" className="text-sm text-gray-700">
-									Hide donor name (Anonymous)
-								</label>
 							</div>
 						</div>
 
