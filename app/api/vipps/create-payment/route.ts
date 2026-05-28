@@ -95,8 +95,9 @@ import { getAccessToken, createVippsPayment, generateVippsReference, normaliseMS
 export async function POST(request: NextRequest) {
 	try {
 		const body = await request.json();
+		console.log("[Vipps] Incoming body:", JSON.stringify(body));
 
-		const { amount, donorName, donorEmail, donorPhone, personalNumber, address, message, isAnonymous, causeId, donationType, captcha } = body;
+		const { amount, donorName, donorEmail, donorPhone, personalNumber, address, message, isAnonymous, causeId, donationType } = body;
 
 		// ── Basic validation ───────────────────────────────────────
 		if (!amount || typeof amount !== "number" || amount < 50) {
@@ -105,25 +106,6 @@ export async function POST(request: NextRequest) {
 
 		if (!donorPhone) {
 			return NextResponse.json({ error: "Phone number is required for Vipps payment" }, { status: 400 });
-		}
-
-		if (!captcha?.text || !captcha?.hash) {
-			return NextResponse.json({ error: "Captcha verification is required" }, { status: 400 });
-		}
-
-		// ── Verify captcha ─────────────────────────────────────────
-		// Forward to your existing captcha endpoint if you have one,
-		// or inline the hash check here. Adjust to match your CustomCaptcha logic.
-		const captchaVerifyRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/captcha/verify`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ text: captcha.text, hash: captcha.hash }),
-		}).catch(() => null);
-
-		if (!captchaVerifyRes?.ok) {
-			// If you don't have a /api/captcha/verify endpoint yet, remove this
-			// block and rely on the frontend captchaValid check only.
-			console.warn("[Vipps] Captcha verify endpoint not available — skipping server-side check");
 		}
 
 		// ── Build payment reference & URLs ─────────────────────────
