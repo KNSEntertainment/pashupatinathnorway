@@ -46,7 +46,18 @@ interface Income {
   };
 }
 
-const sourceTypes = ["donation", "membership", "registration", "sponsorship", "grants", "other"];
+const sourceTypes = [
+  "Government Grants Religious Communities Act",
+  "Other Public Grants",
+  "Internal Transfers",
+  "Rental Income",
+  "Donations From Abroad",
+  "Donations From Norway",
+  "Membership Fees",
+  "Sales Income",
+  "Financial Income",
+  "Other Income"
+];
 const paymentMethods = ["cash", "bank_transfer", "stripe", "vipps", "paypal", "other"];
 
 export default function IncomeManagement() {

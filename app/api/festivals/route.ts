@@ -600,6 +600,10 @@ interface MultilingualArray {
 	ne: string[];
 }
 
+type FestivalRawDocument = Record<string, unknown> & {
+	_id: mongoose.Types.ObjectId | string;
+};
+
 // Helper function to normalize multilingual field
 const normalizeMultilingualField = (field: MultilingualField | string): MultilingualField => {
 	if (typeof field === "string") {
@@ -718,7 +722,7 @@ export async function GET(request: NextRequest) {
 			return NextResponse.json(localizedFestival);
 		}
 
-		const festivals = await Festivals.find({ isActive: true, isDeleted: false }).sort({ highlight: -1, order: 1, createdAt: 1 });
+		const festivals = await Festivals.find({ isActive: true, isDeleted: false }).sort({ order: 1, highlight: -1, createdAt: 1 });
 
 		const allFestivals = await Festivals.find({});
 		if (allFestivals.length === 0) {
@@ -1054,9 +1058,10 @@ export async function PUT(request: Request) {
 				
 				// If ObjectId failed, try with string
 				if (!result || result.matchedCount === 0) {
-					const stringFilter = { _id: new mongoose.Types.ObjectId(id) };
+					const stringFilter = { _id: id } as { _id: string };
 					console.log("🔍 Trying string filter:", stringFilter);
-					result = await collection.updateOne(stringFilter, { $set: updateData });
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					result = await collection.updateOne(stringFilter as any, { $set: updateData });
 					usedFilter = "string";
 				}
 				
@@ -1094,7 +1099,8 @@ export async function PUT(request: Request) {
 				if (usedFilter === "ObjectId") {
 					updatedDoc = await collection.findOne({ _id: new mongoose.Types.ObjectId(id) });
 				} else {
-					updatedDoc = await collection.findOne({ _id: new mongoose.Types.ObjectId(id) });
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					updatedDoc = await collection.findOne({ _id: id } as { _id: string } as any);
 				}
 				
 				if (updatedDoc) {
@@ -1122,6 +1128,55 @@ export async function PUT(request: Request) {
 	} catch (error) {
 		console.error("Error updating festival:", error);
 		return NextResponse.json({ error: "Failed to update festival" }, { status: 500 });
+	}
+}
+
+export async function PATCH(request: NextRequest) {
+	try {
+		const auth = await requireAdmin();
+		if (auth.response) return auth.response;
+
+		await connectDB();
+
+		const body = await request.json();
+		const festivals = body.festivals as Array<{ id: string; order: number }>;
+
+		if (!Array.isArray(festivals)) {
+			return NextResponse.json({ error: "Festivals reorder list is required" }, { status: 400 });
+		}
+
+		const db = mongoose.connection.db;
+		if (!db) {
+			return NextResponse.json({ error: "Database connection not available" }, { status: 500 });
+		}
+
+		const collection = db.collection<FestivalRawDocument>("festivals");
+
+		await Promise.all(
+			festivals.map(async (festival) => {
+				if (!festival.id || typeof festival.order !== "number") return;
+
+				let result = null;
+				if (mongoose.Types.ObjectId.isValid(festival.id)) {
+					result = await collection.updateOne(
+						{ _id: new mongoose.Types.ObjectId(festival.id) },
+						{ $set: { order: festival.order, updatedAt: new Date() } }
+					);
+				}
+
+				if (!result || result.matchedCount === 0) {
+					await collection.updateOne(
+						{ _id: festival.id },
+						{ $set: { order: festival.order, updatedAt: new Date() } }
+					);
+				}
+			})
+		);
+
+		return NextResponse.json({ message: "Festival order updated successfully" });
+	} catch (error) {
+		console.error("Error reordering festivals:", error);
+		return NextResponse.json({ error: "Failed to reorder festivals" }, { status: 500 });
 	}
 }
 

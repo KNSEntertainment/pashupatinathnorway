@@ -50,7 +50,18 @@ interface Expense {
   };
 }
 
-const expenseCategories = ["food", "venue", "transport", "equipment", "marketing", "maintenance", "vipps", "operational", "website", "other"];
+const expenseCategories = ["Salary Expenses",
+  "Tax Expenses",
+  "Building And Premises",
+  "Furniture And Equipment",
+  "Office Expenses",
+  "Events Courses Projects",
+  "Internal Transfers",
+  "Transfers Within Norway",
+  "Transfers Abroad",
+  "Financial Expenses",
+  "Other Expenses"
+];
 const paymentMethods = ["cash", "bank_transfer", "stripe", "vipps", "paypal", "other"];
 
 export default function ExpenseManagement() {

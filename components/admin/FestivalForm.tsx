@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import type { DragEvent } from "react";
 import { useLocale } from "next-intl";
 import { 
   Plus, 
@@ -14,7 +15,8 @@ import {
   Upload,
   Image as ImageIcon,
   Calendar,
-  MapPin
+  MapPin,
+  GripVertical
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import Image from "next/image";
@@ -71,6 +73,7 @@ export default function FestivalForm() {
   const [isCreating, setIsCreating] = useState(false);
   const [activeTab, setActiveTab] = useState<"en" | "no" | "ne">("en");
   const [showInactive, setShowInactive] = useState(false);
+  const [draggedFestivalId, setDraggedFestivalId] = useState<string | null>(null);
 
   const locales = [
     { code: "en", name: "English", flag: "🇬🇧" },
@@ -255,6 +258,77 @@ export default function FestivalForm() {
   const cancelEdit = () => {
     setEditingFestival(null);
     setIsCreating(false);
+  };
+
+  const visibleFestivals = [...festivals]
+    .filter(festival => showInactive || festival.isActive)
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  const saveFestivalOrder = async (orderedFestivals: Festival[]) => {
+    const response = await fetch("/api/festivals", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        festivals: orderedFestivals
+          .filter(festival => festival._id)
+          .map((festival, index) => ({
+            id: festival._id,
+            order: index
+          }))
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to update festival order");
+    }
+  };
+
+  const handleDragStart = (festivalId: string) => {
+    setDraggedFestivalId(festivalId);
+  };
+
+  const handleDragOver = (event: DragEvent<HTMLTableRowElement>) => {
+    event.preventDefault();
+  };
+
+  const handleDrop = async (targetFestivalId: string) => {
+    if (!draggedFestivalId || draggedFestivalId === targetFestivalId) {
+      setDraggedFestivalId(null);
+      return;
+    }
+
+    const draggedIndex = visibleFestivals.findIndex(festival => festival._id === draggedFestivalId);
+    const targetIndex = visibleFestivals.findIndex(festival => festival._id === targetFestivalId);
+
+    if (draggedIndex === -1 || targetIndex === -1) {
+      setDraggedFestivalId(null);
+      return;
+    }
+
+    const reorderedVisibleFestivals = [...visibleFestivals];
+    const [draggedFestival] = reorderedVisibleFestivals.splice(draggedIndex, 1);
+    reorderedVisibleFestivals.splice(targetIndex, 0, draggedFestival);
+
+    const reorderedVisibleIds = new Set(reorderedVisibleFestivals.map(festival => festival._id));
+    const nextFestivals = [
+      ...reorderedVisibleFestivals.map((festival, index) => ({ ...festival, order: index })),
+      ...festivals.filter(festival => !reorderedVisibleIds.has(festival._id))
+    ];
+
+    setFestivals(nextFestivals);
+    setDraggedFestivalId(null);
+
+    try {
+      await saveFestivalOrder(reorderedVisibleFestivals);
+      toast.success("Festival order updated successfully");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to update festival order");
+      await fetchFestivals();
+    }
   };
 
   const getLocalizedField = (field: MultilingualField | MultilingualArray): string | string[] => {
@@ -589,6 +663,9 @@ export default function FestivalForm() {
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Order
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Festival
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -606,10 +683,22 @@ export default function FestivalForm() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {festivals
-                  .filter(festival => showInactive || festival.isActive)
-                  .map((festival) => (
-                    <tr key={`festival-${festival._id}`} className="hover:bg-gray-50">
+                {visibleFestivals.map((festival) => (
+                    <tr
+                      key={`festival-${festival._id}`}
+                      draggable={!!festival._id}
+                      onDragStart={() => festival._id && handleDragStart(festival._id)}
+                      onDragOver={handleDragOver}
+                      onDrop={() => festival._id && handleDrop(festival._id)}
+                      onDragEnd={() => setDraggedFestivalId(null)}
+                      className={`hover:bg-gray-50 ${draggedFestivalId === festival._id ? "opacity-50" : ""}`}
+                    >
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                          <GripVertical className="w-4 h-4 cursor-grab" />
+                          <span>{festival.order}</span>
+                        </div>
+                      </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           {festival.imageUrl ? (
