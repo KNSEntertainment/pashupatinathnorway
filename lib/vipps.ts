@@ -1,346 +1,531 @@
-// Vipps ePayment API Service
-// This handles integration with Vipps MobilePay ePayment API
+// // Vipps ePayment API Service
+// // This handles integration with Vipps MobilePay ePayment API
 
-interface VippsPaymentRequest {
-	amount: {
-		currency: string;
-		value: number; // Amount in øre (1 NOK = 100 øre)
-	};
-	paymentMethod: {
-		type: "WALLET";
-	};
-	customer?: {
-		phoneNumber?: string;
-	};
-	reference: string;
-	returnUrl: string;
-	userFlow: "WEB_REDIRECT";
-	paymentDescription: string;
+// interface VippsPaymentRequest {
+// 	amount: {
+// 		currency: string;
+// 		value: number; // Amount in øre (1 NOK = 100 øre)
+// 	};
+// 	paymentMethod: {
+// 		type: "WALLET";
+// 	};
+// 	customer?: {
+// 		phoneNumber?: string;
+// 	};
+// 	reference: string;
+// 	returnUrl: string;
+// 	userFlow: "WEB_REDIRECT";
+// 	paymentDescription: string;
+// }
+
+// interface VippsPaymentResponse {
+// 	orderId: string;
+// 	reference: string;
+// 	userFlow: "WEB_REDIRECT";
+// 	paymentLink?: string;
+// 	redirectUrl: string;
+// }
+
+// interface VippsPaymentDetails {
+// 	orderId: string;
+// 	reference: string;
+// 	status: string;
+// 	amount: {
+// 		currency: string;
+// 		value: number;
+// 	};
+// 	paymentSummary: {
+// 		capturedAmount: {
+// 			currency: string;
+// 			value: number;
+// 		};
+// 		refundedAmount: {
+// 			currency: string;
+// 			value: number;
+// 		};
+// 		remainingAmountToCapture: {
+// 			currency: string;
+// 			value: number;
+// 		};
+// 	};
+// 	customer?: {
+// 		phoneNumber: string;
+// 	};
+// 	paymentMethod: {
+// 		type: string;
+// 	};
+// 	created: string;
+// }
+
+// class VippsService {
+// 	private baseUrl: string;
+// 	private subscriptionKey: string;
+// 	private merchantSerialNumber: string;
+// 	private systemName: string;
+// 	private systemVersion: string;
+// 	private pluginName: string;
+// 	private pluginVersion: string;
+
+// 	constructor() {
+// 		// Use test or production environment based on explicit VIPPS_ENVIRONMENT variable
+// 		// Default to test if not specified, since NODE_ENV=production on Vercel even for test deployments
+// 		const vippsEnv = process.env.VIPPS_ENVIRONMENT || "test";
+// 		this.baseUrl = vippsEnv === "production" ? "https://api.vipps.no" : "https://apitest.vipps.no";
+
+// 		this.subscriptionKey = process.env.VIPPS_SUBSCRIPTION_KEY || "";
+// 		this.merchantSerialNumber = process.env.VIPPS_MERCHANT_SERIAL_NUMBER || "";
+// 		this.systemName = "PashupatinathNorway";
+// 		this.systemVersion = "1.0.0";
+// 		this.pluginName = "donation-form";
+// 		this.pluginVersion = "1.0.0";
+
+// 		if (!this.subscriptionKey || !this.merchantSerialNumber) {
+// 			console.warn("Vipps credentials not configured. Using mock mode.");
+// 		}
+// 	}
+
+// 	private async getAccessToken(): Promise<string> {
+// 		if (!this.subscriptionKey || !this.merchantSerialNumber) {
+// 			throw new Error("Vipps credentials not configured");
+// 		}
+
+// 		try {
+// 			const clientId = process.env.VIPPS_CLIENT_ID;
+// 			const clientSecret = process.env.VIPPS_CLIENT_SECRET;
+
+// 			if (!clientId || !clientSecret) {
+// 				throw new Error("Vipps client credentials not configured");
+// 			}
+
+// 			// Vipps ePayment API authentication - uses simple header-based credentials
+// 			// NOT OAuth2 - credentials are passed as headers, not in Basic Auth
+// 			// See: https://developer.vippsmobilepay.com/docs/APIs/epayment-api/quick-start/
+
+// 			const response = await fetch(`${this.baseUrl}/accesstoken/get`, {
+// 				method: "POST",
+// 				headers: {
+// 					"Content-Type": "application/json",
+// 					client_id: clientId,
+// 					client_secret: clientSecret,
+// 					"Ocp-Apim-Subscription-Key": this.subscriptionKey,
+// 					"Merchant-Serial-Number": this.merchantSerialNumber,
+// 					"Vipps-System-Name": this.systemName,
+// 					"Vipps-System-Version": this.systemVersion,
+// 					"Vipps-System-Plugin-Name": this.pluginName,
+// 					"Vipps-System-Plugin-Version": this.pluginVersion,
+// 				},
+// 				body: JSON.stringify({}),
+// 			});
+
+// 			if (!response.ok) {
+// 				const errorText = await response.text();
+// 				console.error(`Vipps access token error (${response.status} ${response.statusText}):`, errorText);
+// 				throw new Error(`Failed to get access token: ${response.status} ${response.statusText}`);
+// 			}
+
+// 			const data = await response.json();
+// 			if (!data.access_token) {
+// 				throw new Error("No access_token in response");
+// 			}
+
+// 			console.log("Successfully obtained Vipps access token");
+// 			return data.access_token;
+// 		} catch (error) {
+// 			console.error("Error getting Vipps access token:", error);
+// 			throw error;
+// 		}
+// 	}
+
+// 	private getHeaders(accessToken: string): Record<string, string> {
+// 		return {
+// 			"Content-Type": "application/json",
+// 			Authorization: `Bearer ${accessToken}`,
+// 			"Ocp-Apim-Subscription-Key": this.subscriptionKey,
+// 			"Merchant-Serial-Number": this.merchantSerialNumber,
+// 			"Vipps-System-Name": this.systemName,
+// 			"Vipps-System-Version": this.systemVersion,
+// 			"Vipps-System-Plugin-Name": this.pluginName,
+// 			"Vipps-System-Plugin-Version": this.pluginVersion,
+// 		};
+// 	}
+
+// 	async createPayment(amountNok: number, reference: string, returnUrl: string, customerPhoneNumber?: string): Promise<VippsPaymentResponse> {
+// 		// Mock implementation if credentials not configured
+// 		if (!this.subscriptionKey || !this.merchantSerialNumber) {
+// 			return this.createMockPayment(amountNok, reference, returnUrl, "Donation");
+// 		}
+
+// 		try {
+// 			const accessToken = await this.getAccessToken();
+
+// 			const paymentDescription = "Donation";
+
+// 			const paymentRequest: VippsPaymentRequest = {
+// 				amount: {
+// 					currency: "NOK",
+// 					value: amountNok * 100, // Convert NOK to øre
+// 				},
+// 				paymentMethod: {
+// 					type: "WALLET",
+// 				},
+// 				reference,
+// 				returnUrl,
+// 				userFlow: "WEB_REDIRECT",
+// 				paymentDescription,
+// 			};
+
+// 			// Add customer phone number if provided and valid
+// 			if (customerPhoneNumber) {
+// 				// Format phone number properly (add country code if needed)
+// 				const formattedPhoneNumber = VippsService.formatPhoneNumber(customerPhoneNumber);
+
+// 				// Only add if it matches the required format (9-15 digits)
+// 				if (formattedPhoneNumber && /^\d{9,15}$/.test(formattedPhoneNumber)) {
+// 					paymentRequest.customer = {
+// 						phoneNumber: formattedPhoneNumber,
+// 					};
+// 				} else {
+// 					console.warn(`Invalid phone number format after formatting: ${formattedPhoneNumber}`);
+// 				}
+// 			}
+
+// 			// Generate idempotency key (unique per request)
+// 			const idempotencyKey = `${reference}-${Date.now()}`;
+
+// 			const response = await fetch(`${this.baseUrl}/epayment/v1/payments`, {
+// 				method: "POST",
+// 				headers: {
+// 					...this.getHeaders(accessToken),
+// 					"Idempotency-Key": idempotencyKey,
+// 				},
+// 				body: JSON.stringify(paymentRequest),
+// 			});
+
+// 			if (!response.ok) {
+// 				const errorData = await response.json().catch(() => ({}));
+// 				throw new Error(`Failed to create Vipps payment: ${response.statusText} - ${JSON.stringify(errorData)}`);
+// 			}
+
+// 			const data: VippsPaymentResponse = await response.json();
+// 			return data;
+// 		} catch (error) {
+// 			console.error("Error creating Vipps payment:", error);
+// 			throw error;
+// 		}
+// 	}
+
+// 	async getPaymentDetails(orderId: string): Promise<VippsPaymentDetails> {
+// 		// Mock implementation if credentials not configured
+// 		if (!this.subscriptionKey || !this.merchantSerialNumber) {
+// 			return this.getMockPaymentDetails(orderId);
+// 		}
+
+// 		try {
+// 			const accessToken = await this.getAccessToken();
+
+// 			const response = await fetch(`${this.baseUrl}/epayment/v1/payments/${orderId}`, {
+// 				method: "GET",
+// 				headers: this.getHeaders(accessToken),
+// 			});
+
+// 			if (!response.ok) {
+// 				throw new Error(`Failed to get payment details: ${response.statusText}`);
+// 			}
+
+// 			const data: VippsPaymentDetails = await response.json();
+// 			return data;
+// 		} catch (error) {
+// 			console.error("Error getting payment details:", error);
+// 			throw error;
+// 		}
+// 	}
+
+// 	async capturePayment(orderId: number, amountNok?: number): Promise<void> {
+// 		// Mock implementation if credentials not configured
+// 		if (!this.subscriptionKey || !this.merchantSerialNumber) {
+// 			console.log(`Mock: Capturing payment ${orderId} for ${amountNok || "full amount"} NOK`);
+// 			return;
+// 		}
+
+// 		try {
+// 			const accessToken = await this.getAccessToken();
+
+// 			const captureRequest = amountNok ? { amount: { currency: "NOK", value: amountNok * 100 } } : {};
+
+// 			const response = await fetch(`${this.baseUrl}/epayment/v1/payments/${orderId}/capture`, {
+// 				method: "POST",
+// 				headers: this.getHeaders(accessToken),
+// 				body: JSON.stringify(captureRequest),
+// 			});
+
+// 			if (!response.ok) {
+// 				throw new Error(`Failed to capture payment: ${response.statusText}`);
+// 			}
+// 		} catch (error) {
+// 			console.error("Error capturing payment:", error);
+// 			throw error;
+// 		}
+// 	}
+
+// 	// Mock implementations for development/testing
+// 	private createMockPayment(amountNok: number, reference: string, returnUrl: string, paymentDescription: string): VippsPaymentResponse {
+// 		const orderId = `vipps_mock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+// 		// Use paymentDescription to avoid unused variable warning
+// 		console.log(`Mock payment created: ${paymentDescription}`);
+
+// 		return {
+// 			orderId,
+// 			reference,
+// 			userFlow: "WEB_REDIRECT",
+// 			redirectUrl: `${returnUrl}&orderId=${orderId}&status=COMPLETED`,
+// 			paymentLink: `https://mock.vipps.no/pay/${orderId}`,
+// 		};
+// 	}
+
+// 	private getMockPaymentDetails(orderId: string): VippsPaymentDetails {
+// 		return {
+// 			orderId,
+// 			reference: `ref_${orderId}`,
+// 			status: "COMPLETED",
+// 			amount: {
+// 				currency: "NOK",
+// 				value: 20000, // 200 NOK in øre
+// 			},
+// 			paymentSummary: {
+// 				capturedAmount: {
+// 					currency: "NOK",
+// 					value: 20000,
+// 				},
+// 				refundedAmount: {
+// 					currency: "NOK",
+// 					value: 0,
+// 				},
+// 				remainingAmountToCapture: {
+// 					currency: "NOK",
+// 					value: 0,
+// 				},
+// 			},
+// 			paymentMethod: {
+// 				type: "WALLET",
+// 			},
+// 			created: new Date().toISOString(),
+// 		};
+// 	}
+
+// 	// Helper method to generate reference
+// 	static generateReference(prefix: string = "DONATION"): string {
+// 		// Reference must match regex: ^[a-zA-Z0-9-]{8,64}$
+// 		// Only alphanumeric characters and dashes allowed, no underscores
+// 		const timestamp = Date.now().toString().slice(-8); // Last 8 digits of timestamp
+// 		const random = Math.random().toString(36).substr(2, 4).toUpperCase(); // 4 random alphanumeric chars
+// 		return `${prefix}-${timestamp}-${random}`; // Format: DONATION-12345678-ABCD (total ~25 chars)
+// 	}
+
+// 	// Helper method to validate phone number
+// 	static validatePhoneNumber(phoneNumber: string): boolean {
+// 		// Norwegian phone numbers should be 8 digits (without country code) or 12 digits (with +47)
+// 		const cleanNumber = phoneNumber.replace(/\D/g, "");
+// 		return cleanNumber.length === 8 || (cleanNumber.length === 11 && cleanNumber.startsWith("47"));
+// 	}
+
+// 	// Helper method to format phone number for Vipps
+// 	static formatPhoneNumber(phoneNumber: string): string {
+// 		const cleanNumber = phoneNumber.replace(/\D/g, "");
+// 		if (cleanNumber.length === 8) {
+// 			return `47${cleanNumber}`; // Add Norwegian country code
+// 		}
+// 		if (cleanNumber.length === 11 && cleanNumber.startsWith("47")) {
+// 			return cleanNumber;
+// 		}
+// 		return cleanNumber; // Return as-is if format is unexpected
+// 	}
+// }
+
+// export default VippsService;
+// export type { VippsPaymentRequest, VippsPaymentResponse, VippsPaymentDetails };
+
+// src/lib/vipps.ts
+
+const VIPPS_BASE_URL = process.env.VIPPS_BASE_URL || "https://apitest.vipps.no";
+const CLIENT_ID = process.env.VIPPS_CLIENT_ID!;
+const CLIENT_SECRET = process.env.VIPPS_CLIENT_SECRET!;
+const SUBSCRIPTION_KEY = process.env.VIPPS_SUBSCRIPTION_KEY!;
+const MSN = process.env.VIPPS_MSN!;
+
+// ─────────────────────────────────────────────────────────────
+// ACCESS TOKEN
+// POST /accesstoken/get
+// ─────────────────────────────────────────────────────────────
+export async function getAccessToken(): Promise<string> {
+	const response = await fetch(`${VIPPS_BASE_URL}/accesstoken/get`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			client_id: CLIENT_ID,
+			client_secret: CLIENT_SECRET,
+			"Ocp-Apim-Subscription-Key": SUBSCRIPTION_KEY,
+			"Merchant-Serial-Number": MSN,
+		},
+	});
+
+	if (!response.ok) {
+		const error = await response.text();
+		throw new Error(`Vipps token error ${response.status}: ${error}`);
+	}
+
+	const data = await response.json();
+	if (!data.access_token) {
+		throw new Error("No access_token in response: " + JSON.stringify(data));
+	}
+	return data.access_token;
 }
 
-interface VippsPaymentResponse {
-	orderId: string;
+// ─────────────────────────────────────────────────────────────
+// CREATE PAYMENT
+// POST /epayment/v1/payments
+// ─────────────────────────────────────────────────────────────
+export interface VippsCreatePaymentParams {
+	/** Amount in NOK (e.g. 250). Converted to øre internally. */
+	amountNOK: number;
+	/** Phone in any Norwegian format — normalised to MSISDN internally */
+	phoneNumber: string;
+	/** Unique reference, max 50 chars */
 	reference: string;
-	userFlow: "WEB_REDIRECT";
-	paymentLink?: string;
+	/** Short description shown in the Vipps app */
+	paymentDescription: string;
+	/** Publicly accessible URL Vipps redirects back to */
+	returnUrl: string;
+}
+
+export interface VippsCreatePaymentResult {
+	reference: string;
+	/** Open this URL to send the user to the Vipps landing page */
 	redirectUrl: string;
 }
 
-interface VippsPaymentDetails {
-	orderId: string;
-	reference: string;
-	status: string;
-	amount: {
-		currency: string;
-		value: number;
+export async function createVippsPayment(accessToken: string, params: VippsCreatePaymentParams): Promise<VippsCreatePaymentResult> {
+	const { amountNOK, phoneNumber, reference, paymentDescription, returnUrl } = params;
+
+	const body = {
+		amount: {
+			currency: "NOK",
+			value: Math.round(amountNOK * 100), // øre (minor units)
+		},
+		paymentMethod: { type: "WALLET" },
+		customer: { phoneNumber: normaliseMSISDN(phoneNumber) },
+		reference,
+		returnUrl,
+		userFlow: "WEB_REDIRECT",
+		paymentDescription,
 	};
-	paymentSummary: {
-		capturedAmount: {
-			currency: string;
-			value: number;
-		};
-		refundedAmount: {
-			currency: string;
-			value: number;
-		};
-		remainingAmountToCapture: {
-			currency: string;
-			value: number;
-		};
-	};
-	customer?: {
-		phoneNumber: string;
-	};
-	paymentMethod: {
-		type: string;
-	};
-	created: string;
-}
 
-class VippsService {
-	private baseUrl: string;
-	private subscriptionKey: string;
-	private merchantSerialNumber: string;
-	private systemName: string;
-	private systemVersion: string;
-	private pluginName: string;
-	private pluginVersion: string;
-
-	constructor() {
-		// Use test or production environment based on explicit VIPPS_ENVIRONMENT variable
-		// Default to test if not specified, since NODE_ENV=production on Vercel even for test deployments
-		const vippsEnv = process.env.VIPPS_ENVIRONMENT || "test";
-		this.baseUrl = vippsEnv === "production" ? "https://api.vipps.no" : "https://apitest.vipps.no";
-
-		this.subscriptionKey = process.env.VIPPS_SUBSCRIPTION_KEY || "";
-		this.merchantSerialNumber = process.env.VIPPS_MERCHANT_SERIAL_NUMBER || "";
-		this.systemName = "PashupatinathNorway";
-		this.systemVersion = "1.0.0";
-		this.pluginName = "donation-form";
-		this.pluginVersion = "1.0.0";
-
-		if (!this.subscriptionKey || !this.merchantSerialNumber) {
-			console.warn("Vipps credentials not configured. Using mock mode.");
-		}
-	}
-
-	private async getAccessToken(): Promise<string> {
-		if (!this.subscriptionKey || !this.merchantSerialNumber) {
-			throw new Error("Vipps credentials not configured");
-		}
-
-		try {
-			const clientId = process.env.VIPPS_CLIENT_ID;
-			const clientSecret = process.env.VIPPS_CLIENT_SECRET;
-
-			if (!clientId || !clientSecret) {
-				throw new Error("Vipps client credentials not configured");
-			}
-
-			// Vipps ePayment API authentication - uses simple header-based credentials
-			// NOT OAuth2 - credentials are passed as headers, not in Basic Auth
-			// See: https://developer.vippsmobilepay.com/docs/APIs/epayment-api/quick-start/
-
-			const response = await fetch(`${this.baseUrl}/accesstoken/get`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					client_id: clientId,
-					client_secret: clientSecret,
-					"Ocp-Apim-Subscription-Key": this.subscriptionKey,
-					"Merchant-Serial-Number": this.merchantSerialNumber,
-					"Vipps-System-Name": this.systemName,
-					"Vipps-System-Version": this.systemVersion,
-					"Vipps-System-Plugin-Name": this.pluginName,
-					"Vipps-System-Plugin-Version": this.pluginVersion,
-				},
-				body: JSON.stringify({}),
-			});
-
-			if (!response.ok) {
-				const errorText = await response.text();
-				console.error(`Vipps access token error (${response.status} ${response.statusText}):`, errorText);
-				throw new Error(`Failed to get access token: ${response.status} ${response.statusText}`);
-			}
-
-			const data = await response.json();
-			if (!data.access_token) {
-				throw new Error("No access_token in response");
-			}
-
-			console.log("Successfully obtained Vipps access token");
-			return data.access_token;
-		} catch (error) {
-			console.error("Error getting Vipps access token:", error);
-			throw error;
-		}
-	}
-
-	private getHeaders(accessToken: string): Record<string, string> {
-		return {
+	const response = await fetch(`${VIPPS_BASE_URL}/epayment/v1/payments`, {
+		method: "POST",
+		headers: {
 			"Content-Type": "application/json",
 			Authorization: `Bearer ${accessToken}`,
-			"Ocp-Apim-Subscription-Key": this.subscriptionKey,
-			"Merchant-Serial-Number": this.merchantSerialNumber,
-			"Vipps-System-Name": this.systemName,
-			"Vipps-System-Version": this.systemVersion,
-			"Vipps-System-Plugin-Name": this.pluginName,
-			"Vipps-System-Plugin-Version": this.pluginVersion,
-		};
+			"Ocp-Apim-Subscription-Key": SUBSCRIPTION_KEY,
+			"Merchant-Serial-Number": MSN,
+			"Idempotency-Key": reference,
+			"Vipps-System-Name": "rsp-norway-donation",
+			"Vipps-System-Version": "1.0.0",
+			"Vipps-System-Plugin-Name": "custom-nextjs",
+			"Vipps-System-Plugin-Version": "1.0.0",
+		},
+		body: JSON.stringify(body),
+	});
+
+	if (!response.ok) {
+		const error = await response.text();
+		throw new Error(`Vipps create payment error ${response.status}: ${error}`);
 	}
 
-	async createPayment(amountNok: number, reference: string, returnUrl: string, customerPhoneNumber?: string): Promise<VippsPaymentResponse> {
-		// Mock implementation if credentials not configured
-		if (!this.subscriptionKey || !this.merchantSerialNumber) {
-			return this.createMockPayment(amountNok, reference, returnUrl, "Donation");
-		}
+	const data = await response.json();
+	return {
+		reference: data.reference,
+		redirectUrl: data.redirectUrl,
+	};
+}
 
-		try {
-			const accessToken = await this.getAccessToken();
+// ─────────────────────────────────────────────────────────────
+// GET PAYMENT STATUS
+// GET /epayment/v1/payments/{reference}
+// ─────────────────────────────────────────────────────────────
+export type VippsPaymentState = "CREATED" | "ABORTED" | "EXPIRED" | "AUTHORIZED" | "TERMINATED";
 
-			const paymentDescription = "Donation";
+export interface VippsPaymentStatus {
+	reference: string;
+	state: VippsPaymentState;
+	amount: { currency: string; value: number };
+}
 
-			const paymentRequest: VippsPaymentRequest = {
-				amount: {
-					currency: "NOK",
-					value: amountNok * 100, // Convert NOK to øre
-				},
-				paymentMethod: {
-					type: "WALLET",
-				},
-				reference,
-				returnUrl,
-				userFlow: "WEB_REDIRECT",
-				paymentDescription,
-			};
+export async function getVippsPaymentStatus(accessToken: string, reference: string): Promise<VippsPaymentStatus> {
+	const response = await fetch(`${VIPPS_BASE_URL}/epayment/v1/payments/${reference}`, {
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+			"Ocp-Apim-Subscription-Key": SUBSCRIPTION_KEY,
+			"Merchant-Serial-Number": MSN,
+			"Vipps-System-Name": "rsp-norway-donation",
+			"Vipps-System-Version": "1.0.0",
+		},
+	});
 
-			// Add customer phone number if provided and valid
-			if (customerPhoneNumber) {
-				// Format phone number properly (add country code if needed)
-				const formattedPhoneNumber = VippsService.formatPhoneNumber(customerPhoneNumber);
-
-				// Only add if it matches the required format (9-15 digits)
-				if (formattedPhoneNumber && /^\d{9,15}$/.test(formattedPhoneNumber)) {
-					paymentRequest.customer = {
-						phoneNumber: formattedPhoneNumber,
-					};
-				} else {
-					console.warn(`Invalid phone number format after formatting: ${formattedPhoneNumber}`);
-				}
-			}
-
-			// Generate idempotency key (unique per request)
-			const idempotencyKey = `${reference}-${Date.now()}`;
-
-			const response = await fetch(`${this.baseUrl}/epayment/v1/payments`, {
-				method: "POST",
-				headers: {
-					...this.getHeaders(accessToken),
-					"Idempotency-Key": idempotencyKey,
-				},
-				body: JSON.stringify(paymentRequest),
-			});
-
-			if (!response.ok) {
-				const errorData = await response.json().catch(() => ({}));
-				throw new Error(`Failed to create Vipps payment: ${response.statusText} - ${JSON.stringify(errorData)}`);
-			}
-
-			const data: VippsPaymentResponse = await response.json();
-			return data;
-		} catch (error) {
-			console.error("Error creating Vipps payment:", error);
-			throw error;
-		}
+	if (!response.ok) {
+		const error = await response.text();
+		throw new Error(`Vipps status error ${response.status}: ${error}`);
 	}
 
-	async getPaymentDetails(orderId: string): Promise<VippsPaymentDetails> {
-		// Mock implementation if credentials not configured
-		if (!this.subscriptionKey || !this.merchantSerialNumber) {
-			return this.getMockPaymentDetails(orderId);
-		}
+	return response.json();
+}
 
-		try {
-			const accessToken = await this.getAccessToken();
+// ─────────────────────────────────────────────────────────────
+// CAPTURE PAYMENT
+// POST /epayment/v1/payments/{reference}/capture
+// ─────────────────────────────────────────────────────────────
+export async function captureVippsPayment(accessToken: string, reference: string, amountInOre: number): Promise<void> {
+	const response = await fetch(`${VIPPS_BASE_URL}/epayment/v1/payments/${reference}/capture`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+			"Ocp-Apim-Subscription-Key": SUBSCRIPTION_KEY,
+			"Merchant-Serial-Number": MSN,
+			"Idempotency-Key": `capture-${reference}`,
+			"Vipps-System-Name": "rsp-norway-donation",
+			"Vipps-System-Version": "1.0.0",
+		},
+		body: JSON.stringify({
+			modificationAmount: { currency: "NOK", value: amountInOre },
+		}),
+	});
 
-			const response = await fetch(`${this.baseUrl}/epayment/v1/payments/${orderId}`, {
-				method: "GET",
-				headers: this.getHeaders(accessToken),
-			});
-
-			if (!response.ok) {
-				throw new Error(`Failed to get payment details: ${response.statusText}`);
-			}
-
-			const data: VippsPaymentDetails = await response.json();
-			return data;
-		} catch (error) {
-			console.error("Error getting payment details:", error);
-			throw error;
-		}
-	}
-
-	async capturePayment(orderId: number, amountNok?: number): Promise<void> {
-		// Mock implementation if credentials not configured
-		if (!this.subscriptionKey || !this.merchantSerialNumber) {
-			console.log(`Mock: Capturing payment ${orderId} for ${amountNok || "full amount"} NOK`);
-			return;
-		}
-
-		try {
-			const accessToken = await this.getAccessToken();
-
-			const captureRequest = amountNok ? { amount: { currency: "NOK", value: amountNok * 100 } } : {};
-
-			const response = await fetch(`${this.baseUrl}/epayment/v1/payments/${orderId}/capture`, {
-				method: "POST",
-				headers: this.getHeaders(accessToken),
-				body: JSON.stringify(captureRequest),
-			});
-
-			if (!response.ok) {
-				throw new Error(`Failed to capture payment: ${response.statusText}`);
-			}
-		} catch (error) {
-			console.error("Error capturing payment:", error);
-			throw error;
-		}
-	}
-
-	// Mock implementations for development/testing
-	private createMockPayment(amountNok: number, reference: string, returnUrl: string, paymentDescription: string): VippsPaymentResponse {
-		const orderId = `vipps_mock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
-		// Use paymentDescription to avoid unused variable warning
-		console.log(`Mock payment created: ${paymentDescription}`);
-
-		return {
-			orderId,
-			reference,
-			userFlow: "WEB_REDIRECT",
-			redirectUrl: `${returnUrl}&orderId=${orderId}&status=COMPLETED`,
-			paymentLink: `https://mock.vipps.no/pay/${orderId}`,
-		};
-	}
-
-	private getMockPaymentDetails(orderId: string): VippsPaymentDetails {
-		return {
-			orderId,
-			reference: `ref_${orderId}`,
-			status: "COMPLETED",
-			amount: {
-				currency: "NOK",
-				value: 20000, // 200 NOK in øre
-			},
-			paymentSummary: {
-				capturedAmount: {
-					currency: "NOK",
-					value: 20000,
-				},
-				refundedAmount: {
-					currency: "NOK",
-					value: 0,
-				},
-				remainingAmountToCapture: {
-					currency: "NOK",
-					value: 0,
-				},
-			},
-			paymentMethod: {
-				type: "WALLET",
-			},
-			created: new Date().toISOString(),
-		};
-	}
-
-	// Helper method to generate reference
-	static generateReference(prefix: string = "DONATION"): string {
-		// Reference must match regex: ^[a-zA-Z0-9-]{8,64}$
-		// Only alphanumeric characters and dashes allowed, no underscores
-		const timestamp = Date.now().toString().slice(-8); // Last 8 digits of timestamp
-		const random = Math.random().toString(36).substr(2, 4).toUpperCase(); // 4 random alphanumeric chars
-		return `${prefix}-${timestamp}-${random}`; // Format: DONATION-12345678-ABCD (total ~25 chars)
-	}
-
-	// Helper method to validate phone number
-	static validatePhoneNumber(phoneNumber: string): boolean {
-		// Norwegian phone numbers should be 8 digits (without country code) or 12 digits (with +47)
-		const cleanNumber = phoneNumber.replace(/\D/g, "");
-		return cleanNumber.length === 8 || (cleanNumber.length === 11 && cleanNumber.startsWith("47"));
-	}
-
-	// Helper method to format phone number for Vipps
-	static formatPhoneNumber(phoneNumber: string): string {
-		const cleanNumber = phoneNumber.replace(/\D/g, "");
-		if (cleanNumber.length === 8) {
-			return `47${cleanNumber}`; // Add Norwegian country code
-		}
-		if (cleanNumber.length === 11 && cleanNumber.startsWith("47")) {
-			return cleanNumber;
-		}
-		return cleanNumber; // Return as-is if format is unexpected
+	if (!response.ok) {
+		const error = await response.text();
+		throw new Error(`Vipps capture error ${response.status}: ${error}`);
 	}
 }
 
-export default VippsService;
-export type { VippsPaymentRequest, VippsPaymentResponse, VippsPaymentDetails };
+// ─────────────────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * Normalise a Norwegian phone number to MSISDN format (e.g. "47XXXXXXXX").
+ * Accepts: "400 12 345", "+4740012345", "004740012345", "40012345"
+ */
+export function normaliseMSISDN(phone: string): string {
+	let digits = phone.replace(/\D/g, "");
+
+	if (digits.startsWith("00")) digits = digits.slice(2);
+	if (digits.startsWith("47") && digits.length === 10) return digits;
+	if (digits.length === 8) return "47" + digits;
+
+	return digits;
+}
+
+/** Generate a unique payment reference (max 50 chars) */
+export function generateVippsReference(prefix = "don"): string {
+	return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`.slice(0, 50);
+}

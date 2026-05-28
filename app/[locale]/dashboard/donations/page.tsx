@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Users, CheckCircle, Clock, XCircle, Search, Upload, ChevronLeft, ChevronRight, Edit } from "lucide-react";
+import { Users, CheckCircle, Clock, XCircle, Search, Upload, ChevronLeft, ChevronRight, Edit, Plus } from "lucide-react";
 import { formatNOK } from "@/lib/norwegianCurrency";
 import DonationChart from "@/components/DonationChart";
 import DashboardPageLayout from "@/components/layout/DashboardPageLayout";
@@ -19,7 +19,7 @@ interface Donation {
 	amount: number;
 	currency: string;
 	message?: string;
-	address?:string;
+	address?: string;
 	isAnonymous: boolean;
 	paymentStatus: "pending" | "completed" | "failed" | "refunded";
 	createdAt: string;
@@ -40,7 +40,19 @@ export default function DonationsManagement() {
 		pending: 0,
 		totalAmount: 0,
 	});
-	
+	const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+	const [newDonation, setNewDonation] = useState<Partial<Donation>>({
+		donorName: "",
+		donorEmail: "",
+		donorPhone: "",
+		amount: 0,
+		currency: "NOK",
+		message: "",
+		address: "",
+		isAnonymous: false,
+		paymentStatus: "completed",
+		createdAt: new Date().toISOString(),
+	});
 
 	useEffect(() => {
 		fetchDonations(currentPage, itemsPerPage);
@@ -126,14 +138,30 @@ export default function DonationsManagement() {
 		setEditingDonation(null);
 	};
 
+	const handleCloseAddModal = () => {
+		setIsAddModalOpen(false);
+		setNewDonation({
+			donorName: "",
+			donorEmail: "",
+			donorPhone: "",
+			amount: 0,
+			currency: "NOK",
+			message: "",
+			address: "",
+			isAnonymous: false,
+			paymentStatus: "completed",
+			createdAt: new Date().toISOString(),
+		});
+	};
+
 	const handleSaveDonation = async (updatedDonation: Partial<Donation>) => {
 		if (!editingDonation) return;
 
 		try {
 			const response = await fetch(`/api/donations/${editingDonation._id}`, {
-				method: 'PUT',
+				method: "PUT",
 				headers: {
-					'Content-Type': 'application/json',
+					"Content-Type": "application/json",
 				},
 				body: JSON.stringify(updatedDonation),
 			});
@@ -143,28 +171,48 @@ export default function DonationsManagement() {
 				fetchDonations(currentPage, itemsPerPage);
 				handleCloseEditModal();
 			} else {
-				console.error('Failed to update donation');
+				console.error("Failed to update donation");
 			}
 		} catch (error) {
-			console.error('Error updating donation:', error);
+			console.error("Error updating donation:", error);
+		}
+	};
+
+	const handleAddDonation = async () => {
+		try {
+			const response = await fetch("/api/donations", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(newDonation),
+			});
+
+			if (response.ok) {
+				// Refresh donations list
+				fetchDonations(1, itemsPerPage);
+				handleCloseAddModal();
+			} else {
+				const error = await response.json();
+				console.error("Failed to add donation:", error);
+			}
+		} catch (error) {
+			console.error("Error adding donation:", error);
 		}
 	};
 
 	// Filter donations based on search term
-	const filteredDonations = donations.filter((donation) => {
-		const searchLower = searchTerm.toLowerCase();
-		const donorName = donation.isAnonymous ? "anonymous" : donation.donorName.toLowerCase();
-		const message = donation.message?.toLowerCase() || "";
-		const donorPhone = donation.donorPhone?.toLowerCase() || "";
-		const address = donation.address?.toLowerCase() || "";
+	const filteredDonations = donations
+		.filter((donation) => {
+			const searchLower = searchTerm.toLowerCase();
+			const donorName = donation.isAnonymous ? "anonymous" : donation.donorName.toLowerCase();
+			const message = donation.message?.toLowerCase() || "";
+			const donorPhone = donation.donorPhone?.toLowerCase() || "";
+			const address = donation.address?.toLowerCase() || "";
 
-		return (
-			donorName.includes(searchLower) ||
-			message.includes(searchLower) ||
-			donorPhone.includes(searchLower) ||
-			address.includes(searchLower)
-		);
-	}).sort((a, b) => b.amount - a.amount); // Sort by highest amount first
+			return donorName.includes(searchLower) || message.includes(searchLower) || donorPhone.includes(searchLower) || address.includes(searchLower);
+		})
+		.sort((a, b) => b.amount - a.amount); // Sort by highest amount first
 
 	// Pagination logic
 	const totalPages = Math.ceil(filteredDonations.length / itemsPerPage);
@@ -176,7 +224,6 @@ export default function DonationsManagement() {
 	useEffect(() => {
 		setCurrentPage(1);
 	}, [searchTerm]);
-
 
 	if (loading) {
 		return (
@@ -205,25 +252,18 @@ export default function DonationsManagement() {
 					<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 						<CardTitle className="flex items-center gap-2">
 							<Users className="w-5 h-5" />
-							 Donations Record
+							Donations Record
 						</CardTitle>
 						<div className="flex flex-col sm:flex-row gap-4">
 							<div className="relative">
 								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-								<Input
-									type="text"
-									placeholder="Search donations..."
-									value={searchTerm}
-									onChange={(e) => setSearchTerm(e.target.value)}
-									className="pl-10 w-full sm:w-64"
-								/>
+								<Input type="text" placeholder="Search donations..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 w-full sm:w-64" />
 							</div>
-							<Button
-								onClick={() => router.push('donations/bulk-upload')}
-								variant="outline"
-								size="sm"
-								className="whitespace-nowrap"
-							>
+							<Button onClick={() => setIsAddModalOpen(true)} size="sm" className="bg-green-600 hover:bg-green-700 text-white whitespace-nowrap">
+								<Plus className="w-4 h-4 mr-1" />
+								Add Donation
+							</Button>
+							<Button onClick={() => router.push("donations/bulk-upload")} variant="outline" size="sm" className="whitespace-nowrap">
 								<Upload className="w-4 h-4 mr-1" />
 								Bulk Upload
 							</Button>
@@ -238,36 +278,20 @@ export default function DonationsManagement() {
 								Showing {startIndex + 1} to {Math.min(endIndex, filteredDonations.length)} of {filteredDonations.length} donations
 							</div>
 							<div className="flex items-center gap-2">
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-									disabled={currentPage === 1}
-								>
+								<Button variant="outline" size="sm" onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} disabled={currentPage === 1}>
 									<ChevronLeft className="w-4 h-4" />
 									Previous
 								</Button>
-								
+
 								<div className="flex items-center gap-1">
 									{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-										<Button
-											key={page}
-											variant={currentPage === page ? "default" : "outline"}
-											size="sm"
-											onClick={() => setCurrentPage(page)}
-											className="w-8 h-8 p-0"
-										>
+										<Button key={page} variant={currentPage === page ? "default" : "outline"} size="sm" onClick={() => setCurrentPage(page)} className="w-8 h-8 p-0">
 											{page}
 										</Button>
 									))}
 								</div>
-								
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-									disabled={currentPage === totalPages}
-								>
+
+								<Button variant="outline" size="sm" onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages}>
 									Next
 									<ChevronRight className="w-4 h-4" />
 								</Button>
@@ -276,7 +300,7 @@ export default function DonationsManagement() {
 					)}
 					{searchTerm && (
 						<div className="mb-4 text-sm text-gray-600">
-							Found {filteredDonations.length} donation{filteredDonations.length !== 1 ? 's' : ''} matching &quot;{searchTerm}&quot;
+							Found {filteredDonations.length} donation{filteredDonations.length !== 1 ? "s" : ""} matching &quot;{searchTerm}&quot;
 						</div>
 					)}
 					<div className="overflow-x-auto">
@@ -311,19 +335,12 @@ export default function DonationsManagement() {
 												</div>
 											</td>
 											<td className="py-3 px-4">
-												<p className="font-bold text-gray-900">
-													{formatNOK(donation.amount)}
-												</p>
+												<p className="font-bold text-gray-900">{formatNOK(donation.amount)}</p>
 											</td>
 											<td className="py-3 px-4">{getStatusBadge(donation.paymentStatus)}</td>
 											<td className="py-3 px-4 text-sm text-gray-600 max-w-xs truncate">{donation.message || "-"}</td>
 											<td className="py-3 px-4">
-												<Button
-													variant="outline"
-													size="sm"
-													onClick={() => handleEditDonation(donation)}
-													className="flex items-center gap-1"
-												>
+												<Button variant="outline" size="sm" onClick={() => handleEditDonation(donation)} className="flex items-center gap-1">
 													<Edit className="w-4 h-4" />
 													Edit
 												</Button>
@@ -334,7 +351,7 @@ export default function DonationsManagement() {
 							</tbody>
 						</table>
 					</div>
-					
+
 					{/* Pagination Controls */}
 					{totalPages > 1 && (
 						<div className="flex items-center justify-between mt-4">
@@ -342,36 +359,20 @@ export default function DonationsManagement() {
 								Showing {startIndex + 1} to {Math.min(endIndex, filteredDonations.length)} of {filteredDonations.length} donations
 							</div>
 							<div className="flex items-center gap-2">
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-									disabled={currentPage === 1}
-								>
+								<Button variant="outline" size="sm" onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} disabled={currentPage === 1}>
 									<ChevronLeft className="w-4 h-4" />
 									Previous
 								</Button>
-								
+
 								<div className="flex items-center gap-1">
 									{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-										<Button
-											key={page}
-											variant={currentPage === page ? "default" : "outline"}
-											size="sm"
-											onClick={() => setCurrentPage(page)}
-											className="w-8 h-8 p-0"
-										>
+										<Button key={page} variant={currentPage === page ? "default" : "outline"} size="sm" onClick={() => setCurrentPage(page)} className="w-8 h-8 p-0">
 											{page}
 										</Button>
 									))}
 								</div>
-								
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-									disabled={currentPage === totalPages}
-								>
+
+								<Button variant="outline" size="sm" onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages}>
 									Next
 									<ChevronRight className="w-4 h-4" />
 								</Button>
@@ -380,7 +381,7 @@ export default function DonationsManagement() {
 					)}
 				</CardContent>
 			</Card>
-				{/* Donation Patterns Chart */}
+			{/* Donation Patterns Chart */}
 			<DonationChart className="w-full" />
 
 			{/* Edit Donation Modal */}
@@ -389,11 +390,7 @@ export default function DonationsManagement() {
 					<div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
 						<div className="flex justify-between items-center mb-6">
 							<h2 className="text-xl font-bold text-gray-900">Edit Donation</h2>
-							<Button
-								variant="ghost"
-								size="sm"
-								onClick={handleCloseEditModal}
-							>
+							<Button variant="ghost" size="sm" onClick={handleCloseEditModal}>
 								✕
 							</Button>
 						</div>
@@ -401,110 +398,150 @@ export default function DonationsManagement() {
 						<div className="space-y-4">
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div>
-									<label className="block text-sm font-medium text-gray-700 mb-1">Donor Name</label>
-									<Input
-										defaultValue={editingDonation.donorName}
-										onChange={(e) => setEditingDonation({...editingDonation, donorName: e.target.value})}
-										placeholder="Enter donor name"
-									/>
+									<label className="block text-sm font-medium text-gray-700 mb-1">Donation Date</label>
+									<Input type="datetime-local" defaultValue={editingDonation.createdAt ? new Date(editingDonation.createdAt).toISOString().slice(0, 16) : ""} onChange={(e) => setEditingDonation({ ...editingDonation, createdAt: new Date(e.target.value).toISOString() })} />
 								</div>
+								<div>
+									<label className="block text-sm font-medium text-gray-700 mb-1">Donor Name</label>
+									<Input defaultValue={editingDonation.donorName} onChange={(e) => setEditingDonation({ ...editingDonation, donorName: e.target.value })} placeholder="Enter donor name" />
+								</div>
+							</div>
+
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div>
 									<label className="block text-sm font-medium text-gray-700 mb-1">Donor Email</label>
-									<Input
-										defaultValue={editingDonation.donorEmail}
-										onChange={(e) => setEditingDonation({...editingDonation, donorEmail: e.target.value})}
-										placeholder="Enter donor email"
-									/>
+									<Input defaultValue={editingDonation.donorEmail} onChange={(e) => setEditingDonation({ ...editingDonation, donorEmail: e.target.value })} placeholder="Enter donor email" />
 								</div>
-							</div>
-
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div>
 									<label className="block text-sm font-medium text-gray-700 mb-1">Donor Phone</label>
-									<Input
-										defaultValue={editingDonation.donorPhone || ""}
-										onChange={(e) => setEditingDonation({...editingDonation, donorPhone: e.target.value})}
-										placeholder="Enter donor phone"
-									/>
+									<Input defaultValue={editingDonation.donorPhone || ""} onChange={(e) => setEditingDonation({ ...editingDonation, donorPhone: e.target.value })} placeholder="Enter donor phone" />
 								</div>
-								<div>
-									<label className="block text-sm font-medium text-gray-700 mb-1">Amount (NOK)</label>
-									<Input
-										type="number"
-										defaultValue={editingDonation.amount}
-										onChange={(e) => setEditingDonation({...editingDonation, amount: parseInt(e.target.value) || 0})}
-										placeholder="Enter amount"
-									/>
-								</div>
-							</div>
-
-							<div>
-								<label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-								<Input
-									defaultValue={editingDonation.address || ""}
-									onChange={(e) => setEditingDonation({...editingDonation, address: e.target.value})}
-									placeholder="Enter donor address"
-								/>
-							</div>
-
-							<div>
-								<label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
-								<textarea
-									defaultValue={editingDonation.message || ""}
-									onChange={(e) => setEditingDonation({...editingDonation, message: e.target.value})}
-									placeholder="Enter donation message"
-									className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand_primary"
-									rows={3}
-								/>
 							</div>
 
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div>
+									<label className="block text-sm font-medium text-gray-700 mb-1">Amount (NOK)</label>
+									<Input type="number" defaultValue={editingDonation.amount} onChange={(e) => setEditingDonation({ ...editingDonation, amount: parseInt(e.target.value) || 0 })} placeholder="Enter amount" />
+								</div>
+								<div>
 									<label className="block text-sm font-medium text-gray-700 mb-1">Payment Status</label>
-									<select
-										defaultValue={editingDonation.paymentStatus}
-										onChange={(e) => setEditingDonation({...editingDonation, paymentStatus: e.target.value as 'pending' | 'completed' | 'failed' | 'refunded'})}
-										className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand_primary"
-									>
+									<select defaultValue={editingDonation.paymentStatus} onChange={(e) => setEditingDonation({ ...editingDonation, paymentStatus: e.target.value as "pending" | "completed" | "failed" | "refunded" })} className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand_primary">
 										<option value="pending">Pending</option>
 										<option value="completed">Completed</option>
 										<option value="failed">Failed</option>
 										<option value="refunded">Refunded</option>
 									</select>
 								</div>
-								<div>
-									<label className="block text-sm font-medium text-gray-700 mb-1">Anonymous</label>
-									<div className="flex items-center gap-2 mt-3">
-										<input
-											type="checkbox"
-											defaultChecked={editingDonation.isAnonymous}
-											onChange={(e) => setEditingDonation({...editingDonation, isAnonymous: e.target.checked})}
-											className="w-4 h-4 text-brand_primary border-gray-300 rounded focus:ring-brand_primary"
-										/>
-										<label className="text-sm text-gray-700">Hide donor name</label>
-									</div>
-								</div>
+							</div>
+
+							<div>
+								<label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+								<Input defaultValue={editingDonation.address || ""} onChange={(e) => setEditingDonation({ ...editingDonation, address: e.target.value })} placeholder="Enter donor address" />
+							</div>
+
+							<div>
+								<label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+								<textarea defaultValue={editingDonation.message || ""} onChange={(e) => setEditingDonation({ ...editingDonation, message: e.target.value })} placeholder="Enter donation message" className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand_primary" rows={3} />
+							</div>
+
+							<div className="flex items-center gap-2">
+								<input type="checkbox" defaultChecked={editingDonation.isAnonymous} onChange={(e) => setEditingDonation({ ...editingDonation, isAnonymous: e.target.checked })} className="w-4 h-4 text-brand_primary border-gray-300 rounded focus:ring-brand_primary" id="anonymous-edit" />
+								<label htmlFor="anonymous-edit" className="text-sm text-gray-700">
+									Hide donor name (Anonymous)
+								</label>
 							</div>
 						</div>
 
 						<div className="flex justify-end gap-3 mt-6">
-							<Button
-								variant="outline"
-								onClick={handleCloseEditModal}
-							>
+							<Button variant="outline" onClick={handleCloseEditModal}>
 								Cancel
 							</Button>
-							<Button
-								onClick={() => handleSaveDonation(editingDonation)}
-								className="bg-brand_secondary/80 text-white hover:bg-brand_secondary"
-							>
+							<Button onClick={() => handleSaveDonation(editingDonation)} className="bg-brand_secondary/80 text-white hover:bg-brand_secondary">
 								Save Changes
 							</Button>
 						</div>
 					</div>
 				</div>
 			)}
-			
+
+			{/* Add Donation Modal */}
+			{isAddModalOpen && (
+				<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+					<div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+						<div className="flex justify-between items-center mb-6">
+							<h2 className="text-xl font-bold text-gray-900">Add New Donation</h2>
+							<Button variant="ghost" size="sm" onClick={handleCloseAddModal}>
+								✕
+							</Button>
+						</div>
+						<div className="space-y-4">
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div>
+									<label className="block text-sm font-medium text-gray-700 mb-1">Donation Date</label>
+									<Input type="datetime-local" value={newDonation.createdAt ? new Date(newDonation.createdAt as string).toISOString().slice(0, 16) : ""} onChange={(e) => setNewDonation({ ...newDonation, createdAt: new Date(e.target.value).toISOString() })} />
+								</div>
+								<div>
+									<label className="block text-sm font-medium text-gray-700 mb-1">Donor Name</label>
+									<Input value={newDonation.donorName || ""} onChange={(e) => setNewDonation({ ...newDonation, donorName: e.target.value })} placeholder="Enter donor name" />
+								</div>
+							</div>
+
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div>
+									<label className="block text-sm font-medium text-gray-700 mb-1">Donor Email</label>
+									<Input type="email" value={newDonation.donorEmail || ""} onChange={(e) => setNewDonation({ ...newDonation, donorEmail: e.target.value })} placeholder="Enter donor email" />
+								</div>
+								<div>
+									<label className="block text-sm font-medium text-gray-700 mb-1">Donor Phone</label>
+									<Input value={newDonation.donorPhone || ""} onChange={(e) => setNewDonation({ ...newDonation, donorPhone: e.target.value })} placeholder="Enter donor phone" />
+								</div>
+							</div>
+
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div>
+									<label className="block text-sm font-medium text-gray-700 mb-1">Amount (NOK)</label>
+									<Input type="number" value={newDonation.amount || ""} onChange={(e) => setNewDonation({ ...newDonation, amount: parseInt(e.target.value) || 0 })} placeholder="Enter amount" />
+								</div>
+								<div>
+									<label className="block text-sm font-medium text-gray-700 mb-1">Payment Status</label>
+									<select value={newDonation.paymentStatus || "completed"} onChange={(e) => setNewDonation({ ...newDonation, paymentStatus: e.target.value as "pending" | "completed" | "failed" | "refunded" })} className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand_primary">
+										<option value="pending">Pending</option>
+										<option value="completed">Completed</option>
+										<option value="failed">Failed</option>
+										<option value="refunded">Refunded</option>
+									</select>
+								</div>
+							</div>
+
+							<div>
+								<label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+								<Input value={newDonation.address || ""} onChange={(e) => setNewDonation({ ...newDonation, address: e.target.value })} placeholder="Enter donor address" />
+							</div>
+
+							<div>
+								<label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+								<textarea value={newDonation.message || ""} onChange={(e) => setNewDonation({ ...newDonation, message: e.target.value })} placeholder="Enter donation message" className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand_primary" rows={3} />
+							</div>
+
+							<div className="flex items-center gap-2">
+								<input type="checkbox" checked={newDonation.isAnonymous || false} onChange={(e) => setNewDonation({ ...newDonation, isAnonymous: e.target.checked })} className="w-4 h-4 text-brand_primary border-gray-300 rounded focus:ring-brand_primary" id="anonymous-add" />
+								<label htmlFor="anonymous-add" className="text-sm text-gray-700">
+									Hide donor name (Anonymous)
+								</label>
+							</div>
+						</div>
+
+						<div className="flex justify-end gap-3 mt-6">
+							<Button variant="outline" onClick={handleCloseAddModal}>
+								Cancel
+							</Button>
+							<Button onClick={handleAddDonation} className="bg-green-600 hover:bg-green-700 text-white">
+								Add Donation
+							</Button>
+						</div>
+					</div>
+				</div>
+			)}
 		</DashboardPageLayout>
 	);
 }
