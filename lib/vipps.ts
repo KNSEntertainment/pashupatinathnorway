@@ -73,7 +73,7 @@
 // 		this.baseUrl = vippsEnv === "production" ? "https://api.vipps.no" : "https://apitest.vipps.no";
 
 // 		this.subscriptionKey = process.env.VIPPS_SUBSCRIPTION_KEY || "";
-// 		this.merchantSerialNumber = process.env.VIPPS_MERCHANT_SERIAL_NUMBER || "";
+// 		this.merchantSerialNumber = process.env.VIPPS_MSN || "";
 // 		this.systemName = "PashupatinathNorway";
 // 		this.systemVersion = "1.0.0";
 // 		this.pluginName = "donation-form";
