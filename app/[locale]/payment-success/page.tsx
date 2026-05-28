@@ -18,6 +18,12 @@ interface DonationData {
 	amount: number;
 	donorName: string;
 	donorEmail: string;
+	donorPhone?: string;
+	personalNumber?: string | null;
+	address?: string | null;
+	message?: string | null;
+	isAnonymous?: boolean;
+	membershipId?: string;
 	causeId: string | null;
 	donationType: string;
 	reference: string;
@@ -80,6 +86,30 @@ function PaymentSuccessContent() {
 				switch (data.state) {
 					case "AUTHORIZED":
 						if (!cancelled) {
+							let storedDonationData = donationData;
+							if (!storedDonationData) {
+								const raw = sessionStorage.getItem(`donation_${reference}`);
+								if (raw) storedDonationData = JSON.parse(raw);
+							}
+
+							if (storedDonationData) {
+								const confirmRes = await fetch("/api/vipps/confirm-payment", {
+									method: "POST",
+									headers: {
+										"Content-Type": "application/json",
+									},
+									body: JSON.stringify({
+										orderId: reference,
+										reference,
+										donationData: storedDonationData,
+									}),
+								});
+
+								if (!confirmRes.ok && confirmRes.status !== 409) {
+									throw new Error("Failed to confirm donation");
+								}
+							}
+
 							setAmount(data.amount);
 							setState("authorized");
 							// Clean up sessionStorage after success
