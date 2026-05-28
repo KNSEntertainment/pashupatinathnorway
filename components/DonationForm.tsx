@@ -168,7 +168,8 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 					reference: result.payment.reference,
 					redirectUrl: result.payment.redirectUrl,
 				});
-
+				console.log("Full result:", result);
+				console.log("Redirect URL:", result.payment?.redirectUrl);
 				// Store donation data in sessionStorage for confirmation page
 				sessionStorage.setItem(`donation_${result.payment.reference}`, JSON.stringify(result.donationData));
 
