@@ -156,12 +156,12 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 					}),
 				});
 
-				if (!response.ok) {
-					const errorData = await response.json();
-					throw new Error(errorData.error || "Failed to create Vipps payment");
-				}
-
+				console.log("Response status:", response.status);
+				console.log("Response ok:", response.ok);
 				const result = await response.json();
+				console.log("Result:", result);
+
+				// const result = await response.json();
 
 				console.log("Vipps payment created:", {
 					orderId: result.payment.orderId,
