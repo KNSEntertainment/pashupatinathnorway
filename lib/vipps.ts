@@ -67,8 +67,10 @@ class VippsService {
 	private pluginVersion: string;
 
 	constructor() {
-		// Use test environment for development, production for live
-		this.baseUrl = process.env.NODE_ENV === "production" ? "https://api.vipps.no" : "https://apitest.vipps.no";
+		// Use test or production environment based on explicit VIPPS_ENVIRONMENT variable
+		// Default to test if not specified, since NODE_ENV=production on Vercel even for test deployments
+		const vippsEnv = process.env.VIPPS_ENVIRONMENT || "test";
+		this.baseUrl = vippsEnv === "production" ? "https://api.vipps.no" : "https://apitest.vipps.no";
 
 		this.subscriptionKey = process.env.VIPPS_SUBSCRIPTION_KEY || "";
 		this.merchantSerialNumber = process.env.VIPPS_MERCHANT_SERIAL_NUMBER || "";
