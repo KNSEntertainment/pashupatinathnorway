@@ -34,13 +34,10 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 	const [message, setMessage] = useState("");
 	const [isAnonymous] = useState(false);
 	const [loading, setLoading] = useState(false);
-	const [paymentMethod, setPaymentMethod] = useState<"card" | "vipps">("vipps");
-	const [showVippsSuccess, setShowVippsSuccess] = useState(false);
 	const [selectedCause, setSelectedCause] = useState<string>("");
 	const [causes, setCauses] = useState<Array<{ _id: string; title: string; category: string }>>([]);
 
 	const fetchUserData = useCallback(async () => {
-		// Only fetch if user is logged in
 		if (!session?.user?.email) return;
 
 		try {
@@ -49,8 +46,6 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 				const data = await response.json();
 				if (data.membership) {
 					const membership = data.membership;
-					// Auto-fill phone and personal number from membership data
-					// Use personal number as the primary identifier
 					if (membership.phone && !donorPhone) {
 						setDonorPhone(membership.phone);
 					}
@@ -61,7 +56,6 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 			}
 		} catch (error) {
 			console.error("Failed to fetch user membership data:", error);
-			// Don't show error to user as this is optional functionality
 		}
 	}, [session?.user?.email, donorPhone, personalNumber]);
 
@@ -74,7 +68,6 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 				const fetchedCauses = data.causes || [];
 				setCauses(fetchedCauses);
 
-				// Auto-select first cause if no preselected cause and causes are available
 				if (!preselectedCause && fetchedCauses.length > 0 && !selectedCause) {
 					setSelectedCause(fetchedCauses[0]._id);
 				}
@@ -106,7 +99,6 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 	};
 
 	const handlePersonalNumberChange = (value: string) => {
-		// Only allow digits and limit to 11 characters
 		const cleanValue = value.replace(/\D/g, "").slice(0, 11);
 		setPersonalNumber(cleanValue);
 	};
@@ -119,90 +111,20 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 			return;
 		}
 
-		// Validate personal number if provided (optional for tax purposes)
 		if (personalNumber && personalNumber.length !== 11) {
 			toast.error("Personal number must be exactly 11 digits");
 			return;
 		}
 
-		// Validate phone number for Vipps
-		if (paymentMethod === "vipps" && !donorPhone) {
+		if (!donorPhone) {
 			toast.error("Phone number is required for Vipps payment");
 			return;
 		}
 
 		setLoading(true);
 
-		// Handle Vipps payment
-		if (paymentMethod === "vipps") {
-			try {
-				// Create Vipps payment
-				const response = await fetch("/api/vipps/create-payment", {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({
-						amount,
-						donorName: isAnonymous ? "Anonymous" : donorName,
-						donorEmail: isAnonymous ? "anonymous@rspnorway.org" : donorEmail,
-						donorPhone,
-						personalNumber: personalNumber || undefined,
-						address: address || undefined,
-						message,
-						isAnonymous,
-						causeId: selectedCause && selectedCause !== "general" ? selectedCause : null,
-						donationType: selectedCause && selectedCause !== "general" ? "cause_specific" : "general",
-					}),
-				});
-
-				console.log("Response status:", response.status);
-				console.log("Response ok:", response.ok);
-				const result = await response.json();
-				console.log("Result:", result);
-
-				// const result = await response.json();
-
-				console.log("Vipps payment created:", {
-					orderId: result.payment.orderId,
-					reference: result.payment.reference,
-					redirectUrl: result.payment.redirectUrl,
-				});
-				console.log("Full result:", result);
-				console.log("Redirect URL:", result.payment?.redirectUrl);
-				// Store donation data in sessionStorage for confirmation page
-				sessionStorage.setItem(`donation_${result.payment.reference}`, JSON.stringify(result.donationData));
-
-				// Redirect to Vipps payment
-				if (result.payment.redirectUrl) {
-					console.log("Redirecting to Vipps:", result.payment.redirectUrl);
-
-					// Try to redirect - this will either open the Vipps app or show an error
-					// For testing in browser without the app, you can manually open the redirectUrl
-					// const shouldRedirect = setTimeout(() => {
-					// 	window.location.href = result.payment.redirectUrl;
-					// }, 500);
-
-					// Show instructions for manual testing if needed
-					toast.success(`Payment created! Vipps app will open shortly.\n\nFor testing in browser, copy this URL:\n${result.payment.redirectUrl}`, {
-						duration: 5000,
-						style: {
-							maxWidth: "500px",
-						},
-					});
-				} else {
-					throw new Error("No redirect URL received from Vipps");
-				}
-			} catch (error) {
-				console.error("Vipps payment error:", error);
-				setLoading(false);
-				toast.error(error instanceof Error ? error.message : "Error processing Vipps payment");
-			}
-			return;
-		}
-
 		try {
-			const response = await fetch("/api/donations/create-checkout", {
+			const response = await fetch("/api/vipps/create-payment", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -210,28 +132,34 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 				body: JSON.stringify({
 					amount,
 					donorName: isAnonymous ? "Anonymous" : donorName,
-					donorEmail,
+					donorEmail: isAnonymous ? "anonymous@rspnorway.org" : donorEmail,
 					donorPhone,
 					personalNumber: personalNumber || undefined,
 					address: address || undefined,
 					message,
 					isAnonymous,
-					causeId: selectedCause || null,
-					donationType: selectedCause ? "cause_specific" : "general",
+					causeId: selectedCause && selectedCause !== "general" ? selectedCause : null,
+					donationType: selectedCause && selectedCause !== "general" ? "cause_specific" : "general",
 				}),
 			});
 
-			const data = await response.json();
+			const result = await response.json();
 
 			if (!response.ok) {
-				throw new Error(data.error || "Error processing donation");
+				throw new Error(result.error || "Error creating Vipps payment");
 			}
 
-			// Redirect to Stripe Checkout
-			window.location.href = data.url;
+			// Store donation data in sessionStorage for confirmation page
+			sessionStorage.setItem(`donation_${result.payment.reference}`, JSON.stringify(result.donationData));
+
+			if (result.payment?.redirectUrl) {
+				window.location.href = result.payment.redirectUrl;
+			} else {
+				throw new Error("No redirect URL received from Vipps");
+			}
 		} catch (error) {
-			console.error("Donation error:", error);
-			toast.error(error instanceof Error ? error.message : "Error processing donation");
+			console.error("Vipps payment error:", error);
+			toast.error(error instanceof Error ? error.message : "Error processing Vipps payment");
 			setLoading(false);
 		}
 	};
@@ -278,16 +206,7 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 				</Select>
 			</div>
 
-			{/* Anonymous Donation */}
-			{/* <div className="flex items-center gap-3 p-4 bg-light rounded-lg">
-				<input type="checkbox" id="anonymous" checked={isAnonymous} onChange={(e) => setIsAnonymous(e.target.checked)} className="w-4 h-4 text-brand_primary rounded focus:ring-brand" />
-				<label htmlFor="anonymous" className="text-sm text-gray-900 cursor-pointer">
-					{t("anonymous_donation") || "Donate anonymously"}
-				</label>
-			</div> */}
-
 			{/* Donor Information */}
-			{/* {!isAnonymous && ( */}
 			<div className="space-y-4 p-4 rounded-lg">
 				<h3 className="font-semibold text-gray-900">{t("donor_information") || "Your Information"}</h3>
 
@@ -306,8 +225,11 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 				</div>
 
 				<div>
-					<label className="block text-sm font-medium text-gray-900 mb-2">{t("phone_optional") || "Phone (Optional)"}</label>
-					<input type="tel" value={donorPhone} onChange={(e) => setDonorPhone(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-brand focus:outline-none text-gray-900" placeholder={t("phone_placeholder") || "Enter your phone number"} />
+					<label className="block text-sm font-medium text-gray-900 mb-2">
+						{t("phone") || "Phone"} <span className="text-red-500">*</span>
+					</label>
+					<input type="tel" value={donorPhone} onChange={(e) => setDonorPhone(e.target.value)} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-brand focus:outline-none text-gray-900" placeholder={t("phone_placeholder") || "Enter your phone number"} />
+					<p className="text-xs text-gray-500 mt-1">{t("phone_help") || "Required for Vipps payment."}</p>
 				</div>
 
 				<div>
@@ -319,37 +241,6 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 				<div>
 					<AddressAutocomplete value={address} onChange={setAddress} label={t("address") || "Address (Optional)"} placeholder={t("address_placeholder") || "Enter your address for tax documentation"} />
 					<p className="text-xs text-gray-500 mt-1">{t("address_help") || "Include street address, postal code, and city for complete tax documentation."}</p>
-				</div>
-			</div>
-			{/* )} */}
-
-			{/* Payment Method Selection */}
-			<div>
-				<label className="block text-sm font-semibold text-gray-900 mb-3">{t("payment_method") || "Payment Method"}</label>
-				<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-					{/* <button
-						type="button"
-						onClick={() => setPaymentMethod('card')}
-						className={`p-2 rounded-lg border border-1 font-semibold transition-all ${
-							paymentMethod === 'card'
-								? 'border-brand_primary bg-green-100 text-gray-700'
-								: 'border-gray-300 text-gray-900 hover:border-brand_primary'
-						}`}
-					>
-						<div className="flex items-center justify-center gap-2">
-							<svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-								<rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
-								<line x1="1" y1="10" x2="23" y2="10" />
-							</svg>
-							<span>{t("card_payment") || "Card Payment"}</span>
-						</div>
-					</button> */}
-					<button type="button" onClick={() => setPaymentMethod("vipps")} className={`p-2 rounded-lg border border-1 font-semibold transition-all ${paymentMethod === "vipps" ? "border-brand_primary bg-green-100 text-gray-700" : "border-gray-300 text-gray-900 hover:border-brand_primary"}`}>
-						<div className="flex items-center justify-center gap-2">
-							<Image src="/Vipps.webp" alt="Vipps" width={64} height={64} className="w-12 rounded-full" />
-							<span>{t("vipps_payment") || "Vipps Payment"}</span>
-						</div>
-					</button>
 				</div>
 			</div>
 
@@ -364,37 +255,23 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 				{loading ? (
 					<>
 						<Loader2 className="w-5 h-5 mr-2 animate-spin" />
-						{paymentMethod === "vipps" ? t("processing_vipps") || "Processing with Vipps..." : t("processing") || "Processing..."}
+						{t("processing_vipps") || "Processing with Vipps..."}
 					</>
 				) : (
 					<>
-						{paymentMethod === "vipps" ? (
-							<>
-								Donate {formatNOK(amount)} with <Image src="/Vipps.webp" alt="Vipps" width={64} height={64} className="w-12 rounded-full" />
-							</>
-						) : (
-							<>
-								<svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-									<rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
-									<line x1="1" y1="10" x2="23" y2="10" />
-								</svg>
-								{formatNOK(amount)}
-							</>
-						)}
+						Donate {formatNOK(amount)} with <Image src="/Vipps.webp" alt="Vipps" width={64} height={64} className="w-12 rounded-full ml-2" />
 					</>
 				)}
 			</Button>
 
-			<p className="text-xs text-center text-gray-700">{paymentMethod === "vipps" ? t("vipps_description") || "Quick and secure payment with Vipps" : t("secure_payment") || "Secure payment powered by Stripe"}</p>
+			<p className="text-xs text-center text-gray-700">{t("vipps_description") || "Quick and secure payment with Vipps"}</p>
 		</form>
 	);
 
-	// If in modal, return just the form content
 	if (isInModal) {
 		return formContent;
 	}
 
-	// Otherwise, return the full Card wrapper
 	return (
 		<Card className="w-full max-w-3xl mx-auto shadow-xl border-0 bg-white">
 			<CardHeader className="bg-red-900 text-gray-100">
@@ -406,25 +283,7 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 					</div>
 				</div>
 			</CardHeader>
-			<CardContent className="pt-6">
-				{formContent}
-
-				{/* Vipps Success Modal */}
-				{showVippsSuccess && (
-					<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-						<div className="bg-white rounded-lg p-8 max-w-md mx-4 text-center">
-							<div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-								<Image src="/Vipps.webp" alt="Vipps" width={48} height={48} className="w-12 rounded-full" />
-							</div>
-							<h3 className="text-xl font-semibold text-gray-900 mb-2">{t("vipps_success") || "Payment Successful!"}</h3>
-							<p className="text-gray-600 mb-4">{t("donation_success_message") || `Your donation of ${formatNOK(amount)} has been processed successfully.`}</p>
-							<button onClick={() => setShowVippsSuccess(false)} className="px-6 py-2 bg-brand_primary text-white rounded-lg hover:bg-brand_primary/90 transition-colors">
-								{t("close") || "Close"}
-							</button>
-						</div>
-					</div>
-				)}
-			</CardContent>
+			<CardContent className="pt-6">{formContent}</CardContent>
 		</Card>
 	);
 }
