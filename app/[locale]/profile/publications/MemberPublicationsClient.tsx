@@ -48,15 +48,13 @@ export default function MemberPublicationsClient() {
       case "admin":
         accessLevels.push("executives", "advisors", "active_members", "general_members");
         break;
-      case "executive":
-        accessLevels.push("executives");
-        break;
-      case "advisor":
-        accessLevels.push("advisors");
-        break;
       case "member":
-        // Check membership type for active vs general members
-        if (session.user.membershipType === "Active") {
+        // Check membership type for executive, advisor, active vs general members
+        if (session.user.membershipType === "Executive") {
+          accessLevels.push("executives");
+        } else if (session.user.membershipType === "Advisor") {
+          accessLevels.push("advisors");
+        } else if (session.user.membershipType === "Active") {
           accessLevels.push("active_members");
         } else {
           accessLevels.push("general_members");

@@ -352,7 +352,7 @@ export default function DonationsManagement() {
 									Previous
 								</Button>
 
-								<div className="flex items-center gap-1">
+								<div className="hidden md:flex items-center gap-1">
 									{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
 										<Button key={page} variant={currentPage === page ? "default" : "outline"} size="sm" onClick={() => setCurrentPage(page)} className="w-8 h-8 p-0">
 											{page}
@@ -433,7 +433,7 @@ export default function DonationsManagement() {
 									Previous
 								</Button>
 
-								<div className="flex items-center gap-1">
+								<div className="hidden md:flex items-center gap-1">
 									{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
 										<Button key={page} variant={currentPage === page ? "default" : "outline"} size="sm" onClick={() => setCurrentPage(page)} className="w-8 h-8 p-0">
 											{page}

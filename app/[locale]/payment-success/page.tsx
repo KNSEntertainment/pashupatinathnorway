@@ -1,12 +1,5 @@
 "use client";
-// src/app/payment-success/page.tsx
-//
-// Vipps redirects here after the user acts in the app:
-//   /payment-success?reference=don-xxxxxxxxx
-//
-// 1. Reads donationData from sessionStorage (stored by DonationForm)
-// 2. Polls /api/vipps/payment-status until state is final
-// 3. Shows success / cancelled / expired / error screen
+
 
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -273,7 +266,7 @@ function PaymentSuccessContent() {
 // ─────────────────────────────────────────────────────────────
 function Shell({ children }: { children: React.ReactNode }) {
 	return (
-		<main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+		<main className="bg-gray-50 flex items-center justify-center p-6 m-6 md:m-12">
 			<div className="bg-white rounded-2xl shadow-lg w-full max-w-md p-8">{children}</div>
 		</main>
 	);

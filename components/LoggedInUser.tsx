@@ -108,13 +108,12 @@ const LoggedInUser = ({ user }: { user: SessionUser }) => {
 							<p className="font-semibold text-gray-900 truncate">{user.email}</p>
 							<p className="text-xs text-gray-900 mt-1">{getUserRoleText()}</p>
 						</div>
-						{user.role === "admin" || user.isMember ? (
+						{user.role === "admin" ? (
 							<>
 								<Link href="/en/dashboard" onClick={() => setShowUserDropdown(false)} className="flex items-center gap-3 px-5 py-3.5 text-gray-700 hover:bg-red-50 w-full transition-all duration-200 font-medium">
 									<LayoutDashboard size={18} />
-									{user.role === "admin" ? "Admin Dashboard" : "Member Dashboard"}
+									Admin Dashboard
 								</Link>
-						
 							</>
 						) : (
 							<Link href="/en/profile" onClick={() => setShowUserDropdown(false)} className="flex items-center gap-3 px-5 py-3.5 text-brand_primary hover:bg-brand_primary/10 w-full transition-all duration-200 font-medium">
