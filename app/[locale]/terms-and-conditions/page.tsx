@@ -11,6 +11,13 @@ interface CustomSection {
   content: string;
 }
 
+interface Settings {
+  email?: string;
+  website?: string;
+  organizationNumber?: string;
+  [key: string]: unknown;
+}
+
 interface TermsContent {
   title: string;
   subtitle: string;
@@ -62,10 +69,24 @@ interface TermsContent {
 export default function TermsAndConditions() {
   const [termsContent, setTermsContent] = useState<TermsContent | null>(null);
   const [loading, setLoading] = useState(true);
+  const [settings, setSettings] = useState<Settings | null>(null);
 
   useEffect(() => {
     fetchTerms();
+    fetchSettings();
   }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const response = await fetch('/api/settings');
+      const data = await response.json();
+      if (data && data.length > 0) {
+        setSettings(data[0]);
+      }
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+    }
+  };
 
   const fetchTerms = async () => {
     try {
@@ -451,25 +472,13 @@ export default function TermsAndConditions() {
             />
             <div className="space-y-2">
               <p className="text-gray-900">
-                <strong>Email:</strong> <EditableText 
-                  value={termsContent.contact.email} 
-                  onSave={(value) => saveTerms('contact.email', value)}
-                  className="inline"
-                />
+                <strong>Email:</strong> {settings?.email || termsContent.contact.email}
               </p>
               <p className="text-gray-900">
-                <strong>Website:</strong> <EditableText 
-                  value={termsContent.contact.website} 
-                  onSave={(value) => saveTerms('contact.website', value)}
-                  className="inline"
-                />
+                <strong>Website:</strong> {settings?.website || termsContent.contact.website}
               </p>
               <p className="text-gray-900">
-                <strong>Organization Number:</strong> <EditableText 
-                  value={termsContent.contact.organizationNumber} 
-                  onSave={(value) => saveTerms('contact.organizationNumber', value)}
-                  className="inline"
-                />
+                <strong>Organization Number:</strong> {settings?.organizationNumber || termsContent.contact.organizationNumber}
               </p>
             </div>
           </section>

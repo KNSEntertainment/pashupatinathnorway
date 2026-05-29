@@ -11,6 +11,13 @@ interface CustomSection {
   content: string;
 }
 
+interface Settings {
+  email?: string;
+  website?: string;
+  organizationNumber?: string;
+  [key: string]: unknown;
+}
+
 interface PrivacyPolicyContent {
   title: string;
   lastUpdated: string;
@@ -92,10 +99,24 @@ interface PrivacyPolicyContent {
 export default function PrivacyPolicy() {
   const [privacyPolicyContent, setPrivacyPolicyContent] = useState<PrivacyPolicyContent | null>(null);
   const [loading, setLoading] = useState(true);
+  const [settings, setSettings] = useState<Settings | null>(null);
 
   useEffect(() => {
     fetchPrivacyPolicy();
+    fetchSettings();
   }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const response = await fetch('/api/settings');
+      const data = await response.json();
+      if (data && data.length > 0) {
+        setSettings(data[0]);
+      }
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+    }
+  };
 
   const fetchPrivacyPolicy = async () => {
     try {
@@ -698,25 +719,13 @@ export default function PrivacyPolicy() {
             />
             <div className="space-y-2">
               <div className="text-gray-900">
-                <strong>Email:</strong> <EditableText 
-                  value={privacyPolicyContent.contact.email} 
-                  onSave={(value) => savePrivacyPolicy('contact.email', value)}
-                  className="inline"
-                />
+                <strong>Email:</strong> {settings?.email || privacyPolicyContent.contact.email}
               </div>
               <div className="text-gray-900">
-                <strong>Website:</strong> <EditableText 
-                  value={privacyPolicyContent.contact.website} 
-                  onSave={(value) => savePrivacyPolicy('contact.website', value)}
-                  className="inline"
-                />
+                <strong>Website:</strong> {settings?.website || privacyPolicyContent.contact.website}
               </div>
               <div className="text-gray-900">
-                <strong>Organization Number:</strong> <EditableText 
-                  value={privacyPolicyContent.contact.organizationNumber} 
-                  onSave={(value) => savePrivacyPolicy('contact.organizationNumber', value)}
-                  className="inline"
-                />
+                <strong>Organization Number:</strong> {settings?.organizationNumber || privacyPolicyContent.contact.organizationNumber}
               </div>
             </div>
           </section>
