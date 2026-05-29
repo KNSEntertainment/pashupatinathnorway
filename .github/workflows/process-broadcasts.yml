@@ -19,7 +19,7 @@ jobs:
           
           # Call the API endpoint to process scheduled broadcasts
           response=$(curl -s -w "\n%{http_code}" -X GET \
-            "https://pashupatinathnorway.vercel.app/api/broadcast/process-scheduled" \
+            "https://nepalihindu.no/api/broadcast/process-scheduled" \
             -H "Content-Type: application/json")
           
           # Extract status code and response body
