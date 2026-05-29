@@ -141,7 +141,7 @@ function PaymentSuccessContent() {
 			cancelled = true;
 			clearTimeout(timer);
 		};
-	}, [reference]);
+	}, [reference, donationData]);
 
 	// ── Loading ────────────────────────────────────────────────
 	if (state === "loading") {
