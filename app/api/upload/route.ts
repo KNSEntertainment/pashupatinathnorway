@@ -24,14 +24,23 @@ export async function POST(request: Request) {
 			);
 		}
 
-		const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp", "image/gif", "application/pdf"]);
+		const allowedTypes = new Set([
+			"image/jpeg",
+			"image/png",
+			"image/webp",
+			"image/gif",
+			"application/pdf",
+			"application/msword",
+			"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+			"text/plain"
+		]);
 		if (!allowedTypes.has(file.type)) {
 			return NextResponse.json({ error: "Unsupported file type" }, { status: 400 });
 		}
 
-		const maxFileSize = 5 * 1024 * 1024;
+		const maxFileSize = 1 * 1024 * 1024; // 1MB
 		if (file.size > maxFileSize) {
-			return NextResponse.json({ error: "File size must be 5MB or less" }, { status: 400 });
+			return NextResponse.json({ error: "File size must be 1MB or less" }, { status: 400 });
 		}
 
 		// Upload to Cloudinary

@@ -10,14 +10,18 @@ type sendInternalMessage = {
   subject: string;
   content: string;
   relatedBroadcast?: string; // Broadcast ID (optional)
+  attachment?: string; // Attachment URL (optional)
+  attachmentName?: string; // Attachment filename (optional)
 };
 
-export async function sendInternalMessage({ 
-  recipient, 
-  senderEmail, 
-  subject, 
-  content, 
-  relatedBroadcast 
+export async function sendInternalMessage({
+  recipient,
+  senderEmail,
+  subject,
+  content,
+  relatedBroadcast,
+  attachment,
+  attachmentName
 }: sendInternalMessage) {
   try {
     await connectDB();
@@ -44,7 +48,12 @@ export async function sendInternalMessage({
       content,
       type: "broadcast",
       relatedBroadcast,
-      status: "sent"
+      status: "sent",
+      attachments: attachment && attachmentName ? [{
+        filename: attachmentName,
+        url: attachment,
+        size: 0 // Size not tracked for simplicity
+      }] : []
     });
 
     await message.save();

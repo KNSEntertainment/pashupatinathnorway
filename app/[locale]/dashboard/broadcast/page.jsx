@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useActiveMenu } from "@/context/ActiveMenuContext";
-import { Send, Users, Mail, MessageSquare, Search, CheckCircle, Clock, AlertCircle, XCircle } from "lucide-react";
+import { Send, Users, Mail, MessageSquare, Search, CheckCircle, Clock, AlertCircle, XCircle, Upload, FileText, X } from "lucide-react";
 
 export default function BroadcastPage() {
   const { setActiveMenu } = useActiveMenu();
@@ -20,8 +20,12 @@ export default function BroadcastPage() {
     sendingMethod: "email",
     recipientType: "all",
     recipientGroups: [],
-    scheduledFor: undefined
+    scheduledFor: undefined,
+    attachment: null,
+    attachmentName: null
   });
+
+  const [uploadingFile, setUploadingFile] = useState(false);
 
   useEffect(() => {
     setActiveMenu("broadcast");
@@ -80,6 +84,71 @@ export default function BroadcastPage() {
     }));
   };
 
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file size (1MB max)
+    const maxSize = 1 * 1024 * 1024; // 1MB
+    if (file.size > maxSize) {
+      alert("File size must be 1MB or less");
+      return;
+    }
+
+    // Validate file type
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "text/plain"
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      alert("Unsupported file type. Please upload images, PDFs, Word documents, or text files.");
+      return;
+    }
+
+    setUploadingFile(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "broadcast-attachments");
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setFormData(prev => ({
+          ...prev,
+          attachment: data.url,
+          attachmentName: file.name
+        }));
+      } else {
+        const error = await response.json();
+        alert(`Error uploading file: ${error.error}`);
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      alert("Failed to upload file");
+    } finally {
+      setUploadingFile(false);
+    }
+  };
+
+  const handleRemoveAttachment = () => {
+    setFormData(prev => ({
+      ...prev,
+      attachment: null,
+      attachmentName: null
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -104,7 +173,9 @@ export default function BroadcastPage() {
           sendingMethod: "email",
           recipientType: "all",
           recipientGroups: [],
-          scheduledFor: undefined
+          scheduledFor: undefined,
+          attachment: null,
+          attachmentName: null
         });
         setSelectedRecipients([]);
         setSearchResults([]);
@@ -192,6 +263,58 @@ export default function BroadcastPage() {
                 required
               />
             </div>
+
+            {/* File Upload - Only show for message method */}
+            {formData.sendingMethod === "message" && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Attachment (Optional)
+                </label>
+                {!formData.attachment ? (
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 transition-colors">
+                    <input
+                      type="file"
+                      onChange={handleFileUpload}
+                      disabled={uploadingFile}
+                      accept=".jpg,.jpeg,.png,.webp,.gif,.pdf,.doc,.docx,.txt"
+                      className="hidden"
+                      id="file-upload"
+                    />
+                    <label
+                      htmlFor="file-upload"
+                      className="cursor-pointer flex flex-col items-center"
+                    >
+                      <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                      <span className="text-sm text-gray-600">
+                        {uploadingFile ? "Uploading..." : "Click to upload file"}
+                      </span>
+                      <span className="text-xs text-gray-400 mt-1">
+                        Max size: 1MB (Images, PDFs, Word docs, Text files)
+                      </span>
+                    </label>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <div className="flex items-center space-x-3">
+                      <FileText className="w-5 h-5 text-blue-500" />
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {formData.attachmentName}
+                        </div>
+                        <div className="text-xs text-gray-500">File uploaded successfully</div>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemoveAttachment}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Sending Method */}
             <div>
@@ -402,6 +525,9 @@ export default function BroadcastPage() {
                     Status
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Attachment
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Created
                   </th>
                 </tr>
@@ -427,6 +553,21 @@ export default function BroadcastPage() {
                         {getStatusIcon(broadcast.status)}
                         <span className="text-sm text-gray-500 capitalize">{broadcast.status}</span>
                       </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {broadcast.attachment ? (
+                        <a
+                          href={broadcast.attachment}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 text-sm flex items-center"
+                        >
+                          <FileText className="w-4 h-4 mr-1" />
+                          {broadcast.attachmentName || "View Attachment"}
+                        </a>
+                      ) : (
+                        <span className="text-sm text-gray-400">-</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {new Date(broadcast.createdAt).toLocaleDateString()}

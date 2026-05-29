@@ -33,6 +33,8 @@ const BroadcastSchema = new mongoose.Schema({
   },
   scheduledFor: { type: Date },
   sentAt: { type: Date },
+  attachment: { type: String },
+  attachmentName: { type: String },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });

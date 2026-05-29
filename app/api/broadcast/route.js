@@ -56,7 +56,7 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { subject, content, sendingMethod, recipientType, recipientGroups, individualRecipients, scheduledFor } = body;
+    const { subject, content, sendingMethod, recipientType, recipientGroups, individualRecipients, scheduledFor, attachment, attachmentName } = body;
 
     // Validate required fields
     if (!subject || !content || !sendingMethod || !recipientType) {
@@ -114,7 +114,9 @@ export async function POST(request) {
       recipientGroups: recipientGroups || [],
       individualRecipients: individualRecipients || [],
       scheduledFor: scheduledFor ? new Date(scheduledFor) : null,
-      status: scheduledFor ? "pending" : "sending"
+      status: scheduledFor ? "pending" : "sending",
+      attachment: attachment || null,
+      attachmentName: attachmentName || null
     });
 
     await broadcast.save();
@@ -245,7 +247,9 @@ export async function POST(request) {
               senderEmail: session.user.email,
               subject: subject,
               content: content,
-              relatedBroadcast: broadcast._id
+              relatedBroadcast: broadcast._id,
+              attachment: attachment || null,
+              attachmentName: attachmentName || null
             });
             // Update tracking record to sent
             await BroadcastTracking.updateOne(
