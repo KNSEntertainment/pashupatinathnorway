@@ -8,22 +8,27 @@ const intlMiddleware = createMiddleware({
 });
 export function middleware(request: NextRequest) {
 	const { pathname } = request.nextUrl;
-	
+
+	// Skip middleware for API routes to prevent JSON parsing errors
+	if (pathname.startsWith("/api")) {
+		return NextResponse.next();
+	}
+
 	// Only redirect if exactly "/" and not already locale-prefixed
 	if (pathname === "/") {
 		return NextResponse.redirect(new URL("/en", request.url));
 	}
-	
+
 	// For locale-prefixed paths, run the intl middleware
 	const response = intlMiddleware(request);
-	
+
 	// Add cache-busting headers to prevent Safari caching issues
 	if (response) {
 		response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
 		response.headers.set('Pragma', 'no-cache');
 		response.headers.set('Expires', '0');
 	}
-	
+
 	return response;
 }
 

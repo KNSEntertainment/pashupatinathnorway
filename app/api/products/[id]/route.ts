@@ -40,6 +40,10 @@ export async function PUT(request: Request, { params }: RouteParams) {
 		const { id } = await params;
 
 		const formData = await request.formData();
+
+		if (!formData) {
+			return NextResponse.json({ error: 'No form data provided' }, { status: 400 });
+		}
 		
 		// Find existing product
 		const existingProduct = await Product.findById(id);
@@ -168,10 +172,25 @@ export async function PUT(request: Request, { params }: RouteParams) {
 			product: JSON.parse(JSON.stringify(updatedProduct)) 
 		});
 
-	} catch (error) {
+	} catch (error: unknown) {
 		console.error('Error updating product:', error);
+		
+		// Handle validation errors with user-friendly messages
+		if (error instanceof Error && error.name === 'ValidationError') {
+			const messages: string[] = [];
+			const validationError = error as { errors?: Record<string, { message: string }> };
+			for (const field in validationError.errors) {
+				const fieldError = validationError.errors[field];
+				const fieldName = field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+				messages.push(`${fieldName}: ${fieldError.message}`);
+			}
+			return NextResponse.json({ 
+				error: messages.join('. ') || 'Please check all required fields' 
+			}, { status: 400 });
+		}
+		
 		return NextResponse.json({ 
-			error: 'Failed to update product' 
+			error: 'Failed to update product. Please try again.' 
 		}, { status: 500 });
 	}
 }

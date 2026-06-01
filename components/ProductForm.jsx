@@ -139,7 +139,9 @@ export default function ProductForm({ handleCloseProductModal, productToEdit = n
 			const result = await response.json();
 
 			if (!response.ok) {
-				throw new Error(result.error || `Failed to ${productToEdit ? "update" : "create"} product`);
+				// Show user-friendly error message
+				const errorMessage = result.error || `Failed to ${productToEdit ? "update" : "create"} product`;
+				throw new Error(errorMessage);
 			}
 
 			alert(`Product ${productToEdit ? "updated" : "created"} successfully!`);
@@ -243,7 +245,19 @@ export default function ProductForm({ handleCloseProductModal, productToEdit = n
 	return (
 		<div className="max-h-[calc(100vh-200px)] overflow-y-auto">
 			<form onSubmit={handleSubmit} className="space-y-4">
-				{error && <div className="bg-red-50 border border-red-600 text-red-600 px-4 py-3 rounded">{error}</div>}
+				{error && (
+				<div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-md">
+					<div className="flex items-start gap-2">
+						<svg className="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+							<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+						</svg>
+						<div>
+							<p className="font-medium">Unable to {productToEdit ? "update" : "create"} product</p>
+							<p className="text-sm mt-1">{error}</p>
+						</div>
+					</div>
+				</div>
+			)}
 
 				{/* Basic Information */}
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">

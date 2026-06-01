@@ -62,39 +62,6 @@ const sampleProducts = [
     tags: ["digital", "book", "scripture", "spiritual"],
     isActive: true
   },
-  
-  // Physical Products
-  {
-    name: {
-      en: "Puja Thali Set",
-      ne: "पूजा थाली सेट",
-      no: "Puja Thali Sett"
-    },
-    description: {
-      en: "Complete puja thali set with all essential items for daily worship including brass diya, incense holder, and containers.",
-      ne: "पित्तलको दिया, धूपदान र कन्टेनरहरू सहित दैनिक पूजाका लागि सबै आवश्यक सामग्रीहरूसहित पूर्ण पूजा थाली सेट।",
-      no: "Komplett puja thali-sett med alle essensielle gjenstander for daglig tilbedelse, inkludert messing-diya, røkelsesholder og beholdere."
-    },
-    price: 899,
-    currency: "NOK",
-    category: "product",
-    type: "ritual-items",
-    imageUrl: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=400&h=300&fit=crop",
-    images: [
-      "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=400&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop"
-    ],
-    inStock: true,
-    stockQuantity: 25,
-    isDigital: false,
-    features: [
-      { en: "High quality brass materials", ne: "उच्च गुणस्तरका पित्तल सामग्री", no: "Høykvalitets messingmaterialer" },
-      { en: "Traditional design", ne: "परम्परागत डिजाइन", no: "Tradisjonelt design" },
-      { en: "Includes 7 essential items", ne: "७ आवश्यक सामग्रीहरू समावेश", no: "Inkluderer 7 essensielle gjenstander" }
-    ],
-    tags: ["physical", "puja", "brass", "ritual"],
-    isActive: true
-  },
   {
     name: {
       en: "Mala Beads - Rudraksha",

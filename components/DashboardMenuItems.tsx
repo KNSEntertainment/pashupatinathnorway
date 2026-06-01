@@ -1,4 +1,4 @@
-import { BookImage, Settings, Book, User, Bell, Users, Mail, DollarSign, Image, Heart, QrCode, Gift, LucideIcon, FileText, Shield, FolderOpen, PiggyBank, Info, Target, Sparkles, Flame, PartyPopper, Send, MessageSquare, TrendingUp, TrendingDown } from "lucide-react";
+import { BookImage, Settings, Book, User, Bell, Users, Mail, DollarSign, Image, Heart, QrCode, Gift, LucideIcon, FileText, Shield, FolderOpen, PiggyBank, Info, Target, Sparkles, Flame, PartyPopper, Send, MessageSquare, TrendingUp, TrendingDown, ShoppingBag } from "lucide-react";
 
 export interface MenuItem {
 	id: string;
@@ -54,8 +54,8 @@ export const menuCategories: MenuCategory[] = [
 			{ id: "about-us", label: "About Us", icon: Info, color: "bg-indigo-600", href: "/en/dashboard/about-us", role: "admin" },
 			{ id: "mission-vision", label: "Mission & Vision", icon: Target, color: "bg-purple-600", href: "/en/dashboard/mission-vision", role: "admin" },
 			{ id: "values", label: "Values", icon: Sparkles, color: "bg-pink-600", href: "/en/dashboard/values", role: "admin" },
-			{ id: "notices", label: "Notices", icon: Bell, color: "bg-amber-600", href: "/en/dashboard/notices", role: "admin" },
 			{ id: "publications", label: "Publications", icon: FolderOpen, color: "bg-indigo-600", href: "/en/dashboard/publications", role: "admin" },
+			{ id: "products", label: "Products", icon: ShoppingBag, color: "bg-teal-600", href: "/en/dashboard/products", role: "admin" },
 		],
 		role: "admin"
 	},
@@ -78,6 +78,7 @@ export const menuCategories: MenuCategory[] = [
 		items: [
 			{ id: "broadcast", label: "Broadcast", icon: Send, color: "bg-blue-600", href: "/en/dashboard/broadcast", role: "admin" },
 			{ id: "contactmessages", label: "Contact Messages", icon: Book, color: "bg-blue-600", href: "/en/dashboard/contactmessages", role: "admin" },
+			{ id: "notices", label: "Notices", icon: Bell, color: "bg-amber-600", href: "/en/dashboard/notices", role: "admin" },
 			{ id: "subscribers", label: "Subscribers", icon: Mail, color: "bg-violet-600", href: "/en/dashboard/subscribers", role: "admin" },
 			{ id: "messages", label: "Messages", icon: MessageSquare, color: "bg-blue-600", href: "/en/profile/messages", role: "member" },
 		],
