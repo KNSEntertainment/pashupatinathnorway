@@ -36,6 +36,7 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 	const [loading, setLoading] = useState(false);
 	const [selectedCause, setSelectedCause] = useState<string>("");
 	const [causes, setCauses] = useState<Array<{ _id: string; title: string; category: string }>>([]);
+	const [membershipId, setMembershipId] = useState<string>("");
 
 	const fetchUserData = useCallback(async () => {
 		if (!session?.user?.email) return;
@@ -52,12 +53,15 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 					if (membership.personalNumber && !personalNumber) {
 						setPersonalNumber(membership.personalNumber);
 					}
+					if (membership.membershipId && !membershipId) {
+						setMembershipId(membership.membershipId);
+					}
 				}
 			}
 		} catch (error) {
 			console.error("Failed to fetch user membership data:", error);
 		}
-	}, [session?.user?.email, donorPhone, personalNumber]);
+	}, [session?.user?.email, donorPhone, personalNumber, membershipId]);
 
 	const fetchCauses = useCallback(async () => {
 		try {
@@ -140,6 +144,7 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 					isAnonymous,
 					causeId: selectedCause && selectedCause !== "general" ? selectedCause : null,
 					donationType: selectedCause && selectedCause !== "general" ? "cause_specific" : "general",
+					membershipId: membershipId || undefined,
 				}),
 			});
 

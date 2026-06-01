@@ -19,6 +19,7 @@ import { Upload, Download, CheckCircle, XCircle, AlertCircle, Search, Mail, Chec
 interface UploadResult {
   success: number;
   failed: number;
+  skipped: number;
   errors: string[];
   processedMembers: Array<{
     firstName: string;
@@ -385,7 +386,7 @@ export default function BulkMembershipUpload() {
               <Alert>
                 <CheckCircle className="h-4 w-4" />
                 <AlertDescription>
-                  Upload completed! Success: {result.success}, Failed: {result.failed}
+                  Upload completed! Success: {result.success}, Failed: {result.failed}{result.skipped > 0 && `, Skipped (duplicates): ${result.skipped}`}
                 </AlertDescription>
               </Alert>
 

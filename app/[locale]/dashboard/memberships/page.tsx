@@ -603,6 +603,57 @@ export default function MembershipsPage() {
 		if (page >= 1 && page <= totalPages) setCurrentPage(page);
 	};
 
+	const getPaginationPages = () => {
+		const pages: (number | string)[] = [];
+		const maxVisiblePages = 5;
+
+		if (totalPages <= maxVisiblePages) {
+			// Show all pages if total is less than or equal to max visible
+			for (let i = 1; i <= totalPages; i++) {
+				pages.push(i);
+			}
+		} else {
+			// Always show first page
+			pages.push(1);
+
+			// Show pages around current page
+			let startPage = Math.max(2, currentPage - 1);
+			let endPage = Math.min(totalPages - 1, currentPage + 1);
+
+			// Adjust if we're near the start
+			if (currentPage <= 3) {
+				startPage = 2;
+				endPage = Math.min(4, totalPages - 1);
+			}
+
+			// Adjust if we're near the end
+			if (currentPage >= totalPages - 2) {
+				startPage = Math.max(totalPages - 3, 2);
+				endPage = totalPages - 1;
+			}
+
+			// Add ellipsis if there's a gap after first page
+			if (startPage > 2) {
+				pages.push('...');
+			}
+
+			// Add middle pages
+			for (let i = startPage; i <= endPage; i++) {
+				pages.push(i);
+			}
+
+			// Add ellipsis if there's a gap before last page
+			if (endPage < totalPages - 1) {
+				pages.push('...');
+			}
+
+			// Always show last page
+			pages.push(totalPages);
+		}
+
+		return pages;
+	};
+
 	const getStatusBadge = (status: string) => {
 		switch (status) {
 			case "approved":
@@ -911,16 +962,20 @@ export default function MembershipsPage() {
 								Previous
 							</Button>
 							<div className="flex items-center gap-1">
-								{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-									<Button
-										key={page}
-										variant={currentPage === page ? "default" : "outline"}
-										size="sm"
-										onClick={() => handlePageChange(page)}
-										className="w-8 h-8 p-0"
-									>
-										{page}
-									</Button>
+								{getPaginationPages().map((page, index) => (
+									page === '...' ? (
+										<span key={`ellipsis-${index}`} className="px-2 text-gray-500">...</span>
+									) : (
+										<Button
+											key={page}
+											variant={currentPage === page ? "default" : "outline"}
+											size="sm"
+											onClick={() => handlePageChange(page as number)}
+											className="w-8 h-8 p-0"
+										>
+											{page}
+										</Button>
+									)
 								))}
 							</div>
 							<Button variant="outline" size="sm" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>

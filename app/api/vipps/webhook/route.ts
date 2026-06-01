@@ -16,10 +16,12 @@ export async function POST(request: Request) {
     //   return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     // }
 
-    console.log('Vipps webhook received:', body);
+    console.log('[VIPPS Webhook] Webhook received:', body);
 
     // Handle different webhook events
     const { eventName, orderId } = body;
+
+    console.log('[VIPPS Webhook] Processing event:', { eventName, orderId });
 
     if (eventName === 'payment.completed' || eventName === 'payment.captured') {
       await handlePaymentCompleted(orderId);
@@ -27,14 +29,16 @@ export async function POST(request: Request) {
       await handlePaymentFailed(orderId);
     } else if (eventName === 'payment.authorized') {
       await handlePaymentAuthorized(orderId);
+    } else {
+      console.log('[VIPPS Webhook] Unhandled event:', eventName);
     }
 
     return NextResponse.json({ success: true });
 
   } catch (error) {
-    console.error("Vipps webhook error:", error);
-    return NextResponse.json({ 
-      error: error instanceof Error ? error.message : "Webhook processing failed" 
+    console.error("[VIPPS Webhook] Webhook error:", error);
+    return NextResponse.json({
+      error: error instanceof Error ? error.message : "Webhook processing failed"
     }, { status: 500 });
   }
 }
@@ -42,42 +46,43 @@ export async function POST(request: Request) {
 async function handlePaymentCompleted(orderId: string) {
   try {
     await connectDB();
+    console.log('[VIPPS Webhook] Handling payment completed for order:', orderId);
 
     // Check if donation already exists and is completed
-    const existingDonation = await Donation.findOne({ 
+    const existingDonation = await Donation.findOne({
       stripePaymentIntentId: orderId,
-      paymentStatus: "completed" 
+      paymentStatus: "completed"
     });
 
     if (existingDonation) {
-      console.log(`Donation ${orderId} already processed`);
+      console.log(`[VIPPS Webhook] Donation ${orderId} already processed`);
       return;
     }
 
     // Find pending donation with this order ID
-    const pendingDonation = await Donation.findOne({ 
+    const pendingDonation = await Donation.findOne({
       stripePaymentIntentId: orderId,
-      paymentStatus: "pending" 
+      paymentStatus: "pending"
     });
 
     if (pendingDonation) {
       // Update existing pending donation
       pendingDonation.paymentStatus = "completed";
       await pendingDonation.save();
-      
-      console.log(`Updated pending donation ${orderId} to completed`);
-      
+
+      console.log(`[VIPPS Webhook] Updated pending donation ${orderId} to completed`);
+
       // Send confirmation email if needed
       await sendConfirmationEmail(pendingDonation);
     } else {
       // This might be a direct webhook without a pending record
       // In this case, we need the donation data to be passed in the webhook
       // or stored elsewhere (Redis, etc.)
-      console.warn(`No pending donation found for order ${orderId}`);
+      console.warn(`[VIPPS Webhook] No pending donation found for order ${orderId}`);
     }
 
   } catch (error) {
-    console.error("Error handling payment completed:", error);
+    console.error("[VIPPS Webhook] Error handling payment completed:", error);
     throw error;
   }
 }

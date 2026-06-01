@@ -79,13 +79,17 @@ function PaymentSuccessContent() {
 				switch (data.state) {
 					case "AUTHORIZED":
 						if (!cancelled) {
+							console.log('[Payment Success] Payment authorized, confirming donation...');
 							let storedDonationData = donationData;
 							if (!storedDonationData) {
 								const raw = sessionStorage.getItem(`donation_${reference}`);
 								if (raw) storedDonationData = JSON.parse(raw);
 							}
 
+							console.log('[Payment Success] Donation data from sessionStorage:', { hasData: !!storedDonationData, reference });
+
 							if (storedDonationData) {
+								console.log('[Payment Success] Calling confirm-payment API...');
 								const confirmRes = await fetch("/api/vipps/confirm-payment", {
 									method: "POST",
 									headers: {
@@ -98,9 +102,18 @@ function PaymentSuccessContent() {
 									}),
 								});
 
+								console.log('[Payment Success] Confirm-payment response:', { status: confirmRes.status, ok: confirmRes.ok });
+
 								if (!confirmRes.ok && confirmRes.status !== 409) {
+									const errorData = await confirmRes.json().catch(() => ({}));
+									console.error('[Payment Success] Failed to confirm donation:', errorData);
 									throw new Error("Failed to confirm donation");
 								}
+
+								const confirmData = await confirmRes.json().catch(() => ({}));
+								console.log('[Payment Success] Confirm-payment response data:', confirmData);
+							} else {
+								console.error('[Payment Success] No donation data found in sessionStorage for reference:', reference);
 							}
 
 							setAmount(data.amount);

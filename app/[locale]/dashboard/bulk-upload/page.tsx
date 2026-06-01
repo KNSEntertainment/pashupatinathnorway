@@ -1,3 +1,5 @@
+"use client";
+
 import BulkMembershipUpload from '@/components/BulkMembershipUpload';
 import DashboardPageLayout from "@/components/layout/DashboardPageLayout";
 

@@ -123,9 +123,34 @@ export async function POST(request: NextRequest) {
     const headers = lines[0].split(',').map(h => h.trim());
     const dataRows = lines.slice(1);
 
+    console.log('CSV Headers:', headers);
+    console.log('Total data rows:', dataRows.length);
+
+    // Helper function to parse CSV row with quoted fields
+    const parseCSVRow = (row: string): string[] => {
+      const result: string[] = [];
+      let current = '';
+      let inQuotes = false;
+
+      for (let i = 0; i < row.length; i++) {
+        const char = row[i];
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          result.push(current.trim().replace(/^"|"$/g, ''));
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      result.push(current.trim().replace(/^"|"$/g, ''));
+      return result;
+    };
+
     const results = {
       success: 0,
       failed: 0,
+      skipped: 0,
       errors: [] as string[],
       processedMembers: [] as ProcessedMember[]
     };
@@ -135,7 +160,7 @@ export async function POST(request: NextRequest) {
       const row = dataRows[i];
       if (!row.trim()) continue;
 
-      const values = row.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+      const values = parseCSVRow(row);
 
       // Skip completely empty rows
       if (values.every(value => !value || value.trim() === '')) {
@@ -192,81 +217,27 @@ export async function POST(request: NextRequest) {
           }
         });
 
-        // Helper function to get member name for error messages
-        const getMemberName = () => {
-          const firstName = memberData.firstName || '';
-          const lastName = memberData.lastName || '';
-          return (firstName && lastName) ? `${firstName} ${lastName}` : 
-                 firstName || lastName || `Row ${i + 2}`;
-        };
-
-        // Validate required fields (removed agreeTerms, membershipStatus, membershipType since they have defaults)
-        const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'address', 'city', 'postalCode', 'personalNumber'];
-        const missingFields = requiredFields.filter(field => {
-          const value = memberData[field];
-          return value === undefined || value === null || value === '';
-        });
-        
-        if (missingFields.length > 0) {
+        // Validate personal number format (only validation)
+        // Strip all non-digit characters before validation
+        const cleanPersonalNumber = memberData.personalNumber?.replace(/\D/g, '');
+        if (!cleanPersonalNumber || cleanPersonalNumber.length !== 11) {
           results.failed++;
-          results.errors.push(`${getMemberName()}: Missing required fields: ${missingFields.join(', ')}`);
+          const originalValue = memberData.personalNumber || '(empty)';
+          console.log(`Row ${i + 2} error - Headers:`, headers);
+          console.log(`Row ${i + 2} error - Values:`, values);
+          console.log(`Row ${i + 2} error - MemberData:`, memberData);
+          results.errors.push(`Row ${i + 2}: Personal number must be exactly 11 digits (found: ${cleanPersonalNumber?.length || 0} digits, original value: "${originalValue}")`);
           continue;
         }
+        memberData.personalNumber = cleanPersonalNumber;
 
-        // Validate personal number format
-        if (!memberData.personalNumber || !/^\d{11}$/.test(memberData.personalNumber)) {
-          results.failed++;
-          results.errors.push(`${getMemberName()}: Personal number must be exactly 11 digits`);
-          continue;
-        }
-
-        // Validate email format
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!memberData.email || !emailRegex.test(memberData.email)) {
-          results.failed++;
-          results.errors.push(`${getMemberName()}: Email address is not valid`);
-          continue;
-        }
-
-        // Flexible phone number validation - accept up to 11 characters including +
-        let cleanPhone = memberData.phone || '';
-        
-        // Remove any whitespace
-        cleanPhone = cleanPhone.replace(/\s/g, '');
-        
-        // Validate phone number format (8 digits without country code, or up to 11 with +)
-        if (cleanPhone.startsWith('+47')) {
-          // Norwegian format with country code
-          const digitsOnly = cleanPhone.substring(3).replace(/\D/g, '');
-          if (digitsOnly.length !== 8) {
-            results.failed++;
-            results.errors.push(`${getMemberName()}: Norwegian phone number must have 8 digits after +47`);
-            continue;
-          }
-          memberData.phone = digitsOnly; // Store only the 8 digits
-        } else if (/^\d{8}$/.test(cleanPhone)) {
-          // 8 digits without country code - accept as is
-          memberData.phone = cleanPhone;
-        } else if (/^\d{9,11}$/.test(cleanPhone)) {
-          // 9-11 digits (could be other formats) - accept as is
-          memberData.phone = cleanPhone;
-        } else {
-          results.failed++;
-          results.errors.push(`${getMemberName()}: Phone number must be 8 digits (Norwegian) or up to 11 digits including country code`);
-          continue;
-        }
-
-        // Check for existing member with same personal number or email
+        // Check for existing member with same personal number only (email duplicates allowed)
         const existingMember = await Membership.findOne({
-          $or: [
-            { personalNumber: memberData.personalNumber },
-            { email: memberData.email }
-          ]
+          personalNumber: memberData.personalNumber
         });
 
         if (existingMember) {
-          results.failed++;
-          results.errors.push(`${getMemberName()}: Member with this personal number or email already exists`);
+          results.skipped++;
           continue;
         }
 
