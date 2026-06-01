@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Membership from '@/models/Membership.Model';
+import User from '@/models/User.Model';
 import { requireAdmin } from '@/lib/apiAuth';
 import {
 	generateToken,
@@ -36,16 +37,46 @@ export async function POST(request: NextRequest) {
 		// Find the user/member
 		const normalizedEmail = targetEmailToUse.toLowerCase();
 		
+		// Check both Membership and User models
+		let user = null;
+		let member = null;
+		let userType: 'member' | 'user' = 'member';
+		
 		// For member self-request, only allow approved members
 		if (!isAdminRequest) {
-			const member = await Membership.findOne({ 
+			// First try to find in Membership model
+			member = await Membership.findOne({ 
 				email: normalizedEmail,
 				membershipStatus: 'approved'
 			});
 			
+			// If not found in Membership, try User model (for admins)
 			if (!member) {
+				user = await User.findOne({ email: normalizedEmail });
+				if (user) {
+					userType = 'user';
+				}
+			}
+			
+			if (!member && !user) {
 				return NextResponse.json(
-					{ success: false, error: 'No approved member found with this email' },
+					{ success: false, error: 'No account found with this email address' },
+					{ status: 404 }
+				);
+			}
+		} else {
+			// Admin request - find in either model
+			member = await Membership.findOne({ email: normalizedEmail });
+			if (!member) {
+				user = await User.findOne({ email: normalizedEmail });
+				if (user) {
+					userType = 'user';
+				}
+			}
+			
+			if (!member && !user) {
+				return NextResponse.json(
+					{ success: false, error: 'User not found' },
 					{ status: 404 }
 				);
 			}
@@ -68,24 +99,21 @@ export async function POST(request: NextRequest) {
 		const resetUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/en/reset-password?token=${token}`;
 		
 		// Get user/member details for email
-		const member = await Membership.findOne({ email: normalizedEmail });
-		if (!member) {
-			return NextResponse.json(
-				{ success: false, error: 'User not found' },
-				{ status: 404 }
-			);
+		let fullName = '';
+		if (member) {
+			fullName = [member.firstName, member.middleName, member.lastName]
+				.filter(Boolean)
+				.join(' ');
+		} else if (user) {
+			fullName = user.fullName || user.name || '';
 		}
-		
-		const fullName = [member.firstName, member.middleName, member.lastName]
-			.filter(Boolean)
-			.join(' ');
 		
 		// Send email
 		const emailResult = await sendPasswordResetEmailNotification(
 			normalizedEmail,
 			fullName,
 			resetUrl,
-			'member'
+			userType
 		);
 		
 		if (!emailResult.success) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, useParams } from "next/navigation";
 import { Eye, EyeOff, CheckCircle } from "lucide-react";
 
 interface Translations {
@@ -27,6 +27,8 @@ interface Props {
 export default function ResetPasswordClient({ translations: t }: Props) {
 	const searchParams = useSearchParams();
 	const router = useRouter();
+	const params = useParams();
+	const locale = params.locale as string;
 	const token = searchParams.get("token");
 
 	const [formData, setFormData] = useState({
@@ -89,7 +91,7 @@ export default function ResetPasswordClient({ translations: t }: Props) {
 
 			setSuccess(true);
 			setTimeout(() => {
-				router.push("/login");
+				router.push(`/${locale}/login`);
 			}, 3000);
 		} catch (error) {
 			setError(error instanceof Error ? error.message : String(error));
@@ -207,7 +209,7 @@ export default function ResetPasswordClient({ translations: t }: Props) {
 
 								<button
 									type="button"
-									onClick={() => router.push("/login")}
+									onClick={() => router.push(`/${locale}/login`)}
 									className="w-full inline-flex items-center justify-center text-gray-600 hover:text-gray-900 font-medium py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
 								>
 									{t.goToLogin}

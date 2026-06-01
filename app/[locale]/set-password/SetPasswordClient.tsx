@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, useParams } from "next/navigation";
 import { Eye, EyeOff, CheckCircle } from "lucide-react";
 
 interface Translations {
@@ -27,6 +27,8 @@ interface Props {
 export default function SetPasswordClient({ translations: t }: Props) {
 	const searchParams = useSearchParams();
 	const router = useRouter();
+	const params = useParams();
+	const locale = params.locale as string;
 	const token = searchParams.get("token");
 
 	const [formData, setFormData] = useState({
@@ -89,7 +91,7 @@ export default function SetPasswordClient({ translations: t }: Props) {
 
 			setSuccess(true);
 			setTimeout(() => {
-				router.push("/en/login");
+				router.push(`/${locale}/login`);
 			}, 3000);
 		} catch (error) {
 			setError(error instanceof Error ? error.message : String(error));
@@ -107,7 +109,7 @@ export default function SetPasswordClient({ translations: t }: Props) {
 					<h2 className="text-2xl font-bold text-gray-900 mb-2">{t.success}</h2>
 					<p className="text-gray-900 mb-4">{t.successMessage}</p>
 					<p className="text-sm text-gray-900">{t.redirecting}</p>
-					<button onClick={() => router.push("/en/login")} className="mt-4 text-brand_primary hover:text-brand_primary underline">
+					<button onClick={() => router.push(`/${locale}/login`)} className="mt-4 text-brand_primary hover:text-brand_primary underline">
 						{t.goToLogin}
 					</button>
 				</div>

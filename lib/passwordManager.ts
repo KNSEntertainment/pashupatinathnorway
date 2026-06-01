@@ -80,8 +80,14 @@ export async function setToken(
 		return { success: false, error: 'User not found' };
 	}
 	
-	const tokenField = tokenType === TokenType.PASSWORD_RESET ? 'passwordResetToken' : 'passwordSetupToken';
-	const expiryField = tokenType === TokenType.PASSWORD_RESET ? 'passwordResetTokenExpiry' : 'passwordSetupTokenExpiry';
+	// User model uses different field names than Membership model
+	const tokenField = model === 'User' 
+		? (tokenType === TokenType.PASSWORD_RESET ? 'resetToken' : 'setupToken')
+		: (tokenType === TokenType.PASSWORD_RESET ? 'passwordResetToken' : 'passwordSetupToken');
+	
+	const expiryField = model === 'User'
+		? (tokenType === TokenType.PASSWORD_RESET ? 'resetTokenExpiry' : 'setupTokenExpiry')
+		: (tokenType === TokenType.PASSWORD_RESET ? 'passwordResetTokenExpiry' : 'passwordSetupTokenExpiry');
 	
 	try {
 		if (model === 'Membership' && member) {
@@ -108,23 +114,28 @@ export async function validateToken(
 	token: string,
 	tokenType: TokenType
 ): Promise<TokenValidationResult> {
-	const tokenField = tokenType === TokenType.PASSWORD_RESET ? 'passwordResetToken' : 'passwordSetupToken';
-	const expiryField = tokenType === TokenType.PASSWORD_RESET ? 'passwordResetTokenExpiry' : 'passwordSetupTokenExpiry';
+	// Membership model field names
+	const membershipTokenField = tokenType === TokenType.PASSWORD_RESET ? 'passwordResetToken' : 'passwordSetupToken';
+	const membershipExpiryField = tokenType === TokenType.PASSWORD_RESET ? 'passwordResetTokenExpiry' : 'passwordSetupTokenExpiry';
+	
+	// User model field names
+	const userTokenField = tokenType === TokenType.PASSWORD_RESET ? 'resetToken' : 'setupToken';
+	const userExpiryField = tokenType === TokenType.PASSWORD_RESET ? 'resetTokenExpiry' : 'setupTokenExpiry';
 	
 	// Try Membership first
 	const member = await Membership.findOne({
-		[tokenField]: token,
-		[expiryField]: { $gt: Date.now() },
+		[membershipTokenField]: token,
+		[membershipExpiryField]: { $gt: Date.now() },
 	});
 	
 	if (member) {
 		return { valid: true, member, model: 'Membership' };
 	}
 	
-	// Try User
+	// Try User with its field names
 	const user = await User.findOne({
-		[tokenField]: token,
-		[expiryField]: { $gt: Date.now() },
+		[userTokenField]: token,
+		[userExpiryField]: { $gt: Date.now() },
 	});
 	
 	if (user) {
@@ -147,10 +158,10 @@ export async function clearTokens(email: string): Promise<void> {
 		});
 	} else if (model === 'User' && user) {
 		await User.findByIdAndUpdate(user._id, {
-			passwordResetToken: undefined,
-			passwordResetTokenExpiry: undefined,
-			passwordSetupToken: undefined,
-			passwordSetupTokenExpiry: undefined,
+			resetToken: undefined,
+			resetTokenExpiry: undefined,
+			setupToken: undefined,
+			setupTokenExpiry: undefined,
 		});
 	}
 }
@@ -180,10 +191,10 @@ export async function updatePassword(
 		} else if (model === 'User' && user) {
 			await User.findByIdAndUpdate(user._id, {
 				password: hashedPassword,
-				passwordResetToken: undefined,
-				passwordResetTokenExpiry: undefined,
-				passwordSetupToken: undefined,
-				passwordSetupTokenExpiry: undefined,
+				resetToken: undefined,
+				resetTokenExpiry: undefined,
+				setupToken: undefined,
+				setupTokenExpiry: undefined,
 			});
 		}
 		

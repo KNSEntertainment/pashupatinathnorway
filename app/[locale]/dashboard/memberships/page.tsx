@@ -258,14 +258,14 @@ export default function MembershipsPage() {
 	const handlePasswordReset = async () => {
 		const firstSelectedId = selectedMemberIds[0];
 		if (!firstSelectedId) return;
-		
+
 		// Find the member from paginated data
 		const selectedMember = paginatedMemberships.find((member: Membership) => member._id === firstSelectedId) as Membership | undefined;
 		if (!selectedMember) return;
-		
+
 		const memberName = `${selectedMember.firstName} ${selectedMember.middleName ? selectedMember.middleName + ' ' : ''}${selectedMember.lastName}`;
 		const memberEmail = selectedMember.email;
-		
+
 		// Validate that we have a valid email
 		if (!memberEmail) {
 			toast({
@@ -275,18 +275,17 @@ export default function MembershipsPage() {
 			});
 			return;
 		}
-		
+
 		// Send password reset email directly without prompting for password
 		try {
-			const response = await fetch('/api/email/password-reset', {
+			const response = await fetch('/api/password/request-reset', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
-					email: memberEmail,
-					name: memberName,
-					temporaryPassword: '', // API generates its own password but expects this field
+					targetEmail: memberEmail,
+					isAdmin: true,
 				}),
 			});
 
@@ -313,7 +312,7 @@ export default function MembershipsPage() {
 	const handleIndividualPasswordReset = async (member: Membership) => {
 		const memberName = `${member.firstName} ${member.middleName ? member.middleName + ' ' : ''}${member.lastName}`;
 		const memberEmail = member.email;
-		
+
 		// Validate that we have a valid email
 		if (!memberEmail) {
 			toast({
@@ -323,7 +322,7 @@ export default function MembershipsPage() {
 			});
 			return;
 		}
-		
+
 		// Only allow password reset for approved members
 		if (member.membershipStatus !== "approved") {
 			toast({
@@ -333,21 +332,20 @@ export default function MembershipsPage() {
 			});
 			return;
 		}
-		
+
 		// Set loading state for this member
 		setPasswordResetLoading(prev => [...prev, member._id]);
-		
+
 		// Send password reset email
 		try {
-			const response = await fetch('/api/email/password-reset', {
+			const response = await fetch('/api/password/request-reset', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
-					email: memberEmail,
-					name: memberName,
-					temporaryPassword: '', // API generates its own password but expects this field
+					targetEmail: memberEmail,
+					isAdmin: true,
 				}),
 			});
 

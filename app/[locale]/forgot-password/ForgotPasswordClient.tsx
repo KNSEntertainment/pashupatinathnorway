@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Mail, ArrowLeft, CheckCircle } from "lucide-react";
 import Link from "next/link";
 
@@ -26,6 +26,8 @@ interface Props {
 
 export default function ForgotPasswordClient({ translations: t }: Props) {
 	const router = useRouter();
+	const params = useParams();
+	const locale = params.locale as string;
 	const [email, setEmail] = useState("");
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
@@ -64,7 +66,7 @@ export default function ForgotPasswordClient({ translations: t }: Props) {
 
 			setSuccess(true);
 			setTimeout(() => {
-				router.push("/login");
+				router.push(`/${locale}/login`);
 			}, 5000);
 		} catch (error) {
 			console.error("Forgot password error:", error);
@@ -138,7 +140,7 @@ export default function ForgotPasswordClient({ translations: t }: Props) {
 								</button>
 
 								<Link
-									href="/login"
+									href={`/${locale}/login`}
 									className="w-full inline-flex items-center justify-center text-gray-600 hover:text-gray-900 font-medium py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
 								>
 									<ArrowLeft className="w-4 h-4 mr-2" />
