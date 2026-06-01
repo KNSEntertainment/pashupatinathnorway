@@ -118,7 +118,7 @@ function ProfileLayoutContent({ children }) {
 			)}
 
 			{/* Desktop Sidebar */}
-			<div className="hidden py-6 md:flex w-64 bg-gray-800 text-white flex-col shadow-lg">
+			<div className="hidden py-6 md:flex w-64 bg-gray-800 text-white flex-col shadow-lg min-h-screen">
 				<nav className="overflow-y-hidden no-scrollbar">
 					{memberMenuItems
 						.filter((item) => {

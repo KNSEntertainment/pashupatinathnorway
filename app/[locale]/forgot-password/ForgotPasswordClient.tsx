@@ -44,7 +44,7 @@ export default function ForgotPasswordClient({ translations: t }: Props) {
 		}
 
 		try {
-			const response = await fetch("/api/forgot-password", {
+			const response = await fetch("/api/password/request-reset", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ email }),

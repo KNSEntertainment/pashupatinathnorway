@@ -154,9 +154,9 @@ export function useMembershipForm() {
 			const res = await fetch(`/api/membership?personalNumber=${encodeURIComponent(formData.personalNumber)}`);
 			if (res.ok) {
 				const data = await res.json();
-				if (data.exists) {
+				if (data.membership) {
 					setPersonalNumberStatus("exists");
-					setError("personalNumber", "An account with this personal number already exists.");
+					setError("personalNumber", "Membership with this personal number already exists.");
 				} else {
 					setPersonalNumberStatus("available");
 				}

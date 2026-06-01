@@ -36,7 +36,7 @@ export default function DonatePageClient({ locale }: DonatePageClientProps) {
 	const [totalGoalAmount, setTotalGoalAmount] = useState<number>(0);
 	const [totalDonations, setTotalDonations] = useState<number>(0);
 	const [loading, setLoading] = useState<boolean>(true);
-	const [donors, setDonors] = useState<Array<{name: string; amount: number; isAnonymous: boolean; date: string}>>([]); // Added donors state
+	const [donors, setDonors] = useState<Array<{name: string; amount: number; isAnonymous: boolean; date: string}>>([]); 
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -57,10 +57,30 @@ export default function DonatePageClient({ locale }: DonatePageClientProps) {
 				}
 
 				// Fetch donors
-				const donorsResponse = await fetch('/api/donations/donors?limit=10');
+				const donorsResponse = await fetch('/api/donations/donors?limit=1000');
 				if (donorsResponse.ok) {
 					const donorsData = await donorsResponse.json();
-					setDonors(donorsData.donors || []);
+					const rawDonors = donorsData.donors || [];
+					
+					console.log('Raw donors from API:', rawDonors);
+					
+					// Aggregate donations by donor name
+					const aggregatedDonors = rawDonors.reduce((acc: Array<{name: string; amount: number; isAnonymous: boolean; date: string}>, donor: {name: string; amount: number; isAnonymous: boolean; date: string}) => {
+						const existingDonor = acc.find(d => d.name === donor.name);
+						if (existingDonor) {
+							existingDonor.amount += donor.amount;
+							// Keep the most recent date
+							if (new Date(donor.date) > new Date(existingDonor.date)) {
+								existingDonor.date = donor.date;
+							}
+						} else {
+							acc.push({ ...donor });
+						}
+						return acc;
+					}, []);
+					
+					console.log('Aggregated donors:', aggregatedDonors);
+					setDonors(aggregatedDonors);
 				}
 			} catch (error) {
 				console.error('Error fetching data:', error);

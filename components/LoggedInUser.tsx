@@ -116,7 +116,7 @@ const LoggedInUser = ({ user }: { user: SessionUser }) => {
 								</Link>
 							</>
 						) : (
-							<Link href="/en/profile" onClick={() => setShowUserDropdown(false)} className="flex items-center gap-3 px-5 py-3.5 text-brand_primary hover:bg-brand_primary/10 w-full transition-all duration-200 font-medium">
+							<Link href="/en/profile" onClick={() => setShowUserDropdown(false)} className="flex items-center gap-3 px-5 py-3.5 text-gray-700 hover:bg-brand_primary/10 w-full transition-all duration-200 font-medium">
 								<User size={18} />
 								My Profile
 							</Link>

@@ -212,14 +212,14 @@ export default function UpdateClient({ translations: t }: Props) {
     setIsCurrentPasswordValid(false);
 
     try {
-      const response = await fetch("/api/users/verify-current-password", {
+      const response = await fetch("/api/password/change", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: session.user.email,
-          password: password,
+          action: 'verify',
+          currentPassword: password,
         }),
       });
 
@@ -249,14 +249,14 @@ export default function UpdateClient({ translations: t }: Props) {
     }
 
     try {
-      const response = await fetch("/api/users/verify-current-password", {
+      const response = await fetch("/api/password/change", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: session.user.email,
-          password: password,
+          action: 'verify',
+          currentPassword: password,
         }),
       });
 
@@ -310,13 +310,13 @@ export default function UpdateClient({ translations: t }: Props) {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/users/change-password", {
+      const response = await fetch("/api/password/change", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: session?.user?.email,
+          action: 'change',
           currentPassword,
           newPassword,
         }),

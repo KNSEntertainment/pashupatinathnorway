@@ -39,18 +39,28 @@ export function useOTPVerification({ phone, onVerified }: UseOTPVerificationProp
 		setOtpError("");
 
 		try {
+			const controller = new AbortController();
+			const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+
 			const response = await fetch("/api/send-otp", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ phoneNumber: phone }),
+				signal: controller.signal,
 			});
+
+			clearTimeout(timeoutId);
 
 			const data = await response.json();
 			if (!response.ok) throw new Error(data.error || "Failed to send OTP");
 
 			setOtpSent(true);
 		} catch (error) {
-			setOtpError(error instanceof Error ? error.message : "Failed to send verification code");
+			if (error instanceof Error && error.name === 'AbortError') {
+				setOtpError("Request timed out. Please try again.");
+			} else {
+				setOtpError(error instanceof Error ? error.message : "Failed to send verification code");
+			}
 			setShowOTPModal(false);
 		} finally {
 			setOtpSending(false);

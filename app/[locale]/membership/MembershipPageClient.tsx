@@ -119,7 +119,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 						<div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-50" />
 
 	<div className="absolute top-4 right-4 z-20">
-	<Link href="/membership-status" className="text-brand_secondary hover:text-red-700 underline text-sm font-medium transition-colors duration-200">
+	<Link href="/membership-status" className="text-blue-700 hover:text-blue-900 underline text-sm font-medium transition-colors duration-200">
 		{footerT("check_membership_status")}
 	</Link>
 </div>
