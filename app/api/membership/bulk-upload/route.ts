@@ -176,6 +176,15 @@ export async function POST(request: NextRequest) {
           if (!value) return;
 
           switch (header) {
+            case 'timestamp':
+              // Parse timestamp and use it for createdAt
+              try {
+                memberData.createdAt = new Date(value);
+              } catch {
+                // If timestamp is invalid, it will be set to current date later
+                console.warn(`Invalid timestamp format in row ${i + 2}: ${value}`);
+              }
+              break;
             case 'firstName':
             case 'lastName':
             case 'email':

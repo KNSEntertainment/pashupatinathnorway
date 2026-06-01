@@ -4,8 +4,9 @@ export async function GET() {
   try {
     // Define CSV headers based on the Membership and BoardMember models
     const headers = [
+      'timestamp',
       'firstName',
-      'middleName', 
+      'middleName',
       'lastName',
       'email',
       'phone',
@@ -25,9 +26,9 @@ export async function GET() {
     const csvContent = [
       headers.join(','),
       // Example regular member
-      'John,Doe,Smith,john.smith@example.com,+4712345678,Main Street 123,Oslo,0150,Oslo,Oslo,12345678901,,Active,pending,',
+      '2024-01-15T10:30:00.000Z,John,Doe,Smith,john.smith@example.com,+4712345678,Main Street 123,Oslo,0150,Oslo,Oslo,12345678901,,Active,pending,',
       // Example board member with position
-      'Jane,Marie,Johnson,jane.johnson@example.com,+4798765432,Executive Street 456,Bergen,5003,Hordaland,Vestland,98765432109,,Executive,approved,Chairperson',
+      '2024-02-20T14:45:00.000Z,Jane,Marie,Johnson,jane.johnson@example.com,+4798765432,Executive Street 456,Bergen,5003,Hordaland,Vestland,98765432109,,Executive,approved,Chairperson',
       // Empty template row
       ',,,,,,,,,,,,,,,'
     ].join('\n');
