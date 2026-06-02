@@ -3,6 +3,7 @@ import connectDB from "@/lib/mongodb";
 import Event from "@/models/Event.Model";
 import Income from "@/models/Income.Model";
 import Expense from "@/models/Expense.Model";
+import Donation from "@/models/Donation.Model";
 
 // GET API to fetch financial data for a specific event
 export async function GET(request, { params }) {
@@ -33,15 +34,12 @@ export async function GET(request, { params }) {
       },
     ]);
 
-    // Calculate donations for this event (check both sourceType and source for backward compatibility)
-    const donationsAggregation = await Income.aggregate([
+    // Calculate donations for this event from Donation model
+    const donationsAggregation = await Donation.aggregate([
       {
         $match: {
           eventId: event._id,
-          $or: [
-            { sourceType: "donation" },
-            { source: "donations" }
-          ],
+          paymentStatus: "completed",
         },
       },
       {
