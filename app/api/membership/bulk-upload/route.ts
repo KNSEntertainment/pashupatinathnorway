@@ -179,10 +179,46 @@ export async function POST(request: NextRequest) {
             case 'timestamp':
               // Parse timestamp and use it for createdAt
               try {
-                memberData.createdAt = new Date(value);
-              } catch {
+                const parsedDate = new Date(value);
+                
+                // Check if the date is valid
+                if (isNaN(parsedDate.getTime())) {
+                  // Try parsing as date-only format (DD.MM.YYYY or DD/MM/YYYY or YYYY-MM-DD)
+                  const dateOnlyMatch = value.match(/^(\d{2})[./-](\d{2})[./-](\d{4})$/) || 
+                                        value.match(/^(\d{4})[./-](\d{2})[./-](\d{2})$/);
+                  
+                  if (dateOnlyMatch) {
+                    // Reconstruct as YYYY-MM-DD and set time to 00:00:00
+                    let year, month, day;
+                    if (dateOnlyMatch[0].startsWith(dateOnlyMatch[1])) {
+                      // YYYY-MM-DD format
+                      year = dateOnlyMatch[1];
+                      month = dateOnlyMatch[2];
+                      day = dateOnlyMatch[3];
+                    } else {
+                      // DD.MM.YYYY or DD/MM/YYYY format
+                      day = dateOnlyMatch[1];
+                      month = dateOnlyMatch[2];
+                      year = dateOnlyMatch[3];
+                    }
+                    
+                    const dateStr = `${year}-${month}-${day}T00:00:00.000Z`;
+                    const dateWithTime = new Date(dateStr);
+                    
+                    if (!isNaN(dateWithTime.getTime())) {
+                      memberData.createdAt = dateWithTime;
+                    } else {
+                      console.warn(`Invalid timestamp format in row ${i + 2}: ${value}`);
+                    }
+                  } else {
+                    console.warn(`Invalid timestamp format in row ${i + 2}: ${value}`);
+                  }
+                } else {
+                  memberData.createdAt = parsedDate;
+                }
+              } catch (error) {
                 // If timestamp is invalid, it will be set to current date later
-                console.warn(`Invalid timestamp format in row ${i + 2}: ${value}`);
+                console.warn(`Invalid timestamp format in row ${i + 2}: ${value}`, error);
               }
               break;
             case 'firstName':
@@ -240,13 +276,28 @@ export async function POST(request: NextRequest) {
         }
         memberData.personalNumber = cleanPersonalNumber;
 
-        // Check for existing member with same personal number only (email duplicates allowed)
+        // Check for existing member with same personal number
         const existingMember = await Membership.findOne({
           personalNumber: memberData.personalNumber
         });
 
         if (existingMember) {
-          results.skipped++;
+          // Update existing member's firstName, middleName, lastName, and city
+          const updateData: Partial<MemberData> = {};
+          
+          if (memberData.firstName) updateData.firstName = memberData.firstName;
+          if (memberData.middleName) updateData.middleName = memberData.middleName;
+          if (memberData.lastName) updateData.lastName = memberData.lastName;
+          if (memberData.city) updateData.city = memberData.city;
+
+          await Membership.findByIdAndUpdate(existingMember._id, updateData);
+          
+          results.success++;
+          results.processedMembers.push({
+            firstName: memberData.firstName || existingMember.firstName || '',
+            lastName: memberData.lastName || existingMember.lastName || '',
+            email: memberData.email || existingMember.email || ''
+          });
           continue;
         }
 
@@ -268,7 +319,10 @@ export async function POST(request: NextRequest) {
           memberData.membershipStatus = memberData.membershipStatus || 'pending';
         }
         
-        memberData.createdAt = new Date();
+        // Only set createdAt to current date if not already provided from CSV or if invalid
+        if (!memberData.createdAt || isNaN((memberData.createdAt as Date).getTime())) {
+          memberData.createdAt = new Date();
+        }
 
         // Generate membership ID
         memberData.membershipId = await generateMembershipId();

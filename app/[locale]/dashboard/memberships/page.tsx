@@ -98,7 +98,7 @@ export default function MembershipsPage() {
 		membershipStatus: "pending"
 	});
 	const [passwordResetLoading, setPasswordResetLoading] = useState<string[]>([]);
-	const MEMBERS_PER_PAGE = 10;
+	const MEMBERS_PER_PAGE = 500;
 	const { data: memberships, error, loading, mutate } = useFetchData("/api/membership", "memberships");
 	const { toast } = useToast();
 
