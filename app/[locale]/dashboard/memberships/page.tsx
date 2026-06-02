@@ -168,7 +168,7 @@ export default function MembershipsPage() {
 			address: member.address,
 			city: member.city,
 			postalCode: member.postalCode,
-			personalNumber: member.personalNumber,
+			// Don't include personalNumber in edit form - it shouldn't be changed
 			gender: member.gender,
 			fylke: member.fylke,
 			kommune: member.kommune,
@@ -1349,25 +1349,13 @@ disabled={passwordResetLoading.includes(member._id)}
 									</div>
 
 									<div>
-										<label className="block text-sm font-medium text-gray-900 mb-2">Personal Number *</label>
-										<input
-											type="text"
-											value={editFormData.personalNumber ? maskPersonalNumber(editFormData.personalNumber) : ''}
-											onChange={(e) => handleEditChange('personalNumber', e.target.value)}
-											onFocus={(e) => {
-												if (editFormData.personalNumber && e.target.value === maskPersonalNumber(editFormData.personalNumber)) {
-													e.target.value = editFormData.personalNumber;
-													handleEditChange('personalNumber', editFormData.personalNumber);
-												}
-											}}
-											placeholder="11-digit personal number (DDMMYYXXXXX)"
-											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-											pattern="\d{11}"
-											maxLength={11}
-											required
-										/>
+										<label className="block text-sm font-medium text-gray-900 mb-2">Personal Number</label>
+										<div className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600">
+											{maskPersonalNumber(editingMember?.personalNumber || 'Not provided')}
+										</div>
+										<p className="text-xs text-gray-500 mt-1">Personal number cannot be changed</p>
 									</div>
-								
+
 								</div>
 
 								{/* Location Information */}

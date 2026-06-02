@@ -86,6 +86,13 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
 
 	// Handle membership approval logic
 	const updateData = { ...data };
+	
+	// If personal number contains asterisks (masked), remove it from update data
+	// Personal number should not be changed during edit
+	if (updateData.personalNumber && updateData.personalNumber.includes('*')) {
+		delete updateData.personalNumber;
+	}
+	
 	console.log('Update data being sent to MongoDB:', JSON.stringify(updateData, null, 2));
 
 	// If membership is being approved, check age and set membership type
