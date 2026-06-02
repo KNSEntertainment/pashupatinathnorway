@@ -356,25 +356,7 @@ export default function EventDetailPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="mt-4 pt-4 border-t border-gray-200">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600 font-medium">
-                        {t("net_result") || "Net Result"}
-                      </span>
-                      <span className={`text-xl font-bold ${
-                        (eventFinancials.totalDonations - eventFinancials.totalExpenses) >= 0 
-                          ? 'text-green-600' 
-                          : 'text-red-600'
-                      }`}>
-                        {(eventFinancials.totalDonations - eventFinancials.totalExpenses).toLocaleString('nb-NO', {
-                          style: 'currency',
-                          currency: 'NOK',
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 0
-                        })}
-                      </span>
-                    </div>
-                  </div>
+               
                 </div>
               )}
 
