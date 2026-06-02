@@ -12,12 +12,12 @@ jobs:
     steps:
       - name: Send birthday wishes
         run: |
-          echo "Sending daily birthday wishes..."
           RESPONSE=$(curl -s -X POST \
             -H "Content-Type: application/json" \
-            ${{ secrets.PRODUCTION_URL }}/api/email/send-daily-birthday-wishes)
-          
-          echo "Response: $RESPONSE"
+            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.PRODUCTION_URL }}/api/email/send-daily-birthday-wishes")
+
+          echo "$RESPONSE"
           
           # Check if the request was successful
           if echo "$RESPONSE" | grep -q '"success":true'; then

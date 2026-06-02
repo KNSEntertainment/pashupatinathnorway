@@ -43,10 +43,14 @@ const isBirthdayToday = (birthDate: Date): boolean => {
     );
 };
 
-export async function POST() {
+export async function POST(request: Request) {
     try {
-        const auth = await requireAdmin();
-        if (auth.response) return auth.response;
+        const cronSecret = request.headers.get("x-cron-secret");
+
+        if (cronSecret !== process.env.CRON_SECRET) {
+            const auth = await requireAdmin();
+            if (auth.response) return auth.response;
+        }
 
         await connectDB();
 
