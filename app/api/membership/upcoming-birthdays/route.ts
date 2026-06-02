@@ -3,33 +3,23 @@ import connectDB from "@/lib/mongodb";
 import Membership from "@/models/Membership.Model";
 
 // Helper function to extract birth date from Norwegian personal number
+// Simplified: only use first 4 digits (day and month), ignore year
 const extractBirthDateFromPersonalNumber = (personalNumber: string): Date | null => {
-    if (!personalNumber || personalNumber.length !== 11 || !/^\d{11}$/.test(personalNumber)) {
+    if (!personalNumber || personalNumber.length < 4) {
         return null;
     }
 
     const day = parseInt(personalNumber.substring(0, 2));
     const month = parseInt(personalNumber.substring(2, 4)) - 1; // JavaScript months are 0-indexed
-    const yearShort = parseInt(personalNumber.substring(4, 6));
-    const individualNumber = parseInt(personalNumber.substring(6, 9));
     const currentYear = new Date().getFullYear();
 
-    let fullYear: number;
-
-    // Individual number 750–999 with year 00–39 → born 2000–2039
-    if (individualNumber >= 750 && individualNumber <= 999 && yearShort <= 39) {
-        fullYear = 2000 + yearShort;
-    } else {
-        // Everyone else in 0-99 age range → born 1900–1999
-        fullYear = 1900 + yearShort;
+    // Validate day and month
+    if (day < 1 || day > 31 || month < 0 || month > 11) {
+        return null;
     }
 
-    // Safety check: if resolved year is somehow in the future, step back
-    if (fullYear > currentYear) {
-        fullYear -= 100;
-    }
-
-    return new Date(fullYear, month, day);
+    // Create date with current year (will be adjusted in getDaysUntilNextBirthday)
+    return new Date(currentYear, month, day);
 };
 
 // Function to calculate days until next birthday
@@ -56,19 +46,27 @@ export async function GET() {
     try {
         await connectDB();
 
-        // Get all approved members
+        // Get all members with personal numbers (removed approved status requirement)
         const members = await Membership.find({ 
-            membershipStatus: "approved",
             personalNumber: { $exists: true, $ne: "" }
-        }).select('firstName middleName lastName email phone personalNumber profilePhoto membershipType');
+        }).select('firstName middleName lastName email phone personalNumber profilePhoto membershipType membershipStatus');
+
 
         const upcomingBirthdays = [];
+        let skippedCount = 0;
+        let invalidPersonalNumberCount = 0;
 
         for (const member of members) {
             const birthDate = extractBirthDateFromPersonalNumber(member.personalNumber);
-            if (!birthDate) continue;
+            if (!birthDate) {
+                invalidPersonalNumberCount++;
+                console.log(`Invalid personal number for ${member.firstName} ${member.lastName}: ${member.personalNumber}`);
+                continue;
+            }
 
             const daysUntilBirthday = getDaysUntilNextBirthday(birthDate);
+            
+            console.log(`${member.firstName} ${member.lastName}: Birth date ${birthDate.toISOString()}, Days until: ${daysUntilBirthday}`);
             
             // Only include birthdays within next 30 days
             if (daysUntilBirthday >= 0 && daysUntilBirthday <= 30) {
@@ -89,8 +87,12 @@ export async function GET() {
                     age: age,
                     fullName: `${member.firstName} ${member.middleName ? member.middleName + ' ' : ''}${member.lastName}`
                 });
+            } else {
+                skippedCount++;
             }
         }
+
+        console.log(`Total members: ${members.length}, Invalid personal numbers: ${invalidPersonalNumberCount}, Skipped (outside 30 days): ${skippedCount}, Upcoming birthdays: ${upcomingBirthdays.length}`);
 
         // Sort by days until birthday (ascending)
         upcomingBirthdays.sort((a, b) => a.daysUntilBirthday - b.daysUntilBirthday);

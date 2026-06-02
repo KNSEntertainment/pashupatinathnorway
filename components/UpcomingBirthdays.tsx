@@ -29,19 +29,8 @@ export default function UpcomingBirthdays() {
     const { toast } = useToast();
 
     // Debug logging
-    console.log("UpcomingBirthdays Debug:");
-    console.log("- Loading:", loading);
-    console.log("- Error:", error);
-    console.log("- Birthdays data:", birthdays);
-    console.log("- Birthdays length:", birthdays?.length);
 
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString("en-US", {
-            month: "long",
-            day: "numeric"
-        });
-    };
+
 
     const getDaysText = (days: number) => {
         if (days === 0) return "Today";
@@ -177,8 +166,7 @@ export default function UpcomingBirthdays() {
                                         >
                                             {member.membershipType}
                                         </Badge>
-                                        <span>•</span>
-                                        <span>Turning {member.age + 1} on {formatDate(member.birthDate)}</span>
+                                        
                                     </div>
                                     <div className="flex items-center gap-4 mt-1 text-xs text-gray-500">
                                         <div className="flex items-center gap-1">

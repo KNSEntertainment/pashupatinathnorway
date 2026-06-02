@@ -153,17 +153,13 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
 					email: membership.email,
 					setupToken: setupToken,
 				});
-				console.log("English welcome email sent for approved member:", membership.email);
 			} else {
 				await sendActiveMemberApprovalEmail({
 					name: fullName,
 					email: membership.email,
 					setupToken: setupToken,
 				});
-				console.log("Nepali welcome email sent for approved member:", membership.email);
 			}
-
-			console.log("Welcome email sent for approved member:", membership.email);
 		} catch (error: unknown) {
 			console.error("Error sending welcome email:", error);
 			// Don't fail the membership approval if email fails
