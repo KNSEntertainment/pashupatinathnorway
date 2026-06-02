@@ -33,6 +33,26 @@ export async function GET(request, { params }) {
       },
     ]);
 
+    // Calculate donations for this event (check both sourceType and source for backward compatibility)
+    const donationsAggregation = await Income.aggregate([
+      {
+        $match: {
+          eventId: event._id,
+          $or: [
+            { sourceType: "donation" },
+            { source: "donations" }
+          ],
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalDonations: { $sum: "$amount" },
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
     // Calculate total expenses for this event
     const expenseAggregation = await Expense.aggregate([
       {
@@ -51,13 +71,16 @@ export async function GET(request, { params }) {
 
     // Extract totals from aggregation results
     const totalIncome = incomeAggregation.length > 0 ? incomeAggregation[0].totalIncome : 0;
+    const totalDonations = donationsAggregation.length > 0 ? donationsAggregation[0].totalDonations : 0;
     const totalExpenses = expenseAggregation.length > 0 ? expenseAggregation[0].totalExpenses : 0;
 
     const financials = {
       totalIncome,
+      totalDonations,
       totalExpenses,
       netResult: totalIncome - totalExpenses,
       incomeCount: incomeAggregation.length > 0 ? incomeAggregation[0].count : 0,
+      donationsCount: donationsAggregation.length > 0 ? donationsAggregation[0].count : 0,
       expenseCount: expenseAggregation.length > 0 ? expenseAggregation[0].count : 0,
     };
 

@@ -31,7 +31,7 @@ export default function EventDetailPage() {
   const params = useParams();
   const [event, setEvent] = useState<Event | null>(null);
   const [latestEvents, setLatestEvents] = useState<Event[]>([]);
-  const [eventFinancials, setEventFinancials] = useState<{ totalIncome: number; totalExpenses: number } | null>(null);
+  const [eventFinancials, setEventFinancials] = useState<{ totalIncome: number; totalDonations: number; totalExpenses: number } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -325,11 +325,11 @@ export default function EventDetailPage() {
                           <span className="text-white text-sm font-bold">↑</span>
                         </div>
                         <h4 className="font-semibold text-green-800">
-                          {t("total_income") || "Total Income"}
+                          {t("donations_collected") || "Donations Collected"}
                         </h4>
                       </div>
                       <p className="text-2xl font-bold text-green-700">
-                        {eventFinancials.totalIncome.toLocaleString('nb-NO', {
+                        {eventFinancials.totalDonations.toLocaleString('nb-NO', {
                           style: 'currency',
                           currency: 'NOK',
                           minimumFractionDigits: 0,
@@ -362,11 +362,11 @@ export default function EventDetailPage() {
                         {t("net_result") || "Net Result"}
                       </span>
                       <span className={`text-xl font-bold ${
-                        (eventFinancials.totalIncome - eventFinancials.totalExpenses) >= 0 
+                        (eventFinancials.totalDonations - eventFinancials.totalExpenses) >= 0 
                           ? 'text-green-600' 
                           : 'text-red-600'
                       }`}>
-                        {(eventFinancials.totalIncome - eventFinancials.totalExpenses).toLocaleString('nb-NO', {
+                        {(eventFinancials.totalDonations - eventFinancials.totalExpenses).toLocaleString('nb-NO', {
                           style: 'currency',
                           currency: 'NOK',
                           minimumFractionDigits: 0,
