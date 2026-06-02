@@ -13,8 +13,8 @@ export async function POST(request: NextRequest) {
 		const { amount, donorName, donorEmail, donorPhone, personalNumber, address, message, isAnonymous, causeId, donationType, membershipId } = body;
 
 		// ── Basic validation ───────────────────────────────────────
-		if (!amount || typeof amount !== "number" || amount < 50) {
-			return NextResponse.json({ error: "Minimum donation amount is 50 NOK" }, { status: 400 });
+		if (!amount || typeof amount !== "number") {
+			return NextResponse.json({ error: "Check donation amount once again" }, { status: 400 });
 		}
 
 		if (!donorPhone) {

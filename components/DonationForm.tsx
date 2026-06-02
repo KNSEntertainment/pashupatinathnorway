@@ -110,10 +110,10 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
-		if (amount < 50) {
-			toast.error("Minimum donation amount is 50 NOK");
-			return;
-		}
+		// if (amount < 50) {
+		// 	toast.error("Minimum donation amount is 50 NOK");
+		// 	return;
+		// }
 
 		if (personalNumber && personalNumber.length !== 11) {
 			toast.error("Personal number must be exactly 11 digits");
@@ -188,10 +188,10 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 			<div>
 				<label className="block text-sm font-semibold text-gray-900 mb-2">{t("custom_amount") || "Custom Amount"}</label>
 				<div className="relative">
-					<input type="number" min="50" value={customAmount} onChange={(e) => handleCustomAmountChange(e.target.value)} placeholder={t("amount_placeholder") || "Enter amount"} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-brand focus:outline-none text-gray-900" />
+					<input type="number" value={customAmount} onChange={(e) => handleCustomAmountChange(e.target.value)} placeholder={t("amount_placeholder") || "Enter amount"} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-brand focus:outline-none text-gray-900" />
 					<span className="absolute right-12 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">NOK</span>
 				</div>
-				<p className="text-xs text-gray-500 mt-1">{t("minimum_donation") || "Minimum donation: 50 NOK"}</p>
+				{/* <p className="text-xs text-gray-500 mt-1">{t("minimum_donation") || "Minimum donation: 50 NOK"}</p> */}
 			</div>
 
 			{/* Cause Selection */}
@@ -256,7 +256,7 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 			</div>
 
 			{/* Submit Button */}
-			<Button type="submit" disabled={loading || amount < 50} className="w-full py-6 md:py-8 text-lg bg-brand_primary hover:bg-brand_primary/90 text-gray-700 font-bold">
+			<Button type="submit" disabled={loading} className="w-full py-6 md:py-8 text-lg bg-brand_primary hover:bg-brand_primary/90 text-gray-700 font-bold">
 				{loading ? (
 					<>
 						<Loader2 className="w-5 h-5 mr-2 animate-spin" />
