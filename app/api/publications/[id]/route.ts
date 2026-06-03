@@ -74,6 +74,17 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       accessLevels 
     } = body;
     
+    // Validate language if provided
+    if (language) {
+      const validLanguages = ['en', 'ne', 'no'];
+      if (!validLanguages.includes(language)) {
+        return NextResponse.json(
+          { error: "Invalid language. Must be one of: " + validLanguages.join(', ') },
+          { status: 400 }
+        );
+      }
+    }
+
     // Validate accessLevels if provided
     if (accessLevels) {
       if (!Array.isArray(accessLevels) || accessLevels.length === 0) {
@@ -100,7 +111,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         title: title || publication.title,
         type: type || publication.type,
         description: description || publication.description,
-        publishedDate: publishedDate || publication.publishedDate,
+        publishedDate: publishedDate ? new Date(publishedDate) : publication.publishedDate,
         downloadUrl: downloadUrl || publication.downloadUrl,
         language: language || publication.language,
         accessLevels: accessLevels || publication.accessLevels

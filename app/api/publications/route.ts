@@ -61,7 +61,9 @@ export async function GET(request: NextRequest) {
       title: pub.title,
       type: pub.type,
       description: pub.description,
-      publishedDate: pub.publishedDate.toISOString().split('T')[0],
+      publishedDate: pub.publishedDate instanceof Date 
+        ? pub.publishedDate.toISOString().split('T')[0]
+        : new Date(pub.publishedDate).toISOString().split('T')[0],
       downloadUrl: pub.downloadUrl,
       language: pub.language,
       accessLevels: pub.accessLevels || [],
@@ -118,6 +120,15 @@ export async function POST(request: NextRequest) {
     if (!title || !type || !description || !language) {
       return NextResponse.json(
         { error: "Missing required fields: title, type, description, language" },
+        { status: 400 }
+      );
+    }
+
+    // Validate language
+    const validLanguages = ['en', 'ne', 'no'];
+    if (!validLanguages.includes(language)) {
+      return NextResponse.json(
+        { error: "Invalid language. Must be one of: " + validLanguages.join(', ') },
         { status: 400 }
       );
     }
