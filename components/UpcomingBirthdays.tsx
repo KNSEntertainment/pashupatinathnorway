@@ -185,15 +185,17 @@ export default function UpcomingBirthdays() {
                                 <Badge className={getDaysColor(member.daysUntilBirthday)}>
                                     {getDaysText(member.daysUntilBirthday)}
                                 </Badge>
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => sendBirthdayEmail(member)}
-                                    className="flex items-center gap-2"
-                                >
-                                    <Gift className="w-4 h-4" />
-                                    Send Wish
-                                </Button>
+                                {member.daysUntilBirthday === 0 && (
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => sendBirthdayEmail(member)}
+                                        className="flex items-center gap-2"
+                                    >
+                                        <Gift className="w-4 h-4" />
+                                        Send Wish
+                                    </Button>
+                                )}
                             </div>
                         </div>
                     ))}
