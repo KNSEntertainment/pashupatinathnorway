@@ -350,7 +350,7 @@ export default function BroadcastPage() {
                 Recipients
               </label>
               <div className="space-y-3">
-                {["all", "group", "individual"].map((type) => (
+                {["all", "group", "individual", ...(formData.sendingMethod === "email" ? ["subscribers"] : [])].map((type) => (
                   <label key={type} className="flex items-center space-x-2 cursor-pointer">
                     <input
                       type="radio"
@@ -364,6 +364,7 @@ export default function BroadcastPage() {
                       {type === "all" && "All Members"}
                       {type === "group" && "Specific Groups"}
                       {type === "individual" && "Individual Members"}
+                      {type === "subscribers" && "Newsletter Subscribers"}
                     </span>
                   </label>
                 ))}
@@ -546,6 +547,7 @@ export default function BroadcastPage() {
                         {broadcast.recipientType === "all" && "All Members"}
                         {broadcast.recipientType === "group" && broadcast.recipientGroups.join(", ")}
                         {broadcast.recipientType === "individual" && `${broadcast.individualRecipients.length} selected`}
+                        {broadcast.recipientType === "subscribers" && "Newsletter Subscribers"}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
