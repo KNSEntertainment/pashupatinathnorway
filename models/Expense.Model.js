@@ -17,7 +17,7 @@ const ExpenseSchema = new mongoose.Schema(
 		expenseCategory: {
 			type: String,
 			required: true,
-			enum: ["food", "venue", "transport", "equipment", "marketing", "maintenance", "vipps", "operational", "website", "other"],
+			enum: ["Salary Expenses", "Tax Expenses", "Building And Premises", "Furniture And Equipment", "Office Expenses", "Events Courses Projects", "Internal Transfers", "Transfers Within Norway", "Transfers Abroad", "Financial Expenses", "Other Expenses"],
 		},
 		paymentMethod: {
 			type: String,
@@ -36,7 +36,7 @@ const ExpenseSchema = new mongoose.Schema(
 		},
 		customCategory: {
 			type: String,
-			required: function() {
+			required: function () {
 				return this.category === "other";
 			},
 		},
@@ -62,7 +62,7 @@ const ExpenseSchema = new mongoose.Schema(
 	},
 	{
 		timestamps: true,
-	}
+	},
 );
 
 export default mongoose.models.Expense || mongoose.model("Expense", ExpenseSchema);

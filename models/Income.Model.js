@@ -17,7 +17,7 @@ const IncomeSchema = new mongoose.Schema(
 		sourceType: {
 			type: String,
 			required: true,
-			enum: ["donation", "membership", "registration", "sponsorship", "grants", "events", "other"],
+			enum: ["Government Grants Religious Communities Act", "Other Public Grants", "Internal Transfers", "Rental Income", "Donations From Abroad", "Donations From Norway", "Membership Fees", "Sales Income", "Financial Income", "Other Income"],
 		},
 		paymentMethod: {
 			type: String,
@@ -36,7 +36,7 @@ const IncomeSchema = new mongoose.Schema(
 		},
 		customSource: {
 			type: String,
-			required: function() {
+			required: function () {
 				return this.source === "other";
 			},
 		},
@@ -59,7 +59,7 @@ const IncomeSchema = new mongoose.Schema(
 	},
 	{
 		timestamps: true,
-	}
+	},
 );
 
 export default mongoose.models.Income || mongoose.model("Income", IncomeSchema);
