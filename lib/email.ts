@@ -28,7 +28,7 @@ export async function sendContactEmail({ name, email, message }: sendContactEmai
 		// Add unsubscribe footer if user is subscribed
 		const htmlContentWithFooter = await addEmailFooter(email, mailOptions.html);
 		mailOptions.html = htmlContentWithFooter;
-		
+
 		const { error } = await resend.emails.send({
 			from: `"Contact Form" <${process.env.EMAIL_USER!}>`,
 			to: [process.env.EMAIL_USER!],
@@ -36,12 +36,12 @@ export async function sendContactEmail({ name, email, message }: sendContactEmai
 			text: mailOptions.text,
 			html: mailOptions.html,
 		});
-		
+
 		if (error) {
 			console.error("Error sending contact form email:", error);
 			throw new Error("Failed to send contact form email");
 		}
-		
+
 		console.log("Contact form email sent");
 	} catch (error) {
 		console.error("Error sending contact form email:", error);
@@ -57,9 +57,7 @@ type sendGeneralMemberWelcomeEmail = {
 	familyMembers?: string[]; // Array of family member names
 };
 export async function sendGeneralMemberWelcomeEmail({ name, email, membershipId, familyMembers }: sendGeneralMemberWelcomeEmail) {
-	const familyMembersText = familyMembers && familyMembers.length > 0 
-		? `\n\nFamily Members Registered: ${familyMembers.join(', ')}`
-		: '';
+	const familyMembersText = familyMembers && familyMembers.length > 0 ? `\n\nFamily Members Registered: ${familyMembers.join(", ")}` : "";
 
 	const mailOptions = {
 		from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER}>`,
@@ -98,12 +96,16 @@ export async function sendGeneralMemberWelcomeEmail({ name, email, membershipId,
 							<p style="margin: 10px 0 0 0; color: #666; font-size: 14px;">Please save this ID for your records. You'll need it for tax document generation and membership verification.</p>
 						</div>
 						
-						${familyMembers && familyMembers.length > 0 ? `
+						${
+							familyMembers && familyMembers.length > 0
+								? `
 						<div style="background: #ffffff; border-left: 4px solid #ffc445; padding: 20px; margin: 20px 0; border-radius: 5px;">
 							<h3 style="margin: 0 0 10px 0; color: #ffc445; font-weight: bold;">Family Members Registered</h3>
-							<p style="margin: 0; font-weight: bold;">${familyMembers.join(', ')}</p>
+							<p style="margin: 0; font-weight: bold;">${familyMembers.join(", ")}</p>
 						</div>
-						` : ''}
+						`
+								: ""
+						}
 				
 						<div class="next-steps">
 							<h3 style="margin: 0 0 15px 0;">What Happens Next:</h3>
@@ -139,7 +141,7 @@ export async function sendGeneralMemberWelcomeEmail({ name, email, membershipId,
 		// Add unsubscribe footer if user is subscribed
 		const htmlContentWithFooter = await addEmailFooter(email, mailOptions.html);
 		mailOptions.html = htmlContentWithFooter;
-		
+
 		const { error } = await resend.emails.send({
 			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER!}>`,
 			to: [email],
@@ -147,12 +149,12 @@ export async function sendGeneralMemberWelcomeEmail({ name, email, membershipId,
 			text: mailOptions.text,
 			html: mailOptions.html,
 		});
-		
+
 		if (error) {
 			console.error("Error sending General Member welcome email:", error);
 			throw new Error("Failed to send General Member welcome email");
 		}
-		
+
 		console.log("General Member welcome email sent to:", email);
 	} catch (error) {
 		console.error("Error sending General Member welcome email:", error);
@@ -168,9 +170,7 @@ type sendGeneralMemberWelcomeEmailNepali = {
 	familyMembers?: string[]; // Array of family member names
 };
 export async function sendGeneralMemberWelcomeEmailNepali({ name, email, membershipId, familyMembers }: sendGeneralMemberWelcomeEmailNepali) {
-	const familyMembersText = familyMembers && familyMembers.length > 0 
-		? `\n\nपरिवारका सदस्यहरू दर्ता: ${familyMembers.join(', ')}`
-		: '';
+	const familyMembersText = familyMembers && familyMembers.length > 0 ? `\n\nपरिवारका सदस्यहरू दर्ता: ${familyMembers.join(", ")}` : "";
 
 	const mailOptions = {
 		from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER}>`,
@@ -201,12 +201,16 @@ export async function sendGeneralMemberWelcomeEmailNepali({ name, email, members
 						<p>नमस्ते <strong>${name}</strong> जी,</p>
 						<p>पशुपतिनाथ नर्वे मन्दिरमा तपाईंलाई स्वागत छ। तपाईं हाम्रो <strong>साधारण सदस्य</strong> बन्नुभएको छ।</p>
 						
-						${familyMembers && familyMembers.length > 0 ? `
+						${
+							familyMembers && familyMembers.length > 0
+								? `
 						<div style="background: #ffffff; border-left: 4px solid #ffc445; padding: 20px; margin: 20px 0; border-radius: 5px;">
 							<h3 style="margin: 0 0 10px 0; color: #ffc445; font-weight: bold;">परिवारका सदस्यहरू दर्ता</h3>
-							<p style="margin: 0; font-weight: bold;">${familyMembers.join(', ')}</p>
+							<p style="margin: 0; font-weight: bold;">${familyMembers.join(", ")}</p>
 						</div>
-						` : ''}
+						`
+								: ""
+						}
 						
 						<div style="background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 20px; margin: 20px 0; border-radius: 5px;">
 							<h3 style="margin: 0 0 10px 0; color: #0ea5e9; font-weight: bold;">तपाईंको सदस्यता आईडी</h3>
@@ -242,20 +246,20 @@ export async function sendGeneralMemberWelcomeEmailNepali({ name, email, members
 		// Add unsubscribe footer if user is subscribed
 		const htmlContentWithFooter = await addEmailFooter(email, mailOptions.html);
 		mailOptions.html = htmlContentWithFooter;
-		
+
 		const { error } = await resend.emails.send({
 			from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER!}>`,
 			to: [email],
-		 subject: mailOptions.subject,
+			subject: mailOptions.subject,
 			text: mailOptions.text,
 			html: mailOptions.html,
 		});
-		
+
 		if (error) {
 			console.error("Error sending Nepali General Member welcome email:", error);
 			throw new Error("Failed to send Nepali General Member welcome email");
 		}
-		
+
 		console.log("Nepali General Member welcome email sent to:", email);
 	} catch (error) {
 		console.error("Error sending Nepali General Member welcome email:", error);
@@ -272,16 +276,14 @@ type sendActiveMemberApprovalEmailEnglish = {
 };
 export async function sendActiveMemberApprovalEmailEnglish({ name, email, setupToken, familyMembers }: sendActiveMemberApprovalEmailEnglish) {
 	const setupUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/en/set-password?token=${setupToken}`;
-	
-	const familyMembersText = familyMembers && familyMembers.length > 0 
-		? `\n\nFamily Members Registered: ${familyMembers.join(', ')}`
-		: '';
+
+	const familyMembersText = familyMembers && familyMembers.length > 0 ? `\n\nFamily Members Registered: ${familyMembers.join(", ")}` : "";
 
 	const mailOptions = {
 		from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER}>`,
 		to: email,
 		subject: "Congratulations! You are now an Active Member - Pashupatinath Norway Temple",
-			text: `Hello ${name},\n\nCongratulations! Your membership has been approved and you are now an <strong>Active Member</strong> of Pashupatinath Norway Temple!${familyMembersText}\n\nYour application has been reviewed and approved by our admin team. You now have full access to all member benefits and can participate actively in our temple activities.\n\nPlease set your password by clicking the link below to access your member dashboard:\n${setupUrl}\n\nThis link is valid for 24 hours.\n\nAs an Active Member, you can:\n• Access your member dashboard\n• Update your profile information\n• Participate in temple events and cultural programs\n• Contribute to our temple construction mission\n• Connect with fellow Nepalese community members\n• Help preserve our cultural and religious heritage\n• Vote in community decisions\n• Access exclusive member resources\n\nWe are thrilled to have you as an Active Member of our sacred mission to build the first Nepali Hindu temple in Norway.\n\nBest regards,\nPashupatinath Temple Norway Team`,
+		text: `Hello ${name},\n\nCongratulations! Your membership has been approved and you are now an <strong>Active Member</strong> of Pashupatinath Norway Temple!${familyMembersText}\n\nYour application has been reviewed and approved by our admin team. You now have full access to all member benefits and can participate actively in our temple activities.\n\nPlease set your password by clicking the link below to access your member dashboard:\n${setupUrl}\n\nThis link is valid for 24 hours.\n\nAs an Active Member, you can:\n• Access your member dashboard\n• Update your profile information\n• Participate in temple events and cultural programs\n• Contribute to our temple construction mission\n• Connect with fellow Nepalese community members\n• Help preserve our cultural and religious heritage\n• Vote in community decisions\n• Access exclusive member resources\n\nWe are thrilled to have you as an Active Member of our sacred mission to build the first Nepali Hindu temple in Norway.\n\nBest regards,\nPashupatinath Temple Norway Team`,
 		html: `
 			<!DOCTYPE html>
 			<html>
@@ -309,12 +311,16 @@ export async function sendActiveMemberApprovalEmailEnglish({ name, email, setupT
 						<p>Hello <strong>${name}</strong>,</p>
 						<p>Congratulations! Your membership has been approved and you are now an <strong style="color: #CC0000;">Active Member</strong> of Pashupatinath Norway Temple!</p>
 						
-						${familyMembers && familyMembers.length > 0 ? `
+						${
+							familyMembers && familyMembers.length > 0
+								? `
 						<div style="background: #ffffff; border-left: 4px solid #CC0000; padding: 20px; margin: 20px 0; border-radius: 5px;">
 							<h3 style="margin: 0 0 10px 0; color: #CC0000; font-weight: bold;">Family Members Registered</h3>
-							<p style="margin: 0; font-weight: bold;">${familyMembers.join(', ')}</p>
+							<p style="margin: 0; font-weight: bold;">${familyMembers.join(", ")}</p>
 						</div>
-						` : ''}
+						`
+								: ""
+						}
 						
 					
 						
@@ -374,7 +380,7 @@ export async function sendActiveMemberApprovalEmailEnglish({ name, email, setupT
 		// Add unsubscribe footer if user is subscribed
 		const htmlContentWithFooter = await addEmailFooter(email, mailOptions.html);
 		mailOptions.html = htmlContentWithFooter;
-		
+
 		const { error } = await resend.emails.send({
 			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER!}>`,
 			to: [email],
@@ -382,12 +388,12 @@ export async function sendActiveMemberApprovalEmailEnglish({ name, email, setupT
 			text: mailOptions.text,
 			html: mailOptions.html,
 		});
-		
+
 		if (error) {
 			console.error("Error sending Active Member approval email:", error);
 			throw new Error("Failed to send Active Member approval email");
 		}
-		
+
 		console.log("Active Member approval email sent to:", email);
 	} catch (error) {
 		console.error("Error sending Active Member approval email:", error);
@@ -405,16 +411,14 @@ type sendActiveMemberApprovalEmail = {
 
 export async function sendActiveMemberApprovalEmail({ name, email, setupToken, familyMembers }: sendActiveMemberApprovalEmail) {
 	const setupUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/ne/set-password?token=${setupToken}`;
-	
-	const familyMembersText = familyMembers && familyMembers.length > 0 
-		? `\n\nपरिवारका सदस्यहरू दर्ता: ${familyMembers.join(', ')}`
-		: '';
+
+	const familyMembersText = familyMembers && familyMembers.length > 0 ? `\n\nपरिवारका सदस्यहरू दर्ता: ${familyMembers.join(", ")}` : "";
 
 	const mailOptions = {
 		from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER}>`,
 		to: email,
 		subject: "बधाई छ! तपाईं अब सक्रिय सदस्य हुनुहुन्छ - पशुपतिनाथ नर्वे मन्दिर",
-			text: `नमस्ते ${name},\n\nबधाई छ! तपाईंको सदस्यता स्वीकृत भएको छ र तपाईं अब पशुपतिनाथ नर्वे मन्दिरको <strong>सक्रिय सदस्य</strong> हुनुहुन्छ!${familyMembersText}\n\nतपाईंको आवेदन हाम्रो प्रशासन टोलीले समीक्षा गरी स्वीकृत गरेको छ। अब तपाईंसँग सबै सदस्य सुविधाहरू पूर्ण पहुँच छ र तपाईं हाम्रो मन्दिर गतिविधिहरूमा सक्रिय रूपमा सहभागी हुन सक्नुहुन्छ।\n\nकृपया तल दिइएको लिंकमा क्लिक गरेर आफ्नो पासवर्ड सेट गर्नुहोस् र आफ्नो सदस्य ड्यासबोर्ड पहुँच गर्नुहोस्:\n${setupUrl}\n\nयो लिंक १ वर्षको लागि मान्य छ।\n\nसक्रिय सदस्यको रूपमा, तपाईंले गर्न सक्नुहुन्छ:\n• आफ्नो सदस्य ड्यासबोर्ड पहुँच गर्नुहोस्\n• आफ्नो प्रोफाइल जानकारी अपडेट गर्नुहोस्\n• मन्दिर कार्यक्रमहरू र सांस्कृतिक कार्यक्रमहरूमा सहभागी हुनुहोस्\n• हाम्रो मन्दिर निर्माण मिशनमा योगदान पुर्याउनुहोस्\n• अन्य नेपाली समुदायका सदस्यहरूसँग जोडिनुहोस्\n• हाम्रो सांस्कृतिक र धार्मिक विरासतलाई सुरक्षित राख्न मद्दत गर्नुहोस्\n• समुदाय निर्णयहरूमा मतदान गर्नुहोस्\n• विशेष सदस्य स्रोतहरू पहुँच गर्नुहोस्\n\nहामी नर्वेमा पहिलो नेपाली हिन्दू मन्दिर बनाउने र हाम्रो समुदायलाई एकजुट गर्ने पवित्र मिशनको सक्रिय सदस्यको रूपमा तपाईंलाई पाएर धेरै खुशी छौं।\n\nशुभकामना,\nपशुपतिनाथ नर्वे मन्दिर टोली`,
+		text: `नमस्ते ${name},\n\nबधाई छ! तपाईंको सदस्यता स्वीकृत भएको छ र तपाईं अब पशुपतिनाथ नर्वे मन्दिरको <strong>सक्रिय सदस्य</strong> हुनुहुन्छ!${familyMembersText}\n\nतपाईंको आवेदन हाम्रो प्रशासन टोलीले समीक्षा गरी स्वीकृत गरेको छ। अब तपाईंसँग सबै सदस्य सुविधाहरू पूर्ण पहुँच छ र तपाईं हाम्रो मन्दिर गतिविधिहरूमा सक्रिय रूपमा सहभागी हुन सक्नुहुन्छ।\n\nकृपया तल दिइएको लिंकमा क्लिक गरेर आफ्नो पासवर्ड सेट गर्नुहोस् र आफ्नो सदस्य ड्यासबोर्ड पहुँच गर्नुहोस्:\n${setupUrl}\n\nयो लिंक १ वर्षको लागि मान्य छ।\n\nसक्रिय सदस्यको रूपमा, तपाईंले गर्न सक्नुहुन्छ:\n• आफ्नो सदस्य ड्यासबोर्ड पहुँच गर्नुहोस्\n• आफ्नो प्रोफाइल जानकारी अपडेट गर्नुहोस्\n• मन्दिर कार्यक्रमहरू र सांस्कृतिक कार्यक्रमहरूमा सहभागी हुनुहोस्\n• हाम्रो मन्दिर निर्माण मिशनमा योगदान पुर्याउनुहोस्\n• अन्य नेपाली समुदायका सदस्यहरूसँग जोडिनुहोस्\n• हाम्रो सांस्कृतिक र धार्मिक विरासतलाई सुरक्षित राख्न मद्दत गर्नुहोस्\n• समुदाय निर्णयहरूमा मतदान गर्नुहोस्\n• विशेष सदस्य स्रोतहरू पहुँच गर्नुहोस्\n\nहामी नर्वेमा पहिलो नेपाली हिन्दू मन्दिर बनाउने र हाम्रो समुदायलाई एकजुट गर्ने पवित्र मिशनको सक्रिय सदस्यको रूपमा तपाईंलाई पाएर धेरै खुशी छौं।\n\nशुभकामना,\nपशुपतिनाथ नर्वे मन्दिर टोली`,
 		html: `
 			<!DOCTYPE html>
 			<html>
@@ -443,12 +447,16 @@ export async function sendActiveMemberApprovalEmail({ name, email, setupToken, f
 						<p>नमस्ते <strong>${name}</strong>,</p>
 						<p>बधाई छ! तपाईंको सदस्यता स्वीकृत भएको छ र तपाईं अब पशुपतिनाथ नर्वे मन्दिरको <strong style="color: #CC0000;">सक्रिय सदस्य</strong> हुनुहुन्छ!</p>
 						
-						${familyMembers && familyMembers.length > 0 ? `
+						${
+							familyMembers && familyMembers.length > 0
+								? `
 						<div style="background: #ffffff; border-left: 4px solid #CC0000; padding: 20px; margin: 20px 0; border-radius: 5px;">
 							<h3 style="margin: 0 0 10px 0; color: #CC0000; font-weight: bold;">परिवारका सदस्यहरू दर्ता</h3>
-							<p style="margin: 0; font-weight: bold;">${familyMembers.join(', ')}</p>
+							<p style="margin: 0; font-weight: bold;">${familyMembers.join(", ")}</p>
 						</div>
-						` : ''}
+						`
+								: ""
+						}
 						
 						<p>आफ्नो सदस्य ड्यासबोर्ड पहुँच गर्न र सक्रिय सदस्य सुविधाहरू आनन्द लिन आफ्नो पासवर्ड सेट गर्नुहोस्:</p>
 						<center>
@@ -506,7 +514,7 @@ export async function sendActiveMemberApprovalEmail({ name, email, setupToken, f
 		// Add unsubscribe footer if user is subscribed
 		const htmlContentWithFooter = await addEmailFooter(email, mailOptions.html);
 		mailOptions.html = htmlContentWithFooter;
-		
+
 		const { error } = await resend.emails.send({
 			from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER!}>`,
 			to: [email],
@@ -514,12 +522,12 @@ export async function sendActiveMemberApprovalEmail({ name, email, setupToken, f
 			text: mailOptions.text,
 			html: mailOptions.html,
 		});
-		
+
 		if (error) {
 			console.error("Error sending Nepali Active Member approval email:", error);
 			throw new Error("Failed to send Nepali Active Member approval email");
 		}
-		
+
 		console.log("Nepali Active Member approval email sent to:", email);
 	} catch (error) {
 		console.error("Error sending Nepali Active Member approval email:", error);
@@ -533,7 +541,6 @@ type sendVerificationFollowupEmail = {
 	email: string;
 	personalNumber: string;
 };
-
 
 // General donation thank you email for all donors (members and non-members)
 type sendDonationThankYouEmail = {
@@ -626,12 +633,12 @@ export async function sendMembershipLookupVerificationEmail({ name, email, verif
 			text: mailOptions.text,
 			html: mailOptions.html,
 		});
-		
+
 		if (error) {
 			console.error("Error sending membership lookup verification email:", error);
 			throw new Error("Failed to send membership lookup verification email");
 		}
-		
+
 		console.log("Membership lookup verification email sent to:", email);
 	} catch (error) {
 		console.error("Error sending membership lookup verification email:", error);
@@ -646,16 +653,16 @@ export async function sendEmail({ to, subject, text, html }: sendEmail) {
 			to: [to],
 			subject,
 			text: text || "",
-			html: html || text || ""
+			html: html || text || "",
 		};
 
 		const { error } = await resend.emails.send(mailOptions);
-		
+
 		if (error) {
 			console.error("Error sending email:", error);
 			throw new Error(`Failed to send email: ${error.message}`);
 		}
-		
+
 		console.log("Email sent successfully to:", to);
 	} catch (error) {
 		console.error("Error in sendEmail function:", error);
@@ -664,17 +671,17 @@ export async function sendEmail({ to, subject, text, html }: sendEmail) {
 }
 
 export async function sendDonationThankYouEmail({ name, email, amount, currency = "NOK", transactionId, date, message, membershipId }: sendDonationThankYouEmail) {
-	const formattedDate = new Date(date).toLocaleDateString('en-US', { 
-		year: 'numeric', 
-		month: 'long', 
-		'day': 'numeric' 
+	const formattedDate = new Date(date).toLocaleDateString("en-US", {
+		year: "numeric",
+		month: "long",
+		day: "numeric",
 	});
 
 	const mailOptions = {
 		from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER!}>`,
 		to: email,
 		subject: "Thank You for Your Donation! - Pashupatinath Norway Temple",
-		text: `Dear ${name},\n\nThank you for your generous donation of ${amount} ${currency} to Pashupatinath Norway Temple! Your contribution helps us continue our sacred mission to build the first Nepali Hindu temple in Norway and serve our community.\n\nYour donation details:\n• Amount: ${amount} ${currency}\n• Date: ${formattedDate}\n• Transaction ID: ${transactionId}\n${message ? `• Message: ${message}` : ''}${membershipId ? `\n• Membership ID: ${membershipId}` : ''}\n\nYour generosity makes a real difference in the lives of many. We are deeply grateful for your support and trust in our mission.\n\nWhat happens next:\n• You will receive a separate email with your tax receipt if applicable\n• Your contribution will be used to support temple construction and community programs\n• You may receive updates about our progress and upcoming events\n\nIf you have any questions about your donation or need additional information, please don't hesitate to contact our admin team.\n\nWith heartfelt gratitude,\nPashupatinath Temple Norway Team`,
+		text: `Dear ${name},\n\nThank you for your generous donation of ${amount} ${currency} to Pashupatinath Norway Temple! Your contribution helps us continue our sacred mission to build the first Nepali Hindu temple in Norway and serve our community.\n\nYour donation details:\n• Amount: ${amount} ${currency}\n• Date: ${formattedDate}\n• Transaction ID: ${transactionId}\n${message ? `• Message: ${message}` : ""}${membershipId ? `\n• Membership ID: ${membershipId}` : ""}\n\nYour generosity makes a real difference in the lives of many. We are deeply grateful for your support and trust in our mission.\n\nWhat happens next:\n• You will receive a separate email with your tax receipt if applicable\n• Your contribution will be used to support temple construction and community programs\n• You may receive updates about our progress and upcoming events\n\nIf you have any questions about your donation or need additional information, please don't hesitate to contact our admin team.\n\nWith heartfelt gratitude,\nPashupatinath Temple Norway Team`,
 		html: `
 			<!DOCTYPE html>
 			<html>
@@ -714,18 +721,26 @@ export async function sendDonationThankYouEmail({ name, email, amount, currency 
 								<span class="detail-label">Transaction ID:</span>
 								<span>${transactionId}</span>
 							</div>
-							${message ? `
+							${
+								message
+									? `
 							<div class="detail-item">
 								<span class="detail-label">Message:</span>
 								<span>${message}</span>
 							</div>
-							` : ''}
-							${membershipId ? `
+							`
+									: ""
+							}
+							${
+								membershipId
+									? `
 							<div class="detail-item">
 								<span class="detail-label">Membership ID:</span>
 								<span>${membershipId}</span>
 							</div>
-							` : ''}
+							`
+									: ""
+							}
 						</div>
 						
 						<p>Your generosity makes a real difference in the lives of many. We are deeply grateful for your support and trust in our mission.</p>
@@ -759,19 +774,18 @@ export async function sendDonationThankYouEmail({ name, email, amount, currency 
 			text: mailOptions.text,
 			html: mailOptions.html,
 		});
-		
+
 		if (error) {
 			console.error("Error sending donation thank you email:", error);
 			throw new Error("Failed to send donation thank you email");
 		}
-		
+
 		console.log("Donation thank you email sent to:", email);
 	} catch (error) {
 		console.error("Error sending donation thank you email:", error);
 		throw new Error("Failed to send donation thank you email");
 	}
 }
-
 
 export async function sendVerificationFollowupEmail({ name, email, personalNumber }: sendVerificationFollowupEmail) {
 	const mailOptions = {
@@ -836,7 +850,7 @@ export async function sendVerificationFollowupEmail({ name, email, personalNumbe
 		// Add unsubscribe footer if user is subscribed
 		const htmlContentWithFooter = await addEmailFooter(email, mailOptions.html);
 		mailOptions.html = htmlContentWithFooter;
-		
+
 		const { error } = await resend.emails.send({
 			from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER!}>`,
 			to: [email],
@@ -844,12 +858,12 @@ export async function sendVerificationFollowupEmail({ name, email, personalNumbe
 			text: mailOptions.text,
 			html: mailOptions.html,
 		});
-		
+
 		if (error) {
 			console.error("Error sending verification follow-up email:", error);
 			throw new Error("Failed to send verification follow-up email");
 		}
-		
+
 		console.log("Verification follow-up email sent to:", email);
 	} catch (error) {
 		console.error("Error sending verification follow-up email:", error);
@@ -935,7 +949,7 @@ export async function sendBRREGVerificationApprovalEmail({ name, email, setupTok
 		// Add unsubscribe footer if user is subscribed
 		const htmlContentWithFooter = await addEmailFooter(email, mailOptions.html);
 		mailOptions.html = htmlContentWithFooter;
-		
+
 		const { error } = await resend.emails.send({
 			from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER!}>`,
 			to: [email],
@@ -943,12 +957,12 @@ export async function sendBRREGVerificationApprovalEmail({ name, email, setupTok
 			text: mailOptions.text,
 			html: mailOptions.html,
 		});
-		
+
 		if (error) {
 			console.error("Error sending Oslo verification approval email:", error);
 			throw new Error("Failed to send Oslo verification approval email");
 		}
-		
+
 		console.log("Oslo verification approval email sent to:", email);
 	} catch (error) {
 		console.error("Error sending Oslo verification approval email:", error);
@@ -965,16 +979,14 @@ type sendWelcomeEmail = {
 };
 export async function sendWelcomeEmail({ name, email, setupToken, familyMembers }: sendWelcomeEmail) {
 	const setupUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/ne/set-password?token=${setupToken}`;
-	
-	const familyMembersText = familyMembers && familyMembers.length > 0 
-		? `\n\nपरिवारका सदस्यहरू दर्ता: ${familyMembers.join(', ')}`
-		: '';
+
+	const familyMembersText = familyMembers && familyMembers.length > 0 ? `\n\nपरिवारका सदस्यहरू दर्ता: ${familyMembers.join(", ")}` : "";
 
 	const mailOptions = {
 		from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER}>`,
 		to: email,
 		subject: "पशुपतिनाथ नर्वे मन्दिरमा स्वागत - आफ्नो पासवर्ड सेट गर्नुहोस्",
-			text: `नमस्ते ${name},\n\nपशुपतिनाथ नर्वे मन्दिरमा स्वागत छ! तपाईंको सदस्यता स्वीकृत भएको छ।${familyMembersText}\n\nतपाईं अब नर्वेमा पहिलो नेपाली हिन्दू मन्दिर बनाउने र हाम्रो समुदायलाई एकजुट गर्ने हाम्रो पवित्र मिशनको भाग हुनुहुन्छ। सँगै, हामी एक आध्यात्मिक घर बनाउँदैछौं जहाँ हाम्रो सांस्कृतिक विरासा र धार्मिक परम्पराहरू आउँदा पुस्ताहरूका लागि फल्न सक्छन्।\n\nकृपया तल दिइएको लिंकमा क्लिक गरेर आफ्नो पासवर्ड सेट गर्नुहोस्:\n${setupUrl}\n\nयो लिंक १ वर्षको लागि मान्य छ।\n\nतपाईंको सदस्यतासँग, तपाईं हाम्रो दृष्टिकोणमा हामीसँग मिल्नुहुन्छ जहाँ नर्वेमा हाम्रो समृद्ध, जोडिएको नेपाली समुदाय छ जहाँ हरेक सदस्यलाई समर्थन, मूल्यवान र आफ्नो विरासतमा गर्व महसुस हुन्छ।\n\nशुभकामना,\nपशुपतिनाथ नर्वे मन्दिर टोली`,
+		text: `नमस्ते ${name},\n\nपशुपतिनाथ नर्वे मन्दिरमा स्वागत छ! तपाईंको सदस्यता स्वीकृत भएको छ।${familyMembersText}\n\nतपाईं अब नर्वेमा पहिलो नेपाली हिन्दू मन्दिर बनाउने र हाम्रो समुदायलाई एकजुट गर्ने हाम्रो पवित्र मिशनको भाग हुनुहुन्छ। सँगै, हामी एक आध्यात्मिक घर बनाउँदैछौं जहाँ हाम्रो सांस्कृतिक विरासा र धार्मिक परम्पराहरू आउँदा पुस्ताहरूका लागि फल्न सक्छन्।\n\nकृपया तल दिइएको लिंकमा क्लिक गरेर आफ्नो पासवर्ड सेट गर्नुहोस्:\n${setupUrl}\n\nयो लिंक १ वर्षको लागि मान्य छ।\n\nतपाईंको सदस्यतासँग, तपाईं हाम्रो दृष्टिकोणमा हामीसँग मिल्नुहुन्छ जहाँ नर्वेमा हाम्रो समृद्ध, जोडिएको नेपाली समुदाय छ जहाँ हरेक सदस्यलाई समर्थन, मूल्यवान र आफ्नो विरासतमा गर्व महसुस हुन्छ।\n\nशुभकामना,\nपशुपतिनाथ नर्वे मन्दिर टोली`,
 		html: `
 			<!DOCTYPE html>
 			<html>
@@ -998,12 +1010,16 @@ export async function sendWelcomeEmail({ name, email, setupToken, familyMembers 
 					<div class="content">
 						<p>नमस्ते <strong>${name}</strong>,</p>
 						<p>बधाई छ! तपाईंको सदस्यता आवेदन स्वीकृत भएको छ। तपाईं अब नर्वेमा पहिलो नेपाली हिन्दू मन्दिर बनाउने र हाम्रो समुदायलाई एकजुट गर्ने हाम्रो पवित्र मिशनको भाग हुनुहुन्छ।</p>
-						${familyMembers && familyMembers.length > 0 ? `
+						${
+							familyMembers && familyMembers.length > 0
+								? `
 						<div style="background: white; border-left: 4px solid #10b981; padding: 20px; margin: 20px 0; border-radius: 5px;">
 							<h3 style="margin: 0 0 10px 0; color: #10b981;">परिवारका सदस्यहरू दर्ता</h3>
-							<p style="margin: 0; font-weight: bold;">${familyMembers.join(', ')}</p>
+							<p style="margin: 0; font-weight: bold;">${familyMembers.join(", ")}</p>
 						</div>
-						` : ''}
+						`
+								: ""
+						}
 						<p>सँगै, हामी एक आध्यात्मिक घर बनाउँदैछौं जहाँ हाम्रो सांस्कृतिक विरासा र धार्मिक परम्पराहरू आउँदा पुस्ताहरूका लागि फल्न सक्छन्। तपाईंको सदस्यताले हामीलाई नर्वेमा हाम्रो समृद्ध, जोडिएको नेपाली समुदायको दृष्टिकोण नजिक लैजान्छ।</p>
 						<p>आफ्नो खाता सेटअप पूरा गर्न, कृपया तल दिइएको बटनमा क्लिक गरेर आफ्नो पासवर्ड सेट गर्नुहोस्:</p>
 						<center>
@@ -1041,12 +1057,12 @@ export async function sendWelcomeEmail({ name, email, setupToken, familyMembers 
 			text: mailOptions.text,
 			html: mailOptions.html,
 		});
-		
+
 		if (error) {
 			console.error("Error sending welcome email:", error);
 			throw new Error("Failed to send welcome email");
 		}
-		
+
 		console.log("Welcome email sent to:", email);
 	} catch (error) {
 		console.error("Error sending welcome email:", error);
@@ -1159,12 +1175,12 @@ export async function sendSubscriptionThankYouEmail(email: string) {
 			text: mailOptions.text,
 			html: mailOptions.html,
 		});
-		
+
 		if (error) {
 			console.error("Error sending subscription thank you email:", error);
 			throw new Error("Failed to send subscription thank you email");
 		}
-		
+
 		console.log("Subscription thank you email sent to:", email);
 	} catch (error) {
 		console.error("Error sending subscription thank you email:", error);
@@ -1183,9 +1199,9 @@ export async function sendEmailVerificationEmail({ name, email, verificationToke
 	console.log("Sending to:", email);
 	console.log("Name:", name);
 	console.log("Resend configured:", !!resend);
-	
+
 	const verificationUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/en/verify-email?token=${verificationToken}`;
-	
+
 	const mailOptions = {
 		from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER}>`,
 		to: email,
@@ -1235,12 +1251,12 @@ export async function sendEmailVerificationEmail({ name, email, verificationToke
 		// Add unsubscribe footer if user is subscribed
 		const htmlContentWithFooter = await addEmailFooter(email, mailOptions.html);
 		mailOptions.html = htmlContentWithFooter;
-		
+
 		console.log("=== SENDING EMAIL ===");
 		console.log("From:", mailOptions.from);
 		console.log("To:", mailOptions.to);
 		console.log("Subject:", mailOptions.subject);
-		
+
 		const { error } = await resend.emails.send({
 			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER!}>`,
 			to: [email],
@@ -1248,12 +1264,12 @@ export async function sendEmailVerificationEmail({ name, email, verificationToke
 			text: mailOptions.text,
 			html: mailOptions.html,
 		});
-		
+
 		if (error) {
 			console.error("Error sending email verification email:", error);
 			throw new Error("Failed to send email verification email");
 		}
-		
+
 		console.log("Email verification email sent successfully");
 		console.log("Email verification email sent to:", email);
 	} catch (error) {
@@ -1333,12 +1349,12 @@ export async function sendPasswordResetEmail({ name, email, resetUrl, userType }
 			text: mailOptions.text,
 			html: mailOptions.html,
 		});
-		
+
 		if (error) {
 			console.error("Error sending password reset email:", error);
 			throw new Error("Failed to send password reset email");
 		}
-		
+
 		console.log("Password reset email sent to:", email);
 	} catch (error) {
 		console.error("Error sending password reset email:", error);
@@ -1354,12 +1370,12 @@ type sendBirthdayWishEmail = {
 };
 
 export async function sendBirthdayWishEmail({ name, email, age }: sendBirthdayWishEmail) {
-    const mailOptions = {
-        from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER}>`,
-        to: email,
-        subject: `जन्मदिनको शुभकामना ${name}! - Pashupatinath Norway Temple`,
-        text: `आदरणीय ${name},\n\nपशुपतिनाथ मन्दिर नर्वे परिवारको तर्फबाट तपाईंलाई जन्मदिनको हार्दिक मंगलमय शुभकामना व्यक्त गर्दछौं।\n\nपशुपतिनाथले तपाईंलाई सुस्वास्थ्य, दीर्घायु र समृद्धि प्रदान गरून्।\n\n"जीवेत् शरदः शतम्"\n(तपाईं सय वर्षसम्म जीवित रहनुहोस्)\n\nसादर,\nपशुपतिनाथ मन्दिर नर्वे परिवार`,
-        html: `
+	const mailOptions = {
+		from: `"पशुपतिनाथ नर्वे मन्दिर"<${process.env.EMAIL_USER}>`,
+		to: email,
+		subject: `जन्मदिनको शुभकामना ${name}! - Pashupatinath Norway Temple`,
+		text: `आदरणीय ${name},\n\nपशुपतिनाथ मन्दिर नर्वे परिवारको तर्फबाट तपाईंलाई जन्मदिनको हार्दिक मंगलमय शुभकामना व्यक्त गर्दछौं।\n\nपशुपतिनाथले तपाईंलाई सुस्वास्थ्य, दीर्घायु र समृद्धि प्रदान गरून्।\n\n"जीवेत् शरदः शतम्"\n(तपाईं सय वर्षसम्म जीवित रहनुहोस्)\n\nसादर,\nपशुपतिनाथ मन्दिर नर्वे परिवार`,
+		html: `
             <!DOCTYPE html>
             <html>
             <head>
@@ -1410,25 +1426,29 @@ export async function sendBirthdayWishEmail({ name, email, age }: sendBirthdayWi
             </body>
             </html>
         `,
-    };
+	};
 
-    try {
-        const { error } = await resend.emails.send({
-            from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER!}>`,
-            to: [email],
-            subject: mailOptions.subject,
-            text: mailOptions.text,
-            html: mailOptions.html,
-        });
-        
-        if (error) {
-            console.error("Error sending birthday wish email:", error);
-            throw new Error("Failed to send birthday wish email");
-        }
-        
-        console.log("Birthday wish email sent to:", email);
-    } catch (error) {
-        console.error("Error sending birthday wish email:", error);
-        throw new Error("Failed to send birthday wish email");
-    }
+	try {
+		const { error } = await resend.emails.send({
+			from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER!}>`,
+			to: [email],
+			subject: mailOptions.subject,
+			text: mailOptions.text,
+			html: mailOptions.html,
+		});
+
+		if (error) {
+			console.error("Error sending birthday wish email:", error);
+			if (error) {
+				throw new Error(`Resend error: ${JSON.stringify(error)}`);
+			}
+		}
+
+		console.log("Birthday wish email sent to:", email);
+	} catch (error) {
+		console.error("Error sending birthday wish email:", error);
+		if (error) {
+			throw new Error(`Resend error: ${JSON.stringify(error)}`);
+		}
+	}
 }
