@@ -126,7 +126,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 										<div className="relative">
 											<StyledInput type="text" name="personalNumber" value={form.formData.personalNumber} onChange={form.handleChange} onBlur={form.handlePersonalNumberBlur} maxLength={11} pattern="\d{11}" hasError={!!form.errors.personalNumber} isSuccess={form.personalNumberStatus === "available"} placeholder={t.personal_number_placeholder} />
 										</div>
-										{form.personalNumberStatus === "checking" && <p className="text-yellow-600 text-sm mt-1">Checking availability...</p>}
+										{form.personalNumberStatus === "checking" && <p className="text-brand_primary text-sm mt-1">Checking availability...</p>}
 									</FormField>
 
 									{/* First Name */}

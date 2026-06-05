@@ -10,7 +10,6 @@ import { Progress } from "../../../../components/ui/progress";
 import Link from "next/link";
 import { formatNOK } from "@/lib/norwegianCurrency";
 
-
 interface Cause {
 	_id: string;
 	title: string;
@@ -51,39 +50,38 @@ interface ReportsData {
 	};
 }
 
-
 async function getDonationReports(locale: string): Promise<ReportsData> {
 	try {
 		// Fetch causes with their current amounts
-		const causesResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/causes?locale=${locale}`, {
-			cache: 'no-store'
+		const causesResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/causes?locale=${locale}`, {
+			cache: "no-store",
 		});
 		const causesData = await causesResponse.json();
-		
+
 		// Fetch donations (we'll need to create this API endpoint)
-		const donationsResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/donations/reports`, {
-			cache: 'no-store'
+		const donationsResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/donations/reports`, {
+			cache: "no-store",
 		});
-		
+
 		const defaultTotals = {
 			totalAmount: 0,
 			totalDonations: 0,
-			causeTotals: []
+			causeTotals: [],
 		};
-		
+
 		let donationsData = { donations: [], totals: defaultTotals };
 		if (donationsResponse.ok) {
 			const responseData = await donationsResponse.json();
 			donationsData = {
 				donations: responseData.donations || [],
-				totals: responseData.totals || defaultTotals
+				totals: responseData.totals || defaultTotals,
 			};
 		}
 
 		return {
 			causes: causesData.causes || [],
 			donations: donationsData.donations || [],
-			totals: donationsData.totals
+			totals: donationsData.totals,
 		};
 	} catch (error) {
 		console.error("Error fetching donation reports:", error);
@@ -93,8 +91,8 @@ async function getDonationReports(locale: string): Promise<ReportsData> {
 			totals: {
 				totalAmount: 0,
 				totalDonations: 0,
-				causeTotals: []
-			}
+				causeTotals: [],
+			},
 		};
 	}
 }
@@ -110,11 +108,11 @@ export default function DonationReportsPage({ params }: { params: Promise<{ loca
 
 	// Check admin access
 	useEffect(() => {
-		if (status === 'loading') return; // Wait for session to load
-		
-		if (!session || !session.user || session.user.role !== 'admin') {
+		if (status === "loading") return; // Wait for session to load
+
+		if (!session || !session.user || session.user.role !== "admin") {
 			// Redirect to home page if not admin
-			router.push('/' + (locale || 'en'));
+			router.push("/" + (locale || "en"));
 			return;
 		}
 	}, [session, status, router, locale]);
@@ -123,7 +121,6 @@ export default function DonationReportsPage({ params }: { params: Promise<{ loca
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				
 				const { locale: resolvedLocale } = await params;
 				setLocale(resolvedLocale);
 				const data = await getDonationReports(resolvedLocale);
@@ -137,13 +134,13 @@ export default function DonationReportsPage({ params }: { params: Promise<{ loca
 		};
 
 		// Only fetch data if user is admin
-		if (session && session.user && session.user.role === 'admin') {
+		if (session && session.user && session.user.role === "admin") {
 			fetchData();
 		}
 	}, [params, session]);
 
 	// Don't render anything while checking auth
-	if (status === 'loading' || !session || session.user.role !== 'admin') {
+	if (status === "loading" || !session || session.user.role !== "admin") {
 		return (
 			<div className="min-h-screen flex items-center justify-center">
 				<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand_primary"></div>
@@ -162,9 +159,7 @@ export default function DonationReportsPage({ params }: { params: Promise<{ loca
 				{/* Header */}
 				<header className="text-center mb-12">
 					<h1 className="text-4xl font-bold text-gray-900 mb-4">{t("reports_title")}</h1>
-					<p className="text-lg text-gray-600 max-w-2xl mx-auto">
-						{t("reports_description")}
-					</p>
+					<p className="text-lg text-gray-600 max-w-2xl mx-auto">{t("reports_description")}</p>
 				</header>
 
 				{/* Loading State */}
@@ -180,187 +175,158 @@ export default function DonationReportsPage({ params }: { params: Promise<{ loca
 					<>
 						{/* Overall Statistics */}
 						<div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-					<Card>
-						<CardHeader className="pb-3">
-							<CardTitle className="text-sm font-medium text-gray-600">{t("total_raised")}</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<div className="text-2xl font-bold text-brand_primary">
-							{formatNOK(totalCurrentAmount)}
-						</div>
-							<p className="text-xs text-gray-500 mt-1">{t("across_all_causes")}</p>
-						</CardContent>
-					</Card>
-
-					<Card>
-						<CardHeader className="pb-3">
-							<CardTitle className="text-sm font-medium text-gray-600">{t("total_goal")}</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<div className="text-2xl font-bold text-gray-900">
-							{formatNOK(totalGoalAmount)}
-						</div>
-							<p className="text-xs text-gray-500 mt-1">{t("combined_target")}</p>
-						</CardContent>
-					</Card>
-
-					<Card>
-						<CardHeader className="pb-3">
-							<CardTitle className="text-sm font-medium text-gray-600">{t("total_donations")}</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<div className="text-2xl font-bold text-gray-900">
-								{totalDonations}
-							</div>
-							<p className="text-xs text-gray-500 mt-1">{t("generous_contributions")}</p>
-						</CardContent>
-					</Card>
-
-					<Card>
-						<CardHeader className="pb-3">
-							<CardTitle className="text-sm font-medium text-gray-600">{t("active_causes")}</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<div className="text-2xl font-bold text-gray-900">
-								{causes.filter(cause => cause.status === 'active').length}
-							</div>
-							<p className="text-xs text-gray-500 mt-1">{t("currently_running")}</p>
-						</CardContent>
-					</Card>
-				</div>
-
-				{/* Cause-wise Reports */}
-				<div className="mb-12">
-					<h2 className="text-2xl font-bold text-gray-900 mb-6">{t("cause_wise_donations")}</h2>
-					<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-						{causes.length === 0 ? (
 							<Card>
-								<CardContent className="text-center py-8">
-									<p className="text-gray-500">{t("no_active_causes")}</p>
+								<CardHeader className="pb-3">
+									<CardTitle className="text-sm font-medium text-gray-600">{t("total_raised")}</CardTitle>
+								</CardHeader>
+								<CardContent>
+									<div className="text-2xl font-bold text-brand_primary">{formatNOK(totalCurrentAmount)}</div>
+									<p className="text-xs text-gray-500 mt-1">{t("across_all_causes")}</p>
 								</CardContent>
 							</Card>
-						) : (
-							causes.map((cause: Cause) => {
-								const progressPercentage = cause.goalAmount > 0 
-									? Math.min((cause.currentAmount / cause.goalAmount) * 100, 100) 
-									: 0;
-								
-								return (
-									<Card key={cause._id}>
-										<CardHeader>
-											<div className="flex justify-between items-start">
-												<div>
-													<CardTitle className="text-lg">{cause.title}</CardTitle>
-													<div className="flex gap-2 mt-2">
-														<Badge className={
-															cause.status === 'active' ? 'bg-green-500' :
-															cause.status === 'completed' ? 'bg-blue-500' :
-															cause.status === 'paused' ? 'bg-yellow-500' :
-															'bg-red-500'
-														}>
-															{cause.status}
-														</Badge>
-														<Badge variant="outline">{cause.category}</Badge>
-														{cause.featured && (
-															<Badge className="bg-purple-500 text-white">{t("featured")}</Badge>
-														)}
-													</div>
-												</div>
-											</div>
-										</CardHeader>
-										<CardContent>
-											<p className="text-gray-600 mb-4 line-clamp-2">{cause.description}</p>
-											
-											<div className="space-y-3">
-												<div className="flex justify-between text-sm">
-													<span>{t("progress")}:</span>
-													<span className="font-semibold">
-									{formatNOK(cause.currentAmount)} / {formatNOK(cause.goalAmount)}
-								</span>
-												</div>
-												<Progress value={progressPercentage} className="h-2" />
-												<div className="flex justify-between text-sm text-gray-500">
-													<span>{progressPercentage.toFixed(1)}% {t("complete")}</span>
-													<span>{cause.donationCount || 0} {t("donations")}</span>
-												</div>
-											</div>
-											
-											{cause.endDate && (
-												<p className="text-sm text-gray-500 mt-3">
-													{t("ends")}: {new Date(cause.endDate).toLocaleDateString(locale)}
-												</p>
-											)}
+
+							<Card>
+								<CardHeader className="pb-3">
+									<CardTitle className="text-sm font-medium text-gray-600">{t("total_goal")}</CardTitle>
+								</CardHeader>
+								<CardContent>
+									<div className="text-2xl font-bold text-gray-900">{formatNOK(totalGoalAmount)}</div>
+									<p className="text-xs text-gray-500 mt-1">{t("combined_target")}</p>
+								</CardContent>
+							</Card>
+
+							<Card>
+								<CardHeader className="pb-3">
+									<CardTitle className="text-sm font-medium text-gray-600">{t("total_donations")}</CardTitle>
+								</CardHeader>
+								<CardContent>
+									<div className="text-2xl font-bold text-gray-900">{totalDonations}</div>
+									<p className="text-xs text-gray-500 mt-1">{t("generous_contributions")}</p>
+								</CardContent>
+							</Card>
+
+							<Card>
+								<CardHeader className="pb-3">
+									<CardTitle className="text-sm font-medium text-gray-600">{t("active_causes")}</CardTitle>
+								</CardHeader>
+								<CardContent>
+									<div className="text-2xl font-bold text-gray-900">{causes.filter((cause) => cause.status === "active").length}</div>
+									<p className="text-xs text-gray-500 mt-1">{t("currently_running")}</p>
+								</CardContent>
+							</Card>
+						</div>
+
+						{/* Cause-wise Reports */}
+						<div className="mb-12">
+							<h2 className="text-2xl font-bold text-gray-900 mb-6">{t("cause_wise_donations")}</h2>
+							<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+								{causes.length === 0 ? (
+									<Card>
+										<CardContent className="text-center py-8">
+											<p className="text-gray-500">{t("no_active_causes")}</p>
 										</CardContent>
 									</Card>
-								);
-							})
-						)}
-					</div>
-				</div>
+								) : (
+									causes.map((cause: Cause) => {
+										const progressPercentage = cause.goalAmount > 0 ? Math.min((cause.currentAmount / cause.goalAmount) * 100, 100) : 0;
 
-				{/* Recent Donations */}
-				<div className="mb-12">
-					<h2 className="text-2xl font-bold text-gray-900 mb-6">{t("recent_donations")}</h2>
-					<Card>
-						<CardContent className="p-0">
-							{donations.length === 0 ? (
-								<div className="text-center py-8">
-									<p className="text-gray-500">{t("no_donations_recorded")}</p>
-								</div>
-							) : (
-								<div className="overflow-x-auto">
-									<table className="w-full">
-										<thead className="bg-gray-50 border-b">
-											<tr>
-												<th className="text-left p-4 font-medium text-gray-900">{t("date")}</th>
-												<th className="text-left p-4 font-medium text-gray-900">{t("donor")}</th>
-												<th className="text-left p-4 font-medium text-gray-900">{t("amount")}</th>
-												<th className="text-left p-4 font-medium text-gray-900">{t("type")}</th>
-												<th className="text-left p-4 font-medium text-gray-900">{t("cause")}</th>
-											</tr>
-										</thead>
-										<tbody>
-											{donations.slice(0, 10).map((donation: Donation, index: number) => (
-												<tr key={donation._id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-													<td className="p-4 text-sm text-gray-900">
-														{new Date(donation.createdAt).toLocaleDateString(locale)}
-													</td>
-													<td className="p-4 text-sm text-gray-900">
-														{donation.isAnonymous ? t('anonymous') : donation.donorName}
-													</td>
-													<td className="p-4 text-sm font-medium text-gray-900">
-									{formatNOK(donation.amount)}
-								</td>
-													<td className="p-4 text-sm text-gray-900">
-														<Badge variant={donation.donationType === 'general' ? 'default' : 'secondary'}>
-															{donation.donationType === 'general' ? t('general') : t('cause_specific')}
-														</Badge>
-													</td>
-													<td className="p-4 text-sm text-gray-900">
-														{donation.causeId ? donation.causeId?.title || t('cause') : t('general')}
-													</td>
-												</tr>
-											))}
-										</tbody>
-									</table>
-								</div>
-							)}
-						</CardContent>
-					</Card>
-				</div>
+										return (
+											<Card key={cause._id}>
+												<CardHeader>
+													<div className="flex justify-between items-start">
+														<div>
+															<CardTitle className="text-lg">{cause.title}</CardTitle>
+															<div className="flex gap-2 mt-2">
+																<Badge className={cause.status === "active" ? "bg-green-500" : cause.status === "completed" ? "bg-blue-500" : cause.status === "paused" ? "bg-brand_primary" : "bg-red-500"}>{cause.status}</Badge>
+																<Badge variant="outline">{cause.category}</Badge>
+																{cause.featured && <Badge className="bg-purple-500 text-white">{t("featured")}</Badge>}
+															</div>
+														</div>
+													</div>
+												</CardHeader>
+												<CardContent>
+													<p className="text-gray-600 mb-4 line-clamp-2">{cause.description}</p>
 
-				{/* Call to Action */}
-				<div className="text-center bg-gradient-to-r from-brand_primary to-brand_secondary rounded-lg p-8 text-white">
-					<h2 className="text-2xl font-bold mb-4">{t("make_difference_today")}</h2>
-					<p className="text-white/90 mb-6 max-w-2xl mx-auto">
-						{t("donation_impact_description")}
-					</p>
-					<Link href={`/${locale}/donate`}>
-						<button className="bg-white text-gray-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
-							{t("donate_now_button")}
-						</button>
-					</Link>
-				</div>
+													<div className="space-y-3">
+														<div className="flex justify-between text-sm">
+															<span>{t("progress")}:</span>
+															<span className="font-semibold">
+																{formatNOK(cause.currentAmount)} / {formatNOK(cause.goalAmount)}
+															</span>
+														</div>
+														<Progress value={progressPercentage} className="h-2" />
+														<div className="flex justify-between text-sm text-gray-500">
+															<span>
+																{progressPercentage.toFixed(1)}% {t("complete")}
+															</span>
+															<span>
+																{cause.donationCount || 0} {t("donations")}
+															</span>
+														</div>
+													</div>
+
+													{cause.endDate && (
+														<p className="text-sm text-gray-500 mt-3">
+															{t("ends")}: {new Date(cause.endDate).toLocaleDateString(locale)}
+														</p>
+													)}
+												</CardContent>
+											</Card>
+										);
+									})
+								)}
+							</div>
+						</div>
+
+						{/* Recent Donations */}
+						<div className="mb-12">
+							<h2 className="text-2xl font-bold text-gray-900 mb-6">{t("recent_donations")}</h2>
+							<Card>
+								<CardContent className="p-0">
+									{donations.length === 0 ? (
+										<div className="text-center py-8">
+											<p className="text-gray-500">{t("no_donations_recorded")}</p>
+										</div>
+									) : (
+										<div className="overflow-x-auto">
+											<table className="w-full">
+												<thead className="bg-gray-50 border-b">
+													<tr>
+														<th className="text-left p-4 font-medium text-gray-900">{t("date")}</th>
+														<th className="text-left p-4 font-medium text-gray-900">{t("donor")}</th>
+														<th className="text-left p-4 font-medium text-gray-900">{t("amount")}</th>
+														<th className="text-left p-4 font-medium text-gray-900">{t("type")}</th>
+														<th className="text-left p-4 font-medium text-gray-900">{t("cause")}</th>
+													</tr>
+												</thead>
+												<tbody>
+													{donations.slice(0, 10).map((donation: Donation, index: number) => (
+														<tr key={donation._id} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+															<td className="p-4 text-sm text-gray-900">{new Date(donation.createdAt).toLocaleDateString(locale)}</td>
+															<td className="p-4 text-sm text-gray-900">{donation.isAnonymous ? t("anonymous") : donation.donorName}</td>
+															<td className="p-4 text-sm font-medium text-gray-900">{formatNOK(donation.amount)}</td>
+															<td className="p-4 text-sm text-gray-900">
+																<Badge variant={donation.donationType === "general" ? "default" : "secondary"}>{donation.donationType === "general" ? t("general") : t("cause_specific")}</Badge>
+															</td>
+															<td className="p-4 text-sm text-gray-900">{donation.causeId ? donation.causeId?.title || t("cause") : t("general")}</td>
+														</tr>
+													))}
+												</tbody>
+											</table>
+										</div>
+									)}
+								</CardContent>
+							</Card>
+						</div>
+
+						{/* Call to Action */}
+						<div className="text-center bg-gradient-to-r from-brand_primary to-brand_secondary rounded-lg p-8 text-white">
+							<h2 className="text-2xl font-bold mb-4">{t("make_difference_today")}</h2>
+							<p className="text-white/90 mb-6 max-w-2xl mx-auto">{t("donation_impact_description")}</p>
+							<Link href={`/${locale}/donate`}>
+								<button className="bg-white text-gray-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">{t("donate_now_button")}</button>
+							</Link>
+						</div>
 					</>
 				)}
 			</div>

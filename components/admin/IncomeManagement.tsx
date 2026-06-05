@@ -399,7 +399,7 @@ export default function IncomeManagement() {
 											<button onClick={() => handleEdit(income)} className="text-blue-500 hover:text-blue-700">
 												<Edit size={16} />
 											</button>
-											<button onClick={() => handleDelete(income._id!)} className="text-red-500 hover:text-red-700">
+											<button onClick={() => handleDelete(income._id!)} className="text-red-500 hover:text-brand_secondary">
 												<Trash2 size={16} />
 											</button>
 										</div>

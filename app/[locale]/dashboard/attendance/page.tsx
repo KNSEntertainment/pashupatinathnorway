@@ -10,918 +10,805 @@ import { Loader2, Users, Calendar, CheckCircle, Download, Search, Upload, Camera
 import DashboardPageLayout from "@/components/layout/DashboardPageLayout";
 
 interface Event {
-  _id: string;
-  eventname: string;
-  eventdescription?: string;
-  eventvenue?: string;
-  eventdate?: string;
-  eventtime?: string;
-  enableAttendance: boolean;
-  attendanceStatus: "not_started" | "active" | "closed";
-  maxAttendees?: number;
-  createdAt: string;
+	_id: string;
+	eventname: string;
+	eventdescription?: string;
+	eventvenue?: string;
+	eventdate?: string;
+	eventtime?: string;
+	enableAttendance: boolean;
+	attendanceStatus: "not_started" | "active" | "closed";
+	maxAttendees?: number;
+	createdAt: string;
 }
 
 interface AttendanceRecord {
-  _id: string;
-  eventId: string;
-  memberId: string;
-  memberPersonalNumber: string;
-  memberName: string;
-  memberEmail: string;
-  checkInTime: string;
-  markedBy: string;
-  scannerName?: string;
-  scannerRole?: string;
-  notes?: string;
-  createdAt: string;
+	_id: string;
+	eventId: string;
+	memberId: string;
+	memberPersonalNumber: string;
+	memberName: string;
+	memberEmail: string;
+	checkInTime: string;
+	markedBy: string;
+	scannerName?: string;
+	scannerRole?: string;
+	notes?: string;
+	createdAt: string;
 }
 
 interface MemberData {
-  _id: string;
-  fullName: string;
-  email: string;
-  phone?: string;
-  profilePhoto?: string;
-  membershipType: string;
-  city?: string;
-  personalNumber?: string;
-  membershipStatus: string;
-  createdAt: string;
+	_id: string;
+	fullName: string;
+	email: string;
+	phone?: string;
+	profilePhoto?: string;
+	membershipType: string;
+	city?: string;
+	personalNumber?: string;
+	membershipStatus: string;
+	createdAt: string;
 }
 
 export default function AttendanceDashboard() {
-  const { data: session, status } = useSession();
-  
-  const [events, setEvents] = useState<Event[]>([]);
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [updatingEvent, setUpdatingEvent] = useState<string | null>(null);
-  const [error, setError] = useState<string>("");
-  const [showExportModal, setShowExportModal] = useState<boolean>(false);
-  const [exporting, setExporting] = useState<boolean>(false);
-  const [showClearRecordsDialog, setShowClearRecordsDialog] = useState<boolean>(false);
-  
-  // Search states
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [searching, setSearching] = useState<boolean>(false);
-  const [searchResults, setSearchResults] = useState<MemberData[]>([]);
-  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
-  
-  // QR upload states
-  const fileInputRef = useRef<HTMLInputElement>(null);
+	const { data: session, status } = useSession();
 
-  // Get current user information for scanner details
-  const getCurrentScannerInfo = () => {
-    if (session?.user) {
-      return {
-        scannerName: session.user.name || session.user.email || "Unknown User",
-        scannerRole: session.user.role || "User"
-      };
-    }
-    return {
-      scannerName: "Attendance Scanner",
-      scannerRole: "System"
-    };
-  };
+	const [events, setEvents] = useState<Event[]>([]);
+	const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+	const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [updatingEvent, setUpdatingEvent] = useState<string | null>(null);
+	const [error, setError] = useState<string>("");
+	const [showExportModal, setShowExportModal] = useState<boolean>(false);
+	const [exporting, setExporting] = useState<boolean>(false);
+	const [showClearRecordsDialog, setShowClearRecordsDialog] = useState<boolean>(false);
 
-  // Handle QR file upload
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+	// Search states
+	const [searchQuery, setSearchQuery] = useState<string>("");
+	const [searching, setSearching] = useState<boolean>(false);
+	const [searchResults, setSearchResults] = useState<MemberData[]>([]);
+	const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
 
-    if (!selectedEvent) {
-      setError("Please select an event first");
-      return;
-    }
+	// QR upload states
+	const fileInputRef = useRef<HTMLInputElement>(null);
 
-    setError("");
+	// Get current user information for scanner details
+	const getCurrentScannerInfo = () => {
+		if (session?.user) {
+			return {
+				scannerName: session.user.name || session.user.email || "Unknown User",
+				scannerRole: session.user.role || "User",
+			};
+		}
+		return {
+			scannerName: "Attendance Scanner",
+			scannerRole: "System",
+		};
+	};
 
-    try {
-      // Import QrScanner dynamically to avoid SSR issues
-      const QrScanner = (await import('qr-scanner')).default;
-      
-      // Use qr-scanner to process the image
-      const qrData = await QrScanner.scanImage(file);
-      
-      if (!qrData || qrData.trim() === '') {
-        setError("No QR code found in the image");
-        return;
-      }
+	// Handle QR file upload
+	const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+		const file = event.target.files?.[0];
+		if (!file) return;
 
-      // Clean up potential extra data or formatting issues
-      const cleanData = qrData.trim();
-      
-      // Remove any potential URL prefixes or extra text
-      if (cleanData.startsWith('http')) {
-        setError("Invalid QR code format. Please scan member ID card QR code, not a URL.");
-        return;
-      }
+		if (!selectedEvent) {
+			setError("Please select an event first");
+			return;
+		}
 
-      let parsedData;
-      try {
-        parsedData = JSON.parse(cleanData);
-      } catch (parseError) {
-        console.error("JSON Parse Error:", parseError, "Data:", cleanData);
-        setError("Invalid QR code format. Please ensure you're scanning a valid member ID card.");
-        return;
-      }
-      
-      // Validate parsed data structure
-      if (!parsedData || typeof parsedData !== 'object') {
-        setError("Invalid QR code data structure.");
-        return;
-      }
+		setError("");
 
-      if (parsedData.type !== "member_card") {
-        setError("Invalid QR code. Please scan a member ID card.");
-        return;
-      }
+		try {
+			// Import QrScanner dynamically to avoid SSR issues
+			const QrScanner = (await import("qr-scanner")).default;
 
-      // Validate required fields
-      if (!parsedData.personalNumber) {
-        setError("QR code missing required member information.");
-        return;
-      }
+			// Use qr-scanner to process the image
+			const qrData = await QrScanner.scanImage(file);
 
-      // Mark attendance via API
-      const scannerInfo = getCurrentScannerInfo();
-      const response = await fetch(`/api/verify/${parsedData.personalNumber}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          eventId: selectedEvent._id,
-          markedBy: session?.user?.id || "attendance-scanner",
-          scannerName: scannerInfo.scannerName,
-          scannerRole: scannerInfo.scannerRole,
-          notes: `QR check-in at ${selectedEvent.eventname}`
-        }),
-      });
+			if (!qrData || qrData.trim() === "") {
+				setError("No QR code found in the image");
+				return;
+			}
 
-      if (response.ok) {
-        const result = await response.json();
-        setError("");
-        // Refresh attendance records
-        fetchAttendanceRecords(selectedEvent._id);
-        // Show success message
-        setError(`✓ Attendance marked for ${result.member?.fullName}`);
-        // Clear error after 3 seconds
-        setTimeout(() => setError(""), 3000);
-      } else {
-        if (response.status === 409) {
-          const errorData = await response.json();
-          const memberName = errorData.member?.fullName || errorData.memberName || 'this member';
-          setError(`Attendance already marked for ${memberName} at ${new Date(errorData.checkInTime).toLocaleTimeString()}`);
-        } else {
-          const errorData = await response.json();
-          setError(errorData.error || "Failed to mark attendance");
-        }
-      }
-      
-    } catch (error) {
-      console.error("Error processing QR data:", error);
-      setError("Invalid QR code format. Please ensure you're scanning a valid member ID card.");
-    }
+			// Clean up potential extra data or formatting issues
+			const cleanData = qrData.trim();
 
-    // Reset file input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
+			// Remove any potential URL prefixes or extra text
+			if (cleanData.startsWith("http")) {
+				setError("Invalid QR code format. Please scan member ID card QR code, not a URL.");
+				return;
+			}
 
-  useEffect(() => {
-    if (status === "authenticated") {
-      fetchEvents();
-    }
-  }, [status]);
+			let parsedData;
+			try {
+				parsedData = JSON.parse(cleanData);
+			} catch (parseError) {
+				console.error("JSON Parse Error:", parseError, "Data:", cleanData);
+				setError("Invalid QR code format. Please ensure you're scanning a valid member ID card.");
+				return;
+			}
 
-  useEffect(() => {
-    if (selectedEvent) {
-      fetchAttendanceRecords(selectedEvent._id);
-    }
-  }, [selectedEvent]);
+			// Validate parsed data structure
+			if (!parsedData || typeof parsedData !== "object") {
+				setError("Invalid QR code data structure.");
+				return;
+			}
 
-  const fetchEvents = async () => {
-    try {
-      const response = await fetch("/api/events");
-      if (response.ok) {
-        const data = await response.json();
-        setEvents(data.events || []);
-      }
-    } catch (error) {
-      console.error("Error fetching events:", error);
-      setError("Failed to fetch events");
-    } finally {
-      setLoading(false);
-    }
-  };
+			if (parsedData.type !== "member_card") {
+				setError("Invalid QR code. Please scan a member ID card.");
+				return;
+			}
 
-  // Debounced search function
-  const searchMembers = async (query: string) => {
-    if (!query || query.trim() === "") {
-      setSearchResults([]);
-      return;
-    }
-    
-    setSearching(true);
-    setError("");
-    
-    try {
-      const response = await fetch(`/api/members/search?query=${encodeURIComponent(query.trim())}`);
-      if (response.ok) {
-        const data = await response.json();
-        setSearchResults(data.members || []);
-      } else {
-        setError("Failed to search members");
-        setSearchResults([]);
-      }
-    } catch (error) {
-      console.error("Error searching members:", error);
-      setError("Failed to search members");
-      setSearchResults([]);
-    } finally {
-      setSearching(false);
-    }
-  };
+			// Validate required fields
+			if (!parsedData.personalNumber) {
+				setError("QR code missing required member information.");
+				return;
+			}
 
-  // Handle search input with debouncing
-  const handleSearchChange = (value: string) => {
-    setSearchQuery(value);
-    
-    // Clear existing timeout
-    if (searchTimeout) {
-      clearTimeout(searchTimeout);
-    }
-    
-    // Set new timeout for debounced search
-    const timeout = setTimeout(() => {
-      searchMembers(value);
-    }, 300); // 300ms debounce
-    
-    setSearchTimeout(timeout);
-  };
+			// Mark attendance via API
+			const scannerInfo = getCurrentScannerInfo();
+			const response = await fetch(`/api/verify/${parsedData.personalNumber}`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					eventId: selectedEvent._id,
+					markedBy: session?.user?.id || "attendance-scanner",
+					scannerName: scannerInfo.scannerName,
+					scannerRole: scannerInfo.scannerRole,
+					notes: `QR check-in at ${selectedEvent.eventname}`,
+				}),
+			});
 
-  
-  // Mark attendance for a specific member
-  const markAttendanceForMember = async (member: MemberData) => {
-    if (!selectedEvent) {
-      setError("Please select an event first");
-      return;
-    }
+			if (response.ok) {
+				const result = await response.json();
+				setError("");
+				// Refresh attendance records
+				fetchAttendanceRecords(selectedEvent._id);
+				// Show success message
+				setError(`✓ Attendance marked for ${result.member?.fullName}`);
+				// Clear error after 3 seconds
+				setTimeout(() => setError(""), 3000);
+			} else {
+				if (response.status === 409) {
+					const errorData = await response.json();
+					const memberName = errorData.member?.fullName || errorData.memberName || "this member";
+					setError(`Attendance already marked for ${memberName} at ${new Date(errorData.checkInTime).toLocaleTimeString()}`);
+				} else {
+					const errorData = await response.json();
+					setError(errorData.error || "Failed to mark attendance");
+				}
+			}
+		} catch (error) {
+			console.error("Error processing QR data:", error);
+			setError("Invalid QR code format. Please ensure you're scanning a valid member ID card.");
+		}
 
-    if (!member.personalNumber) {
-      setError("Member personal number not found");
-      return;
-    }
+		// Reset file input
+		if (fileInputRef.current) {
+			fileInputRef.current.value = "";
+		}
+	};
 
-    try {
-      const scannerInfo = getCurrentScannerInfo();
-      const response = await fetch(`/api/verify/${member.personalNumber}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          eventId: selectedEvent._id,
-          markedBy: session?.user?.id || "attendance-scanner",
-          scannerName: scannerInfo.scannerName,
-          scannerRole: scannerInfo.scannerRole,
-          notes: `Manual check-in at ${selectedEvent.eventname}`
-        }),
-      });
+	useEffect(() => {
+		if (status === "authenticated") {
+			fetchEvents();
+		}
+	}, [status]);
 
-      if (response.ok) {
-        setError("");
-        // Refresh attendance records
-        fetchAttendanceRecords(selectedEvent._id);
-        // Clear search results and query
-        setSearchResults([]);
-        setSearchQuery("");
-      } else {
-        if (response.status === 409) {
-          const errorData = await response.json();
-          const checkInTime = errorData.checkInTime ? new Date(errorData.checkInTime).toLocaleTimeString() : '';
-          setError(`Attendance already marked for ${member.fullName}${checkInTime ? ` at ${checkInTime}` : ''}`);
-        } else {
-          const errorData = await response.json();
-          setError(errorData.error || "Failed to mark attendance");
-        }
-      }
-    } catch (error) {
-      console.error("Error marking attendance:", error);
-      setError("Failed to mark attendance");
-    }
-  };
+	useEffect(() => {
+		if (selectedEvent) {
+			fetchAttendanceRecords(selectedEvent._id);
+		}
+	}, [selectedEvent]);
 
-  const fetchAttendanceRecords = async (eventId: string) => {
-    try {
-      const response = await fetch(`/api/attendance/mark?eventId=${eventId}`);
-      if (response.ok) {
-        const result = await response.json();
-        setAttendanceRecords(result.attendance || []);
-      }
-    } catch (error) {
-      console.error("Error fetching attendance records:", error);
-    }
-  };
+	const fetchEvents = async () => {
+		try {
+			const response = await fetch("/api/events");
+			if (response.ok) {
+				const data = await response.json();
+				setEvents(data.events || []);
+			}
+		} catch (error) {
+			console.error("Error fetching events:", error);
+			setError("Failed to fetch events");
+		} finally {
+			setLoading(false);
+		}
+	};
 
-  const updateEventAttendance = async (eventId: string, updates: Record<string, unknown>) => {
-    setUpdatingEvent(eventId);
-    try {
-      const response = await fetch(`/api/events/${eventId}/attendance`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updates),
-      });
+	// Debounced search function
+	const searchMembers = async (query: string) => {
+		if (!query || query.trim() === "") {
+			setSearchResults([]);
+			return;
+		}
 
-      if (response.ok) {
-        // Update the event in the list
-        setEvents(events.map(event => 
-          event._id === eventId 
-            ? { ...event, ...updates }
-            : event
-        ));
-        
-        // Update selected event if it's the current one
-        if (selectedEvent && selectedEvent._id === eventId) {
-          setSelectedEvent({ ...selectedEvent, ...updates });
-        }
-      }
-    } catch (error: unknown) {
-        console.error("Error updating event:", error);
-        if (error instanceof Error) {
-          if (error.message.includes('11000')) {
-            setError("Validation error: Event data conflict");
-          } else if (error.message.includes('ValidationError')) {
-            setError(`Validation error: ${error.message}`);
-          } else {
-            setError("Failed to update event");
-          }
-        } else {
-          setError("Failed to update event");
-        }
-      } finally {
-        setUpdatingEvent(null);
-      }
-  };
+		setSearching(true);
+		setError("");
 
-  // Handle attendance toggle with single button logic
-  const handleAttendanceToggle = async (event: Event) => {
-    if (!event.enableAttendance) {
-      // Enable and start attendance
-      await updateEventAttendance(event._id, {
-        enableAttendance: true,
-        attendanceStatus: "active"
-      });
-    } else if (event.attendanceStatus === "active") {
-      // Stop and disable attendance
-      await updateEventAttendance(event._id, {
-        enableAttendance: false,
-        attendanceStatus: "not_started"
-      });
-    } else {
-      // Start attendance (already enabled but not started)
-      await updateEventAttendance(event._id, {
-        attendanceStatus: "active"
-      });
-    }
-  };
+		try {
+			const response = await fetch(`/api/members/search?query=${encodeURIComponent(query.trim())}`);
+			if (response.ok) {
+				const data = await response.json();
+				setSearchResults(data.members || []);
+			} else {
+				setError("Failed to search members");
+				setSearchResults([]);
+			}
+		} catch (error) {
+			console.error("Error searching members:", error);
+			setError("Failed to search members");
+			setSearchResults([]);
+		} finally {
+			setSearching(false);
+		}
+	};
 
-  // Get button text based on event state
-  const getAttendanceButtonText = (event: Event) => {
-    if (!event.enableAttendance) {
-      return "Enable Attendance";
-    }
-    if (event.attendanceStatus === "active") {
-      return "Stop Attendance";
-    }
-    return "Start Attendance";
-  };
+	// Handle search input with debouncing
+	const handleSearchChange = (value: string) => {
+		setSearchQuery(value);
 
-  // Clear all attendance records for selected event
-  const clearAllAttendanceRecords = async () => {
-    if (!selectedEvent) return;
+		// Clear existing timeout
+		if (searchTimeout) {
+			clearTimeout(searchTimeout);
+		}
 
-    try {
-      const response = await fetch(`/api/events/${selectedEvent._id}/attendance/clear`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      
-      if (response.ok) {
-        // Clear local records
-        setAttendanceRecords([]);
-        // Show success message
-        setError(`✓ Cleared all attendance records for ${selectedEvent.eventname}`);
-        // Clear error after 3 seconds
-        setTimeout(() => setError(""), 3000);
-      } else {
-        const errorData = await response.json();
-        setError(errorData.error || "Failed to clear attendance records");
-      }
-    } catch (error) {
-      console.error("Error clearing attendance records:", error);
-      setError("Failed to clear attendance records");
-    }
-  };
+		// Set new timeout for debounced search
+		const timeout = setTimeout(() => {
+			searchMembers(value);
+		}, 300); // 300ms debounce
 
-  const exportAttendance = () => {
-    if (!selectedEvent || attendanceRecords.length === 0) return;
-    setShowExportModal(true);
-  };
+		setSearchTimeout(timeout);
+	};
 
-  const confirmExport = async () => {
-    if (!selectedEvent || attendanceRecords.length === 0) return;
-    
-    setExporting(true);
-    setShowExportModal(false);
+	// Mark attendance for a specific member
+	const markAttendanceForMember = async (member: MemberData) => {
+		if (!selectedEvent) {
+			setError("Please select an event first");
+			return;
+		}
 
-    try {
-      // Record audit log first
-      const auditResponse = await fetch('/api/audit-logs', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'export_attendance',
-          details: {
-            eventId: selectedEvent._id,
-            eventName: selectedEvent.eventname,
-            recordCount: attendanceRecords.length,
-            eventDate: selectedEvent.eventdate
-          }
-        }),
-      });
+		if (!member.personalNumber) {
+			setError("Member personal number not found");
+			return;
+		}
 
-      if (!auditResponse.ok) {
-        console.error('Failed to record audit log');
-      }
+		try {
+			const scannerInfo = getCurrentScannerInfo();
+			const response = await fetch(`/api/verify/${member.personalNumber}`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					eventId: selectedEvent._id,
+					markedBy: session?.user?.id || "attendance-scanner",
+					scannerName: scannerInfo.scannerName,
+					scannerRole: scannerInfo.scannerRole,
+					notes: `Manual check-in at ${selectedEvent.eventname}`,
+				}),
+			});
 
-      // Generate and download CSV
-      const csvContent = [
-        ["Name", "Email", "Personal Number", "Check-in Time", "Checked In By", "Scanner Role", "Notes"],
-        ...attendanceRecords.map(record => [
-          record.memberName,
-          record.memberEmail,
-          record.memberPersonalNumber,
-          new Date(record.checkInTime).toLocaleString(),
-          record.scannerName || "Unknown",
-          record.scannerRole || "",
-          record.notes || ""
-        ])
-      ].map(row => row.join(",")).join("\n");
+			if (response.ok) {
+				setError("");
+				// Refresh attendance records
+				fetchAttendanceRecords(selectedEvent._id);
+				// Clear search results and query
+				setSearchResults([]);
+				setSearchQuery("");
+			} else {
+				if (response.status === 409) {
+					const errorData = await response.json();
+					const checkInTime = errorData.checkInTime ? new Date(errorData.checkInTime).toLocaleTimeString() : "";
+					setError(`Attendance already marked for ${member.fullName}${checkInTime ? ` at ${checkInTime}` : ""}`);
+				} else {
+					const errorData = await response.json();
+					setError(errorData.error || "Failed to mark attendance");
+				}
+			}
+		} catch (error) {
+			console.error("Error marking attendance:", error);
+			setError("Failed to mark attendance");
+		}
+	};
 
-      const blob = new Blob([csvContent], { type: "text/csv" });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `attendance-${selectedEvent.eventname.replace(/\s+/g, "-")}-${new Date().toISOString().split('T')[0]}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
+	const fetchAttendanceRecords = async (eventId: string) => {
+		try {
+			const response = await fetch(`/api/attendance/mark?eventId=${eventId}`);
+			if (response.ok) {
+				const result = await response.json();
+				setAttendanceRecords(result.attendance || []);
+			}
+		} catch (error) {
+			console.error("Error fetching attendance records:", error);
+		}
+	};
 
-      // Update audit log to completed
-      await fetch('/api/audit-logs', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'export_attendance',
-          status: 'completed',
-          details: {
-            eventId: selectedEvent._id,
-            eventName: selectedEvent.eventname,
-            recordCount: attendanceRecords.length,
-            eventDate: selectedEvent.eventdate
-          }
-        }),
-      });
+	const updateEventAttendance = async (eventId: string, updates: Record<string, unknown>) => {
+		setUpdatingEvent(eventId);
+		try {
+			const response = await fetch(`/api/events/${eventId}/attendance`, {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(updates),
+			});
 
-    } catch (error) {
-      console.error('Export failed:', error);
-      setError('Failed to export attendance data');
-      
-      // Update audit log to failed
-      await fetch('/api/audit-logs', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'export_attendance',
-          status: 'failed',
-          errorMessage: error instanceof Error ? error.message : 'Unknown error',
-          details: {
-            eventId: selectedEvent._id,
-            eventName: selectedEvent.eventname
-          }
-        }),
-      });
-    } finally {
-      setExporting(false);
-    }
-  };
+			if (response.ok) {
+				// Update the event in the list
+				setEvents(events.map((event) => (event._id === eventId ? { ...event, ...updates } : event)));
 
-  if (status === "loading" || loading) {
-    return (
-      <div className="flex items-center justify-center min-h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-brand_primary" />
-      </div>
-    );
-  }
+				// Update selected event if it's the current one
+				if (selectedEvent && selectedEvent._id === eventId) {
+					setSelectedEvent({ ...selectedEvent, ...updates });
+				}
+			}
+		} catch (error: unknown) {
+			console.error("Error updating event:", error);
+			if (error instanceof Error) {
+				if (error.message.includes("11000")) {
+					setError("Validation error: Event data conflict");
+				} else if (error.message.includes("ValidationError")) {
+					setError(`Validation error: ${error.message}`);
+				} else {
+					setError("Failed to update event");
+				}
+			} else {
+				setError("Failed to update event");
+			}
+		} finally {
+			setUpdatingEvent(null);
+		}
+	};
 
-  return (
-    <DashboardPageLayout
-      title="Attendance Management"
-      description="Track and manage event attendance with QR code scanning"
-      icon="QrCode"
-    >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        <div className="bg-gray-50">
-          {/* Mobile Header */}
-          <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-            <div className="px-4 py-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-brand_primary rounded-full flex items-center justify-center">
-                    <Users className="w-4 h-4 text-white" />
-                  </div>
-                  <h1 className="text-lg font-bold text-gray-900">Attendance</h1>
-                </div>
-                {selectedEvent && (
-                  <Badge className="bg-green-100 text-green-800 text-xs px-2 py-1">
-                    {selectedEvent.eventname}
-                  </Badge>
-                )}
-              </div>
-            </div>
-          </div>
+	// Handle attendance toggle with single button logic
+	const handleAttendanceToggle = async (event: Event) => {
+		if (!event.enableAttendance) {
+			// Enable and start attendance
+			await updateEventAttendance(event._id, {
+				enableAttendance: true,
+				attendanceStatus: "active",
+			});
+		} else if (event.attendanceStatus === "active") {
+			// Stop and disable attendance
+			await updateEventAttendance(event._id, {
+				enableAttendance: false,
+				attendanceStatus: "not_started",
+			});
+		} else {
+			// Start attendance (already enabled but not started)
+			await updateEventAttendance(event._id, {
+				attendanceStatus: "active",
+			});
+		}
+	};
 
-          {/* Error/Success Alert */}
-      {error && (
-        <div className="px-4 py-2">
-          <Alert className={`${error.startsWith('✓') ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
-            <AlertDescription className={`${error.startsWith('✓') ? 'text-green-700' : 'text-red-700'} text-sm`}>
-              {error}
-            </AlertDescription>
-          </Alert>
-        </div>
-      )}
+	// Get button text based on event state
+	const getAttendanceButtonText = (event: Event) => {
+		if (!event.enableAttendance) {
+			return "Enable Attendance";
+		}
+		if (event.attendanceStatus === "active") {
+			return "Stop Attendance";
+		}
+		return "Start Attendance";
+	};
 
-      {/* Mobile Event Selection */}
-      <div className="px-4 py-3 bg-white border-b border-gray-200">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold text-gray-700">Select Event</h2>
-          {selectedEvent && (
-            <Button
-              onClick={() => setSelectedEvent(null)}
-              variant="outline"
-              size="sm"
-              className="text-xs h-6"
-            >
-              Clear
-            </Button>
-          )}
-        </div>
-        
-        {events.length === 0 ? (
-          <div className="text-center py-4">
-            <Calendar className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-            <p className="text-sm text-gray-500">No events available</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            <select
-              value={selectedEvent?._id || ""}
-              onChange={(e) => {
-                const event = events.find(ev => ev._id === e.target.value);
-                setSelectedEvent(event || null);
-              }}
-              className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand_primary focus:border-transparent text-sm"
-            >
-              <option value="">Select an event...</option>
-              {events.map((event) => (
-                <option key={event._id} value={event._id}>
-                  {event.eventname}
-                  {event.eventdate && ` - ${event.eventdate}`}
-                  {event.eventtime && ` ${event.eventtime}`}
-                  {event.enableAttendance && event.attendanceStatus === "active" && " (Active)"}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-      </div>
+	// Clear all attendance records for selected event
+	const clearAllAttendanceRecords = async () => {
+		if (!selectedEvent) return;
 
-      {/* Mobile Search Section */}
-      <div className="px-4 py-3 bg-white border-b border-gray-200">
-        <div className="relative">
-          <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            placeholder="Search members..."
-            className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-          />
-          {searching && (
-            <div className="absolute right-3 top-3">
-              <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
-            </div>
-          )}
-        </div>
-      </div>
+		try {
+			const response = await fetch(`/api/events/${selectedEvent._id}/attendance/clear`, {
+				method: "DELETE",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			});
 
-      {/* Mobile Search Results */}
-      {searchResults.length > 0 && (
-        <div className="px-4 py-2">
-          <div className="text-xs text-gray-500 mb-2">
-            {searchResults.length} member{searchResults.length !== 1 ? 's' : ''} found
-          </div>
-          <div className="space-y-2">
-            {searchResults.map((member) => (
-              <div
-                key={member._id}
-                className="bg-white rounded-lg border border-gray-200 p-3 shadow-sm"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex-1">
-                    <div className="font-medium text-gray-900 text-sm">{member.fullName}</div>
-                    <div className="text-xs text-gray-500">{member.email}</div>
-                  </div>
-                  <Button
-                    onClick={() => markAttendanceForMember(member)}
-                    disabled={!selectedEvent}
-                    size="sm"
-                    className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 text-xs h-8"
-                  >
-                    Check In
-                  </Button>
-                </div>
-                <div className="flex items-center gap-4 text-xs text-gray-500">
-                  <span>📱 {member.phone || "N/A"}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-          {!selectedEvent && (
-            <div className="mt-3 p-2 bg-yellow-50 rounded-lg text-xs text-yellow-700">
-              ⚠️ Please select an event to mark attendance
-            </div>
-          )}
-        </div>
-      )}
+			if (response.ok) {
+				// Clear local records
+				setAttendanceRecords([]);
+				// Show success message
+				setError(`✓ Cleared all attendance records for ${selectedEvent.eventname}`);
+				// Clear error after 3 seconds
+				setTimeout(() => setError(""), 3000);
+			} else {
+				const errorData = await response.json();
+				setError(errorData.error || "Failed to clear attendance records");
+			}
+		} catch (error) {
+			console.error("Error clearing attendance records:", error);
+			setError("Failed to clear attendance records");
+		}
+	};
 
-      {/* No Results */}
-      {searchQuery && !searching && searchResults.length === 0 && (
-        <div className="px-4 py-8 text-center">
-          <Users className="w-12 h-12 text-gray-300 mx-auto mb-2" />
-          <p className="text-sm text-gray-500">No members found</p>
-        </div>
-      )}
+	const exportAttendance = () => {
+		if (!selectedEvent || attendanceRecords.length === 0) return;
+		setShowExportModal(true);
+	};
 
-      {/* Mobile Event Details & Controls */}
-      {selectedEvent && (
-        <div className="px-4 py-3 bg-white border-b border-gray-200">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <h3 className="font-semibold text-sm text-gray-900">{selectedEvent.eventname}</h3>
-              <p className="text-xs text-gray-500">
-                {attendanceRecords.length} checked in
-                {selectedEvent.eventdate && ` • ${selectedEvent.eventdate}`}
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              {selectedEvent.enableAttendance && selectedEvent.attendanceStatus === "active" && (
-                <Badge className="bg-green-100 text-green-800 text-xs">
-                  Active
-                </Badge>
-              )}
-              
-              <Button
-                onClick={() => handleAttendanceToggle(selectedEvent)}
-                disabled={updatingEvent === selectedEvent._id}
-                size="sm"
-                className={`text-xs h-8 ${
-                  !selectedEvent.enableAttendance
-                    ? "bg-blue-600 hover:bg-blue-700"
-                    : selectedEvent.attendanceStatus === "active"
-                    ? "bg-red-600 hover:bg-red-700"
-                    : "bg-green-600 hover:bg-green-700"
-                }`}
-              >
-                {getAttendanceButtonText(selectedEvent)}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+	const confirmExport = async () => {
+		if (!selectedEvent || attendanceRecords.length === 0) return;
 
-      {/* Mobile QR Scanner */}
-      {selectedEvent && selectedEvent.enableAttendance && selectedEvent.attendanceStatus === "active" && (
-        <div className="px-4 py-3 bg-white border-b border-gray-200">
-          <div className="text-center mb-3">
-            <h3 className="font-semibold text-sm text-gray-900 mb-1">Quick Check-in</h3>
-            <p className="text-xs text-gray-500">Scan QR code or use search above</p>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              onClick={() => fileInputRef.current?.click()}
-              className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-12"
-            >
-              <Upload className="w-4 h-4 mr-1" />
-              Upload QR
-            </Button>
-            
-            <Button
-              onClick={() => {
-                // Camera scan functionality
-                alert("Camera scanning coming soon!");
-              }}
-              className="bg-green-600 hover:bg-green-700 text-white text-xs h-12"
-            >
-              <Camera className="w-4 h-4 mr-1" />
-              Scan QR
-            </Button>
-          </div>
-          
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleFileUpload}
-            className="hidden"
-          />
-        </div>
-      )}
+		setExporting(true);
+		setShowExportModal(false);
 
-  
+		try {
+			// Record audit log first
+			const auditResponse = await fetch("/api/audit-logs", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					action: "export_attendance",
+					details: {
+						eventId: selectedEvent._id,
+						eventName: selectedEvent.eventname,
+						recordCount: attendanceRecords.length,
+						eventDate: selectedEvent.eventdate,
+					},
+				}),
+			});
 
-      {/* Empty State */}
-      {selectedEvent && attendanceRecords.length === 0 && (
-        <div className="px-4 py-8 text-center">
-          <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-3">
-            <Users className="w-6 h-6 text-gray-400" />
-          </div>
-          <p className="text-sm text-gray-500 font-medium">No check-ins yet</p>
-          <p className="text-xs text-gray-400 mt-1">
-            {selectedEvent.enableAttendance 
-              ? "Search members or scan QR codes to check in"
-              : "Enable attendance to start tracking"
-            }
-          </p>
-        </div>
-      )}
+			if (!auditResponse.ok) {
+				console.error("Failed to record audit log");
+			}
 
-      {/* File input ref for QR upload */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={handleFileUpload}
-        className="hidden"
-      />
-    </div>
- 
-      
-      <div>
-       {/* Mobile Attendance Records */}
-      {selectedEvent && attendanceRecords.length > 0 && (
-        <div className="px-4 py-3 bg-brand_primary/20 text-white">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-sm text-gray-800">
-              Recent Check-ins ({attendanceRecords.length})
-            </h3>
-            <div className="flex items-center gap-2">
-              {attendanceRecords.length > 0 && (
-                <Button
-                  onClick={() => setShowClearRecordsDialog(true)}
-                  disabled={updatingEvent === selectedEvent._id}
-                  variant="outline"
-                  size="sm"
-                  className="text-xs h-6 border-red-300 text-red-700 hover:bg-red-50"
-                >
-                  Clear All
-                </Button>
-              )}
-              <Button
-                onClick={exportAttendance}
-                disabled={exporting}
-                variant="outline"
-                size="sm"
-                className="text-xs h-6"
-              >
-                {exporting ? (
-                  <Loader2 className="text-gray-700 w-3 h-3 mr-1 animate-spin" />
-                ) : (
-                  <Download className="text-gray-700 w-3 h-3 mr-1" />
-                )}
-                <p className="text-gray-700">{exporting ? "Exporting..." : "Export"}</p>
-              </Button>
-            </div>
-          </div>
-          
-          <div className="space-y-2 overflow-y-auto">
-            {attendanceRecords.slice(0, 10).map((record) => (
-              <div key={record._id} className="flex items-center justify-between p-2 bg-white rounded-lg">
-                <div className="flex-1">
-                  <div className="font-medium text-sm text-gray-900">{record.memberName}</div>
-                  <div className="text-xs text-gray-500">
-                    {new Date(record.checkInTime).toLocaleTimeString()}
-                    {record.scannerName && (
-                      <span className="ml-2 text-blue-600">
-                        • Checked in by {record.scannerName}
-                        {record.scannerRole && ` (${record.scannerRole})`}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <CheckCircle className="w-4 h-4 text-green-600" />
-              </div>
-            ))}
-          </div>
-          
-          {attendanceRecords.length > 10 && (
-            <div className="text-center mt-2">
-              <p className="text-xs text-gray-500">
-                Showing 10 of {attendanceRecords.length} check-ins
-              </p>
-            </div>
-          )}
-        </div>
-      )}      
+			// Generate and download CSV
+			const csvContent = [["Name", "Email", "Personal Number", "Check-in Time", "Checked In By", "Scanner Role", "Notes"], ...attendanceRecords.map((record) => [record.memberName, record.memberEmail, record.memberPersonalNumber, new Date(record.checkInTime).toLocaleString(), record.scannerName || "Unknown", record.scannerRole || "", record.notes || ""])].map((row) => row.join(",")).join("\n");
 
-      {/* Export Confirmation Modal */}
-      <AlertDialog open={showExportModal} onOpenChange={setShowExportModal}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Export Attendance Data</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to export the attendance data for &quot;{selectedEvent?.eventname}&quot;?
-              <br /><br />
-              This will export {attendanceRecords.length} attendance records and this action will be logged in the audit system.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={exporting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={confirmExport}
-              disabled={exporting}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              {exporting ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Exporting...
-                </>
-              ) : (
-                "Export Data"
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+			const blob = new Blob([csvContent], { type: "text/csv" });
+			const url = window.URL.createObjectURL(blob);
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = `attendance-${selectedEvent.eventname.replace(/\s+/g, "-")}-${new Date().toISOString().split("T")[0]}.csv`;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			window.URL.revokeObjectURL(url);
 
-      {/* Clear Records Confirmation Modal */}
-      <AlertDialog open={showClearRecordsDialog} onOpenChange={setShowClearRecordsDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Clear All Attendance Records</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to clear all attendance records for &quot;{selectedEvent?.eventname}&quot;?
-              <br /><br />
-              This will permanently delete {attendanceRecords.length} attendance records and this action cannot be undone.
-              This action will be logged in the audit system.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={() => {
-                clearAllAttendanceRecords();
-                setShowClearRecordsDialog(false);
-              }}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Clear All Records
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-      </div>
-      </div>
-    </DashboardPageLayout>
-  );
+			// Update audit log to completed
+			await fetch("/api/audit-logs", {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					action: "export_attendance",
+					status: "completed",
+					details: {
+						eventId: selectedEvent._id,
+						eventName: selectedEvent.eventname,
+						recordCount: attendanceRecords.length,
+						eventDate: selectedEvent.eventdate,
+					},
+				}),
+			});
+		} catch (error) {
+			console.error("Export failed:", error);
+			setError("Failed to export attendance data");
+
+			// Update audit log to failed
+			await fetch("/api/audit-logs", {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					action: "export_attendance",
+					status: "failed",
+					errorMessage: error instanceof Error ? error.message : "Unknown error",
+					details: {
+						eventId: selectedEvent._id,
+						eventName: selectedEvent.eventname,
+					},
+				}),
+			});
+		} finally {
+			setExporting(false);
+		}
+	};
+
+	if (status === "loading" || loading) {
+		return (
+			<div className="flex items-center justify-center min-h-64">
+				<Loader2 className="h-8 w-8 animate-spin text-brand_primary" />
+			</div>
+		);
+	}
+
+	return (
+		<DashboardPageLayout title="Attendance Management" description="Track and manage event attendance with QR code scanning" icon="QrCode">
+			<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+				<div className="bg-gray-50">
+					{/* Mobile Header */}
+					<div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+						<div className="px-4 py-3">
+							<div className="flex items-center justify-between">
+								<div className="flex items-center gap-2">
+									<div className="w-8 h-8 bg-brand_primary rounded-full flex items-center justify-center">
+										<Users className="w-4 h-4 text-white" />
+									</div>
+									<h1 className="text-lg font-bold text-gray-900">Attendance</h1>
+								</div>
+								{selectedEvent && <Badge className="bg-green-100 text-green-800 text-xs px-2 py-1">{selectedEvent.eventname}</Badge>}
+							</div>
+						</div>
+					</div>
+
+					{/* Error/Success Alert */}
+					{error && (
+						<div className="px-4 py-2">
+							<Alert className={`${error.startsWith("✓") ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50"}`}>
+								<AlertDescription className={`${error.startsWith("✓") ? "text-green-700" : "text-brand_secondary"} text-sm`}>{error}</AlertDescription>
+							</Alert>
+						</div>
+					)}
+
+					{/* Mobile Event Selection */}
+					<div className="px-4 py-3 bg-white border-b border-gray-200">
+						<div className="flex items-center justify-between mb-3">
+							<h2 className="text-sm font-semibold text-gray-700">Select Event</h2>
+							{selectedEvent && (
+								<Button onClick={() => setSelectedEvent(null)} variant="outline" size="sm" className="text-xs h-6">
+									Clear
+								</Button>
+							)}
+						</div>
+
+						{events.length === 0 ? (
+							<div className="text-center py-4">
+								<Calendar className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+								<p className="text-sm text-gray-500">No events available</p>
+							</div>
+						) : (
+							<div className="space-y-2">
+								<select
+									value={selectedEvent?._id || ""}
+									onChange={(e) => {
+										const event = events.find((ev) => ev._id === e.target.value);
+										setSelectedEvent(event || null);
+									}}
+									className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand_primary focus:border-transparent text-sm"
+								>
+									<option value="">Select an event...</option>
+									{events.map((event) => (
+										<option key={event._id} value={event._id}>
+											{event.eventname}
+											{event.eventdate && ` - ${event.eventdate}`}
+											{event.eventtime && ` ${event.eventtime}`}
+											{event.enableAttendance && event.attendanceStatus === "active" && " (Active)"}
+										</option>
+									))}
+								</select>
+							</div>
+						)}
+					</div>
+
+					{/* Mobile Search Section */}
+					<div className="px-4 py-3 bg-white border-b border-gray-200">
+						<div className="relative">
+							<Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+							<input type="text" value={searchQuery} onChange={(e) => handleSearchChange(e.target.value)} placeholder="Search members..." className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" />
+							{searching && (
+								<div className="absolute right-3 top-3">
+									<Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+								</div>
+							)}
+						</div>
+					</div>
+
+					{/* Mobile Search Results */}
+					{searchResults.length > 0 && (
+						<div className="px-4 py-2">
+							<div className="text-xs text-gray-500 mb-2">
+								{searchResults.length} member{searchResults.length !== 1 ? "s" : ""} found
+							</div>
+							<div className="space-y-2">
+								{searchResults.map((member) => (
+									<div key={member._id} className="bg-white rounded-lg border border-gray-200 p-3 shadow-sm">
+										<div className="flex items-center justify-between mb-2">
+											<div className="flex-1">
+												<div className="font-medium text-gray-900 text-sm">{member.fullName}</div>
+												<div className="text-xs text-gray-500">{member.email}</div>
+											</div>
+											<Button onClick={() => markAttendanceForMember(member)} disabled={!selectedEvent} size="sm" className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 text-xs h-8">
+												Check In
+											</Button>
+										</div>
+										<div className="flex items-center gap-4 text-xs text-gray-500">
+											<span>📱 {member.phone || "N/A"}</span>
+										</div>
+									</div>
+								))}
+							</div>
+							{!selectedEvent && <div className="mt-3 p-2 bg-yellow-50 rounded-lg text-xs text-brand_primary">⚠️ Please select an event to mark attendance</div>}
+						</div>
+					)}
+
+					{/* No Results */}
+					{searchQuery && !searching && searchResults.length === 0 && (
+						<div className="px-4 py-8 text-center">
+							<Users className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+							<p className="text-sm text-gray-500">No members found</p>
+						</div>
+					)}
+
+					{/* Mobile Event Details & Controls */}
+					{selectedEvent && (
+						<div className="px-4 py-3 bg-white border-b border-gray-200">
+							<div className="flex items-center justify-between mb-3">
+								<div>
+									<h3 className="font-semibold text-sm text-gray-900">{selectedEvent.eventname}</h3>
+									<p className="text-xs text-gray-500">
+										{attendanceRecords.length} checked in
+										{selectedEvent.eventdate && ` • ${selectedEvent.eventdate}`}
+									</p>
+								</div>
+								<div className="flex items-center gap-2">
+									{selectedEvent.enableAttendance && selectedEvent.attendanceStatus === "active" && <Badge className="bg-green-100 text-green-800 text-xs">Active</Badge>}
+
+									<Button onClick={() => handleAttendanceToggle(selectedEvent)} disabled={updatingEvent === selectedEvent._id} size="sm" className={`text-xs h-8 ${!selectedEvent.enableAttendance ? "bg-blue-600 hover:bg-blue-700" : selectedEvent.attendanceStatus === "active" ? "bg-red-600 hover:bg-brand_secondary" : "bg-green-600 hover:bg-green-700"}`}>
+										{getAttendanceButtonText(selectedEvent)}
+									</Button>
+								</div>
+							</div>
+						</div>
+					)}
+
+					{/* Mobile QR Scanner */}
+					{selectedEvent && selectedEvent.enableAttendance && selectedEvent.attendanceStatus === "active" && (
+						<div className="px-4 py-3 bg-white border-b border-gray-200">
+							<div className="text-center mb-3">
+								<h3 className="font-semibold text-sm text-gray-900 mb-1">Quick Check-in</h3>
+								<p className="text-xs text-gray-500">Scan QR code or use search above</p>
+							</div>
+
+							<div className="grid grid-cols-2 gap-2">
+								<Button onClick={() => fileInputRef.current?.click()} className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-12">
+									<Upload className="w-4 h-4 mr-1" />
+									Upload QR
+								</Button>
+
+								<Button
+									onClick={() => {
+										// Camera scan functionality
+										alert("Camera scanning coming soon!");
+									}}
+									className="bg-green-600 hover:bg-green-700 text-white text-xs h-12"
+								>
+									<Camera className="w-4 h-4 mr-1" />
+									Scan QR
+								</Button>
+							</div>
+
+							<input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
+						</div>
+					)}
+
+					{/* Empty State */}
+					{selectedEvent && attendanceRecords.length === 0 && (
+						<div className="px-4 py-8 text-center">
+							<div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-3">
+								<Users className="w-6 h-6 text-gray-400" />
+							</div>
+							<p className="text-sm text-gray-500 font-medium">No check-ins yet</p>
+							<p className="text-xs text-gray-400 mt-1">{selectedEvent.enableAttendance ? "Search members or scan QR codes to check in" : "Enable attendance to start tracking"}</p>
+						</div>
+					)}
+
+					{/* File input ref for QR upload */}
+					<input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
+				</div>
+
+				<div>
+					{/* Mobile Attendance Records */}
+					{selectedEvent && attendanceRecords.length > 0 && (
+						<div className="px-4 py-3 bg-brand_primary/20 text-white">
+							<div className="flex items-center justify-between mb-3">
+								<h3 className="font-semibold text-sm text-gray-800">Recent Check-ins ({attendanceRecords.length})</h3>
+								<div className="flex items-center gap-2">
+									{attendanceRecords.length > 0 && (
+										<Button onClick={() => setShowClearRecordsDialog(true)} disabled={updatingEvent === selectedEvent._id} variant="outline" size="sm" className="text-xs h-6 border-red-300 text-brand_secondary hover:bg-red-50">
+											Clear All
+										</Button>
+									)}
+									<Button onClick={exportAttendance} disabled={exporting} variant="outline" size="sm" className="text-xs h-6">
+										{exporting ? <Loader2 className="text-gray-700 w-3 h-3 mr-1 animate-spin" /> : <Download className="text-gray-700 w-3 h-3 mr-1" />}
+										<p className="text-gray-700">{exporting ? "Exporting..." : "Export"}</p>
+									</Button>
+								</div>
+							</div>
+
+							<div className="space-y-2 overflow-y-auto">
+								{attendanceRecords.slice(0, 10).map((record) => (
+									<div key={record._id} className="flex items-center justify-between p-2 bg-white rounded-lg">
+										<div className="flex-1">
+											<div className="font-medium text-sm text-gray-900">{record.memberName}</div>
+											<div className="text-xs text-gray-500">
+												{new Date(record.checkInTime).toLocaleTimeString()}
+												{record.scannerName && (
+													<span className="ml-2 text-blue-600">
+														• Checked in by {record.scannerName}
+														{record.scannerRole && ` (${record.scannerRole})`}
+													</span>
+												)}
+											</div>
+										</div>
+										<CheckCircle className="w-4 h-4 text-green-600" />
+									</div>
+								))}
+							</div>
+
+							{attendanceRecords.length > 10 && (
+								<div className="text-center mt-2">
+									<p className="text-xs text-gray-500">Showing 10 of {attendanceRecords.length} check-ins</p>
+								</div>
+							)}
+						</div>
+					)}
+
+					{/* Export Confirmation Modal */}
+					<AlertDialog open={showExportModal} onOpenChange={setShowExportModal}>
+						<AlertDialogContent>
+							<AlertDialogHeader>
+								<AlertDialogTitle>Export Attendance Data</AlertDialogTitle>
+								<AlertDialogDescription>
+									Are you sure you want to export the attendance data for &quot;{selectedEvent?.eventname}&quot;?
+									<br />
+									<br />
+									This will export {attendanceRecords.length} attendance records and this action will be logged in the audit system.
+								</AlertDialogDescription>
+							</AlertDialogHeader>
+							<AlertDialogFooter>
+								<AlertDialogCancel disabled={exporting}>Cancel</AlertDialogCancel>
+								<AlertDialogAction onClick={confirmExport} disabled={exporting} className="bg-blue-600 hover:bg-blue-700">
+									{exporting ? (
+										<>
+											<Loader2 className="w-4 h-4 mr-2 animate-spin" />
+											Exporting...
+										</>
+									) : (
+										"Export Data"
+									)}
+								</AlertDialogAction>
+							</AlertDialogFooter>
+						</AlertDialogContent>
+					</AlertDialog>
+
+					{/* Clear Records Confirmation Modal */}
+					<AlertDialog open={showClearRecordsDialog} onOpenChange={setShowClearRecordsDialog}>
+						<AlertDialogContent>
+							<AlertDialogHeader>
+								<AlertDialogTitle>Clear All Attendance Records</AlertDialogTitle>
+								<AlertDialogDescription>
+									Are you sure you want to clear all attendance records for &quot;{selectedEvent?.eventname}&quot;?
+									<br />
+									<br />
+									This will permanently delete {attendanceRecords.length} attendance records and this action cannot be undone. This action will be logged in the audit system.
+								</AlertDialogDescription>
+							</AlertDialogHeader>
+							<AlertDialogFooter>
+								<AlertDialogCancel>Cancel</AlertDialogCancel>
+								<AlertDialogAction
+									onClick={() => {
+										clearAllAttendanceRecords();
+										setShowClearRecordsDialog(false);
+									}}
+									className="bg-red-600 hover:bg-brand_secondary"
+								>
+									Clear All Records
+								</AlertDialogAction>
+							</AlertDialogFooter>
+						</AlertDialogContent>
+					</AlertDialog>
+				</div>
+			</div>
+		</DashboardPageLayout>
+	);
 }

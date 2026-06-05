@@ -8,17 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  Trash2, 
-  Users, 
-  Mail, 
-  Calendar, 
-  TrendingUp, 
-  Download, 
-  Search, 
-  Filter,
-  Activity
-} from "lucide-react";
+import { Trash2, Users, Mail, Calendar, TrendingUp, Download, Search, Filter, Activity } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function SubscribersPage() {
@@ -30,23 +20,20 @@ export default function SubscribersPage() {
 	// Calculate analytics
 	const analytics = useMemo(() => {
 		if (!subscribers) return null;
-		
+
 		const now = new Date();
 		const last30Days = subDays(now, 30);
 		const last7Days = subDays(now, 7);
 		const today = startOfDay(now);
 
 		const totalSubscribers = subscribers.length;
-		const recent30Days = subscribers.filter(s => isAfter(new Date(s.createdAt), last30Days)).length;
-		const recent7Days = subscribers.filter(s => isAfter(new Date(s.createdAt), last7Days)).length;
-		const todaySubscribers = subscribers.filter(s => isAfter(new Date(s.createdAt), today)).length;
+		const recent30Days = subscribers.filter((s) => isAfter(new Date(s.createdAt), last30Days)).length;
+		const recent7Days = subscribers.filter((s) => isAfter(new Date(s.createdAt), last7Days)).length;
+		const todaySubscribers = subscribers.filter((s) => isAfter(new Date(s.createdAt), today)).length;
 
 		// Growth rate
-		const previous30Days = subscribers.filter(s => 
-			isBefore(new Date(s.createdAt), last30Days) && 
-			isAfter(new Date(s.createdAt), subDays(last30Days, 30))
-		).length;
-		const growthRate = previous30Days > 0 ? ((recent30Days - previous30Days) / previous30Days * 100).toFixed(1) : 0;
+		const previous30Days = subscribers.filter((s) => isBefore(new Date(s.createdAt), last30Days) && isAfter(new Date(s.createdAt), subDays(last30Days, 30))).length;
+		const growthRate = previous30Days > 0 ? (((recent30Days - previous30Days) / previous30Days) * 100).toFixed(1) : 0;
 
 		return {
 			total: totalSubscribers,
@@ -54,29 +41,27 @@ export default function SubscribersPage() {
 			recent7Days,
 			todaySubscribers,
 			growthRate: parseFloat(growthRate),
-			averagePerDay: (recent30Days / 30).toFixed(1)
+			averagePerDay: (recent30Days / 30).toFixed(1),
 		};
 	}, [subscribers]);
 
 	// Filter subscribers
 	const filteredSubscribers = useMemo(() => {
 		if (!subscribers) return [];
-		
+
 		let filtered = subscribers;
 
 		// Apply time filter
 		const now = new Date();
 		if (timeFilter === "7days") {
-			filtered = filtered.filter(s => isAfter(new Date(s.createdAt), subDays(now, 7)));
+			filtered = filtered.filter((s) => isAfter(new Date(s.createdAt), subDays(now, 7)));
 		} else if (timeFilter === "30days") {
-			filtered = filtered.filter(s => isAfter(new Date(s.createdAt), subDays(now, 30)));
+			filtered = filtered.filter((s) => isAfter(new Date(s.createdAt), subDays(now, 30)));
 		}
 
 		// Apply search filter
 		if (searchTerm) {
-			filtered = filtered.filter(s => 
-				s.subscriber.toLowerCase().includes(searchTerm.toLowerCase())
-			);
+			filtered = filtered.filter((s) => s.subscriber.toLowerCase().includes(searchTerm.toLowerCase()));
 		}
 
 		return filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -84,13 +69,7 @@ export default function SubscribersPage() {
 
 	// Export functionality
 	const handleExport = () => {
-		const csvContent = [
-			["Email", "Subscribed Date"],
-			...filteredSubscribers.map(s => [
-				s.subscriber,
-				format(new Date(s.createdAt), "yyyy-MM-dd HH:mm:ss")
-			])
-		].map(row => row.join(",")).join("\n");
+		const csvContent = [["Email", "Subscribed Date"], ...filteredSubscribers.map((s) => [s.subscriber, format(new Date(s.createdAt), "yyyy-MM-dd HH:mm:ss")])].map((row) => row.join(",")).join("\n");
 
 		const blob = new Blob([csvContent], { type: "text/csv" });
 		const url = window.URL.createObjectURL(blob);
@@ -101,7 +80,7 @@ export default function SubscribersPage() {
 		a.click();
 		document.body.removeChild(a);
 		window.URL.revokeObjectURL(url);
-		
+
 		toast.success("Subscribers exported successfully!");
 	};
 
@@ -120,11 +99,12 @@ export default function SubscribersPage() {
 		}
 	};
 
-	if (loading) return (
-		<div className="flex items-center justify-center min-h-screen">
-			<div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-brand"></div>
-		</div>
-	);
+	if (loading)
+		return (
+			<div className="flex items-center justify-center min-h-screen">
+				<div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-brand"></div>
+			</div>
+		);
 	if (error) return <p>Error: {error}</p>;
 
 	return (
@@ -173,7 +153,8 @@ export default function SubscribersPage() {
 						</CardHeader>
 						<CardContent>
 							<div className="text-2xl font-bold">
-								{analytics.growthRate > 0 ? '+' : ''}{analytics.growthRate}%
+								{analytics.growthRate > 0 ? "+" : ""}
+								{analytics.growthRate}%
 							</div>
 							<p className="text-xs text-muted-foreground">vs previous 30 days</p>
 						</CardContent>
@@ -205,12 +186,7 @@ export default function SubscribersPage() {
 						<div className="flex-1">
 							<div className="relative">
 								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-								<Input
-									placeholder="Search by email..."
-									value={searchTerm}
-									onChange={(e) => setSearchTerm(e.target.value)}
-									className="pl-10"
-								/>
+								<Input placeholder="Search by email..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10" />
 							</div>
 						</div>
 						<Select value={timeFilter} onValueChange={setTimeFilter}>
@@ -236,26 +212,17 @@ export default function SubscribersPage() {
 							Subscribers List
 						</span>
 						<Badge variant="secondary">
-							{filteredSubscribers.length} {filteredSubscribers.length === 1 ? 'subscriber' : 'subscribers'}
+							{filteredSubscribers.length} {filteredSubscribers.length === 1 ? "subscriber" : "subscribers"}
 						</Badge>
 					</CardTitle>
-					<CardDescription>
-						{filteredSubscribers.length === 0 
-							? "No subscribers found matching your criteria." 
-							: `Showing ${filteredSubscribers.length} of ${subscribers?.length || 0} total subscribers`
-						}
-					</CardDescription>
+					<CardDescription>{filteredSubscribers.length === 0 ? "No subscribers found matching your criteria." : `Showing ${filteredSubscribers.length} of ${subscribers?.length || 0} total subscribers`}</CardDescription>
 				</CardHeader>
 				<CardContent>
 					{filteredSubscribers.length === 0 ? (
 						<div className="text-center py-12">
 							<Mail className="w-12 h-12 text-gray-400 mx-auto mb-4" />
 							<h3 className="text-lg font-medium text-gray-900 mb-2">No subscribers found</h3>
-							<p className="text-gray-500">
-								{searchTerm || timeFilter !== "all" 
-									? "Try adjusting your search or filters." 
-									: "No subscribers have signed up yet."}
-							</p>
+							<p className="text-gray-500">{searchTerm || timeFilter !== "all" ? "Try adjusting your search or filters." : "No subscribers have signed up yet."}</p>
 						</div>
 					) : (
 						<div className="space-y-4">
@@ -273,12 +240,7 @@ export default function SubscribersPage() {
 											</p>
 										</div>
 									</div>
-									<Button
-										variant="ghost"
-										size="sm"
-										onClick={() => setDeleteId(subscriber._id)}
-										className="text-red-600 hover:text-red-700 hover:bg-red-50"
-									>
+									<Button variant="ghost" size="sm" onClick={() => setDeleteId(subscriber._id)} className="text-red-600 hover:text-brand_secondary hover:bg-red-50">
 										<Trash2 className="w-4 h-4" />
 									</Button>
 								</div>
@@ -293,16 +255,11 @@ export default function SubscribersPage() {
 				<AlertDialogContent>
 					<AlertDialogHeader>
 						<AlertDialogTitle>Are you sure?</AlertDialogTitle>
-						<AlertDialogDescription>
-							This action cannot be undone. This will permanently delete the subscriber from your database.
-						</AlertDialogDescription>
+						<AlertDialogDescription>This action cannot be undone. This will permanently delete the subscriber from your database.</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<AlertDialogAction 
-							onClick={() => handleDelete(deleteId)}
-							className="bg-red-600 hover:bg-red-700"
-						>
+						<AlertDialogAction onClick={() => handleDelete(deleteId)} className="bg-red-600 hover:bg-brand_secondary">
 							Delete
 						</AlertDialogAction>
 					</AlertDialogFooter>

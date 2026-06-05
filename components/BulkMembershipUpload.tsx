@@ -3,599 +3,530 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Upload, Download, CheckCircle, XCircle, AlertCircle, Search, Mail, CheckSquare, FileDown, AlertTriangle } from "lucide-react";
 
 interface UploadResult {
-  success: number;
-  failed: number;
-  skipped: number;
-  errors: string[];
-  processedMembers: Array<{
-    firstName: string;
-    lastName: string;
-    email: string;
-  }>;
+	success: number;
+	failed: number;
+	skipped: number;
+	errors: string[];
+	processedMembers: Array<{
+		firstName: string;
+		lastName: string;
+		email: string;
+	}>;
 }
 
 interface VerificationResult {
-  totalMembers: number;
-  verifiedMembers: number;
-  unverifiedMembers: number;
-  verifiedList: Array<{
-    firstName: string;
-    lastName: string;
-    personalNumber: string;
-    email: string;
-  }>;
-  unverifiedList: Array<{
-    firstName: string;
-    lastName: string;
-    personalNumber: string;
-    email: string;
-  }>;
+	totalMembers: number;
+	verifiedMembers: number;
+	unverifiedMembers: number;
+	verifiedList: Array<{
+		firstName: string;
+		lastName: string;
+		personalNumber: string;
+		email: string;
+	}>;
+	unverifiedList: Array<{
+		firstName: string;
+		lastName: string;
+		personalNumber: string;
+		email: string;
+	}>;
 }
 
 export default function BulkMembershipUpload() {
-  const [file, setFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [result, setResult] = useState<UploadResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  
-  // Verification states
-  const [verificationFile, setVerificationFile] = useState<File | null>(null);
-  const [verifying, setVerifying] = useState(false);
-  const [verificationResult, setVerificationResult] = useState<VerificationResult | null>(null);
-  const [verificationError, setVerificationError] = useState<string | null>(null);
+	const [file, setFile] = useState<File | null>(null);
+	const [uploading, setUploading] = useState(false);
+	const [result, setResult] = useState<UploadResult | null>(null);
+	const [error, setError] = useState<string | null>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile && selectedFile.type === 'text/csv') {
-      setFile(selectedFile);
-      setError(null);
-      setResult(null);
-    } else {
-      setError('Please select a CSV file');
-      setFile(null);
-    }
-  };
+	// Verification states
+	const [verificationFile, setVerificationFile] = useState<File | null>(null);
+	const [verifying, setVerifying] = useState(false);
+	const [verificationResult, setVerificationResult] = useState<VerificationResult | null>(null);
+	const [verificationError, setVerificationError] = useState<string | null>(null);
 
-  const handleVerificationFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile && selectedFile.type === 'text/csv') {
-      setVerificationFile(selectedFile);
-      setVerificationError(null);
-      setVerificationResult(null);
-    } else {
-      setVerificationError('Please select a CSV file');
-      setVerificationFile(null);
-    }
-  };
+	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const selectedFile = e.target.files?.[0];
+		if (selectedFile && selectedFile.type === "text/csv") {
+			setFile(selectedFile);
+			setError(null);
+			setResult(null);
+		} else {
+			setError("Please select a CSV file");
+			setFile(null);
+		}
+	};
 
-  const handleDownloadTemplate = async () => {
-    try {
-      const response = await fetch('/api/membership/template');
-      if (!response.ok) {
-        throw new Error('Failed to download template');
-      }
-      
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'membership-template.csv';
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch {
-      setError('Failed to download template');
-    }
-  };
+	const handleVerificationFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const selectedFile = e.target.files?.[0];
+		if (selectedFile && selectedFile.type === "text/csv") {
+			setVerificationFile(selectedFile);
+			setVerificationError(null);
+			setVerificationResult(null);
+		} else {
+			setVerificationError("Please select a CSV file");
+			setVerificationFile(null);
+		}
+	};
 
-  const handleUpload = async () => {
-    if (!file) {
-      setError('Please select a file first');
-      return;
-    }
+	const handleDownloadTemplate = async () => {
+		try {
+			const response = await fetch("/api/membership/template");
+			if (!response.ok) {
+				throw new Error("Failed to download template");
+			}
 
-    setUploading(true);
-    setError(null);
-    setResult(null);
+			const blob = await response.blob();
+			const url = window.URL.createObjectURL(blob);
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = "membership-template.csv";
+			document.body.appendChild(a);
+			a.click();
+			window.URL.revokeObjectURL(url);
+			document.body.removeChild(a);
+		} catch {
+			setError("Failed to download template");
+		}
+	};
 
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
+	const handleUpload = async () => {
+		if (!file) {
+			setError("Please select a file first");
+			return;
+		}
 
-      const response = await fetch('/api/membership/bulk-upload', {
-        method: 'POST',
-        body: formData,
-      });
+		setUploading(true);
+		setError(null);
+		setResult(null);
 
-      const data = await response.json();
+		try {
+			const formData = new FormData();
+			formData.append("file", file);
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Upload failed');
-      }
+			const response = await fetch("/api/membership/bulk-upload", {
+				method: "POST",
+				body: formData,
+			});
 
-      setResult(data.results);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Upload failed');
-    } finally {
-      setUploading(false);
-    }
-  };
+			const data = await response.json();
 
-  const handleCrosscheckVerification = async () => {
-    if (!verificationFile) {
-      setVerificationError('Please select a verification file first');
-      return;
-    }
+			if (!response.ok) {
+				throw new Error(data.error || "Upload failed");
+			}
 
-    setVerifying(true);
-    setVerificationError(null);
-    setVerificationResult(null);
+			setResult(data.results);
+		} catch (err) {
+			setError(err instanceof Error ? err.message : "Upload failed");
+		} finally {
+			setUploading(false);
+		}
+	};
 
-    try {
-      const formData = new FormData();
-      formData.append('file', verificationFile);
+	const handleCrosscheckVerification = async () => {
+		if (!verificationFile) {
+			setVerificationError("Please select a verification file first");
+			return;
+		}
 
-      const response = await fetch('/api/membership/verification-crosscheck', {
-        method: 'POST',
-        body: formData,
-      });
+		setVerifying(true);
+		setVerificationError(null);
+		setVerificationResult(null);
 
-      const data = await response.json();
+		try {
+			const formData = new FormData();
+			formData.append("file", verificationFile);
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Verification failed');
-      }
+			const response = await fetch("/api/membership/verification-crosscheck", {
+				method: "POST",
+				body: formData,
+			});
 
-      setVerificationResult(data.results);
-    } catch (err) {
-      setVerificationError(err instanceof Error ? err.message : 'Verification failed');
-    } finally {
-      setVerifying(false);
-    }
-  };
+			const data = await response.json();
 
-  const handleUpdateVerifiedStatus = async () => {
-    if (!verificationResult) {
-      setVerificationError('Please run crosscheck verification first');
-      return;
-    }
+			if (!response.ok) {
+				throw new Error(data.error || "Verification failed");
+			}
 
-    try {
-      const verifiedPersonalNumbers = verificationResult.verifiedList.map(member => member.personalNumber);
-      
-      const response = await fetch('/api/membership/update-verified-status', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ verifiedPersonalNumbers }),
-      });
+			setVerificationResult(data.results);
+		} catch (err) {
+			setVerificationError(err instanceof Error ? err.message : "Verification failed");
+		} finally {
+			setVerifying(false);
+		}
+	};
 
-      const data = await response.json();
+	const handleUpdateVerifiedStatus = async () => {
+		if (!verificationResult) {
+			setVerificationError("Please run crosscheck verification first");
+			return;
+		}
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Status update failed');
-      }
+		try {
+			const verifiedPersonalNumbers = verificationResult.verifiedList.map((member) => member.personalNumber);
 
-      // Show success message
-      alert(`Success! ${data.results.message}`);
-      
-      // Refresh verification results
-      await handleCrosscheckVerification();
-    } catch (err) {
-      setVerificationError(err instanceof Error ? err.message : 'Status update failed');
-    }
-  };
+			const response = await fetch("/api/membership/update-verified-status", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ verifiedPersonalNumbers }),
+			});
 
-  const handleSendBulkEmails = async () => {
-    if (!verificationResult) {
-      setVerificationError('Please run crosscheck verification first');
-      return;
-    }
+			const data = await response.json();
 
-    if (!confirm(`Are you sure you want to send follow-up emails to ${verificationResult.unverifiedList.length} unverified members?`)) {
-      return;
-    }
+			if (!response.ok) {
+				throw new Error(data.error || "Status update failed");
+			}
 
-    try {
-      const unverifiedPersonalNumbers = verificationResult.unverifiedList.map(member => member.personalNumber);
-      
-      const response = await fetch('/api/membership/send-verification-followup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ unverifiedPersonalNumbers }),
-      });
+			// Show success message
+			alert(`Success! ${data.results.message}`);
 
-      const data = await response.json();
+			// Refresh verification results
+			await handleCrosscheckVerification();
+		} catch (err) {
+			setVerificationError(err instanceof Error ? err.message : "Status update failed");
+		}
+	};
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Email sending failed');
-      }
+	const handleSendBulkEmails = async () => {
+		if (!verificationResult) {
+			setVerificationError("Please run crosscheck verification first");
+			return;
+		}
 
-      // Show success message
-      alert(`Success! ${data.results.message}`);
-      
-      // Refresh verification results
-      await handleCrosscheckVerification();
-    } catch (err) {
-      setVerificationError(err instanceof Error ? err.message : 'Email sending failed');
-    }
-  };
+		if (!confirm(`Are you sure you want to send follow-up emails to ${verificationResult.unverifiedList.length} unverified members?`)) {
+			return;
+		}
 
-  const handleExportUnverified = async () => {
-    if (!verificationResult) {
-      setVerificationError('Please run crosscheck verification first');
-      return;
-    }
+		try {
+			const unverifiedPersonalNumbers = verificationResult.unverifiedList.map((member) => member.personalNumber);
 
-    try {
-      const unverifiedPersonalNumbers = verificationResult.unverifiedList.map(member => member.personalNumber);
-      
-      const response = await fetch('/api/membership/export-unverified', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ unverifiedPersonalNumbers }),
-      });
+			const response = await fetch("/api/membership/send-verification-followup", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ unverifiedPersonalNumbers }),
+			});
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Export failed');
-      }
+			const data = await response.json();
 
-      // Download the CSV file
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `unverified-members-${new Date().toISOString().split('T')[0]}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (err) {
-      setVerificationError(err instanceof Error ? err.message : 'Export failed');
-    }
-  };
+			if (!response.ok) {
+				throw new Error(data.error || "Email sending failed");
+			}
 
-  return (
-    <div className="max-w-6xl mx-auto p-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Bulk Upload Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Upload className="h-5 w-5" />
-              Bulk Membership Upload
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-          {/* Download Template Section */}
-          <div className="border rounded-lg p-4 bg-gray-50">
-            <h3 className="font-semibold mb-2">Step 1: Download Template</h3>
-            <p className="text-sm text-gray-600 mb-3">
-              Download the CSV template to ensure your data has the correct format and headers.
-            </p>
-            <Button onClick={handleDownloadTemplate} variant="outline" className="flex items-center gap-2">
-              <Download className="h-4 w-4" />
-              Download CSV Template
-            </Button>
-          </div>
+			// Show success message
+			alert(`Success! ${data.results.message}`);
 
-          {/* File Upload Section */}
-          <div className="border rounded-lg p-4 bg-gray-50">
-            <h3 className="font-semibold mb-2">Step 2: Upload Your CSV File</h3>
-            <p className="text-sm text-gray-600 mb-3">
-              Select the CSV file containing your membership data.
-            </p>
-            <input
-              type="file"
-              accept=".csv"
-              onChange={handleFileChange}
-              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-            />
-            {file && (
-              <div className="mt-2 text-sm text-green-600">
-                Selected: {file.name}
-              </div>
-            )}
-          </div>
+			// Refresh verification results
+			await handleCrosscheckVerification();
+		} catch (err) {
+			setVerificationError(err instanceof Error ? err.message : "Email sending failed");
+		}
+	};
 
-          {/* Upload Button */}
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button 
-                disabled={!file || uploading}
-                className="w-full"
-              >
-                {uploading ? (
-                  <>
-                    <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Uploading...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="w-4 h-4 mr-2" />
-                    Upload Memberships
-                  </>
-                )}
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle className="flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5 text-orange-600" />
-                  Confirm Bulk Membership Upload
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  <div className="space-y-3">
-                    <p>
-                      You are about to upload memberships from <strong>{file?.name}</strong> 
-                      ({file ? (file.size / 1024).toFixed(1) : 0} KB).
-                    </p>
-                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                      <p className="text-sm text-orange-800">
-                        <strong>Important:</strong> This action will be recorded with your user information and timestamp. 
-                        The system will log who performed this bulk membership upload and when it occurred.
-                      </p>
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      Do you want to proceed with the upload?
-                    </p>
-                  </div>
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleUpload}>
-                  Yes, Upload Memberships
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+	const handleExportUnverified = async () => {
+		if (!verificationResult) {
+			setVerificationError("Please run crosscheck verification first");
+			return;
+		}
 
-          {/* Error Display */}
-          {error && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+		try {
+			const unverifiedPersonalNumbers = verificationResult.unverifiedList.map((member) => member.personalNumber);
 
-          {/* Results Display */}
-          {result && (
-            <div className="space-y-4">
-              <Alert>
-                <CheckCircle className="h-4 w-4" />
-                <AlertDescription>
-                  Upload completed! Success: {result.success}, Failed: {result.failed}{result.skipped > 0 && `, Skipped (duplicates): ${result.skipped}`}
-                </AlertDescription>
-              </Alert>
+			const response = await fetch("/api/membership/export-unverified", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ unverifiedPersonalNumbers }),
+			});
 
-              {result.processedMembers.length > 0 && (
-                <div className="border rounded-lg p-4 bg-green-50">
-                  <h4 className="font-semibold text-green-800 mb-2">
-                    Successfully Added Members ({result.processedMembers.length})
-                  </h4>
-                  <div className="space-y-1 max-h-40 overflow-y-auto">
-                    {result.processedMembers.map((member, index) => (
-                      <div key={index} className="text-sm text-green-700">
-                        {member.firstName} {member.lastName} - {member.email}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+			if (!response.ok) {
+				const data = await response.json();
+				throw new Error(data.error || "Export failed");
+			}
 
-              {result.errors.length > 0 && (
-                <div className="border rounded-lg p-4 bg-red-50">
-                  <h4 className="font-semibold text-red-800 mb-2 flex items-center gap-2">
-                    <XCircle className="h-4 w-4" />
-                    Errors ({result.errors.length})
-                  </h4>
-                  <div className="space-y-1 max-h-40 overflow-y-auto">
-                    {result.errors.map((error, index) => (
-                      <div key={index} className="text-sm text-red-700">
-                        {error}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-          </CardContent>
-        </Card>
+			// Download the CSV file
+			const blob = await response.blob();
+			const url = window.URL.createObjectURL(blob);
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = `unverified-members-${new Date().toISOString().split("T")[0]}.csv`;
+			document.body.appendChild(a);
+			a.click();
+			window.URL.revokeObjectURL(url);
+			document.body.removeChild(a);
+		} catch (err) {
+			setVerificationError(err instanceof Error ? err.message : "Export failed");
+		}
+	};
 
-        {/* BRREG Verification Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Search className="h-5 w-5" />
-              BRREG Verification
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="border rounded-lg p-4 bg-blue-50">
-              <h3 className="font-semibold mb-2">Crosscheck Personal Numbers</h3>
-              <p className="text-sm text-gray-600 mb-3">
-                Upload the verification file from Oslo kommune to identify members who were not approved.
-              </p>
-              <input
-                type="file"
-                accept=".csv"
-                onChange={handleVerificationFileChange}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-              />
-              {verificationFile && (
-                <div className="mt-2 text-sm text-green-600">
-                  Selected: {verificationFile.name}
-                </div>
-              )}
-            </div>
+	return (
+		<div className="max-w-6xl mx-auto p-6">
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+				{/* Bulk Upload Card */}
+				<Card>
+					<CardHeader>
+						<CardTitle className="flex items-center gap-2">
+							<Upload className="h-5 w-5" />
+							Bulk Membership Upload
+						</CardTitle>
+					</CardHeader>
+					<CardContent className="space-y-4">
+						{/* Download Template Section */}
+						<div className="border rounded-lg p-4 bg-gray-50">
+							<h3 className="font-semibold mb-2">Step 1: Download Template</h3>
+							<p className="text-sm text-gray-600 mb-3">Download the CSV template to ensure your data has the correct format and headers.</p>
+							<Button onClick={handleDownloadTemplate} variant="outline" className="flex items-center gap-2">
+								<Download className="h-4 w-4" />
+								Download CSV Template
+							</Button>
+						</div>
 
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button 
-                disabled={!verificationFile || verifying}
-                className="w-full"
-              >
-                {verifying ? (
-                  <>
-                    <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Crosschecking...
-                  </>
-                ) : (
-                  <>
-                    <Search className="w-4 h-4 mr-2" />
-                    Crosscheck Personal Numbers
-                  </>
-                )}
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle className="flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5 text-orange-600" />
-                  Confirm Crosscheck Personal Numbers
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  <div className="space-y-3">
-                    <p>
-                      You are about to crosscheck personal numbers from <strong>{verificationFile?.name}</strong> 
-                      ({verificationFile ? (verificationFile.size / 1024).toFixed(1) : 0} KB) against existing members.
-                    </p>
-                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                      <p className="text-sm text-orange-800">
-                        <strong>Important:</strong> This action will be recorded with your user information and timestamp. 
-                        The system will log who performed this crosscheck verification and when it occurred.
-                      </p>
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      Do you want to proceed with the crosscheck?
-                    </p>
-                  </div>
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleCrosscheckVerification}>
-                  Yes, Crosscheck Personal Numbers
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+						{/* File Upload Section */}
+						<div className="border rounded-lg p-4 bg-gray-50">
+							<h3 className="font-semibold mb-2">Step 2: Upload Your CSV File</h3>
+							<p className="text-sm text-gray-600 mb-3">Select the CSV file containing your membership data.</p>
+							<input type="file" accept=".csv" onChange={handleFileChange} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+							{file && <div className="mt-2 text-sm text-green-600">Selected: {file.name}</div>}
+						</div>
 
-          {/* Verification Error Display */}
-          {verificationError && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{verificationError}</AlertDescription>
-            </Alert>
-          )}
+						{/* Upload Button */}
+						<AlertDialog>
+							<AlertDialogTrigger asChild>
+								<Button disabled={!file || uploading} className="w-full">
+									{uploading ? (
+										<>
+											<div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+											Uploading...
+										</>
+									) : (
+										<>
+											<Upload className="w-4 h-4 mr-2" />
+											Upload Memberships
+										</>
+									)}
+								</Button>
+							</AlertDialogTrigger>
+							<AlertDialogContent>
+								<AlertDialogHeader>
+									<AlertDialogTitle className="flex items-center gap-2">
+										<AlertTriangle className="w-5 h-5 text-orange-600" />
+										Confirm Bulk Membership Upload
+									</AlertDialogTitle>
+									<AlertDialogDescription>
+										<div className="space-y-3">
+											<p>
+												You are about to upload memberships from <strong>{file?.name}</strong>({file ? (file.size / 1024).toFixed(1) : 0} KB).
+											</p>
+											<div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+												<p className="text-sm text-orange-800">
+													<strong>Important:</strong> This action will be recorded with your user information and timestamp. The system will log who performed this bulk membership upload and when it occurred.
+												</p>
+											</div>
+											<p className="text-sm text-gray-600">Do you want to proceed with the upload?</p>
+										</div>
+									</AlertDialogDescription>
+								</AlertDialogHeader>
+								<AlertDialogFooter>
+									<AlertDialogCancel>Cancel</AlertDialogCancel>
+									<AlertDialogAction onClick={handleUpload}>Yes, Upload Memberships</AlertDialogAction>
+								</AlertDialogFooter>
+							</AlertDialogContent>
+						</AlertDialog>
 
-          {/* Verification Results Display */}
-          {verificationResult && (
-            <div className="space-y-4">
-              <Alert>
-                <Search className="h-4 w-4" />
-                <AlertDescription>
-                  Verification completed! Total: {verificationResult.totalMembers}, 
-                  Verified: {verificationResult.verifiedMembers}, 
-                  Unverified: {verificationResult.unverifiedMembers}
-                </AlertDescription>
-              </Alert>
+						{/* Error Display */}
+						{error && (
+							<Alert variant="destructive">
+								<AlertCircle className="h-4 w-4" />
+								<AlertDescription>{error}</AlertDescription>
+							</Alert>
+						)}
 
-              {/* Action Buttons */}
-              <div className="flex flex-wrap gap-3 p-4 bg-gray-50 border rounded-lg">
-                {verificationResult.verifiedList.length > 0 && (
-                  <Button 
-                    onClick={handleUpdateVerifiedStatus}
-                    className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
-                  >
-                    <CheckSquare className="h-4 w-4" />
-                    Update {verificationResult.verifiedList.length} Verified to Approved
-                  </Button>
-                )}
-                
-                {verificationResult.unverifiedList.length > 0 && (
-                  <>
-                    <Button 
-                      onClick={handleSendBulkEmails}
-                      variant="outline"
-                      className="flex items-center gap-2 border-orange-300 text-orange-700 hover:bg-orange-50"
-                    >
-                      <Mail className="h-4 w-4" />
-                      Send Follow-up Emails ({verificationResult.unverifiedList.length})
-                    </Button>
-                    
-                    <Button 
-                      onClick={handleExportUnverified}
-                      variant="outline"
-                      className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-50"
-                    >
-                      <FileDown className="h-4 w-4" />
-                      Export Unverified ({verificationResult.unverifiedList.length})
-                    </Button>
-                  </>
-                )}
-              </div>
+						{/* Results Display */}
+						{result && (
+							<div className="space-y-4">
+								<Alert>
+									<CheckCircle className="h-4 w-4" />
+									<AlertDescription>
+										Upload completed! Success: {result.success}, Failed: {result.failed}
+										{result.skipped > 0 && `, Skipped (duplicates): ${result.skipped}`}
+									</AlertDescription>
+								</Alert>
 
-              {/* Verified Members */}
-              {verificationResult.verifiedList.length > 0 && (
-                <div className="border rounded-lg p-4 bg-green-50">
-                  <h4 className="font-semibold text-green-800 mb-2">
-                    ✅ Verified by BRREG ({verificationResult.verifiedList.length})
-                  </h4>
-                  <div className="space-y-1 max-h-40 overflow-y-auto">
-                    {verificationResult.verifiedList.map((member, index) => (
-                      <div key={index} className="text-sm text-green-700">
-                        {member.firstName} {member.lastName} - {member.personalNumber}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+								{result.processedMembers.length > 0 && (
+									<div className="border rounded-lg p-4 bg-green-50">
+										<h4 className="font-semibold text-green-800 mb-2">Successfully Added Members ({result.processedMembers.length})</h4>
+										<div className="space-y-1 max-h-40 overflow-y-auto">
+											{result.processedMembers.map((member, index) => (
+												<div key={index} className="text-sm text-green-700">
+													{member.firstName} {member.lastName} - {member.email}
+												</div>
+											))}
+										</div>
+									</div>
+								)}
 
-              {/* Unverified Members */}
-              {verificationResult.unverifiedList.length > 0 && (
-                <div className="border rounded-lg p-4 bg-red-50">
-                  <h4 className="font-semibold text-red-800 mb-2 flex items-center gap-2">
-                    <XCircle className="h-4 w-4" />
-                    ❌ Not Verified by BRREG ({verificationResult.unverifiedList.length})
-                  </h4>
-                  <div className="space-y-1 max-h-40 overflow-y-auto">
-                    {verificationResult.unverifiedList.map((member, index) => (
-                      <div key={index} className="text-sm text-red-700">
-                        {member.firstName} {member.lastName} - {member.personalNumber}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
+								{result.errors.length > 0 && (
+									<div className="border rounded-lg p-4 bg-red-50">
+										<h4 className="font-semibold text-red-800 mb-2 flex items-center gap-2">
+											<XCircle className="h-4 w-4" />
+											Errors ({result.errors.length})
+										</h4>
+										<div className="space-y-1 max-h-40 overflow-y-auto">
+											{result.errors.map((error, index) => (
+												<div key={index} className="text-sm text-brand_secondary">
+													{error}
+												</div>
+											))}
+										</div>
+									</div>
+								)}
+							</div>
+						)}
+					</CardContent>
+				</Card>
+
+				{/* BRREG Verification Card */}
+				<Card>
+					<CardHeader>
+						<CardTitle className="flex items-center gap-2">
+							<Search className="h-5 w-5" />
+							BRREG Verification
+						</CardTitle>
+					</CardHeader>
+					<CardContent className="space-y-4">
+						<div className="border rounded-lg p-4 bg-blue-50">
+							<h3 className="font-semibold mb-2">Crosscheck Personal Numbers</h3>
+							<p className="text-sm text-gray-600 mb-3">Upload the verification file from Oslo kommune to identify members who were not approved.</p>
+							<input type="file" accept=".csv" onChange={handleVerificationFileChange} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+							{verificationFile && <div className="mt-2 text-sm text-green-600">Selected: {verificationFile.name}</div>}
+						</div>
+
+						<AlertDialog>
+							<AlertDialogTrigger asChild>
+								<Button disabled={!verificationFile || verifying} className="w-full">
+									{verifying ? (
+										<>
+											<div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+											Crosschecking...
+										</>
+									) : (
+										<>
+											<Search className="w-4 h-4 mr-2" />
+											Crosscheck Personal Numbers
+										</>
+									)}
+								</Button>
+							</AlertDialogTrigger>
+							<AlertDialogContent>
+								<AlertDialogHeader>
+									<AlertDialogTitle className="flex items-center gap-2">
+										<AlertTriangle className="w-5 h-5 text-orange-600" />
+										Confirm Crosscheck Personal Numbers
+									</AlertDialogTitle>
+									<AlertDialogDescription>
+										<div className="space-y-3">
+											<p>
+												You are about to crosscheck personal numbers from <strong>{verificationFile?.name}</strong>({verificationFile ? (verificationFile.size / 1024).toFixed(1) : 0} KB) against existing members.
+											</p>
+											<div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+												<p className="text-sm text-orange-800">
+													<strong>Important:</strong> This action will be recorded with your user information and timestamp. The system will log who performed this crosscheck verification and when it occurred.
+												</p>
+											</div>
+											<p className="text-sm text-gray-600">Do you want to proceed with the crosscheck?</p>
+										</div>
+									</AlertDialogDescription>
+								</AlertDialogHeader>
+								<AlertDialogFooter>
+									<AlertDialogCancel>Cancel</AlertDialogCancel>
+									<AlertDialogAction onClick={handleCrosscheckVerification}>Yes, Crosscheck Personal Numbers</AlertDialogAction>
+								</AlertDialogFooter>
+							</AlertDialogContent>
+						</AlertDialog>
+
+						{/* Verification Error Display */}
+						{verificationError && (
+							<Alert variant="destructive">
+								<AlertCircle className="h-4 w-4" />
+								<AlertDescription>{verificationError}</AlertDescription>
+							</Alert>
+						)}
+
+						{/* Verification Results Display */}
+						{verificationResult && (
+							<div className="space-y-4">
+								<Alert>
+									<Search className="h-4 w-4" />
+									<AlertDescription>
+										Verification completed! Total: {verificationResult.totalMembers}, Verified: {verificationResult.verifiedMembers}, Unverified: {verificationResult.unverifiedMembers}
+									</AlertDescription>
+								</Alert>
+
+								{/* Action Buttons */}
+								<div className="flex flex-wrap gap-3 p-4 bg-gray-50 border rounded-lg">
+									{verificationResult.verifiedList.length > 0 && (
+										<Button onClick={handleUpdateVerifiedStatus} className="flex items-center gap-2 bg-green-600 hover:bg-green-700">
+											<CheckSquare className="h-4 w-4" />
+											Update {verificationResult.verifiedList.length} Verified to Approved
+										</Button>
+									)}
+
+									{verificationResult.unverifiedList.length > 0 && (
+										<>
+											<Button onClick={handleSendBulkEmails} variant="outline" className="flex items-center gap-2 border-orange-300 text-orange-700 hover:bg-orange-50">
+												<Mail className="h-4 w-4" />
+												Send Follow-up Emails ({verificationResult.unverifiedList.length})
+											</Button>
+
+											<Button onClick={handleExportUnverified} variant="outline" className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-50">
+												<FileDown className="h-4 w-4" />
+												Export Unverified ({verificationResult.unverifiedList.length})
+											</Button>
+										</>
+									)}
+								</div>
+
+								{/* Verified Members */}
+								{verificationResult.verifiedList.length > 0 && (
+									<div className="border rounded-lg p-4 bg-green-50">
+										<h4 className="font-semibold text-green-800 mb-2">✅ Verified by BRREG ({verificationResult.verifiedList.length})</h4>
+										<div className="space-y-1 max-h-40 overflow-y-auto">
+											{verificationResult.verifiedList.map((member, index) => (
+												<div key={index} className="text-sm text-green-700">
+													{member.firstName} {member.lastName} - {member.personalNumber}
+												</div>
+											))}
+										</div>
+									</div>
+								)}
+
+								{/* Unverified Members */}
+								{verificationResult.unverifiedList.length > 0 && (
+									<div className="border rounded-lg p-4 bg-red-50">
+										<h4 className="font-semibold text-red-800 mb-2 flex items-center gap-2">
+											<XCircle className="h-4 w-4" />❌ Not Verified by BRREG ({verificationResult.unverifiedList.length})
+										</h4>
+										<div className="space-y-1 max-h-40 overflow-y-auto">
+											{verificationResult.unverifiedList.map((member, index) => (
+												<div key={index} className="text-sm text-brand_secondary">
+													{member.firstName} {member.lastName} - {member.personalNumber}
+												</div>
+											))}
+										</div>
+									</div>
+								)}
+							</div>
+						)}
+					</CardContent>
+				</Card>
+			</div>
+		</div>
+	);
 }

@@ -134,7 +134,7 @@ export default function DonationsManagement() {
 				);
 			case "pending":
 				return (
-					<Badge className="bg-yellow-500 text-white">
+					<Badge className="bg-brand_primary text-white">
 						<Clock className="w-3 h-3 mr-1" />
 						Pending
 					</Badge>
@@ -531,7 +531,6 @@ export default function DonationsManagement() {
 									{events.map((event) => (
 										<option key={event._id} value={event._id}>
 											{event.eventname}
-										
 										</option>
 									))}
 								</select>
@@ -606,7 +605,6 @@ export default function DonationsManagement() {
 										{events.map((event) => (
 											<option key={event._id} value={event._id}>
 												{event.eventname}
-										
 											</option>
 										))}
 									</select>

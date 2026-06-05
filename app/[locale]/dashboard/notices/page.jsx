@@ -9,19 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  Pencil, 
-  Trash2, 
-  Plus, 
-  Search, 
-  Filter, 
-  Calendar,
-  FileText,
-  Bell,
-  TrendingUp,
-  Download,
-  Image as ImageIcon
-} from "lucide-react";
+import { Pencil, Trash2, Plus, Search, Filter, Calendar, FileText, Bell, TrendingUp, Download, Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
 import NoticeForm from "@/components/NoticeForm";
 import toast from "react-hot-toast";
@@ -38,20 +26,20 @@ export default function NoticesPage() {
 	// Calculate analytics
 	const analytics = useMemo(() => {
 		if (!notices) return null;
-		
+
 		const now = new Date();
 		const last30Days = subDays(now, 30);
 		const last7Days = subDays(now, 7);
 
 		const totalNotices = notices.length;
-		const recent30Days = notices.filter(n => {
+		const recent30Days = notices.filter((n) => {
 			try {
 				return isAfter(parseISO(n.createdAt || n.noticedate), last30Days);
 			} catch {
 				return false;
 			}
 		}).length;
-		const recent7Days = notices.filter(n => {
+		const recent7Days = notices.filter((n) => {
 			try {
 				return isAfter(parseISO(n.createdAt || n.noticedate), last7Days);
 			} catch {
@@ -60,35 +48,32 @@ export default function NoticesPage() {
 		}).length;
 
 		// Notices with images
-		const withImages = notices.filter(n => n.noticeimage && n.noticeimage !== "/pashupatinath.png").length;
+		const withImages = notices.filter((n) => n.noticeimage && n.noticeimage !== "/pashupatinath.png").length;
 
 		return {
 			total: totalNotices,
 			recent30Days,
 			recent7Days,
 			withImages,
-			withImagesPercentage: totalNotices > 0 ? ((withImages / totalNotices) * 100).toFixed(1) : 0
+			withImagesPercentage: totalNotices > 0 ? ((withImages / totalNotices) * 100).toFixed(1) : 0,
 		};
 	}, [notices]);
 
 	// Filter and sort notices
 	const filteredNotices = useMemo(() => {
 		if (!notices) return [];
-		
+
 		let filtered = notices;
 
 		// Apply search filter
 		if (searchTerm) {
-			filtered = filtered.filter(n => 
-				n.noticetitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				n.notice.toLowerCase().includes(searchTerm.toLowerCase())
-			);
+			filtered = filtered.filter((n) => n.noticetitle.toLowerCase().includes(searchTerm.toLowerCase()) || n.notice.toLowerCase().includes(searchTerm.toLowerCase()));
 		}
 
 		// Apply status filter (based on date - future notices are "upcoming", past are "archived")
 		if (statusFilter !== "all") {
 			const now = new Date();
-			filtered = filtered.filter(n => {
+			filtered = filtered.filter((n) => {
 				try {
 					const noticeDate = parseISO(n.noticedate);
 					if (statusFilter === "upcoming") {
@@ -120,15 +105,7 @@ export default function NoticesPage() {
 
 	// Export functionality
 	const handleExport = () => {
-		const csvContent = [
-			["Title", "Content", "Date", "Has Image"],
-			...filteredNotices.map(n => [
-				n.noticetitle,
-				n.notice,
-				n.noticedate,
-				n.noticeimage && n.noticeimage !== "/pashupatinath.png" ? "Yes" : "No"
-			])
-		].map(row => row.map(cell => `"${cell}"`).join(",")).join("\n");
+		const csvContent = [["Title", "Content", "Date", "Has Image"], ...filteredNotices.map((n) => [n.noticetitle, n.notice, n.noticedate, n.noticeimage && n.noticeimage !== "/pashupatinath.png" ? "Yes" : "No"])].map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n");
 
 		const blob = new Blob([csvContent], { type: "text/csv" });
 		const url = window.URL.createObjectURL(blob);
@@ -139,15 +116,16 @@ export default function NoticesPage() {
 		a.click();
 		document.body.removeChild(a);
 		window.URL.revokeObjectURL(url);
-		
+
 		toast.success("Notices exported successfully!");
 	};
 
-	if (loading) return (
-		<div className="flex items-center justify-center min-h-screen">
-			<div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-brand"></div>
-		</div>
-	);
+	if (loading)
+		return (
+			<div className="flex items-center justify-center min-h-screen">
+				<div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-brand"></div>
+			</div>
+		);
 	if (error) return <p>Error: {error}</p>;
 
 	const handleEdit = (notice) => {
@@ -258,9 +236,7 @@ export default function NoticesPage() {
 							<Bell className="w-5 h-5" />
 							{noticeToEdit ? "Edit Notice" : "Create New Notice"}
 						</CardTitle>
-						<CardDescription>
-							{noticeToEdit ? "Update the notice information below." : "Fill in the details to create a new notice."}
-						</CardDescription>
+						<CardDescription>{noticeToEdit ? "Update the notice information below." : "Fill in the details to create a new notice."}</CardDescription>
 					</CardHeader>
 					<CardContent>
 						<NoticeForm handleCloseNoticeModal={handleCloseNoticeModal} noticeToEdit={noticeToEdit} fetchNotices={notices} />
@@ -281,12 +257,7 @@ export default function NoticesPage() {
 						<div className="flex-1">
 							<div className="relative">
 								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-								<Input
-									placeholder="Search by title or content..."
-									value={searchTerm}
-									onChange={(e) => setSearchTerm(e.target.value)}
-									className="pl-10"
-								/>
+								<Input placeholder="Search by title or content..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10" />
 							</div>
 						</div>
 						<Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -321,26 +292,17 @@ export default function NoticesPage() {
 							Notices List
 						</span>
 						<Badge variant="secondary">
-							{filteredNotices.length} {filteredNotices.length === 1 ? 'notice' : 'notices'}
+							{filteredNotices.length} {filteredNotices.length === 1 ? "notice" : "notices"}
 						</Badge>
 					</CardTitle>
-					<CardDescription>
-						{filteredNotices.length === 0 
-							? "No notices found matching your criteria." 
-							: `Showing ${filteredNotices.length} of ${notices?.length || 0} total notices`
-						}
-					</CardDescription>
+					<CardDescription>{filteredNotices.length === 0 ? "No notices found matching your criteria." : `Showing ${filteredNotices.length} of ${notices?.length || 0} total notices`}</CardDescription>
 				</CardHeader>
 				<CardContent>
 					{filteredNotices.length === 0 ? (
 						<div className="text-center py-12">
 							<FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
 							<h3 className="text-lg font-medium text-gray-900 mb-2">No notices found</h3>
-							<p className="text-gray-500">
-								{searchTerm || statusFilter !== "all" 
-									? "Try adjusting your search or filters." 
-									: "Create your first notice to get started."}
-							</p>
+							<p className="text-gray-500">{searchTerm || statusFilter !== "all" ? "Try adjusting your search or filters." : "Create your first notice to get started."}</p>
 						</div>
 					) : (
 						<div className="space-y-4">
@@ -352,7 +314,7 @@ export default function NoticesPage() {
 										return false;
 									}
 								})();
-								
+
 								return (
 									<div key={notice._id} className="border rounded-lg p-6 hover:bg-gray-50 transition-colors">
 										<div className="flex items-start justify-between">
@@ -380,30 +342,12 @@ export default function NoticesPage() {
 												</div>
 											</div>
 											<div className="flex items-center gap-2 ml-4">
-												{notice.noticeimage && notice.noticeimage !== "/pashupatinath.png" && (
-													<Image 
-														src={notice.noticeimage} 
-														width={80} 
-														height={80} 
-														alt={notice.noticetitle} 
-														className="w-16 h-16 rounded-lg object-cover border"
-													/>
-												)}
+												{notice.noticeimage && notice.noticeimage !== "/pashupatinath.png" && <Image src={notice.noticeimage} width={80} height={80} alt={notice.noticetitle} className="w-16 h-16 rounded-lg object-cover border" />}
 												<div className="flex gap-1">
-													<Button
-														variant="ghost"
-														size="sm"
-														onClick={() => handleEdit(notice)}
-														className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-													>
+													<Button variant="ghost" size="sm" onClick={() => handleEdit(notice)} className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
 														<Pencil className="w-4 h-4" />
 													</Button>
-													<Button
-														variant="ghost"
-														size="sm"
-														onClick={() => setDeleteId(notice._id)}
-														className="text-red-600 hover:text-red-700 hover:bg-red-50"
-													>
+													<Button variant="ghost" size="sm" onClick={() => setDeleteId(notice._id)} className="text-red-600 hover:text-brand_secondary hover:bg-red-50">
 														<Trash2 className="w-4 h-4" />
 													</Button>
 												</div>
@@ -422,16 +366,11 @@ export default function NoticesPage() {
 				<AlertDialogContent>
 					<AlertDialogHeader>
 						<AlertDialogTitle>Are you sure?</AlertDialogTitle>
-						<AlertDialogDescription>
-							This action cannot be undone. This will permanently delete the notice from your database.
-						</AlertDialogDescription>
+						<AlertDialogDescription>This action cannot be undone. This will permanently delete the notice from your database.</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<AlertDialogAction 
-							onClick={() => handleDelete(deleteId)}
-							className="bg-red-600 hover:bg-red-700"
-						>
+						<AlertDialogAction onClick={() => handleDelete(deleteId)} className="bg-red-600 hover:bg-brand_secondary">
 							Delete
 						</AlertDialogAction>
 					</AlertDialogFooter>

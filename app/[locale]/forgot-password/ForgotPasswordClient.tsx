@@ -102,30 +102,13 @@ export default function ForgotPasswordClient({ translations: t }: Props) {
 								<label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
 									{t.email}
 								</label>
-								<input
-									id="email"
-									name="email"
-									type="email"
-									required
-									value={email}
-									onChange={(e) => setEmail(e.target.value)}
-									placeholder={t.emailPlaceholder}
-									className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-								/>
+								<input id="email" name="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t.emailPlaceholder} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
 							</div>
 
-							{error && (
-								<div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-									{error}
-								</div>
-							)}
+							{error && <div className="bg-red-50 border border-red-200 text-brand_secondary px-4 py-3 rounded-lg text-sm">{error}</div>}
 
 							<div className="space-y-3">
-								<button
-									type="submit"
-									disabled={loading}
-									className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-								>
+								<button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
 									{loading ? (
 										<span className="flex items-center justify-center">
 											<svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -139,10 +122,7 @@ export default function ForgotPasswordClient({ translations: t }: Props) {
 									)}
 								</button>
 
-								<Link
-									href={`/${locale}/login`}
-									className="w-full inline-flex items-center justify-center text-gray-600 hover:text-gray-900 font-medium py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-								>
+								<Link href={`/${locale}/login`} className="w-full inline-flex items-center justify-center text-gray-600 hover:text-gray-900 font-medium py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
 									<ArrowLeft className="w-4 h-4 mr-2" />
 									{t.backToLogin}
 								</Link>

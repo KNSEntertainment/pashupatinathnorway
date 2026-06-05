@@ -37,24 +37,20 @@ const MissionVisionPreview = ({ data, locale }: MissionVisionPreviewProps) => {
 			<div className="group relative bg-yellow-100 rounded-2xl shadow-xl overflow-hidden border border-gray-100">
 				<div className="relative p-6">
 					<div className="flex items-center mb-4">
-						<div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
+						<div className="w-12 h-12 bg-gradient-to-br from-brand_primary to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
 							<MessageCirclePlusIcon className="w-6 h-6 text-white" />
 						</div>
 						<div className="ml-3">
 							<span className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Mission</span>
 						</div>
 					</div>
-					<h3 className="text-xl font-bold text-gray-900 mb-4 leading-tight">
-						{getLocalizedField(data.mission.title)}
-					</h3>
-					<p className="text-gray-600 leading-relaxed">
-						{getLocalizedField(data.mission.description)}
-					</p>
+					<h3 className="text-xl font-bold text-gray-900 mb-4 leading-tight">{getLocalizedField(data.mission.title)}</h3>
+					<p className="text-gray-600 leading-relaxed">{getLocalizedField(data.mission.description)}</p>
 				</div>
 			</div>
 
 			{/* Vision Preview */}
-			<div className="group relative bg-red-900 rounded-2xl shadow-xl overflow-hidden">
+			<div className="group relative bg-brand_secondary rounded-2xl shadow-xl overflow-hidden">
 				<div className="relative p-6 text-white">
 					<div className="flex items-center mb-4">
 						<div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
@@ -64,12 +60,8 @@ const MissionVisionPreview = ({ data, locale }: MissionVisionPreviewProps) => {
 							<span className="text-sm font-semibold text-white/90 uppercase tracking-wide">Vision</span>
 						</div>
 					</div>
-					<h3 className="text-xl font-bold text-white mb-4 leading-tight">
-						{getLocalizedField(data.vision.title)}
-					</h3>
-					<p className="text-white/90 leading-relaxed">
-						{getLocalizedField(data.vision.description)}
-					</p>
+					<h3 className="text-xl font-bold text-white mb-4 leading-tight">{getLocalizedField(data.vision.title)}</h3>
+					<p className="text-white/90 leading-relaxed">{getLocalizedField(data.vision.description)}</p>
 				</div>
 			</div>
 		</div>
@@ -80,12 +72,12 @@ export default function MissionVisionAdmin() {
 	const [data, setData] = useState<MissionVisionData>({
 		mission: {
 			title: { en: "", no: "", ne: "" },
-			description: { en: "", no: "", ne: "" }
+			description: { en: "", no: "", ne: "" },
 		},
 		vision: {
 			title: { en: "", no: "", ne: "" },
-			description: { en: "", no: "", ne: "" }
-		}
+			description: { en: "", no: "", ne: "" },
+		},
 	});
 
 	const [activeTab, setActiveTab] = useState<"en" | "no" | "ne">("en");
@@ -96,7 +88,7 @@ export default function MissionVisionAdmin() {
 	const locales = [
 		{ code: "en", name: "English", flag: "🇬🇧" },
 		{ code: "no", name: "Norwegian", flag: "🇳🇴" },
-		{ code: "ne", name: "Nepali", flag: "🇳🇵" }
+		{ code: "ne", name: "Nepali", flag: "🇳🇵" },
 	];
 
 	useEffect(() => {
@@ -119,15 +111,15 @@ export default function MissionVisionAdmin() {
 	};
 
 	const handleFieldChange = (section: "mission" | "vision", field: "title" | "description", locale: "en" | "no" | "ne", value: string) => {
-		setData(prev => ({
+		setData((prev) => ({
 			...prev,
 			[section]: {
 				...prev[section],
 				[field]: {
 					...prev[section][field],
-					[locale]: value
-				}
-			}
+					[locale]: value,
+				},
+			},
 		}));
 		setHasChanges(true);
 	};
@@ -138,9 +130,9 @@ export default function MissionVisionAdmin() {
 			const response = await fetch("/api/mission-vision", {
 				method: "POST",
 				headers: {
-					"Content-Type": "application/json"
+					"Content-Type": "application/json",
 				},
-				body: JSON.stringify(data)
+				body: JSON.stringify(data),
 			});
 
 			if (response.ok) {
@@ -179,30 +171,16 @@ export default function MissionVisionAdmin() {
 					<p className="text-gray-600 mt-1">Manage mission and vision statements in multiple languages</p>
 				</div>
 				<div className="flex items-center gap-3">
-					<button
-						onClick={() => setPreviewMode(!previewMode)}
-						className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-							previewMode
-								? "bg-brand_primary text-gray-700"
-								: "bg-gray-100 text-gray-700 hover:bg-gray-200"
-						}`}
-					>
+					<button onClick={() => setPreviewMode(!previewMode)} className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${previewMode ? "bg-brand_primary text-gray-700" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}>
 						<Eye className="w-4 h-4" />
 						{previewMode ? "Edit Mode" : "Preview Mode"}
 					</button>
 					{hasChanges && (
 						<div className="flex items-center gap-2">
-							<button
-								onClick={handleReset}
-								className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
-							>
+							<button onClick={handleReset} className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors">
 								Reset
 							</button>
-							<button
-								onClick={handleSave}
-								disabled={loading}
-								className="flex items-center gap-2 px-4 py-2 bg-brand_primary text-white rounded-lg font-medium hover:bg-brand_primary/90 transition-colors disabled:opacity-50"
-							>
+							<button onClick={handleSave} disabled={loading} className="flex items-center gap-2 px-4 py-2 bg-brand_primary text-white rounded-lg font-medium hover:bg-brand_primary/90 transition-colors disabled:opacity-50">
 								<Save className="w-4 h-4" />
 								{loading ? "Saving..." : "Save"}
 							</button>
@@ -216,16 +194,8 @@ export default function MissionVisionAdmin() {
 				<div>
 					{/* Language Tabs for Preview */}
 					<div className="flex gap-2 mb-6">
-						{locales.map(locale => (
-							<button
-								key={locale.code}
-								onClick={() => setActiveTab(locale.code as "en" | "no" | "ne")}
-								className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-									activeTab === locale.code
-										? "bg-brand_primary text-gray-700"
-										: "bg-gray-100 text-gray-700 hover:bg-gray-200"
-								}`}
-							>
+						{locales.map((locale) => (
+							<button key={locale.code} onClick={() => setActiveTab(locale.code as "en" | "no" | "ne")} className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${activeTab === locale.code ? "bg-brand_primary text-gray-700" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}>
 								<span>{locale.flag}</span>
 								<span>{locale.name}</span>
 							</button>
@@ -233,9 +203,7 @@ export default function MissionVisionAdmin() {
 					</div>
 
 					<div className="bg-white rounded-xl border border-gray-200 p-6">
-						<h3 className="text-lg font-semibold text-gray-900 mb-4">
-							Preview ({locales.find(l => l.code === activeTab)?.name})
-						</h3>
+						<h3 className="text-lg font-semibold text-gray-900 mb-4">Preview ({locales.find((l) => l.code === activeTab)?.name})</h3>
 						<MissionVisionPreview data={data} locale={activeTab} />
 					</div>
 				</div>
@@ -244,16 +212,8 @@ export default function MissionVisionAdmin() {
 				<div>
 					{/* Language Tabs */}
 					<div className="flex gap-2 mb-6">
-						{locales.map(locale => (
-							<button
-								key={locale.code}
-								onClick={() => setActiveTab(locale.code as "en" | "no" | "ne")}
-								className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-									activeTab === locale.code
-										? "bg-brand_primary text-white"
-										: "bg-gray-100 text-gray-700 hover:bg-gray-200"
-								}`}
-							>
+						{locales.map((locale) => (
+							<button key={locale.code} onClick={() => setActiveTab(locale.code as "en" | "no" | "ne")} className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${activeTab === locale.code ? "bg-brand_primary text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}>
 								<span>{locale.flag}</span>
 								<span>{locale.name}</span>
 							</button>
@@ -266,28 +226,12 @@ export default function MissionVisionAdmin() {
 							<h3 className="text-lg font-semibold text-gray-900 mb-4">Mission</h3>
 							<div className="space-y-4">
 								<div>
-									<label className="block text-sm font-medium text-gray-700 mb-1">
-										Title ({locales.find(l => l.code === activeTab)?.name})
-									</label>
-									<input
-										type="text"
-										value={data.mission.title[activeTab]}
-										onChange={(e) => handleFieldChange("mission", "title", activeTab, e.target.value)}
-										className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand_primary focus:border-transparent"
-										placeholder="Enter mission title..."
-									/>
+									<label className="block text-sm font-medium text-gray-700 mb-1">Title ({locales.find((l) => l.code === activeTab)?.name})</label>
+									<input type="text" value={data.mission.title[activeTab]} onChange={(e) => handleFieldChange("mission", "title", activeTab, e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand_primary focus:border-transparent" placeholder="Enter mission title..." />
 								</div>
 								<div>
-									<label className="block text-sm font-medium text-gray-700 mb-1">
-										Description ({locales.find(l => l.code === activeTab)?.name})
-									</label>
-									<textarea
-										value={data.mission.description[activeTab]}
-										onChange={(e) => handleFieldChange("mission", "description", activeTab, e.target.value)}
-										rows={4}
-										className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand_primary focus:border-transparent"
-										placeholder="Enter mission description..."
-									/>
+									<label className="block text-sm font-medium text-gray-700 mb-1">Description ({locales.find((l) => l.code === activeTab)?.name})</label>
+									<textarea value={data.mission.description[activeTab]} onChange={(e) => handleFieldChange("mission", "description", activeTab, e.target.value)} rows={4} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand_primary focus:border-transparent" placeholder="Enter mission description..." />
 								</div>
 							</div>
 						</div>
@@ -297,28 +241,12 @@ export default function MissionVisionAdmin() {
 							<h3 className="text-lg font-semibold text-gray-900 mb-4">Vision</h3>
 							<div className="space-y-4">
 								<div>
-									<label className="block text-sm font-medium text-gray-700 mb-1">
-										Title ({locales.find(l => l.code === activeTab)?.name})
-									</label>
-									<input
-										type="text"
-										value={data.vision.title[activeTab]}
-										onChange={(e) => handleFieldChange("vision", "title", activeTab, e.target.value)}
-										className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand_primary focus:border-transparent"
-										placeholder="Enter vision title..."
-									/>
+									<label className="block text-sm font-medium text-gray-700 mb-1">Title ({locales.find((l) => l.code === activeTab)?.name})</label>
+									<input type="text" value={data.vision.title[activeTab]} onChange={(e) => handleFieldChange("vision", "title", activeTab, e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand_primary focus:border-transparent" placeholder="Enter vision title..." />
 								</div>
 								<div>
-									<label className="block text-sm font-medium text-gray-700 mb-1">
-										Description ({locales.find(l => l.code === activeTab)?.name})
-									</label>
-									<textarea
-										value={data.vision.description[activeTab]}
-										onChange={(e) => handleFieldChange("vision", "description", activeTab, e.target.value)}
-										rows={4}
-										className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand_primary focus:border-transparent"
-										placeholder="Enter vision description..."
-									/>
+									<label className="block text-sm font-medium text-gray-700 mb-1">Description ({locales.find((l) => l.code === activeTab)?.name})</label>
+									<textarea value={data.vision.description[activeTab]} onChange={(e) => handleFieldChange("vision", "description", activeTab, e.target.value)} rows={4} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand_primary focus:border-transparent" placeholder="Enter vision description..." />
 								</div>
 							</div>
 						</div>

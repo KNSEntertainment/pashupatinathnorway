@@ -24,7 +24,7 @@ export default function MemberDetailClient({ member }) {
 			pending: {
 				icon: Clock,
 				label: "Pending",
-				className: "bg-yellow-100 text-yellow-800 border-yellow-300",
+				className: "bg-yellow-100 text-brand_primary border-yellow-300",
 			},
 			blocked: {
 				icon: XCircle,
@@ -155,9 +155,7 @@ export default function MemberDetailClient({ member }) {
 										<Mail className="text-gray-900 mt-1 flex-shrink-0" size={20} />
 										<div>
 											<p className="text-sm text-gray-900">Email</p>
-											<div className="text-gray-500 font-medium">
-												Private (Permission not granted)
-											</div>
+											<div className="text-gray-500 font-medium">Private (Permission not granted)</div>
 										</div>
 									</div>
 								)}
@@ -166,9 +164,7 @@ export default function MemberDetailClient({ member }) {
 										<Phone className="text-gray-900 mt-1 flex-shrink-0" size={20} />
 										<div>
 											<p className="text-sm text-gray-900">Phone</p>
-											<div className="text-gray-500 font-medium">
-												Private (Permission not granted)
-											</div>
+											<div className="text-gray-500 font-medium">Private (Permission not granted)</div>
 										</div>
 									</div>
 								)}
@@ -208,7 +204,7 @@ export default function MemberDetailClient({ member }) {
 										<p className="text-gray-900 font-medium capitalize">{member.gender}</p>
 									</div>
 								</div>
-						
+
 								{member.profession && (
 									<div className="flex items-start gap-3">
 										<Briefcase className="text-gray-900 mt-1 flex-shrink-0" size={20} />

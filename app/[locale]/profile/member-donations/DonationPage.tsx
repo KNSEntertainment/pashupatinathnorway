@@ -28,7 +28,6 @@ interface DonationStats {
 	thisMonth: number;
 }
 
-
 export default function MemberDonationPage() {
 	const params = useParams();
 	const locale = params.locale as string;
@@ -52,7 +51,7 @@ export default function MemberDonationPage() {
 			console.log("=== FRONTEND: FETCHING USER DONATIONS ===");
 			const response = await fetch(`/api/donations/user`);
 			console.log("Response status:", response.status);
-			
+
 			if (response.ok) {
 				const data = await response.json();
 				console.log("=== FRONTEND: API RESPONSE ===");
@@ -61,14 +60,16 @@ export default function MemberDonationPage() {
 				console.log("Donations length:", data.donations?.length);
 				console.log("Stats:", data.stats);
 				console.log("Personal number:", data.personalNumber);
-				
+
 				setUserDonations(data.donations || []);
-				setStats(data.stats || {
-					totalDonated: 0,
-					donationCount: 0,
-					thisYear: 0,
-					thisMonth: 0,
-				});
+				setStats(
+					data.stats || {
+						totalDonated: 0,
+						donationCount: 0,
+						thisYear: 0,
+						thisMonth: 0,
+					},
+				);
 				setUserPersonalNumber(data.personalNumber || null);
 			} else {
 				console.log("Response not ok:", response.status);
@@ -94,7 +95,6 @@ export default function MemberDonationPage() {
 		});
 	};
 
-
 	const formatDate = (dateString: string) => {
 		return new Date(dateString).toLocaleDateString("en-US", {
 			year: "numeric",
@@ -108,7 +108,7 @@ export default function MemberDonationPage() {
 			case "completed":
 				return "bg-green-100 text-green-800";
 			case "pending":
-				return "bg-yellow-100 text-yellow-800";
+				return "bg-yellow-100 text-brand_primary";
 			case "failed":
 				return "bg-red-100 text-red-800";
 			case "refunded":
@@ -146,7 +146,6 @@ export default function MemberDonationPage() {
 				<h1 className="text-3xl font-bold text-gray-900 mb-2">Donations</h1>
 				<p className="text-gray-600">Support our temple and community initiatives</p>
 			</div>
-
 
 			{/* Donation Stats */}
 			<div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
@@ -199,89 +198,74 @@ export default function MemberDonationPage() {
 				</Card>
 			</div>
 
-		<div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
-				
-			{/* Make a Donation Section */}
-			<Card className="col-span-2">
-				<CardHeader>
-					<CardTitle className="flex items-center">
-						<Heart className="mr-2 h-5 w-5 text-red-600" />
-						Make a Donation
-					</CardTitle>
-					<CardDescription>
-						Support our temple&apos;s activities and community services
-					</CardDescription>
-				</CardHeader>
-				<CardContent>
-					{!showDonationForm ? (
-						<div className="text-center py-8">
-							<Heart className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-							<h3 className="text-lg font-semibold text-gray-900 mb-2">Ready to Make a Difference?</h3>
-							<p className="text-gray-600 mb-4">
-								Your generous contributions help us maintain our temple and serve the community.
-							</p>
-							<Button onClick={() => setShowDonationForm(true)} className="bg-red-600 hover:bg-red-700">
-								<Heart className="mr-2 h-4 w-4" />
-								Make a Donation
-							</Button>
-						</div>
-					) : (
-						<DonationForm onDonationSuccess={handleDonationSuccess} locale={locale} />
-					)}
-				</CardContent>
-			</Card>
+			<div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
+				{/* Make a Donation Section */}
+				<Card className="col-span-2">
+					<CardHeader>
+						<CardTitle className="flex items-center">
+							<Heart className="mr-2 h-5 w-5 text-red-600" />
+							Make a Donation
+						</CardTitle>
+						<CardDescription>Support our temple&apos;s activities and community services</CardDescription>
+					</CardHeader>
+					<CardContent>
+						{!showDonationForm ? (
+							<div className="text-center py-8">
+								<Heart className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+								<h3 className="text-lg font-semibold text-gray-900 mb-2">Ready to Make a Difference?</h3>
+								<p className="text-gray-600 mb-4">Your generous contributions help us maintain our temple and serve the community.</p>
+								<Button onClick={() => setShowDonationForm(true)} className="bg-red-600 hover:bg-brand_secondary">
+									<Heart className="mr-2 h-4 w-4" />
+									Make a Donation
+								</Button>
+							</div>
+						) : (
+							<DonationForm onDonationSuccess={handleDonationSuccess} locale={locale} />
+						)}
+					</CardContent>
+				</Card>
 
-			{/* Donation History */}
-			<Card>
-				<CardHeader>
-					<CardTitle className="flex items-center">
-						<Calendar className="mr-2 h-5 w-5 text-blue-600" />
-						Donation History
-					</CardTitle>
-					<CardDescription>
-						Your previous donations and their status
-					</CardDescription>
-				</CardHeader>
-				<CardContent>
-					{userDonations.length === 0 ? (
-						<div className="text-center py-8">
-							<Calendar className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-							<h3 className="text-lg font-semibold text-gray-900 mb-2">No Donations Yet</h3>
-							<p className="text-gray-600">
-								Your donation history will appear here once you make your first donation.
-							</p>
-						</div>
-					) : (
-						<div className="space-y-4">
-							{userDonations.map((donation) => (
-								<div key={donation._id} className="border rounded-lg p-4">
-									<div className="flex items-center justify-between mb-2">
-										<div className="flex items-center space-x-3">
-											<Heart className="h-5 w-5 text-red-600" />
-											<div>
-												<p className="font-semibold text-gray-900">
-													{formatNOK(donation.amount)}
-												</p>
+				{/* Donation History */}
+				<Card>
+					<CardHeader>
+						<CardTitle className="flex items-center">
+							<Calendar className="mr-2 h-5 w-5 text-blue-600" />
+							Donation History
+						</CardTitle>
+						<CardDescription>Your previous donations and their status</CardDescription>
+					</CardHeader>
+					<CardContent>
+						{userDonations.length === 0 ? (
+							<div className="text-center py-8">
+								<Calendar className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+								<h3 className="text-lg font-semibold text-gray-900 mb-2">No Donations Yet</h3>
+								<p className="text-gray-600">Your donation history will appear here once you make your first donation.</p>
+							</div>
+						) : (
+							<div className="space-y-4">
+								{userDonations.map((donation) => (
+									<div key={donation._id} className="border rounded-lg p-4">
+										<div className="flex items-center justify-between mb-2">
+											<div className="flex items-center space-x-3">
+												<Heart className="h-5 w-5 text-red-600" />
+												<div>
+													<p className="font-semibold text-gray-900">{formatNOK(donation.amount)}</p>
+												</div>
 											</div>
+											<Badge className={getStatusColor(donation.paymentStatus)}>{donation.paymentStatus.charAt(0).toUpperCase() + donation.paymentStatus.slice(1)}</Badge>
 										</div>
-										<Badge className={getStatusColor(donation.paymentStatus)}>
-											{donation.paymentStatus.charAt(0).toUpperCase() + donation.paymentStatus.slice(1)}
-										</Badge>
+										<div className="flex items-center justify-between text-sm text-gray-600">
+											<p>{formatDate(donation.createdAt)}</p>
+											{donation.isAnonymous && <Badge variant="outline">Anonymous</Badge>}
+										</div>
+										{donation.message && <p className="mt-2 text-sm text-gray-700 italic">{donation.message}</p>}
 									</div>
-									<div className="flex items-center justify-between text-sm text-gray-600">
-										<p>{formatDate(donation.createdAt)}</p>
-										{donation.isAnonymous && <Badge variant="outline">Anonymous</Badge>}
-									</div>
-									{donation.message && (
-										<p className="mt-2 text-sm text-gray-700 italic">{donation.message}</p>
-									)}
-								</div>
-							))}
-						</div>
-					)}
-				</CardContent>
-			</Card>
-		</div>
+								))}
+							</div>
+						)}
+					</CardContent>
+				</Card>
+			</div>
 		</div>
 	);
 }

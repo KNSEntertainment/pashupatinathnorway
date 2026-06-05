@@ -13,7 +13,7 @@ export default function MainHeader() {
 	const t = useTranslations("navigation");
 	const { data: session } = useSession();
 	const user = session?.user;
-	
+
 	const navItems = [
 		{
 			title: t("home"),
@@ -22,7 +22,6 @@ export default function MainHeader() {
 				{ title: t("about"), href: "/about-us" },
 				{ title: t("management"), href: "/management" },
 			],
-			
 		},
 		{
 			title: t("sewa"),
@@ -32,16 +31,15 @@ export default function MainHeader() {
 				{ title: t("festivals"), href: "/festivals" },
 				{ title: t("events"), href: "/events" },
 			],
-		
 		},
-		
+
 		{ title: t("publication"), href: "/publications" },
 		{ title: t("store"), href: "/store" },
 		{ title: t("contact"), href: "/contact" },
 	];
 
 	return (
-		<header className="bg-red-700">
+		<header className="bg-brand_secondary">
 			<div className="container mx-auto px-4 lg:px-6 h-16 md:h-24 flex items-center justify-between">
 				{/* Logo */}
 				<Link href="/" className="flex items-center gap-1">
@@ -58,20 +56,18 @@ export default function MainHeader() {
 				{/* Right Side */}
 				<div className="flex items-center gap-2">
 					{/* <SearchButton /> */}
-			
-					
+
 					{!user && (
-						<Link href="/membership" className="!hidden md:!flex text-yellow-100 border border-1 border-yellow-100 px-3 py-1 rounded hover:bg-yellow-100 hover:text-red-700" title={t("become_member") || "Become a Member"}>
+						<Link href="/membership" className="!hidden md:!flex text-yellow-100 border border-1 border-yellow-100 px-3 py-1 rounded hover:bg-yellow-100 hover:text-brand_secondary" title={t("become_member") || "Become a Member"}>
 							{/* <UserPlus className="w-4 h-4" /> */}
 							{t("become_member")}
 						</Link>
 					)}
-				
-					<Link href="/donate" className="!hidden md:!flex border border-1 border-yellow-100 px-3 py-1 rounded bg-yellow-100 text-red-700 hover:bg-red-700 hover:text-yellow-100">
+
+					<Link href="/donate" className="!hidden md:!flex border border-1 border-yellow-100 px-3 py-1 rounded bg-yellow-100 text-brand_secondary hover:bg-brand_secondary hover:text-yellow-100">
 						{t("donate")}
 					</Link>
 					<CartButton />
-
 
 					<MobileMenu navItems={navItems} />
 				</div>

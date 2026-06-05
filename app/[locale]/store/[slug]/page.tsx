@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import { use } from 'react';
-import { useCart } from '@/context/CartContext';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { Card, CardContent } from '@/components/ui/card';
-import UniversalLoader from '@/components/ui/UniversalLoader';
-import { ArrowLeft, ShoppingCart, Package, Calendar, Tag, Star, Check, X } from 'lucide-react';
-import { toast } from 'react-hot-toast';
-import Image from 'next/image';
-import { Product } from '@/types';
+import React, { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { use } from "react";
+import { useCart } from "@/context/CartContext";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Card, CardContent } from "@/components/ui/card";
+import UniversalLoader from "@/components/ui/UniversalLoader";
+import { ArrowLeft, ShoppingCart, Package, Calendar, Tag, Star, Check, X } from "lucide-react";
+import { toast } from "react-hot-toast";
+import Image from "next/image";
+import { Product } from "@/types";
 
 interface ProductDetailPageProps {
 	params: Promise<{ locale: string; slug: string }>;
@@ -34,13 +34,13 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ params }) => {
 				const data = await response.json();
 				setProduct(data.product);
 			} else {
-				toast.error('Product not found');
-				router.push('/store');
+				toast.error("Product not found");
+				router.push("/store");
 			}
 		} catch (error) {
-			console.error('Error fetching product:', error);
-			toast.error('Failed to load product');
-			router.push('/store');
+			console.error("Error fetching product:", error);
+			toast.error("Failed to load product");
+			router.push("/store");
 		} finally {
 			setLoading(false);
 		}
@@ -51,53 +51,53 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ params }) => {
 	}, [resolvedParams.slug, fetchProduct]);
 
 	const handleAddToCart = () => {
-		console.log('handleAddToCart called');
-		console.log('Product:', product);
-		console.log('Quantity:', quantity);
-		console.log('Can add to cart:', canAddToCart());
-		
+		console.log("handleAddToCart called");
+		console.log("Product:", product);
+		console.log("Quantity:", quantity);
+		console.log("Can add to cart:", canAddToCart());
+
 		if (product) {
 			addToCart(product, quantity);
 			toast.success(`${getProductName()} added to cart`);
-			window.scrollTo({ top: 0, behavior: 'smooth' });
+			window.scrollTo({ top: 0, behavior: "smooth" });
 		}
 	};
 
 	const handleBuyNow = async () => {
-		console.log('handleBuyNow called');
-		console.log('Product:', product);
-		console.log('Locale:', resolvedParams.locale);
-		
+		console.log("handleBuyNow called");
+		console.log("Product:", product);
+		console.log("Locale:", resolvedParams.locale);
+
 		if (!product) {
-			toast.error('Product not available');
+			toast.error("Product not available");
 			return;
 		}
-		
+
 		// Add to cart first
 		addToCart(product, quantity);
 		toast.success(`${getProductName()} added to cart`);
-		
+
 		// Small delay to ensure cart state is updated
-		await new Promise(resolve => setTimeout(resolve, 100));
-		
+		await new Promise((resolve) => setTimeout(resolve, 100));
+
 		// Navigate to checkout
 		router.push(`/${resolvedParams.locale}/checkout`);
 	};
 
 	const getProductName = () => {
-		if (!product) return '';
+		if (!product) return "";
 		return product.name[resolvedParams.locale as keyof typeof product.name] || product.name.en;
 	};
 
 	const getProductDescription = () => {
-		if (!product) return '';
+		if (!product) return "";
 		return product.description[resolvedParams.locale as keyof typeof product.description] || product.description.en;
 	};
 
 	const formatPrice = (price: number) => {
-		return new Intl.NumberFormat('nb-NO', {
-			style: 'currency',
-			currency: 'NOK'
+		return new Intl.NumberFormat("nb-NO", {
+			style: "currency",
+			currency: "NOK",
 		}).format(price);
 	};
 
@@ -128,7 +128,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ params }) => {
 			<div className="container mx-auto px-4 py-8">
 				<div className="text-center py-12">
 					<h2 className="text-2xl font-bold mb-4">Product not found</h2>
-					<Button onClick={() => router.push('/store')}>
+					<Button onClick={() => router.push("/store")}>
 						<ArrowLeft className="w-4 h-4 mr-2" />
 						Back to Store
 					</Button>
@@ -137,16 +137,12 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ params }) => {
 		);
 	}
 
-	const allImages = product.imageUrl ? [product.imageUrl, ...(product.images || [])] : (product.images || []);
+	const allImages = product.imageUrl ? [product.imageUrl, ...(product.images || [])] : product.images || [];
 
 	return (
 		<div className="container mx-auto px-4 py-8">
 			{/* Back Button */}
-			<Button
-				variant="ghost"
-				onClick={() => router.back()}
-				className="mb-6"
-			>
+			<Button variant="ghost" onClick={() => router.back()} className="mb-6">
 				<ArrowLeft className="w-4 h-4 mr-2" />
 				Back to Store
 			</Button>
@@ -154,36 +150,14 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ params }) => {
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 				{/* Product Images */}
 				<div className="space-y-4">
-					<div className="aspect-square overflow-hidden rounded-lg bg-gray-100">
-						{allImages[selectedImageIndex] && (
-							<Image
-								src={allImages[selectedImageIndex]}
-								alt={getProductName() || 'Product image'}
-								width={600}
-								height={600}
-								className="w-full h-full object-cover"
-							/>
-						)}
-					</div>
-					
+					<div className="aspect-square overflow-hidden rounded-lg">{allImages[selectedImageIndex] && <Image src={allImages[selectedImageIndex]} alt={getProductName() || "Product image"} width={600} height={600} className="w-full h-full object-contain" />}</div>
+
 					{/* Image Thumbnails */}
 					{allImages.length > 1 && (
 						<div className="flex gap-2 overflow-x-auto">
 							{allImages.map((image, index) => (
-								<button
-									key={index}
-									onClick={() => setSelectedImageIndex(index)}
-									className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${
-										selectedImageIndex === index ? 'border-blue-500' : 'border-gray-200'
-									}`}
-								>
-									<Image
-										src={image}
-										alt={`${getProductName()} ${index + 1}`}
-										width={80}
-										height={80}
-										className="w-full h-full object-cover"
-									/>
+								<button key={index} onClick={() => setSelectedImageIndex(index)} className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${selectedImageIndex === index ? "border-blue-500" : "border-gray-200"}`}>
+									<Image src={image} alt={`${getProductName()} ${index + 1}`} width={80} height={80} className="w-full h-full object-cover" />
 								</button>
 							))}
 						</div>
@@ -195,16 +169,18 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ params }) => {
 					{/* Title and Category */}
 					<div>
 						<div className="flex items-center gap-2 mb-2">
-							<Badge variant={product.category === 'product' ? 'default' : 'secondary'}>
-								{product.category === 'product' ? (
-									<><Package className="w-3 h-3 mr-1" /> Product</>
+							<Badge variant={product.category === "product" ? "default" : "secondary"}>
+								{product.category === "product" ? (
+									<>
+										<Package className="w-3 h-3 mr-1" /> Product
+									</>
 								) : (
-									<><Calendar className="w-3 h-3 mr-1" /> Service</>
+									<>
+										<Calendar className="w-3 h-3 mr-1" /> Service
+									</>
 								)}
 							</Badge>
-							{product.isDigital && (
-								<Badge variant="outline">Digital</Badge>
-							)}
+							{product.isDigital && <Badge variant="outline">Digital</Badge>}
 						</div>
 						<h1 className="text-3xl font-bold mb-2">{getProductName()}</h1>
 						<p className="text-2xl font-bold text-green-700">{formatPrice(product.price)}</p>
@@ -215,10 +191,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ params }) => {
 						{isInStock() ? (
 							<div className="flex items-center gap-2 text-green-600">
 								<Check className="w-5 h-5" />
-								<span>
-									{product.isDigital ? 'Digital Product' : 
-									 product.stockQuantity ? `${product.stockQuantity} in stock` : 'In Stock'}
-								</span>
+								<span>{product.isDigital ? "Digital Product" : product.stockQuantity ? `${product.stockQuantity} in stock` : "In Stock"}</span>
 							</div>
 						) : (
 							<div className="flex items-center gap-2 text-red-600">
@@ -243,7 +216,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ params }) => {
 									const featureText = feature[resolvedParams.locale as keyof typeof feature] || feature.en;
 									return featureText ? (
 										<div key={index} className="flex items-center gap-2">
-											<Star className="w-4 h-4 text-yellow-500" />
+											<Star className="w-4 h-4 text-brand_primary" />
 											<span>{featureText}</span>
 										</div>
 									) : null;
@@ -279,7 +252,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ params }) => {
 						<div>
 							<h3 className="text-lg font-semibold mb-2">Tags</h3>
 							<div className="flex gap-2 flex-wrap">
-								{product.tags.map(tag => (
+								{product.tags.map((tag) => (
 									<Badge key={tag} variant="outline" className="text-xs">
 										<Tag className="w-2 h-2 mr-1" />
 										{tag}
@@ -298,22 +271,11 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ params }) => {
 							<div>
 								<label className="block text-sm font-medium mb-2">Quantity</label>
 								<div className="flex items-center gap-2">
-									<Button
-										variant="outline"
-										size="sm"
-										onClick={() => setQuantity(Math.max(1, quantity - 1))}
-									>
+									<Button variant="outline" size="sm" onClick={() => setQuantity(Math.max(1, quantity - 1))}>
 										-
 									</Button>
 									<span className="w-12 text-center">{quantity}</span>
-									<Button
-										variant="outline"
-										size="sm"
-										onClick={() => setQuantity(Math.min(
-											product.stockQuantity || 999, 
-											quantity + 1
-										))}
-									>
+									<Button variant="outline" size="sm" onClick={() => setQuantity(Math.min(product.stockQuantity || 999, quantity + 1))}>
 										+
 									</Button>
 								</div>
@@ -322,33 +284,17 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ params }) => {
 
 						{/* Action Buttons */}
 						<div className="flex gap-4">
-						
-							<Button
-								onClick={handleAddToCart}
-								disabled={!canAddToCart()}
-								className="flex-1"
-								size="lg"
-							>
+							<Button onClick={handleAddToCart} disabled={!canAddToCart()} className="flex-1" size="lg">
 								<ShoppingCart className="w-4 h-4 mr-2" />
-								{!canAddToCart() ? 'Out of Stock' : 'Add to Cart'}
+								{!canAddToCart() ? "Out of Stock" : "Add to Cart"}
 							</Button>
-							<Button
-								onClick={handleBuyNow}
-								disabled={!canAddToCart()}
-								variant="outline"
-								className="flex-1"
-								size="lg"
-							>
+							<Button onClick={handleBuyNow} disabled={!canAddToCart()} variant="outline" className="flex-1" size="lg">
 								Buy Now
 							</Button>
 						</div>
 
 						{/* Digital Product Info */}
-						{product.isDigital && product.downloadUrl && (
-							<div className="text-sm text-gray-500 text-center">
-								Digital product - instant download after purchase
-							</div>
-						)}
+						{product.isDigital && product.downloadUrl && <div className="text-sm text-gray-500 text-center">Digital product - instant download after purchase</div>}
 					</div>
 				</div>
 			</div>

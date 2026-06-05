@@ -13,1128 +13,967 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Membership } from "@/types";
 import { getPostalCodeInfo } from "@/lib/postalCodeLookup";
 
-
 interface Translations {
-  title: string;
-  settings: string;
-  changePassword: string;
-  currentPassword: string;
-  newPassword: string;
-  confirmPassword: string;
-  updatePassword: string;
-  passwordUpdated: string;
-  passwordUpdateError: string;
-  passwordsNotMatch: string;
-  passwordTooShort: string;
-  passwordChanged: string;
-  securityWarning: string;
-  temporaryPasswordWarning: string;
-  changePasswordNow: string;
-  personalInfo: string;
-  updateProfile: string;
-  profileUpdated: string;
-  profileUpdateError: string;
-  phone: string;
-  address: string;
-  city: string;
-  postalCode: string;
-  updating: string;
-  changeEmail: string;
-  currentEmail: string;
-  newEmail: string;
-  password: string;
-  sending: string;
-  emailUpdated: string;
-  emailUpdateError: string;
-  emailVerificationSent: string;
-  emailVerificationError: string;
+	title: string;
+	settings: string;
+	changePassword: string;
+	currentPassword: string;
+	newPassword: string;
+	confirmPassword: string;
+	updatePassword: string;
+	passwordUpdated: string;
+	passwordUpdateError: string;
+	passwordsNotMatch: string;
+	passwordTooShort: string;
+	passwordChanged: string;
+	securityWarning: string;
+	temporaryPasswordWarning: string;
+	changePasswordNow: string;
+	personalInfo: string;
+	updateProfile: string;
+	profileUpdated: string;
+	profileUpdateError: string;
+	phone: string;
+	address: string;
+	city: string;
+	postalCode: string;
+	updating: string;
+	changeEmail: string;
+	currentEmail: string;
+	newEmail: string;
+	password: string;
+	sending: string;
+	emailUpdated: string;
+	emailUpdateError: string;
+	emailVerificationSent: string;
+	emailVerificationError: string;
 }
 
 interface Props {
-  translations: Translations;
+	translations: Translations;
 }
 
 export default function UpdateClient({ translations: t }: Props) {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-  const params = useParams();
-  const locale = params.locale as string;
-  const { toast } = useToast();
-
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [membershipData, setMembershipData] = useState<Membership | null>(null);
-  const [hasTemporaryPassword, setHasTemporaryPassword] = useState(false);
-  const [currentPasswordError, setCurrentPasswordError] = useState("");
-  const [isValidatingCurrentPassword, setIsValidatingCurrentPassword] = useState(false);
-  const [isCurrentPasswordValid, setIsCurrentPasswordValid] = useState(false);
-
-  // Email change states
-  const [newEmail, setNewEmail] = useState("");
-  const [emailPassword, setEmailPassword] = useState("");
-  const [showEmailPassword, setShowEmailPassword] = useState(false);
-  const [isChangingEmail, setIsChangingEmail] = useState(false);
-  const [emailError, setEmailError] = useState("");
-  const [emailPasswordError, setEmailPasswordError] = useState("");
-  const [isEmailPasswordVerified, setIsEmailPasswordVerified] = useState(false);
-  const [emailValidationTimeout, setEmailValidationTimeout] = useState<NodeJS.Timeout | null>(null);
-  
-  // Personal information form states
-  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
-  const [profileForm, setProfileForm] = useState({
-    firstName: "",
-    middleName: "",
-    lastName: "",
-    phone: "",
-    address: "",
-    city: "",
-    postalCode: "",
-    kommune: "",
-    fylke: "",
-    personalNumber: "",
- 
-    profilePhoto: "",
-  });
-
-  // Debug: Log profileForm state changes
-  useEffect(() => {
-    console.log("=== PROFILE FORM STATE CHANGED ===");
-    console.log("Current profileForm:", profileForm);
-  }, [profileForm]);
-  
-
-  useEffect(() => {
-    console.log("=== UPDATE PROFILE USEEFFECT RUNNING ===");
-    console.log("Status:", status);
-    console.log("Session:", session);
-    console.log("User email:", session?.user?.email);
-    
-    if (status === "unauthenticated") {
-      console.log("User not authenticated, redirecting to login");
-      router.push(`/${locale}/login`);
-      return;
-    }
-
-    // Redirect admins to dashboard
-    if (session?.user?.role === "admin") {
-      console.log("Admin user, redirecting to dashboard");
-      router.push(`/${locale}/dashboard`);
-      return;
-    }
-
-    // Fetch membership data to check if user has temporary password and populate profile form
-    const userEmail = session?.user?.email;
-    console.log("=== UPDATE PROFILE FETCHING DATA ===");
-    console.log("User email:", userEmail);
-    console.log("About to check if userEmail exists...");
-    if (userEmail) {
-      console.log("User email exists, starting fetch...");
-      fetch(`/api/membership?email=${encodeURIComponent(userEmail as string)}`)
-        .then((res) => res.json())
-        .then((data) => {
-          console.log("=== UPDATE PROFILE RECEIVED DATA ===");
-          console.log("Data:", data);
-          console.log("Is array:", Array.isArray(data));
-          console.log("Data length:", Array.isArray(data) ? data.length : "N/A");
-          
-          if (Array.isArray(data) && data.length > 0) {
-            const member = data[0];
-            console.log("Member data:", member);
-            setMembershipData(member);
-            
-            // Populate profile form with existing data
-            const formData = {
-              firstName: member.firstName || "",
-              middleName: member.middleName || "",
-              lastName: member.lastName || "",
-              phone: member.phone || "",
-              address: member.address || "",
-              city: member.city || "",
-              postalCode: member.postalCode || "",
-              kommune: member.kommune || "",
-              fylke: member.fylke || "",
-              personalNumber: member.personalNumber || "",
- 
-              profilePhoto: member.profilePhoto || "",
-            };
-            
-            console.log("=== POPULATING FORM DATA ===");
-            console.log("Form data:", formData);
-            setProfileForm(formData);
-            
-            // Check if password was recently reset (within last 24 hours)
-            const lastPasswordReset = member.passwordResetTokenExpiry;
-            if (lastPasswordReset) {
-              const resetTime = new Date(lastPasswordReset);
-              const now = new Date();
-              const hoursSinceReset = (now.getTime() - resetTime.getTime()) / (1000 * 60 * 60);
-              if (hoursSinceReset < 24) {
-                setHasTemporaryPassword(true);
-              }
-            }
-          }
-        })
-        .catch((error) => console.error("Error fetching membership data:", error));
-    }
-
-    // Cleanup timeout on unmount
-    return () => {
-      if (emailValidationTimeout) {
-        clearTimeout(emailValidationTimeout);
-      }
-    };
-  }, [status, session?.user?.email, router, locale, emailValidationTimeout, session]);
-
-  const validatePassword = (password: string) => {
-    return password.length >= 8;
-  };
-
-  const isValidEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  
-  const validateCurrentPassword = async (password: string) => {
-    if (!password || !session?.user?.email) {
-      setCurrentPasswordError("");
-      setIsCurrentPasswordValid(false);
-      return;
-    }
-
-    setIsValidatingCurrentPassword(true);
-    setCurrentPasswordError("");
-    setIsCurrentPasswordValid(false);
-
-    try {
-      const response = await fetch("/api/password/change", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          action: 'verify',
-          currentPassword: password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.isValid) {
-        setIsCurrentPasswordValid(true);
-        setCurrentPasswordError("");
-      } else {
-        setCurrentPasswordError("Current password is incorrect");
-        setIsCurrentPasswordValid(false);
-      }
-    } catch (error) {
-      console.error("Password validation error:", error);
-      setCurrentPasswordError("Unable to verify password");
-      setIsCurrentPasswordValid(false);
-    } finally {
-      setIsValidatingCurrentPassword(false);
-    }
-  };
-
-  const validateEmailPassword = async (password: string) => {
-    if (!password || !session?.user?.email) {
-      setEmailPasswordError("");
-      setIsEmailPasswordVerified(false);
-      return;
-    }
-
-    try {
-      const response = await fetch("/api/password/change", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          action: 'verify',
-          currentPassword: password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.isValid) {
-        setIsEmailPasswordVerified(true);
-        setEmailPasswordError("");
-      } else {
-        setEmailPasswordError("Current password is incorrect");
-        setIsEmailPasswordVerified(false);
-      }
-    } catch (error) {
-      console.error("Email password validation error:", error);
-      setEmailPasswordError("Unable to verify password");
-      setIsEmailPasswordVerified(false);
-    }
-  };
-
-  const handlePasswordChange = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Validation
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      toast({
-        title: "Error",
-        description: "All password fields are required",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      toast({
-        title: "Error",
-        description: t.passwordsNotMatch || "New passwords do not match",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!validatePassword(newPassword)) {
-      toast({
-        title: "Error",
-        description: t.passwordTooShort || "Password must be at least 8 characters long",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const response = await fetch("/api/password/change", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          action: 'change',
-          currentPassword,
-          newPassword,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        toast({
-          title: "Success",
-          description: t.passwordUpdated || "Password updated successfully",
-        });
-
-        // Clear all form states and reset validation
-        setCurrentPassword("");
-        setNewPassword("");
-        setConfirmPassword("");
-        setHasTemporaryPassword(false);
-        setIsCurrentPasswordValid(false);
-        setCurrentPasswordError("");
-        setIsValidatingCurrentPassword(false);
-
-        // Update membership data to reflect password change
-        if (membershipData) {
-          setMembershipData({
-            ...membershipData,
-          });
-        }
-
-        // Optional: Redirect to profile after successful password change
-        setTimeout(() => {
-          router.push(`/${locale}/profile`);
-        }, 2000);
-      } else {
-        throw new Error(data.error || "Failed to update password");
-      }
-    } catch (error) {
-      console.error("Password change error:", error);
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : t.passwordUpdateError || "Failed to update password",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleEmailChange = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!session?.user?.email) {
-      toast({
-        title: "Error",
-        description: "User session not found",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!newEmail || !emailPassword) {
-      toast({
-        title: "Error",
-        description: "All email fields are required",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!isValidEmail(newEmail)) {
-      toast({
-        title: "Error",
-        description: "Please enter a valid email address",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsChangingEmail(true);
-
-    try {
-      const response = await fetch("/api/users/change-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          currentEmail: session.user.email,
-          newEmail: newEmail,
-          password: emailPassword,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        toast({
-          title: "Success",
-          description: t.emailVerificationSent || "Email verification link sent to your new email address",
-        });
-
-        // Clear email form states
-        setNewEmail("");
-        setEmailPassword("");
-        setShowEmailPassword(false);
-        setEmailError("");
-        setEmailPasswordError("");
-
-        // Sign out user and redirect to login
-        await fetch("/api/auth/signout", { method: "POST" });
-        router.push(`/${locale}/login?message=email-verification-sent`);
-      } else {
-        throw new Error(data.error || "Failed to change email");
-      }
-    } catch (error) {
-      console.error("Email change error:", error);
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : t.emailUpdateError || "Failed to change email",
-        variant: "destructive",
-      });
-    } finally {
-      setIsChangingEmail(false);
-    }
-  };
-
-  const handleProfileUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    setIsUpdatingProfile(true);
-
-    try {
-      const response = await fetch("/api/users/update-profile", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(profileForm),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        toast({
-          title: "Success",
-          description: t.profileUpdated || "Profile updated successfully",
-        });
-
-        // Update membership data with the new information
-        setMembershipData((prev: Membership | null) => ({
-          ...prev,
-          ...data.member
-        }));
-      } else {
-        throw new Error(data.error || "Failed to update profile");
-      }
-    } catch (error) {
-      console.error("Profile update error:", error);
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : t.profileUpdateError || "Failed to update profile",
-        variant: "destructive",
-      });
-    } finally {
-      setIsUpdatingProfile(false);
-    }
-  };
-
-  const handleProfileFormChange = (field: string, value: string | string[] | boolean) => {
-    // Handle postal code auto-population
-    if (field === "postalCode" && typeof value === "string") {
-      // Get current value to check if user deleted digits
-      const currentValue = profileForm.postalCode;
-      // Clean input: digits only, max 4
-      const cleanValue = value.replace(/\D/g, "").slice(0, 4);
-      
-      // Check if user deleted digits (going from 4 digits to fewer)
-      if (currentValue.length === 4 && cleanValue.length < 4) {
-        // Clear auto-populated fields when user deletes from a 4-digit postal code
-        setProfileForm(prev => ({
-          ...prev,
-          [field]: cleanValue,
-          city: '',
-          kommune: '',
-          fylke: ''
-        }));
-        return;
-      }
-      
-      // Auto-populate city, kommune, and fylke when postal code is 4 digits
-      if (cleanValue.length === 4) {
-        const postalInfo = getPostalCodeInfo(cleanValue);
-        if (postalInfo.poststed) {
-          setProfileForm(prev => ({
-            ...prev,
-            [field]: cleanValue,
-            city: postalInfo.poststed,
-            kommune: postalInfo.kommune,
-            fylke: postalInfo.fylke
-          }));
-          return;
-        } else {
-          // Clear auto-populated fields if postal code is not found
-          setProfileForm(prev => ({
-            ...prev,
-            [field]: cleanValue,
-            city: '',
-            kommune: '',
-            fylke: ''
-          }));
-          return;
-        }
-      }
-      
-      setProfileForm(prev => ({
-        ...prev,
-        [field]: cleanValue
-      }));
-      return;
-    }
-    
-    setProfileForm(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-
-  if (status === "loading") {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-600"></div>
-      </div>
-    );
-  }
-
-  if (!session) {
-    return null;
-  }
-
-  return (
-        	<div className="max-w-4xl space-y-6">
-        {/* Header */}
-     
-        <div className="mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Update your profile</h1>
-          <p className="text-gray-600">Update your personal information and contact details</p>
-        </div>
-
-  
-
-        {/* Security Warning for Temporary Password */}
-        {hasTemporaryPassword && (
-          <Alert className="mb-6 border-yellow-200 bg-yellow-50">
-            <AlertTriangle className="h-4 w-4 text-yellow-600" />
-            <AlertDescription className="text-yellow-800">
-              <strong>{t.securityWarning || "Security Notice"}</strong>
-              <br />
-              {t.temporaryPasswordWarning || "You are using a temporary password that was recently reset by an administrator. For your security, please change your password immediately."}
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {/* Personal Information Card */}
-        <Card className="shadow-lg border-0 mb-6 bg-brand_primary/10">
-          <CardHeader>
-            <CardTitle className="flex items-center text-xl md:text-2xl">
-              <User className="w-6 h-6 mr-2 text-blue-600" />
-              {t.personalInfo || "Personal Information"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleProfileUpdate} className="space-y-6">
-              {/* Personal Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                  <User className="w-4 h-4 mr-2" />
-                  Personal Information
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="firstName" className="text-sm font-semibold text-gray-900">
-                      First Name
-                    </Label>
-                    <Input
-                      id="firstName"
-                      type="text"
-                      value={profileForm.firstName}
-                      onChange={(e) => handleProfileFormChange("firstName", e.target.value)}
-                      placeholder="Enter your first name"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="middleName" className="text-sm font-semibold text-gray-900">
-                      Middle Name (Optional)
-                    </Label>
-                    <Input
-                      id="middleName"
-                      type="text"
-                      value={profileForm.middleName}
-                      onChange={(e) => handleProfileFormChange("middleName", e.target.value)}
-                      placeholder="Enter your middle name"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="lastName" className="text-sm font-semibold text-gray-900">
-                      Last Name
-                    </Label>
-                    <Input
-                      id="lastName"
-                      type="text"
-                      value={profileForm.lastName}
-                      onChange={(e) => handleProfileFormChange("lastName", e.target.value)}
-                      placeholder="Enter your last name"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-sm font-semibold text-gray-900">
-                      {t.phone || "Phone Number"}
-                    </Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={profileForm.phone}
-                      onChange={(e) => handleProfileFormChange("phone", e.target.value)}
-                      placeholder="Enter your phone number"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="personalNumber" className="text-sm font-semibold text-gray-900">
-                      Personal Number
-                    </Label>
-                    <Input
-                      id="personalNumber"
-                      type="text"
-                      value={profileForm.personalNumber}
-                      onChange={(e) => handleProfileFormChange("personalNumber", e.target.value)}
-                      placeholder="Enter your personal number"
-                      maxLength={11}
-                      readOnly
-                      className="bg-gray-50"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Contact Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  Address Information
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="address" className="text-sm font-semibold text-gray-900">
-                      {t.address || "Address"}
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="address"
-                        type="text"
-                        value={profileForm.address}
-                        onChange={(e) => handleProfileFormChange("address", e.target.value)}
-                        placeholder="Enter your address"
-                      />
-                            </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="city" className="text-sm font-semibold text-gray-900">
-                      {t.city || "City"}
-                    </Label>
-                    <Input
-                      id="city"
-                      type="text"
-                      value={profileForm.city}
-                      onChange={(e) => handleProfileFormChange("city", e.target.value)}
-                      placeholder="Enter your city"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="postalCode" className="text-sm font-semibold text-gray-900">
-                      {t.postalCode || "Postal Code"}
-                    </Label>
-                    <Input
-                      id="postalCode"
-                      type="text"
-                      value={profileForm.postalCode}
-                      onChange={(e) => handleProfileFormChange("postalCode", e.target.value)}
-                      placeholder="Enter postal code"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="kommune" className="text-sm font-semibold text-gray-900">
-                      Kommune
-                    </Label>
-                    <Input
-                      id="kommune"
-                      type="text"
-                      value={profileForm.kommune}
-                      onChange={(e) => handleProfileFormChange("kommune", e.target.value)}
-                      placeholder="Enter kommune"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="fylke" className="text-sm font-semibold text-gray-900">
-                      Fylke (County)
-                    </Label>
-                    <Input
-                      id="fylke"
-                      type="text"
-                      value={profileForm.fylke}
-                      onChange={(e) => handleProfileFormChange("fylke", e.target.value)}
-                      placeholder="Enter fylke"
-                    />
-                  </div>
-                </div>
-              </div>
-
-
-
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                className="w-fit bg-blue-600 hover:bg-blue-700"
-                disabled={isUpdatingProfile}
-              >
-                {isUpdatingProfile ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
-                    {t.updating || "Updating..."}
-                  </>
-                ) : (
-                  <>
-                    <User className="w-4 h-4 mr-2" />
-                    {t.updateProfile || "Update Profile"}
-                  </>
-                )}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-
-        {/* Change Email Card */}
-        <Card className="shadow-lg border-0">
-          <CardHeader>
-            <CardTitle className="flex items-center text-xl md:text-2xl">
-              <Mail className="w-6 h-6 mr-2 text-blue-600" />
-              {t.changeEmail || "Change Email"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleEmailChange} className="max-w-sm md:mx-8 space-y-6">
-              {/* Current Email */}
-              <div className="space-y-2">
-                <Label htmlFor="currentEmail" className="text-sm font-semibold text-gray-900">
-                  {t.currentEmail || "Current Email"}
-                </Label>
-                <Input
-                  id="currentEmail"
-                  type="email"
-                  value={session?.user?.email || ""}
-                  disabled
-                  className="bg-gray-100"
-                />
-              </div>
-
-              {/* New Email */}
-              <div className="space-y-2">
-                <Label htmlFor="newEmail" className="text-sm font-semibold text-gray-900">
-                  {t.newEmail || "New Email"}
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="newEmail"
-                    type="email"
-                    value={newEmail}
-                    onChange={(e) => {
-                      setNewEmail(e.target.value);
-                      setEmailError("");
-                    }}
-                    onBlur={(e) => {
-                      if (e.target.value && !isValidEmail(e.target.value)) {
-                        setEmailError("Please enter a valid email address");
-                      }
-                    }}
-                    className={`pr-10 ${
-                      emailError 
-                        ? 'border-red-500 focus:border-red-500' 
-                        : isValidEmail(newEmail) 
-                          ? 'border-green-500 focus:border-green-500' 
-                          : ''
-                    }`}
-                    placeholder="Enter your new email address"
-                    required
-                  />
-                </div>
-                {emailError && (
-                  <div className="text-sm text-red-600 flex items-center">
-                    <AlertTriangle className="w-3 h-3 mr-1" />
-                    {emailError}
-                  </div>
-                )}
-              </div>
-
-              {/* Password Confirmation */}
-              <div className="space-y-2">
-                <Label htmlFor="emailPassword" className="text-sm font-semibold text-gray-900">
-                  {t.password || "Current Password"}
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="emailPassword"
-                    type={showEmailPassword ? "text" : "password"}
-                    value={emailPassword}
-                    onChange={(e) => {
-                      setEmailPassword(e.target.value);
-                      setIsEmailPasswordVerified(false);
-                      setEmailPasswordError("");
-                      
-                      // Clear existing timeout
-                      if (emailValidationTimeout) {
-                        clearTimeout(emailValidationTimeout);
-                      }
-                      
-                      // Auto-validate password when user stops typing
-                      const timeoutId = setTimeout(() => {
-                        if (e.target.value.length >= 6) {
-                          validateEmailPassword(e.target.value);
-                        }
-                      }, 1000);
-                      setEmailValidationTimeout(timeoutId);
-                    }}
-                    onBlur={(e) => {
-                      if (e.target.value.length >= 6) {
-                        validateEmailPassword(e.target.value);
-                      }
-                    }}
-                    className={`pr-10 ${
-                      emailPasswordError 
-                        ? 'border-red-500 focus:border-red-500' 
-                        : isEmailPasswordVerified 
-                          ? 'border-green-500 focus:border-green-500'
-                          : ''
-                    }`}
-                    placeholder="Enter your current password to verify identity"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowEmailPassword(!showEmailPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                  >
-                    {showEmailPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-                {emailPasswordError && (
-                  <div className="text-sm text-red-600 flex items-center">
-                    <AlertTriangle className="w-3 h-3 mr-1" />
-                    {emailPasswordError}
-                  </div>
-                )}
-                {isEmailPasswordVerified && (
-                  <div className="text-sm text-green-600 flex items-center">
-                    <CheckCircle className="w-3 h-3 mr-1" />
-                    Password verified. You can now change your email.
-                  </div>
-                )}
-              </div>
-
-              {/* Verifying Password Status */}
-              {!isEmailPasswordVerified && emailPassword && emailPassword.length >= 6 && !emailPasswordError && (
-                <div className="w-full mt-3 p-2 border border-blue-200 bg-blue-50 rounded text-center">
-                  <div className="flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-3 w-3 border-t-2 border-b-2 border-blue-600 mr-2"></div>
-                    <span className="text-blue-600 text-sm">Verifying password...</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700"
-                disabled={isChangingEmail || !isValidEmail(newEmail) || !emailPassword || !isEmailPasswordVerified || !!emailError}
-              >
-                {isChangingEmail ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
-                    {t.sending || "Sending..."}
-                  </>
-                ) : (
-                  <>
-                    <Mail className="w-4 h-4 mr-2" />
-                    {t.changeEmail || "Change Email"}
-                  </>
-                )}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-
-        {/* Change Password Card */}
-        <Card className="shadow-lg border-0 bg-brand_primary/10">
-          <CardHeader>
-            <CardTitle className="flex items-center text-xl md:text-2xl">
-              <Lock className="w-6 h-6 mr-2 text-blue-600" />
-              {t.changePassword || "Change Password"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handlePasswordChange} className="max-w-sm md:mx-8 space-y-6">
-              {/* Current Password */}
-              <div className="space-y-2">
-                <Label htmlFor="currentPassword" className="text-sm font-semibold text-gray-900">
-                  {t.currentPassword || "Current Password"}
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="currentPassword"
-                    type={showCurrentPassword ? "text" : "password"}
-                    value={currentPassword}
-                    onChange={(e) => {
-                      setCurrentPassword(e.target.value);
-                      setCurrentPasswordError(""); // Clear error when typing
-                      setIsCurrentPasswordValid(false); // Reset valid state when typing
-                    }}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        validateCurrentPassword(currentPassword);
-                      }
-                    }}
-                    className={`pr-10 ${
-                      currentPasswordError 
-                        ? 'border-red-500 focus:border-red-500' 
-                        : isCurrentPasswordValid 
-                          ? 'border-green-500 focus:border-green-500' 
-                          : ''
-                    }`}
-                    placeholder="Enter your current password"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                  >
-                    {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                  {isValidatingCurrentPassword && (
-                    <div className="absolute right-10 top-1/2 transform -translate-y-1/2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-blue-600"></div>
-                    </div>
-                  )}
-                </div>
-                {currentPasswordError && (
-                  <div className="text-sm text-red-600 flex items-center">
-                    <AlertTriangle className="w-3 h-3 mr-1" />
-                    {currentPasswordError}
-                  </div>
-                )}
-                {isCurrentPasswordValid && (
-                  <div className="text-sm text-green-600 flex items-center">
-                    <CheckCircle className="w-3 h-3 mr-1" />
-                    Password verified. You can now set a new password.
-                  </div>
-                )}
-                
-                {/* Next Button for mobile-friendly validation */}
-                {!isCurrentPasswordValid && currentPassword && (
-                  <Button
-                    type="button"
-                    onClick={() => validateCurrentPassword(currentPassword)}
-                    disabled={isValidatingCurrentPassword}
-                    className="w-full mt-3"
-                    variant="outline"
-                  >
-                    {isValidatingCurrentPassword ? (
-                      <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-blue-600 mr-2"></div>
-                    ) : null}
-                    Next
-                  </Button>
-                )}
-              </div>
-
-              {/* Show rest of form only when current password is valid */}
-              {isCurrentPasswordValid && (
-                <>
-                  {/* New Password */}
-                  <div className="space-y-2">
-                    <Label htmlFor="newPassword" className="text-sm font-semibold text-gray-900">
-                      {t.newPassword || "New Password"}
-                    </Label>
-                <div className="relative">
-                  <Input
-                    id="newPassword"
-                    type={showNewPassword ? "text" : "password"}
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    className="pr-10"
-                    placeholder="Enter your new password (min. 8 characters)"
-                    required
-                    minLength={8}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                  >
-                    {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-                {newPassword && (
-                  <div className="text-sm text-gray-600">
-                    {validatePassword(newPassword) ? (
-                      <span className="text-green-600 flex items-center">
-                        <CheckCircle className="w-3 h-3 mr-1" />
-                        Password strength: Good
-                      </span>
-                    ) : (
-                      <span className="text-red-600">
-                        Password must be at least 8 characters long
-                      </span>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Confirm Password */}
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-sm font-semibold text-gray-900">
-                  {t.confirmPassword || "Confirm New Password"}
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="pr-10"
-                    placeholder="Confirm your new password"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                  >
-                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-                {confirmPassword && (
-                  <div className="text-sm">
-                    {newPassword === confirmPassword ? (
-                      <span className="text-green-600 flex items-center">
-                        <CheckCircle className="w-3 h-3 mr-1" />
-                        Passwords match
-                      </span>
-                    ) : (
-                      <span className="text-red-600">
-                        Passwords do not match
-                      </span>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700"
-                disabled={isLoading || !validatePassword(newPassword) || newPassword !== confirmPassword}
-              >
-                {isLoading ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
-                ) : null}
-                {t.updatePassword || "Update Password"}
-              </Button>
-                </>
-              )}
-            </form>
-          </CardContent>
-        </Card>
-
-        {/* Quick Action for Temporary Password Users */}
-        {hasTemporaryPassword && (
-          <Card className="mt-6 border-yellow-200 bg-yellow-50">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-yellow-800 mb-1">
-                    {t.changePasswordNow || "Change Your Password Now"}
-                  </h3>
-                  <p className="text-yellow-700 text-sm">
-                    Your account security is important. Change your temporary password to a permanent one.
-                  </p>
-                </div>
-                <Button
-                  onClick={() => document.getElementById('currentPassword')?.focus()}
-                  className="bg-yellow-600 hover:bg-yellow-700 text-white"
-                >
-                  Change Now
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-  );
+	const { data: session, status } = useSession();
+	const router = useRouter();
+	const params = useParams();
+	const locale = params.locale as string;
+	const { toast } = useToast();
+
+	const [currentPassword, setCurrentPassword] = useState("");
+	const [newPassword, setNewPassword] = useState("");
+	const [confirmPassword, setConfirmPassword] = useState("");
+	const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+	const [showNewPassword, setShowNewPassword] = useState(false);
+	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+	const [membershipData, setMembershipData] = useState<Membership | null>(null);
+	const [hasTemporaryPassword, setHasTemporaryPassword] = useState(false);
+	const [currentPasswordError, setCurrentPasswordError] = useState("");
+	const [isValidatingCurrentPassword, setIsValidatingCurrentPassword] = useState(false);
+	const [isCurrentPasswordValid, setIsCurrentPasswordValid] = useState(false);
+
+	// Email change states
+	const [newEmail, setNewEmail] = useState("");
+	const [emailPassword, setEmailPassword] = useState("");
+	const [showEmailPassword, setShowEmailPassword] = useState(false);
+	const [isChangingEmail, setIsChangingEmail] = useState(false);
+	const [emailError, setEmailError] = useState("");
+	const [emailPasswordError, setEmailPasswordError] = useState("");
+	const [isEmailPasswordVerified, setIsEmailPasswordVerified] = useState(false);
+	const [emailValidationTimeout, setEmailValidationTimeout] = useState<NodeJS.Timeout | null>(null);
+
+	// Personal information form states
+	const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+	const [profileForm, setProfileForm] = useState({
+		firstName: "",
+		middleName: "",
+		lastName: "",
+		phone: "",
+		address: "",
+		city: "",
+		postalCode: "",
+		kommune: "",
+		fylke: "",
+		personalNumber: "",
+
+		profilePhoto: "",
+	});
+
+	// Debug: Log profileForm state changes
+	useEffect(() => {
+		console.log("=== PROFILE FORM STATE CHANGED ===");
+		console.log("Current profileForm:", profileForm);
+	}, [profileForm]);
+
+	useEffect(() => {
+		console.log("=== UPDATE PROFILE USEEFFECT RUNNING ===");
+		console.log("Status:", status);
+		console.log("Session:", session);
+		console.log("User email:", session?.user?.email);
+
+		if (status === "unauthenticated") {
+			console.log("User not authenticated, redirecting to login");
+			router.push(`/${locale}/login`);
+			return;
+		}
+
+		// Redirect admins to dashboard
+		if (session?.user?.role === "admin") {
+			console.log("Admin user, redirecting to dashboard");
+			router.push(`/${locale}/dashboard`);
+			return;
+		}
+
+		// Fetch membership data to check if user has temporary password and populate profile form
+		const userEmail = session?.user?.email;
+		console.log("=== UPDATE PROFILE FETCHING DATA ===");
+		console.log("User email:", userEmail);
+		console.log("About to check if userEmail exists...");
+		if (userEmail) {
+			console.log("User email exists, starting fetch...");
+			fetch(`/api/membership?email=${encodeURIComponent(userEmail as string)}`)
+				.then((res) => res.json())
+				.then((data) => {
+					console.log("=== UPDATE PROFILE RECEIVED DATA ===");
+					console.log("Data:", data);
+					console.log("Is array:", Array.isArray(data));
+					console.log("Data length:", Array.isArray(data) ? data.length : "N/A");
+
+					if (Array.isArray(data) && data.length > 0) {
+						const member = data[0];
+						console.log("Member data:", member);
+						setMembershipData(member);
+
+						// Populate profile form with existing data
+						const formData = {
+							firstName: member.firstName || "",
+							middleName: member.middleName || "",
+							lastName: member.lastName || "",
+							phone: member.phone || "",
+							address: member.address || "",
+							city: member.city || "",
+							postalCode: member.postalCode || "",
+							kommune: member.kommune || "",
+							fylke: member.fylke || "",
+							personalNumber: member.personalNumber || "",
+
+							profilePhoto: member.profilePhoto || "",
+						};
+
+						console.log("=== POPULATING FORM DATA ===");
+						console.log("Form data:", formData);
+						setProfileForm(formData);
+
+						// Check if password was recently reset (within last 24 hours)
+						const lastPasswordReset = member.passwordResetTokenExpiry;
+						if (lastPasswordReset) {
+							const resetTime = new Date(lastPasswordReset);
+							const now = new Date();
+							const hoursSinceReset = (now.getTime() - resetTime.getTime()) / (1000 * 60 * 60);
+							if (hoursSinceReset < 24) {
+								setHasTemporaryPassword(true);
+							}
+						}
+					}
+				})
+				.catch((error) => console.error("Error fetching membership data:", error));
+		}
+
+		// Cleanup timeout on unmount
+		return () => {
+			if (emailValidationTimeout) {
+				clearTimeout(emailValidationTimeout);
+			}
+		};
+	}, [status, session?.user?.email, router, locale, emailValidationTimeout, session]);
+
+	const validatePassword = (password: string) => {
+		return password.length >= 8;
+	};
+
+	const isValidEmail = (email: string) => {
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		return emailRegex.test(email);
+	};
+
+	const validateCurrentPassword = async (password: string) => {
+		if (!password || !session?.user?.email) {
+			setCurrentPasswordError("");
+			setIsCurrentPasswordValid(false);
+			return;
+		}
+
+		setIsValidatingCurrentPassword(true);
+		setCurrentPasswordError("");
+		setIsCurrentPasswordValid(false);
+
+		try {
+			const response = await fetch("/api/password/change", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					action: "verify",
+					currentPassword: password,
+				}),
+			});
+
+			const data = await response.json();
+
+			if (response.ok && data.isValid) {
+				setIsCurrentPasswordValid(true);
+				setCurrentPasswordError("");
+			} else {
+				setCurrentPasswordError("Current password is incorrect");
+				setIsCurrentPasswordValid(false);
+			}
+		} catch (error) {
+			console.error("Password validation error:", error);
+			setCurrentPasswordError("Unable to verify password");
+			setIsCurrentPasswordValid(false);
+		} finally {
+			setIsValidatingCurrentPassword(false);
+		}
+	};
+
+	const validateEmailPassword = async (password: string) => {
+		if (!password || !session?.user?.email) {
+			setEmailPasswordError("");
+			setIsEmailPasswordVerified(false);
+			return;
+		}
+
+		try {
+			const response = await fetch("/api/password/change", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					action: "verify",
+					currentPassword: password,
+				}),
+			});
+
+			const data = await response.json();
+
+			if (response.ok && data.isValid) {
+				setIsEmailPasswordVerified(true);
+				setEmailPasswordError("");
+			} else {
+				setEmailPasswordError("Current password is incorrect");
+				setIsEmailPasswordVerified(false);
+			}
+		} catch (error) {
+			console.error("Email password validation error:", error);
+			setEmailPasswordError("Unable to verify password");
+			setIsEmailPasswordVerified(false);
+		}
+	};
+
+	const handlePasswordChange = async (e: React.FormEvent) => {
+		e.preventDefault();
+
+		// Validation
+		if (!currentPassword || !newPassword || !confirmPassword) {
+			toast({
+				title: "Error",
+				description: "All password fields are required",
+				variant: "destructive",
+			});
+			return;
+		}
+
+		if (newPassword !== confirmPassword) {
+			toast({
+				title: "Error",
+				description: t.passwordsNotMatch || "New passwords do not match",
+				variant: "destructive",
+			});
+			return;
+		}
+
+		if (!validatePassword(newPassword)) {
+			toast({
+				title: "Error",
+				description: t.passwordTooShort || "Password must be at least 8 characters long",
+				variant: "destructive",
+			});
+			return;
+		}
+
+		setIsLoading(true);
+
+		try {
+			const response = await fetch("/api/password/change", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					action: "change",
+					currentPassword,
+					newPassword,
+				}),
+			});
+
+			const data = await response.json();
+
+			if (response.ok) {
+				toast({
+					title: "Success",
+					description: t.passwordUpdated || "Password updated successfully",
+				});
+
+				// Clear all form states and reset validation
+				setCurrentPassword("");
+				setNewPassword("");
+				setConfirmPassword("");
+				setHasTemporaryPassword(false);
+				setIsCurrentPasswordValid(false);
+				setCurrentPasswordError("");
+				setIsValidatingCurrentPassword(false);
+
+				// Update membership data to reflect password change
+				if (membershipData) {
+					setMembershipData({
+						...membershipData,
+					});
+				}
+
+				// Optional: Redirect to profile after successful password change
+				setTimeout(() => {
+					router.push(`/${locale}/profile`);
+				}, 2000);
+			} else {
+				throw new Error(data.error || "Failed to update password");
+			}
+		} catch (error) {
+			console.error("Password change error:", error);
+			toast({
+				title: "Error",
+				description: error instanceof Error ? error.message : t.passwordUpdateError || "Failed to update password",
+				variant: "destructive",
+			});
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	const handleEmailChange = async (e: React.FormEvent) => {
+		e.preventDefault();
+
+		if (!session?.user?.email) {
+			toast({
+				title: "Error",
+				description: "User session not found",
+				variant: "destructive",
+			});
+			return;
+		}
+
+		if (!newEmail || !emailPassword) {
+			toast({
+				title: "Error",
+				description: "All email fields are required",
+				variant: "destructive",
+			});
+			return;
+		}
+
+		if (!isValidEmail(newEmail)) {
+			toast({
+				title: "Error",
+				description: "Please enter a valid email address",
+				variant: "destructive",
+			});
+			return;
+		}
+
+		setIsChangingEmail(true);
+
+		try {
+			const response = await fetch("/api/users/change-email", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					currentEmail: session.user.email,
+					newEmail: newEmail,
+					password: emailPassword,
+				}),
+			});
+
+			const data = await response.json();
+
+			if (response.ok) {
+				toast({
+					title: "Success",
+					description: t.emailVerificationSent || "Email verification link sent to your new email address",
+				});
+
+				// Clear email form states
+				setNewEmail("");
+				setEmailPassword("");
+				setShowEmailPassword(false);
+				setEmailError("");
+				setEmailPasswordError("");
+
+				// Sign out user and redirect to login
+				await fetch("/api/auth/signout", { method: "POST" });
+				router.push(`/${locale}/login?message=email-verification-sent`);
+			} else {
+				throw new Error(data.error || "Failed to change email");
+			}
+		} catch (error) {
+			console.error("Email change error:", error);
+			toast({
+				title: "Error",
+				description: error instanceof Error ? error.message : t.emailUpdateError || "Failed to change email",
+				variant: "destructive",
+			});
+		} finally {
+			setIsChangingEmail(false);
+		}
+	};
+
+	const handleProfileUpdate = async (e: React.FormEvent) => {
+		e.preventDefault();
+
+		setIsUpdatingProfile(true);
+
+		try {
+			const response = await fetch("/api/users/update-profile", {
+				method: "PATCH",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(profileForm),
+			});
+
+			const data = await response.json();
+
+			if (response.ok) {
+				toast({
+					title: "Success",
+					description: t.profileUpdated || "Profile updated successfully",
+				});
+
+				// Update membership data with the new information
+				setMembershipData((prev: Membership | null) => ({
+					...prev,
+					...data.member,
+				}));
+			} else {
+				throw new Error(data.error || "Failed to update profile");
+			}
+		} catch (error) {
+			console.error("Profile update error:", error);
+			toast({
+				title: "Error",
+				description: error instanceof Error ? error.message : t.profileUpdateError || "Failed to update profile",
+				variant: "destructive",
+			});
+		} finally {
+			setIsUpdatingProfile(false);
+		}
+	};
+
+	const handleProfileFormChange = (field: string, value: string | string[] | boolean) => {
+		// Handle postal code auto-population
+		if (field === "postalCode" && typeof value === "string") {
+			// Get current value to check if user deleted digits
+			const currentValue = profileForm.postalCode;
+			// Clean input: digits only, max 4
+			const cleanValue = value.replace(/\D/g, "").slice(0, 4);
+
+			// Check if user deleted digits (going from 4 digits to fewer)
+			if (currentValue.length === 4 && cleanValue.length < 4) {
+				// Clear auto-populated fields when user deletes from a 4-digit postal code
+				setProfileForm((prev) => ({
+					...prev,
+					[field]: cleanValue,
+					city: "",
+					kommune: "",
+					fylke: "",
+				}));
+				return;
+			}
+
+			// Auto-populate city, kommune, and fylke when postal code is 4 digits
+			if (cleanValue.length === 4) {
+				const postalInfo = getPostalCodeInfo(cleanValue);
+				if (postalInfo.poststed) {
+					setProfileForm((prev) => ({
+						...prev,
+						[field]: cleanValue,
+						city: postalInfo.poststed,
+						kommune: postalInfo.kommune,
+						fylke: postalInfo.fylke,
+					}));
+					return;
+				} else {
+					// Clear auto-populated fields if postal code is not found
+					setProfileForm((prev) => ({
+						...prev,
+						[field]: cleanValue,
+						city: "",
+						kommune: "",
+						fylke: "",
+					}));
+					return;
+				}
+			}
+
+			setProfileForm((prev) => ({
+				...prev,
+				[field]: cleanValue,
+			}));
+			return;
+		}
+
+		setProfileForm((prev) => ({
+			...prev,
+			[field]: value,
+		}));
+	};
+
+	if (status === "loading") {
+		return (
+			<div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+				<div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-600"></div>
+			</div>
+		);
+	}
+
+	if (!session) {
+		return null;
+	}
+
+	return (
+		<div className="max-w-4xl space-y-6">
+			{/* Header */}
+
+			<div className="mb-8">
+				<h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Update your profile</h1>
+				<p className="text-gray-600">Update your personal information and contact details</p>
+			</div>
+
+			{/* Security Warning for Temporary Password */}
+			{hasTemporaryPassword && (
+				<Alert className="mb-6 border-yellow-200 bg-yellow-50">
+					<AlertTriangle className="h-4 w-4 text-brand_primary" />
+					<AlertDescription className="text-brand_primary">
+						<strong>{t.securityWarning || "Security Notice"}</strong>
+						<br />
+						{t.temporaryPasswordWarning || "You are using a temporary password that was recently reset by an administrator. For your security, please change your password immediately."}
+					</AlertDescription>
+				</Alert>
+			)}
+
+			{/* Personal Information Card */}
+			<Card className="shadow-lg border-0 mb-6 bg-brand_primary/10">
+				<CardHeader>
+					<CardTitle className="flex items-center text-xl md:text-2xl">
+						<User className="w-6 h-6 mr-2 text-blue-600" />
+						{t.personalInfo || "Personal Information"}
+					</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<form onSubmit={handleProfileUpdate} className="space-y-6">
+						{/* Personal Information */}
+						<div className="space-y-4">
+							<h3 className="text-lg font-semibold text-gray-900 flex items-center">
+								<User className="w-4 h-4 mr-2" />
+								Personal Information
+							</h3>
+
+							<div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+								<div className="space-y-2">
+									<Label htmlFor="firstName" className="text-sm font-semibold text-gray-900">
+										First Name
+									</Label>
+									<Input id="firstName" type="text" value={profileForm.firstName} onChange={(e) => handleProfileFormChange("firstName", e.target.value)} placeholder="Enter your first name" />
+								</div>
+								<div className="space-y-2">
+									<Label htmlFor="middleName" className="text-sm font-semibold text-gray-900">
+										Middle Name (Optional)
+									</Label>
+									<Input id="middleName" type="text" value={profileForm.middleName} onChange={(e) => handleProfileFormChange("middleName", e.target.value)} placeholder="Enter your middle name" />
+								</div>
+								<div className="space-y-2">
+									<Label htmlFor="lastName" className="text-sm font-semibold text-gray-900">
+										Last Name
+									</Label>
+									<Input id="lastName" type="text" value={profileForm.lastName} onChange={(e) => handleProfileFormChange("lastName", e.target.value)} placeholder="Enter your last name" />
+								</div>
+							</div>
+
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div className="space-y-2">
+									<Label htmlFor="phone" className="text-sm font-semibold text-gray-900">
+										{t.phone || "Phone Number"}
+									</Label>
+									<Input id="phone" type="tel" value={profileForm.phone} onChange={(e) => handleProfileFormChange("phone", e.target.value)} placeholder="Enter your phone number" />
+								</div>
+								<div className="space-y-2">
+									<Label htmlFor="personalNumber" className="text-sm font-semibold text-gray-900">
+										Personal Number
+									</Label>
+									<Input id="personalNumber" type="text" value={profileForm.personalNumber} onChange={(e) => handleProfileFormChange("personalNumber", e.target.value)} placeholder="Enter your personal number" maxLength={11} readOnly className="bg-gray-50" />
+								</div>
+							</div>
+						</div>
+
+						{/* Contact Information */}
+						<div className="space-y-4">
+							<h3 className="text-lg font-semibold text-gray-900 flex items-center">
+								<MapPin className="w-4 h-4 mr-2" />
+								Address Information
+							</h3>
+
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div className="space-y-2">
+									<Label htmlFor="address" className="text-sm font-semibold text-gray-900">
+										{t.address || "Address"}
+									</Label>
+									<div className="relative">
+										<Input id="address" type="text" value={profileForm.address} onChange={(e) => handleProfileFormChange("address", e.target.value)} placeholder="Enter your address" />
+									</div>
+								</div>
+							</div>
+
+							<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+								<div className="space-y-2">
+									<Label htmlFor="city" className="text-sm font-semibold text-gray-900">
+										{t.city || "City"}
+									</Label>
+									<Input id="city" type="text" value={profileForm.city} onChange={(e) => handleProfileFormChange("city", e.target.value)} placeholder="Enter your city" />
+								</div>
+
+								<div className="space-y-2">
+									<Label htmlFor="postalCode" className="text-sm font-semibold text-gray-900">
+										{t.postalCode || "Postal Code"}
+									</Label>
+									<Input id="postalCode" type="text" value={profileForm.postalCode} onChange={(e) => handleProfileFormChange("postalCode", e.target.value)} placeholder="Enter postal code" />
+								</div>
+
+								<div className="space-y-2">
+									<Label htmlFor="kommune" className="text-sm font-semibold text-gray-900">
+										Kommune
+									</Label>
+									<Input id="kommune" type="text" value={profileForm.kommune} onChange={(e) => handleProfileFormChange("kommune", e.target.value)} placeholder="Enter kommune" />
+								</div>
+
+								<div className="space-y-2">
+									<Label htmlFor="fylke" className="text-sm font-semibold text-gray-900">
+										Fylke (County)
+									</Label>
+									<Input id="fylke" type="text" value={profileForm.fylke} onChange={(e) => handleProfileFormChange("fylke", e.target.value)} placeholder="Enter fylke" />
+								</div>
+							</div>
+						</div>
+
+						{/* Submit Button */}
+						<Button type="submit" className="w-fit bg-blue-600 hover:bg-blue-700" disabled={isUpdatingProfile}>
+							{isUpdatingProfile ? (
+								<>
+									<div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
+									{t.updating || "Updating..."}
+								</>
+							) : (
+								<>
+									<User className="w-4 h-4 mr-2" />
+									{t.updateProfile || "Update Profile"}
+								</>
+							)}
+						</Button>
+					</form>
+				</CardContent>
+			</Card>
+
+			{/* Change Email Card */}
+			<Card className="shadow-lg border-0">
+				<CardHeader>
+					<CardTitle className="flex items-center text-xl md:text-2xl">
+						<Mail className="w-6 h-6 mr-2 text-blue-600" />
+						{t.changeEmail || "Change Email"}
+					</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<form onSubmit={handleEmailChange} className="max-w-sm md:mx-8 space-y-6">
+						{/* Current Email */}
+						<div className="space-y-2">
+							<Label htmlFor="currentEmail" className="text-sm font-semibold text-gray-900">
+								{t.currentEmail || "Current Email"}
+							</Label>
+							<Input id="currentEmail" type="email" value={session?.user?.email || ""} disabled className="bg-gray-100" />
+						</div>
+
+						{/* New Email */}
+						<div className="space-y-2">
+							<Label htmlFor="newEmail" className="text-sm font-semibold text-gray-900">
+								{t.newEmail || "New Email"}
+							</Label>
+							<div className="relative">
+								<Input
+									id="newEmail"
+									type="email"
+									value={newEmail}
+									onChange={(e) => {
+										setNewEmail(e.target.value);
+										setEmailError("");
+									}}
+									onBlur={(e) => {
+										if (e.target.value && !isValidEmail(e.target.value)) {
+											setEmailError("Please enter a valid email address");
+										}
+									}}
+									className={`pr-10 ${emailError ? "border-red-500 focus:border-red-500" : isValidEmail(newEmail) ? "border-green-500 focus:border-green-500" : ""}`}
+									placeholder="Enter your new email address"
+									required
+								/>
+							</div>
+							{emailError && (
+								<div className="text-sm text-red-600 flex items-center">
+									<AlertTriangle className="w-3 h-3 mr-1" />
+									{emailError}
+								</div>
+							)}
+						</div>
+
+						{/* Password Confirmation */}
+						<div className="space-y-2">
+							<Label htmlFor="emailPassword" className="text-sm font-semibold text-gray-900">
+								{t.password || "Current Password"}
+							</Label>
+							<div className="relative">
+								<Input
+									id="emailPassword"
+									type={showEmailPassword ? "text" : "password"}
+									value={emailPassword}
+									onChange={(e) => {
+										setEmailPassword(e.target.value);
+										setIsEmailPasswordVerified(false);
+										setEmailPasswordError("");
+
+										// Clear existing timeout
+										if (emailValidationTimeout) {
+											clearTimeout(emailValidationTimeout);
+										}
+
+										// Auto-validate password when user stops typing
+										const timeoutId = setTimeout(() => {
+											if (e.target.value.length >= 6) {
+												validateEmailPassword(e.target.value);
+											}
+										}, 1000);
+										setEmailValidationTimeout(timeoutId);
+									}}
+									onBlur={(e) => {
+										if (e.target.value.length >= 6) {
+											validateEmailPassword(e.target.value);
+										}
+									}}
+									className={`pr-10 ${emailPasswordError ? "border-red-500 focus:border-red-500" : isEmailPasswordVerified ? "border-green-500 focus:border-green-500" : ""}`}
+									placeholder="Enter your current password to verify identity"
+									required
+								/>
+								<button type="button" onClick={() => setShowEmailPassword(!showEmailPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+									{showEmailPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+								</button>
+							</div>
+							{emailPasswordError && (
+								<div className="text-sm text-red-600 flex items-center">
+									<AlertTriangle className="w-3 h-3 mr-1" />
+									{emailPasswordError}
+								</div>
+							)}
+							{isEmailPasswordVerified && (
+								<div className="text-sm text-green-600 flex items-center">
+									<CheckCircle className="w-3 h-3 mr-1" />
+									Password verified. You can now change your email.
+								</div>
+							)}
+						</div>
+
+						{/* Verifying Password Status */}
+						{!isEmailPasswordVerified && emailPassword && emailPassword.length >= 6 && !emailPasswordError && (
+							<div className="w-full mt-3 p-2 border border-blue-200 bg-blue-50 rounded text-center">
+								<div className="flex items-center justify-center">
+									<div className="animate-spin rounded-full h-3 w-3 border-t-2 border-b-2 border-blue-600 mr-2"></div>
+									<span className="text-blue-600 text-sm">Verifying password...</span>
+								</div>
+							</div>
+						)}
+
+						{/* Submit Button */}
+						<Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isChangingEmail || !isValidEmail(newEmail) || !emailPassword || !isEmailPasswordVerified || !!emailError}>
+							{isChangingEmail ? (
+								<>
+									<div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
+									{t.sending || "Sending..."}
+								</>
+							) : (
+								<>
+									<Mail className="w-4 h-4 mr-2" />
+									{t.changeEmail || "Change Email"}
+								</>
+							)}
+						</Button>
+					</form>
+				</CardContent>
+			</Card>
+
+			{/* Change Password Card */}
+			<Card className="shadow-lg border-0 bg-brand_primary/10">
+				<CardHeader>
+					<CardTitle className="flex items-center text-xl md:text-2xl">
+						<Lock className="w-6 h-6 mr-2 text-blue-600" />
+						{t.changePassword || "Change Password"}
+					</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<form onSubmit={handlePasswordChange} className="max-w-sm md:mx-8 space-y-6">
+						{/* Current Password */}
+						<div className="space-y-2">
+							<Label htmlFor="currentPassword" className="text-sm font-semibold text-gray-900">
+								{t.currentPassword || "Current Password"}
+							</Label>
+							<div className="relative">
+								<Input
+									id="currentPassword"
+									type={showCurrentPassword ? "text" : "password"}
+									value={currentPassword}
+									onChange={(e) => {
+										setCurrentPassword(e.target.value);
+										setCurrentPasswordError(""); // Clear error when typing
+										setIsCurrentPasswordValid(false); // Reset valid state when typing
+									}}
+									onKeyPress={(e) => {
+										if (e.key === "Enter") {
+											e.preventDefault();
+											validateCurrentPassword(currentPassword);
+										}
+									}}
+									className={`pr-10 ${currentPasswordError ? "border-red-500 focus:border-red-500" : isCurrentPasswordValid ? "border-green-500 focus:border-green-500" : ""}`}
+									placeholder="Enter your current password"
+									required
+								/>
+								<button type="button" onClick={() => setShowCurrentPassword(!showCurrentPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+									{showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+								</button>
+								{isValidatingCurrentPassword && (
+									<div className="absolute right-10 top-1/2 transform -translate-y-1/2">
+										<div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-blue-600"></div>
+									</div>
+								)}
+							</div>
+							{currentPasswordError && (
+								<div className="text-sm text-red-600 flex items-center">
+									<AlertTriangle className="w-3 h-3 mr-1" />
+									{currentPasswordError}
+								</div>
+							)}
+							{isCurrentPasswordValid && (
+								<div className="text-sm text-green-600 flex items-center">
+									<CheckCircle className="w-3 h-3 mr-1" />
+									Password verified. You can now set a new password.
+								</div>
+							)}
+
+							{/* Next Button for mobile-friendly validation */}
+							{!isCurrentPasswordValid && currentPassword && (
+								<Button type="button" onClick={() => validateCurrentPassword(currentPassword)} disabled={isValidatingCurrentPassword} className="w-full mt-3" variant="outline">
+									{isValidatingCurrentPassword ? <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-blue-600 mr-2"></div> : null}
+									Next
+								</Button>
+							)}
+						</div>
+
+						{/* Show rest of form only when current password is valid */}
+						{isCurrentPasswordValid && (
+							<>
+								{/* New Password */}
+								<div className="space-y-2">
+									<Label htmlFor="newPassword" className="text-sm font-semibold text-gray-900">
+										{t.newPassword || "New Password"}
+									</Label>
+									<div className="relative">
+										<Input id="newPassword" type={showNewPassword ? "text" : "password"} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="pr-10" placeholder="Enter your new password (min. 8 characters)" required minLength={8} />
+										<button type="button" onClick={() => setShowNewPassword(!showNewPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+											{showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+										</button>
+									</div>
+									{newPassword && (
+										<div className="text-sm text-gray-600">
+											{validatePassword(newPassword) ? (
+												<span className="text-green-600 flex items-center">
+													<CheckCircle className="w-3 h-3 mr-1" />
+													Password strength: Good
+												</span>
+											) : (
+												<span className="text-red-600">Password must be at least 8 characters long</span>
+											)}
+										</div>
+									)}
+								</div>
+
+								{/* Confirm Password */}
+								<div className="space-y-2">
+									<Label htmlFor="confirmPassword" className="text-sm font-semibold text-gray-900">
+										{t.confirmPassword || "Confirm New Password"}
+									</Label>
+									<div className="relative">
+										<Input id="confirmPassword" type={showConfirmPassword ? "text" : "password"} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="pr-10" placeholder="Confirm your new password" required />
+										<button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+											{showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+										</button>
+									</div>
+									{confirmPassword && (
+										<div className="text-sm">
+											{newPassword === confirmPassword ? (
+												<span className="text-green-600 flex items-center">
+													<CheckCircle className="w-3 h-3 mr-1" />
+													Passwords match
+												</span>
+											) : (
+												<span className="text-red-600">Passwords do not match</span>
+											)}
+										</div>
+									)}
+								</div>
+
+								{/* Submit Button */}
+								<Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isLoading || !validatePassword(newPassword) || newPassword !== confirmPassword}>
+									{isLoading ? <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div> : null}
+									{t.updatePassword || "Update Password"}
+								</Button>
+							</>
+						)}
+					</form>
+				</CardContent>
+			</Card>
+
+			{/* Quick Action for Temporary Password Users */}
+			{hasTemporaryPassword && (
+				<Card className="mt-6 border-yellow-200 bg-yellow-50">
+					<CardContent className="pt-6">
+						<div className="flex items-center justify-between">
+							<div>
+								<h3 className="font-semibold text-brand_primary mb-1">{t.changePasswordNow || "Change Your Password Now"}</h3>
+								<p className="text-brand_primary text-sm">Your account security is important. Change your temporary password to a permanent one.</p>
+							</div>
+							<Button onClick={() => document.getElementById("currentPassword")?.focus()} className="bg-brand_primary hover:bg-brand_primary text-white">
+								Change Now
+							</Button>
+						</div>
+					</CardContent>
+				</Card>
+			)}
+		</div>
+	);
 }

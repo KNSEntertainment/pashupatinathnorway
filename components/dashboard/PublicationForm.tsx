@@ -4,385 +4,280 @@ import { useState, useEffect } from "react";
 import { X, Save } from "lucide-react";
 
 interface Publication {
-  id?: string;
-  title: string;
-  type: string;
-  description: string;
-  publishedDate: string;
-  downloadUrl: string;
-  language: "en" | "ne" | "no";
-  accessLevels: string[];
+	id?: string;
+	title: string;
+	type: string;
+	description: string;
+	publishedDate: string;
+	downloadUrl: string;
+	language: "en" | "ne" | "no";
+	accessLevels: string[];
 }
 
 interface ReportType {
-  id: string;
-  name: string;
-  label: string;
-  color: string;
-  isActive: boolean;
+	id: string;
+	name: string;
+	label: string;
+	color: string;
+	isActive: boolean;
 }
 
 interface PublicationFormProps {
-  publication?: Publication | null;
-  onSubmit: () => void;
-  onCancel: () => void;
+	publication?: Publication | null;
+	onSubmit: () => void;
+	onCancel: () => void;
 }
 
 const languages = [
-  { value: "en", label: "English" },
-  { value: "ne", label: "नेपाली" },
-  { value: "no", label: "Norsk" }
+	{ value: "en", label: "English" },
+	{ value: "ne", label: "नेपाली" },
+	{ value: "no", label: "Norsk" },
 ];
 
 const accessLevelOptions = [
-  { value: "all", label: "All" },
-  { value: "executives", label: "Executives" },
-  { value: "advisors", label: "Advisors" },
-  { value: "active_members", label: "Active Members" },
-  { value: "general_members", label: "General Members" }
+	{ value: "all", label: "All" },
+	{ value: "executives", label: "Executives" },
+	{ value: "advisors", label: "Advisors" },
+	{ value: "active_members", label: "Active Members" },
+	{ value: "general_members", label: "General Members" },
 ];
 
 export default function PublicationForm({ publication, onSubmit, onCancel }: PublicationFormProps) {
-  const [formData, setFormData] = useState<Publication>({
-    title: "",
-    type: "",
-    description: "",
-    publishedDate: new Date().toISOString().split('T')[0],
-    downloadUrl: "",
-    language: "en",
-    accessLevels: ["all"]
-  });
+	const [formData, setFormData] = useState<Publication>({
+		title: "",
+		type: "",
+		description: "",
+		publishedDate: new Date().toISOString().split("T")[0],
+		downloadUrl: "",
+		language: "en",
+		accessLevels: ["all"],
+	});
 
-  const [reportTypes, setReportTypes] = useState<ReportType[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+	const [reportTypes, setReportTypes] = useState<ReportType[]>([]);
+	const [loading, setLoading] = useState(false);
+	const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Fetch report types
-  const fetchReportTypes = async () => {
-    try {
-      const response = await fetch("/api/report-types");
-      const data = await response.json();
-      setReportTypes(data.reportTypes || []);
-    } catch (error) {
-      console.error("Error fetching report types:", error);
-    }
-  };
+	// Fetch report types
+	const fetchReportTypes = async () => {
+		try {
+			const response = await fetch("/api/report-types");
+			const data = await response.json();
+			setReportTypes(data.reportTypes || []);
+		} catch (error) {
+			console.error("Error fetching report types:", error);
+		}
+	};
 
-  useEffect(() => {
-    fetchReportTypes();
-    if (publication) {
-      setFormData(publication);
-    }
-  }, [publication]);
+	useEffect(() => {
+		fetchReportTypes();
+		if (publication) {
+			setFormData(publication);
+		}
+	}, [publication]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    
-    // Clear error for this field
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: "" }));
-    }
-  };
+	const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+		const { name, value } = e.target;
+		setFormData((prev) => ({
+			...prev,
+			[name]: value,
+		}));
 
-  const handleAccessLevelChange = (value: string, checked: boolean) => {
-    setFormData(prev => {
-      if (checked) {
-        return {
-          ...prev,
-          accessLevels: [...prev.accessLevels, value]
-        };
-      } else {
-        return {
-          ...prev,
-          accessLevels: prev.accessLevels.filter(level => level !== value)
-        };
-      }
-    });
-  };
+		// Clear error for this field
+		if (errors[name]) {
+			setErrors((prev) => ({ ...prev, [name]: "" }));
+		}
+	};
 
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
+	const handleAccessLevelChange = (value: string, checked: boolean) => {
+		setFormData((prev) => {
+			if (checked) {
+				return {
+					...prev,
+					accessLevels: [...prev.accessLevels, value],
+				};
+			} else {
+				return {
+					...prev,
+					accessLevels: prev.accessLevels.filter((level) => level !== value),
+				};
+			}
+		});
+	};
 
-    if (!formData.title.trim()) {
-      newErrors.title = "Title is required";
-    }
+	const validateForm = () => {
+		const newErrors: Record<string, string> = {};
 
-    if (!formData.type) {
-      newErrors.type = "Report type is required";
-    }
+		if (!formData.title.trim()) {
+			newErrors.title = "Title is required";
+		}
 
-    if (!formData.description.trim()) {
-      newErrors.description = "Description is required";
-    }
+		if (!formData.type) {
+			newErrors.type = "Report type is required";
+		}
 
-    if (!formData.language) {
-      newErrors.language = "Language is required";
-    }
+		if (!formData.description.trim()) {
+			newErrors.description = "Description is required";
+		}
 
-    if (!formData.publishedDate) {
-      newErrors.publishedDate = "Published date is required";
-    }
+		if (!formData.language) {
+			newErrors.language = "Language is required";
+		}
 
-    if (!formData.accessLevels || formData.accessLevels.length === 0) {
-      newErrors.accessLevels = "At least one access level must be selected";
-    }
+		if (!formData.publishedDate) {
+			newErrors.publishedDate = "Published date is required";
+		}
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+		if (!formData.accessLevels || formData.accessLevels.length === 0) {
+			newErrors.accessLevels = "At least one access level must be selected";
+		}
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
+		setErrors(newErrors);
+		return Object.keys(newErrors).length === 0;
+	};
 
-    setLoading(true);
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
 
-    try {
-      const url = publication?.id 
-        ? `/api/publications/${publication.id}` 
-        : "/api/publications";
-      
-      const method = publication?.id ? "PUT" : "POST";
+		if (!validateForm()) {
+			return;
+		}
 
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+		setLoading(true);
 
-      if (response.ok) {
-        onSubmit();
-      } else {
-        const errorData = await response.json();
-        alert(errorData.error || "Failed to save publication");
-      }
-    } catch (error) {
-      console.error("Error saving publication:", error);
-      alert("Failed to save publication");
-    } finally {
-      setLoading(false);
-    }
-  };
+		try {
+			const url = publication?.id ? `/api/publications/${publication.id}` : "/api/publications";
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                {publication ? "Edit Publication" : "Add New Publication"}
-              </h1>
-              <p className="text-gray-600 mt-1">
-                {publication ? "Update publication details" : "Create a new publication"}
-              </p>
-            </div>
-            <button
-              onClick={onCancel}
-              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
-            >
-              <X className="w-4 h-4" />
-              Cancel
-            </button>
-          </div>
-        </div>
-      </div>
+			const method = publication?.id ? "PUT" : "POST";
 
-      {/* Form */}
-      <div className="container mx-auto px-4 py-6">
-        <div className="max-w-4xl mx-auto">
-          <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Title */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Title *
-                </label>
-                <input
-                  type="text"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 ${
-                    errors.title ? "border-red-500" : "border-gray-300"
-                  }`}
-                  placeholder="Enter publication title"
-                />
-                {errors.title && (
-                  <p className="mt-1 text-sm text-red-600">{errors.title}</p>
-                )}
-              </div>
+			const response = await fetch(url, {
+				method,
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(formData),
+			});
 
+			if (response.ok) {
+				onSubmit();
+			} else {
+				const errorData = await response.json();
+				alert(errorData.error || "Failed to save publication");
+			}
+		} catch (error) {
+			console.error("Error saving publication:", error);
+			alert("Failed to save publication");
+		} finally {
+			setLoading(false);
+		}
+	};
 
-              {/* Type */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Report Type *
-                </label>
-                <select
-                  name="type"
-                  value={formData.type}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 ${
-                    errors.type ? "border-red-500" : "border-gray-300"
-                  }`}
-                >
-                  <option value="">Select Report Type</option>
-                  {reportTypes.map(type => (
-                    <option key={type.id} value={type.name}>
-                      {type.label}
-                    </option>
-                  ))}
-                </select>
-                {errors.type && (
-                  <p className="mt-1 text-sm text-red-600">{errors.type}</p>
-                )}
-              </div>
+	return (
+		<div className="min-h-screen bg-gray-50">
+			{/* Header */}
+			<div className="bg-white border-b">
+				<div className="container mx-auto px-4 py-6">
+					<div className="flex items-center justify-between">
+						<div>
+							<h1 className="text-2xl font-bold text-gray-900">{publication ? "Edit Publication" : "Add New Publication"}</h1>
+							<p className="text-gray-600 mt-1">{publication ? "Update publication details" : "Create a new publication"}</p>
+						</div>
+						<button onClick={onCancel} className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors">
+							<X className="w-4 h-4" />
+							Cancel
+						</button>
+					</div>
+				</div>
+			</div>
 
-              {/* Language */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Language *
-                </label>
-                <select
-                  name="language"
-                  value={formData.language}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 ${
-                    errors.language ? "border-red-500" : "border-gray-300"
-                  }`}
-                >
-                  {languages.map(lang => (
-                    <option key={lang.value} value={lang.value}>
-                      {lang.label}
-                    </option>
-                  ))}
-                </select>
-                {errors.language && (
-                  <p className="mt-1 text-sm text-red-600">{errors.language}</p>
-                )}
-              </div>
+			{/* Form */}
+			<div className="container mx-auto px-4 py-6">
+				<div className="max-w-4xl mx-auto">
+					<form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+							{/* Title */}
+							<div className="md:col-span-2">
+								<label className="block text-sm font-medium text-gray-700 mb-2">Title *</label>
+								<input type="text" name="title" value={formData.title} onChange={handleChange} className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 ${errors.title ? "border-red-500" : "border-gray-300"}`} placeholder="Enter publication title" />
+								{errors.title && <p className="mt-1 text-sm text-red-600">{errors.title}</p>}
+							</div>
 
-              {/* Published Date */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Published Date *
-                </label>
-                <input
-                  type="date"
-                  name="publishedDate"
-                  value={formData.publishedDate}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 ${
-                    errors.publishedDate ? "border-red-500" : "border-gray-300"
-                  }`}
-                />
-                {errors.publishedDate && (
-                  <p className="mt-1 text-sm text-red-600">{errors.publishedDate}</p>
-                )}
-              </div>
+							{/* Type */}
+							<div>
+								<label className="block text-sm font-medium text-gray-700 mb-2">Report Type *</label>
+								<select name="type" value={formData.type} onChange={handleChange} className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 ${errors.type ? "border-red-500" : "border-gray-300"}`}>
+									<option value="">Select Report Type</option>
+									{reportTypes.map((type) => (
+										<option key={type.id} value={type.name}>
+											{type.label}
+										</option>
+									))}
+								</select>
+								{errors.type && <p className="mt-1 text-sm text-red-600">{errors.type}</p>}
+							</div>
 
-              {/* Description */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description *
-                </label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  rows={4}
-                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 ${
-                    errors.description ? "border-red-500" : "border-gray-300"
-                  }`}
-                  placeholder="Enter publication description"
-                />
-                {errors.description && (
-                  <p className="mt-1 text-sm text-red-600">{errors.description}</p>
-                )}
-              </div>
+							{/* Language */}
+							<div>
+								<label className="block text-sm font-medium text-gray-700 mb-2">Language *</label>
+								<select name="language" value={formData.language} onChange={handleChange} className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 ${errors.language ? "border-red-500" : "border-gray-300"}`}>
+									{languages.map((lang) => (
+										<option key={lang.value} value={lang.value}>
+											{lang.label}
+										</option>
+									))}
+								</select>
+								{errors.language && <p className="mt-1 text-sm text-red-600">{errors.language}</p>}
+							</div>
 
-              {/* Download URL */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Download URL
-                </label>
-                <input
-                  type="url"
-                  name="downloadUrl"
-                  value={formData.downloadUrl}
-                  onChange={handleChange}
-                  placeholder="https://example.com/file.pdf"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                />
-              </div>
+							{/* Published Date */}
+							<div>
+								<label className="block text-sm font-medium text-gray-700 mb-2">Published Date *</label>
+								<input type="date" name="publishedDate" value={formData.publishedDate} onChange={handleChange} className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 ${errors.publishedDate ? "border-red-500" : "border-gray-300"}`} />
+								{errors.publishedDate && <p className="mt-1 text-sm text-red-600">{errors.publishedDate}</p>}
+							</div>
 
-              {/* Access Levels */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Access Levels *
-                </label>
-                <div className="space-y-2">
-                  {accessLevelOptions.map((option) => (
-                    <div key={option.value} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        id={option.value}
-                        checked={formData.accessLevels.includes(option.value)}
-                        onChange={(e) => handleAccessLevelChange(option.value, e.target.checked)}
-                        className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
-                      />
-                      <label
-                        htmlFor={option.value}
-                        className="ml-2 text-sm text-gray-700 cursor-pointer"
-                      >
-                        {option.label}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-                {errors.accessLevels && (
-                  <p className="mt-1 text-sm text-red-600">{errors.accessLevels}</p>
-                )}
-              </div>
+							{/* Description */}
+							<div className="md:col-span-2">
+								<label className="block text-sm font-medium text-gray-700 mb-2">Description *</label>
+								<textarea name="description" value={formData.description} onChange={handleChange} rows={4} className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 ${errors.description ? "border-red-500" : "border-gray-300"}`} placeholder="Enter publication description" />
+								{errors.description && <p className="mt-1 text-sm text-red-600">{errors.description}</p>}
+							</div>
 
-            </div>
+							{/* Download URL */}
+							<div className="md:col-span-2">
+								<label className="block text-sm font-medium text-gray-700 mb-2">Download URL</label>
+								<input type="url" name="downloadUrl" value={formData.downloadUrl} onChange={handleChange} placeholder="https://example.com/file.pdf" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" />
+							</div>
 
-            {/* Form Actions */}
-            <div className="flex items-center justify-end gap-4 mt-8 pt-6 border-t border-gray-200">
-              <button
-                type="button"
-                onClick={onCancel}
-                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="flex items-center gap-2 px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                ) : (
-                  <Save className="w-4 h-4" />
-                )}
-                {publication ? "Update Publication" : "Create Publication"}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  );
+							{/* Access Levels */}
+							<div className="md:col-span-2">
+								<label className="block text-sm font-medium text-gray-700 mb-2">Access Levels *</label>
+								<div className="space-y-2">
+									{accessLevelOptions.map((option) => (
+										<div key={option.value} className="flex items-center">
+											<input type="checkbox" id={option.value} checked={formData.accessLevels.includes(option.value)} onChange={(e) => handleAccessLevelChange(option.value, e.target.checked)} className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded" />
+											<label htmlFor={option.value} className="ml-2 text-sm text-gray-700 cursor-pointer">
+												{option.label}
+											</label>
+										</div>
+									))}
+								</div>
+								{errors.accessLevels && <p className="mt-1 text-sm text-red-600">{errors.accessLevels}</p>}
+							</div>
+						</div>
+
+						{/* Form Actions */}
+						<div className="flex items-center justify-end gap-4 mt-8 pt-6 border-t border-gray-200">
+							<button type="button" onClick={onCancel} className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+								Cancel
+							</button>
+							<button type="submit" disabled={loading} className="flex items-center gap-2 px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-brand_secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+								{loading ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div> : <Save className="w-4 h-4" />}
+								{publication ? "Update Publication" : "Create Publication"}
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	);
 }

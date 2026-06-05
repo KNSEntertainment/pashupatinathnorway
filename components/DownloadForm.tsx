@@ -520,7 +520,7 @@ export default function DonationForm({ preselectedCause, isInModal = false, loca
 
 	return (
 		<Card className="w-full max-w-3xl mx-auto shadow-xl border-0 bg-white">
-			<CardHeader className="bg-red-900 text-gray-100">
+			<CardHeader className="bg-brand_secondary text-gray-100">
 				<div className="flex items-center gap-3">
 					<Heart className="w-8 h-8 text-brand_primary" />
 					<div>

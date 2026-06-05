@@ -44,7 +44,6 @@ export default function ProfileClient({ translations: t }: Props) {
 	const [membershipData, setMembershipData] = useState<Membership | null>(null);
 	const [loading, setLoading] = useState(true);
 
-
 	const [uploading, setUploading] = useState(false);
 	const [profilePhoto, setProfilePhoto] = useState<string>("");
 	const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
@@ -189,7 +188,6 @@ export default function ProfileClient({ translations: t }: Props) {
 		return null;
 	}
 
-	
 	const getStatusBadge = (status: string) => {
 		switch (status) {
 			case "approved":
@@ -208,7 +206,7 @@ export default function ProfileClient({ translations: t }: Props) {
 				);
 			case "pending":
 				return (
-					<Badge className="bg-yellow-500 text-white">
+					<Badge className="bg-brand_primary text-white">
 						<Clock className="w-3 h-3 mr-1" />
 						{t.pending}
 					</Badge>
@@ -227,7 +225,7 @@ export default function ProfileClient({ translations: t }: Props) {
 	};
 
 	return (
-			<div className="space-y-6">
+		<div className="space-y-6">
 			<div className="mb-8">
 				{/* Header */}
 				<div className="mb-8">
@@ -258,7 +256,7 @@ export default function ProfileClient({ translations: t }: Props) {
 								<Upload className="w-4 h-4 mr-2" />
 								{uploading ? "Uploading..." : "Upload Photo"}
 							</Button>
-						
+
 							<div className="text-xs text-gray-900 text-center space-y-1">
 								<p>Maximum file size: 300KB</p>
 								{selectedFileName && selectedFileSize && (
@@ -267,7 +265,6 @@ export default function ProfileClient({ translations: t }: Props) {
 									</p>
 								)}
 							</div>
-					
 						</CardContent>
 					</Card>
 
@@ -281,9 +278,6 @@ export default function ProfileClient({ translations: t }: Props) {
 						</CardHeader>
 						<CardContent className="px-4 md:px-0">
 							<div className="grid grid-cols-1 gap-4 md:gap-6">
-							
-
-
 								<div className="space-y-2">
 									<label className="text-sm font-semibold text-gray-900 flex items-center">
 										<Mail className="w-4 h-4 mr-2" />
@@ -300,14 +294,13 @@ export default function ProfileClient({ translations: t }: Props) {
 									<p className="text-gray-900 text-lg">{session?.user?.phone || "N/A"}</p>
 								</div>
 
-							
 								<div className="space-y-2">
 									<label className="text-sm font-semibold text-gray-900 flex items-center">
 										<Calendar className="w-4 h-4 mr-2" />
 										Address in Norway
 									</label>
 									<p className="text-gray-900 text-lg">
-										{membershipData?.address && (
+										{(membershipData?.address && (
 											<>
 												{membershipData.address}
 												{membershipData.city && `, ${membershipData.city}`}
@@ -315,12 +308,10 @@ export default function ProfileClient({ translations: t }: Props) {
 												{membershipData.bydel && `, ${membershipData.bydel}`}
 												{membershipData.kommune && `, ${membershipData.kommune}`}
 											</>
-										) || "N/A"}
+										)) ||
+											"N/A"}
 									</p>
 								</div>
-							
-
-						
 							</div>
 						</CardContent>
 					</Card>
@@ -342,29 +333,23 @@ export default function ProfileClient({ translations: t }: Props) {
 									<div>{getStatusBadge(membershipData.membershipStatus)}</div>
 								</div>
 
-<div className="flex flex-col w-fit space-y-2">
-<label className="text-sm font-semibold text-gray-900">{t.membershipType}</label>
-<Badge variant="outline" className={`capitalize ${membershipData.membershipType === 'General' ? 'bg-blue-50 text-blue-700 border-blue-200' : membershipData.membershipType === 'Active' ? 'bg-green-50 text-green-700 border-green-200' : membershipData.membershipType === 'Executive' ? 'bg-purple-50 text-purple-700 border-purple-200' : membershipData.membershipType === 'Advisor' ? 'bg-orange-50 text-orange-700 border-orange-200' : 'bg-gray-50 text-gray-700 border-gray-200'}`}>
-{membershipData.membershipType}
-</Badge>
-</div>
-	<div className="space-y-2">
+								<div className="flex flex-col w-fit space-y-2">
+									<label className="text-sm font-semibold text-gray-900">{t.membershipType}</label>
+									<Badge variant="outline" className={`capitalize ${membershipData.membershipType === "General" ? "bg-blue-50 text-blue-700 border-blue-200" : membershipData.membershipType === "Active" ? "bg-green-50 text-green-700 border-green-200" : membershipData.membershipType === "Executive" ? "bg-purple-50 text-purple-700 border-purple-200" : membershipData.membershipType === "Advisor" ? "bg-orange-50 text-orange-700 border-orange-200" : "bg-gray-50 text-gray-700 border-gray-200"}`}>
+										{membershipData.membershipType}
+									</Badge>
+								</div>
+								<div className="space-y-2">
 									<label className="text-sm font-semibold text-gray-900 flex items-center">
 										<Calendar className="w-4 h-4 mr-2" />
 										{t.memberSince}
 									</label>
 									<p className="text-gray-900 text-lg">{membershipData ? formatDate(membershipData.createdAt) : "N/A"}</p>
 								</div>
-
-
-							
-
 							</div>
 						</CardContent>
 					</Card>
 				)}
-
-
 			</div>
 
 			{/* File Size Alert Dialog */}
@@ -407,7 +392,6 @@ export default function ProfileClient({ translations: t }: Props) {
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
-
 		</div>
 	);
 }

@@ -10,38 +10,37 @@ import { signOut, useSession } from "next-auth/react";
 import { Membership } from "@/types";
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
-
 export default function DataManagement() {
-        const router = useRouter();
-        const { data: session, status } = useSession();
-        const [, setMembershipData] = useState<Membership | null>(null);
-        const [, setProfilePhoto] = useState<string | null>(null);
-        const [, setLoading] = useState(true);
-    
-        const [isDownloading, setIsDownloading] = useState(false);
-        const [isSubscribed, setIsSubscribed] = useState<boolean | null>(null);
-        const [isSubscribing, setIsSubscribing] = useState(false);
-        const [showUnsubscribeDialog, setShowUnsubscribeDialog] = useState(false);
-        const [isUnsubscribing, setIsUnsubscribing] = useState(false);
-        	const [isDeleting, setIsDeleting] = useState(false);
-            	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+	const router = useRouter();
+	const { data: session, status } = useSession();
+	const [, setMembershipData] = useState<Membership | null>(null);
+	const [, setProfilePhoto] = useState<string | null>(null);
+	const [, setLoading] = useState(true);
 
-        const checkSubscriptionStatus = useCallback(async () => {
-            try {
-                const response = await fetch('/api/user/unsubscribe', {
-                    method: 'GET',
-                });
-    
-                if (response.ok) {
-                    const data = await response.json();
-                    setIsSubscribed(data.isSubscribed);
-                }
-            } catch (error) {
-                console.error('Error checking subscription status:', error);
-            }
-        }, []);
+	const [isDownloading, setIsDownloading] = useState(false);
+	const [isSubscribed, setIsSubscribed] = useState<boolean | null>(null);
+	const [isSubscribing, setIsSubscribing] = useState(false);
+	const [showUnsubscribeDialog, setShowUnsubscribeDialog] = useState(false);
+	const [isUnsubscribing, setIsUnsubscribing] = useState(false);
+	const [isDeleting, setIsDeleting] = useState(false);
+	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-        useEffect(() => {
+	const checkSubscriptionStatus = useCallback(async () => {
+		try {
+			const response = await fetch("/api/user/unsubscribe", {
+				method: "GET",
+			});
+
+			if (response.ok) {
+				const data = await response.json();
+				setIsSubscribed(data.isSubscribed);
+			}
+		} catch (error) {
+			console.error("Error checking subscription status:", error);
+		}
+	}, []);
+
+	useEffect(() => {
 		if (status === "unauthenticated") {
 			router.push("/en/login");
 			return;
@@ -81,92 +80,92 @@ export default function DataManagement() {
 		}, 5000); // 5 second timeout
 
 		return () => clearTimeout(loadingTimeout);
-	}, [status, session?.user?.email, router, session?.user?.role, checkSubscriptionStatus]); 
+	}, [status, session?.user?.email, router, session?.user?.role, checkSubscriptionStatus]);
 
-    const handleDeleteAccount = async () => {
-        setIsDeleting(true);
-        try {
-            const response = await fetch('/api/user/delete-account', {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email: session?.user?.email,
-                }),
-            });
+	const handleDeleteAccount = async () => {
+		setIsDeleting(true);
+		try {
+			const response = await fetch("/api/user/delete-account", {
+				method: "DELETE",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					email: session?.user?.email,
+				}),
+			});
 
-            if (response.ok) {
-                const data = await response.json();
-                
-                // Send notification email
-                await fetch('/api/email/account-deletion-notification', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        email: session?.user?.email,
-                        fullName: session?.user?.fullName,
-                    }),
-                });
+			if (response.ok) {
+				const data = await response.json();
 
-                // Create detailed success message
-                let description = "Your account has been permanently deleted. You will be redirected to the home page.";
-                
-                if (data.deletedDataSummary) {
-                    const summary = data.deletedDataSummary;
-                    const deletedItems = [];
-                    if (summary.donations > 0) deletedItems.push(`${summary.donations} donation(s)`);
-                    if (summary.eventRegistrations > 0) deletedItems.push(`${summary.eventRegistrations} event registration(s)`);
-                    if (summary.messages > 0) deletedItems.push(`${summary.messages} message(s)`);
-                    if (summary.orders > 0) deletedItems.push(`${summary.orders} order(s)`);
-                    if (summary.attendance > 0) deletedItems.push(`${summary.attendance} attendance record(s)`);
-                    
-                    if (deletedItems.length > 0) {
-                        description += ` Also deleted: ${deletedItems.join(', ')}.`;
-                    }
-                }
+				// Send notification email
+				await fetch("/api/email/account-deletion-notification", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						email: session?.user?.email,
+						fullName: session?.user?.fullName,
+					}),
+				});
 
-                toast({
-                    title: "Account Deleted",
-                    description: description,
-                });
-                
-                // Sign out and redirect to home
-                setTimeout(() => {
-                    signOut({ callbackUrl: "/" });
-                }, 3000);
-            } else {
-                throw new Error('Failed to delete account');
-            }
-        } catch (error) {
-            console.error('Delete account error:', error);
-            toast({
-                title: "Error",
-                description: "Failed to delete account. Please try again.",
-                variant: "destructive",
-            });
-        } finally {
-            setIsDeleting(false);
-            setShowDeleteDialog(false);
-        }
-    };
+				// Create detailed success message
+				let description = "Your account has been permanently deleted. You will be redirected to the home page.";
 
-        	const handleDownloadData = async () => {
+				if (data.deletedDataSummary) {
+					const summary = data.deletedDataSummary;
+					const deletedItems = [];
+					if (summary.donations > 0) deletedItems.push(`${summary.donations} donation(s)`);
+					if (summary.eventRegistrations > 0) deletedItems.push(`${summary.eventRegistrations} event registration(s)`);
+					if (summary.messages > 0) deletedItems.push(`${summary.messages} message(s)`);
+					if (summary.orders > 0) deletedItems.push(`${summary.orders} order(s)`);
+					if (summary.attendance > 0) deletedItems.push(`${summary.attendance} attendance record(s)`);
+
+					if (deletedItems.length > 0) {
+						description += ` Also deleted: ${deletedItems.join(", ")}.`;
+					}
+				}
+
+				toast({
+					title: "Account Deleted",
+					description: description,
+				});
+
+				// Sign out and redirect to home
+				setTimeout(() => {
+					signOut({ callbackUrl: "/" });
+				}, 3000);
+			} else {
+				throw new Error("Failed to delete account");
+			}
+		} catch (error) {
+			console.error("Delete account error:", error);
+			toast({
+				title: "Error",
+				description: "Failed to delete account. Please try again.",
+				variant: "destructive",
+			});
+		} finally {
+			setIsDeleting(false);
+			setShowDeleteDialog(false);
+		}
+	};
+
+	const handleDownloadData = async () => {
 		setIsDownloading(true);
 		try {
-			const response = await fetch('/api/user/download-data', {
-				method: 'GET',
+			const response = await fetch("/api/user/download-data", {
+				method: "GET",
 			});
 
 			if (response.ok) {
 				const blob = await response.blob();
 				const url = window.URL.createObjectURL(blob);
-				const a = document.createElement('a');
-				a.style.display = 'none';
+				const a = document.createElement("a");
+				a.style.display = "none";
 				a.href = url;
-				const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+				const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
 				a.download = `my-data_${timestamp}.csv`;
 				document.body.appendChild(a);
 				a.click();
@@ -178,10 +177,10 @@ export default function DataManagement() {
 					description: "Your data has been downloaded successfully.",
 				});
 			} else {
-				throw new Error('Failed to download data');
+				throw new Error("Failed to download data");
 			}
 		} catch (error) {
-			console.error('Download data error:', error);
+			console.error("Download data error:", error);
 			toast({
 				title: "Error",
 				description: "Failed to download your data. Please try again.",
@@ -192,41 +191,40 @@ export default function DataManagement() {
 		}
 	};
 
-        const handleSubscribe = async () => {
-            setIsSubscribing(true);
-            try {
-                const response = await fetch('/api/user/subscribe', {
-                    method: 'POST',
-                });
-    
-                if (response.ok) {
-                    const data = await response.json();
-                    setIsSubscribed(true);
-                    toast({
-                        title: "Subscribed",
-                        description: data.message,
-                    });
-                } else {
-                    throw new Error('Failed to subscribe');
-                }
-            } catch (error) {
-                console.error('Subscribe error:', error);
-                toast({
-                    title: "Error",
-                    description: "Failed to subscribe to newsletter. Please try again.",
-                    variant: "destructive",
-                });
-            } finally {
-                setIsSubscribing(false);
-            }
-        };
+	const handleSubscribe = async () => {
+		setIsSubscribing(true);
+		try {
+			const response = await fetch("/api/user/subscribe", {
+				method: "POST",
+			});
 
+			if (response.ok) {
+				const data = await response.json();
+				setIsSubscribed(true);
+				toast({
+					title: "Subscribed",
+					description: data.message,
+				});
+			} else {
+				throw new Error("Failed to subscribe");
+			}
+		} catch (error) {
+			console.error("Subscribe error:", error);
+			toast({
+				title: "Error",
+				description: "Failed to subscribe to newsletter. Please try again.",
+				variant: "destructive",
+			});
+		} finally {
+			setIsSubscribing(false);
+		}
+	};
 
 	const handleUnsubscribe = async () => {
 		setIsUnsubscribing(true);
 		try {
-			const response = await fetch('/api/user/unsubscribe', {
-				method: 'POST',
+			const response = await fetch("/api/user/unsubscribe", {
+				method: "POST",
 			});
 
 			if (response.ok) {
@@ -237,10 +235,10 @@ export default function DataManagement() {
 					description: data.message,
 				});
 			} else {
-				throw new Error('Failed to unsubscribe');
+				throw new Error("Failed to unsubscribe");
 			}
 		} catch (error) {
-			console.error('Unsubscribe error:', error);
+			console.error("Unsubscribe error:", error);
 			toast({
 				title: "Error",
 				description: "Failed to unsubscribe from newsletter. Please try again.",
@@ -252,83 +250,59 @@ export default function DataManagement() {
 		}
 	};
 
-                return (
-         <>
-                    <Card className="mt-2 md:mt-6 shadow-sm border-0">
-                        <CardHeader>
-                            <CardTitle className="flex items-center text-2xl">
-                                <Download className="w-6 h-6 mr-2 text-blue-600" />
-                                Data Management
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="px-4 md:px-0">
-                            <div className="space-y-3 md:space-y-4">
-                                <div className="flex flex-col md:flex-row md:items-center md:justify-between p-4 bg-gray-50 rounded-lg gap-3">
-                                    <div className="flex-1">
-                                        <h3 className="font-semibold text-gray-900 mb-1">Download Your Data</h3>
-                                        <p className="text-sm text-gray-600">Export all your personal data in CSV format</p>
-                                    </div>
-                                    <Button 
-                                        onClick={handleDownloadData}
-                                        disabled={isDownloading}
-                                        variant="outline"
-                                        className="flex items-center gap-2"
-                                    >
-                                        <Download className="w-4 h-4" />
-                                        {isDownloading ? "Downloading..." : "Download CSV"}
-                                    </Button>
-                                </div>
-       
-                                <div className="flex flex-col md:flex-row md:items-center md:justify-between p-4 bg-gray-50 rounded-lg gap-3">
-                                    <div className="flex-1">
-                                        <h3 className="font-semibold text-gray-900 mb-1">Email Subscription</h3>
-                                        <p className="text-sm text-gray-600">
-                                            {isSubscribed === null ? "Checking..." : 
-                                             isSubscribed ? "You are subscribed to our newsletter" : 
-                                             "You are not subscribed to our newsletter"}
-                                        </p>
-                                    </div>
-                                    {isSubscribed ? (
-                                        <Button 
-                                            onClick={() => setShowUnsubscribeDialog(true)}
-                                            disabled={isUnsubscribing}
-                                            variant="outline"
-                                            className="flex items-center gap-2 text-orange-600 hover:text-orange-700"
-                                        >
-                                            <MailMinus className="w-4 h-4" />
-                                            {isUnsubscribing ? "Unsubscribing..." : "Unsubscribe"}
-                                        </Button>
-                                    ) : (
-                                        <Button 
-                                            onClick={handleSubscribe}
-                                            disabled={isSubscribing || isSubscribed === null}
-                                            variant="outline"
-                                            className="flex items-center gap-2 text-green-600 hover:text-green-700"
-                                        >
-                                            <Mail className="w-4 h-4" />
-                                            {isSubscribing ? "Subscribing..." : "Subscribe"}
-                                        </Button>
-                                    )}
-                                </div>
-       
-                                <div className="flex flex-col md:flex-row md:items-center md:justify-between p-4 bg-red-50 rounded-lg border border-red-200 gap-3">
-                                    <div className="flex-1">
-                                        <h3 className="font-semibold text-red-600 mb-1">Delete Account</h3>
-                                        <p className="text-sm text-red-600">Permanently delete your account and all data</p>
-                                    </div>
-                                    <Button 
-                                        onClick={() => setShowDeleteDialog(true)}
-                                        disabled={isDeleting}
-                                        variant="destructive"
-                                        className="flex items-center gap-2"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                        {isDeleting ? "Deleting..." : "Delete Account"}
-                                    </Button>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
+	return (
+		<>
+			<Card className="mt-2 md:mt-6 shadow-sm border-0">
+				<CardHeader>
+					<CardTitle className="flex items-center text-2xl">
+						<Download className="w-6 h-6 mr-2 text-blue-600" />
+						Data Management
+					</CardTitle>
+				</CardHeader>
+				<CardContent className="px-4 md:px-0">
+					<div className="space-y-3 md:space-y-4">
+						<div className="flex flex-col md:flex-row md:items-center md:justify-between p-4 bg-gray-50 rounded-lg gap-3">
+							<div className="flex-1">
+								<h3 className="font-semibold text-gray-900 mb-1">Download Your Data</h3>
+								<p className="text-sm text-gray-600">Export all your personal data in CSV format</p>
+							</div>
+							<Button onClick={handleDownloadData} disabled={isDownloading} variant="outline" className="flex items-center gap-2">
+								<Download className="w-4 h-4" />
+								{isDownloading ? "Downloading..." : "Download CSV"}
+							</Button>
+						</div>
+
+						<div className="flex flex-col md:flex-row md:items-center md:justify-between p-4 bg-gray-50 rounded-lg gap-3">
+							<div className="flex-1">
+								<h3 className="font-semibold text-gray-900 mb-1">Email Subscription</h3>
+								<p className="text-sm text-gray-600">{isSubscribed === null ? "Checking..." : isSubscribed ? "You are subscribed to our newsletter" : "You are not subscribed to our newsletter"}</p>
+							</div>
+							{isSubscribed ? (
+								<Button onClick={() => setShowUnsubscribeDialog(true)} disabled={isUnsubscribing} variant="outline" className="flex items-center gap-2 text-orange-600 hover:text-orange-700">
+									<MailMinus className="w-4 h-4" />
+									{isUnsubscribing ? "Unsubscribing..." : "Unsubscribe"}
+								</Button>
+							) : (
+								<Button onClick={handleSubscribe} disabled={isSubscribing || isSubscribed === null} variant="outline" className="flex items-center gap-2 text-green-600 hover:text-green-700">
+									<Mail className="w-4 h-4" />
+									{isSubscribing ? "Subscribing..." : "Subscribe"}
+								</Button>
+							)}
+						</div>
+
+						<div className="flex flex-col md:flex-row md:items-center md:justify-between p-4 bg-red-50 rounded-lg border border-red-200 gap-3">
+							<div className="flex-1">
+								<h3 className="font-semibold text-red-600 mb-1">Delete Account</h3>
+								<p className="text-sm text-red-600">Permanently delete your account and all data</p>
+							</div>
+							<Button onClick={() => setShowDeleteDialog(true)} disabled={isDeleting} variant="destructive" className="flex items-center gap-2">
+								<Trash2 className="w-4 h-4" />
+								{isDeleting ? "Deleting..." : "Delete Account"}
+							</Button>
+						</div>
+					</div>
+				</CardContent>
+			</Card>
 
 			{/* Delete Account Confirmation Dialog */}
 			<AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
@@ -336,24 +310,14 @@ export default function DataManagement() {
 					<AlertDialogHeader>
 						<AlertDialogTitle className="text-red-600">Delete Account</AlertDialogTitle>
 						<AlertDialogDescription>
-							Are you sure you want to delete your account? This action is <strong>permanent and cannot be undone</strong>. 
-							All your data, including profile information, membership details, and activity history will be permanently removed from our database.
+							Are you sure you want to delete your account? This action is <strong>permanent and cannot be undone</strong>. All your data, including profile information, membership details, and activity history will be permanently removed from our database.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<Button
-							onClick={() => setShowDeleteDialog(false)}
-							variant="outline"
-							className="mr-2"
-							disabled={isDeleting}
-						>
+						<Button onClick={() => setShowDeleteDialog(false)} variant="outline" className="mr-2" disabled={isDeleting}>
 							Cancel
 						</Button>
-						<Button
-							onClick={handleDeleteAccount}
-							className="bg-red-600 hover:bg-red-700 text-white"
-							disabled={isDeleting}
-						>
+						<Button onClick={handleDeleteAccount} className="bg-red-600 hover:bg-brand_secondary text-white" disabled={isDeleting}>
 							{isDeleting ? "Deleting..." : "Delete Forever"}
 						</Button>
 					</AlertDialogFooter>
@@ -365,31 +329,18 @@ export default function DataManagement() {
 				<AlertDialogContent>
 					<AlertDialogHeader>
 						<AlertDialogTitle className="text-orange-600">Unsubscribe from Newsletter</AlertDialogTitle>
-						<AlertDialogDescription>
-							Are you sure you want to unsubscribe from our newsletter? 
-							You will no longer receive email updates about events, news, and announcements.
-							You can always subscribe again later through the contact form.
-						</AlertDialogDescription>
+						<AlertDialogDescription>Are you sure you want to unsubscribe from our newsletter? You will no longer receive email updates about events, news, and announcements. You can always subscribe again later through the contact form.</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<Button
-							onClick={() => setShowUnsubscribeDialog(false)}
-							variant="outline"
-							className="mr-2"
-							disabled={isUnsubscribing}
-						>
+						<Button onClick={() => setShowUnsubscribeDialog(false)} variant="outline" className="mr-2" disabled={isUnsubscribing}>
 							Cancel
 						</Button>
-						<Button
-							onClick={handleUnsubscribe}
-							className="bg-orange-600 hover:bg-orange-700 text-white"
-							disabled={isUnsubscribing}
-						>
+						<Button onClick={handleUnsubscribe} className="bg-orange-600 hover:bg-orange-700 text-white" disabled={isUnsubscribing}>
 							{isUnsubscribing ? "Unsubscribing..." : "Unsubscribe"}
 						</Button>
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
-           </>
-    );
+		</>
+	);
 }

@@ -54,7 +54,7 @@ export default function PersonalNumberLookup({ onMemberFound }: PersonalNumberLo
 
 	const handlePersonalNumberChange = (value: string) => {
 		// Only allow digits and limit to 11 characters
-		const cleanValue = value.replace(/\D/g, '').slice(0, 11);
+		const cleanValue = value.replace(/\D/g, "").slice(0, 11);
 		setPersonalNumber(cleanValue);
 	};
 
@@ -84,12 +84,12 @@ export default function PersonalNumberLookup({ onMemberFound }: PersonalNumberLo
 				setMemberDonations(data.donations);
 				setMemberStats(data.stats);
 				setShowResults(true);
-				
+
 				// Callback to parent component if provided
 				if (onMemberFound) {
 					onMemberFound(data.member, data.donations, data.stats);
 				}
-				
+
 				toast({
 					title: "Success",
 					description: `Found ${data.donations.length} donations for ${data.member.name}`,
@@ -136,14 +136,14 @@ export default function PersonalNumberLookup({ onMemberFound }: PersonalNumberLo
 
 			if (response.ok) {
 				const data = await response.json();
-				
+
 				// Create and download the tax report as a text file
 				const reportContent = generateTaxReportText(data.taxReport);
-				const blob = new Blob([reportContent], { type: 'text/plain' });
+				const blob = new Blob([reportContent], { type: "text/plain" });
 				const url = window.URL.createObjectURL(blob);
-				const a = document.createElement('a');
+				const a = document.createElement("a");
 				a.href = url;
-				a.download = `tax-donation-report-${selectedYear}-${data.taxReport.member.name.replace(/\s+/g, '-').toLowerCase()}.txt`;
+				a.download = `tax-donation-report-${selectedYear}-${data.taxReport.member.name.replace(/\s+/g, "-").toLowerCase()}.txt`;
 				document.body.appendChild(a);
 				a.click();
 				window.URL.revokeObjectURL(url);
@@ -203,22 +203,22 @@ export default function PersonalNumberLookup({ onMemberFound }: PersonalNumberLo
 		};
 	}) => {
 		const { member, report, summary } = taxReport;
-		
+
 		let content = `TAX DONATION REPORT - ${report.year}\n`;
-		content += `Generated on: ${new Date(report.generatedAt).toLocaleDateString('en-US', { 
-			year: 'numeric', 
-			month: 'long', 
-			day: 'numeric' 
+		content += `Generated on: ${new Date(report.generatedAt).toLocaleDateString("en-US", {
+			year: "numeric",
+			month: "long",
+			day: "numeric",
 		})}\n`;
-		content += `${'='.repeat(60)}\n\n`;
-		
+		content += `${"=".repeat(60)}\n\n`;
+
 		content += `MEMBER INFORMATION:\n`;
 		content += `Name: ${member.name}\n`;
 		content += `Personal Number: ${member.personalNumber}\n`;
 		content += `Email: ${member.email}\n`;
 		content += `Address: ${member.address}\n`;
 		content += `Membership Status: ${member.membershipStatus}\n\n`;
-		
+
 		content += `DONATION SUMMARY:\n`;
 		content += `Total Donated: ${formatNOK(report.totalDonated)}\n`;
 		content += `Number of Donations: ${report.donationCount}\n`;
@@ -226,38 +226,43 @@ export default function PersonalNumberLookup({ onMemberFound }: PersonalNumberLo
 		content += `Largest Donation: ${formatNOK(summary.largestDonation)}\n`;
 		content += `Smallest Donation: ${formatNOK(summary.smallestDonation)}\n`;
 		if (summary.firstDonationDate) {
-			content += `First Donation: ${new Date(summary.firstDonationDate).toLocaleDateString('en-US')}\n`;
+			content += `First Donation: ${new Date(summary.firstDonationDate).toLocaleDateString("en-US")}\n`;
 		}
 		if (summary.lastDonationDate) {
-			content += `Last Donation: ${new Date(summary.lastDonationDate).toLocaleDateString('en-US')}\n`;
+			content += `Last Donation: ${new Date(summary.lastDonationDate).toLocaleDateString("en-US")}\n`;
 		}
 		content += `\n`;
-		
+
 		if (report.donations.length > 0) {
 			content += `DETAILED DONATION HISTORY:\n`;
-			content += `${'-'.repeat(60)}\n`;
-			report.donations.forEach((donation: {
-				date: string;
-				amount: number;
-				donationType: string;
-				message?: string;
-				isAnonymous: boolean;
-			}, index: number) => {
-				content += `${index + 1}. Date: ${new Date(donation.date).toLocaleDateString('en-US')}\n`;
-				content += `   Amount: ${formatNOK(donation.amount)}\n`;
-				content += `   Type: ${donation.donationType}\n`;
-				if (donation.message) {
-					content += `   Message: "${donation.message}"\n`;
-				}
-				content += `   Anonymous: ${donation.isAnonymous ? 'Yes' : 'No'}\n\n`;
-			});
+			content += `${"-".repeat(60)}\n`;
+			report.donations.forEach(
+				(
+					donation: {
+						date: string;
+						amount: number;
+						donationType: string;
+						message?: string;
+						isAnonymous: boolean;
+					},
+					index: number,
+				) => {
+					content += `${index + 1}. Date: ${new Date(donation.date).toLocaleDateString("en-US")}\n`;
+					content += `   Amount: ${formatNOK(donation.amount)}\n`;
+					content += `   Type: ${donation.donationType}\n`;
+					if (donation.message) {
+						content += `   Message: "${donation.message}"\n`;
+					}
+					content += `   Anonymous: ${donation.isAnonymous ? "Yes" : "No"}\n\n`;
+				},
+			);
 		}
-		
-		content += `\n${'='.repeat(60)}\n`;
+
+		content += `\n${"=".repeat(60)}\n`;
 		content += `This report is generated for tax purposes and contains all completed\n`;
 		content += `donations made by ${member.name} during the year ${report.year}.\n`;
 		content += `For any questions, please contact Pashupatinath Norway Temple administration.\n`;
-		
+
 		return content;
 	};
 
@@ -274,7 +279,7 @@ export default function PersonalNumberLookup({ onMemberFound }: PersonalNumberLo
 			case "completed":
 				return "bg-green-100 text-green-800";
 			case "pending":
-				return "bg-yellow-100 text-yellow-800";
+				return "bg-yellow-100 text-brand_primary";
 			case "failed":
 				return "bg-red-100 text-red-800";
 			case "refunded":
@@ -293,36 +298,17 @@ export default function PersonalNumberLookup({ onMemberFound }: PersonalNumberLo
 						<Search className="mr-2 h-5 w-5 text-blue-600" />
 						Lookup Member Donations
 					</CardTitle>
-					<CardDescription>
-						Search for donations made by a member using their personal identification number
-					</CardDescription>
+					<CardDescription>Search for donations made by a member using their personal identification number</CardDescription>
 				</CardHeader>
 				<CardContent>
 					<div className="space-y-4">
 						<div className="flex gap-4">
 							<div className="flex-1">
-								<input
-									type="text"
-									value={personalNumber}
-									onChange={(e) => handlePersonalNumberChange(e.target.value)}
-									maxLength={11}
-									placeholder="Enter 11-digit personal number"
-									className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-blue-600 focus:outline-none"
-								/>
-								<p className="text-xs text-gray-500 mt-1">
-									Enter the member&apos;s 11-digit personal identification number to view their donation history
-								</p>
+								<input type="text" value={personalNumber} onChange={(e) => handlePersonalNumberChange(e.target.value)} maxLength={11} placeholder="Enter 11-digit personal number" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-blue-600 focus:outline-none" />
+								<p className="text-xs text-gray-500 mt-1">Enter the member&apos;s 11-digit personal identification number to view their donation history</p>
 							</div>
-							<Button 
-								onClick={lookupMemberDonations} 
-								disabled={lookupLoading || personalNumber.length !== 11}
-								className="bg-blue-600 hover:bg-blue-700"
-							>
-								{lookupLoading ? (
-									<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-								) : (
-									<Search className="mr-2 h-4 w-4" />
-								)}
+							<Button onClick={lookupMemberDonations} disabled={lookupLoading || personalNumber.length !== 11} className="bg-blue-600 hover:bg-blue-700">
+								{lookupLoading ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div> : <Search className="mr-2 h-4 w-4" />}
 								Search
 							</Button>
 						</div>
@@ -405,25 +391,15 @@ export default function PersonalNumberLookup({ onMemberFound }: PersonalNumberLo
 									<p className="text-sm text-gray-600">Generate annual donation summary for tax purposes</p>
 								</div>
 								<div className="flex items-center gap-3">
-									<select
-										value={selectedYear}
-										onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-										className="px-3 py-2 border border-gray-300 rounded-lg focus:border-green-600 focus:outline-none"
-									>
-										{Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(year => (
-											<option key={year} value={year}>{year}</option>
+									<select value={selectedYear} onChange={(e) => setSelectedYear(parseInt(e.target.value))} className="px-3 py-2 border border-gray-300 rounded-lg focus:border-green-600 focus:outline-none">
+										{Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+											<option key={year} value={year}>
+												{year}
+											</option>
 										))}
 									</select>
-									<Button 
-										onClick={generateTaxReport} 
-										disabled={taxReportLoading}
-										className="bg-green-600 hover:bg-green-700"
-									>
-										{taxReportLoading ? (
-											<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-										) : (
-											<Download className="mr-2 h-4 w-4" />
-										)}
+									<Button onClick={generateTaxReport} disabled={taxReportLoading} className="bg-green-600 hover:bg-green-700">
+										{taxReportLoading ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div> : <Download className="mr-2 h-4 w-4" />}
 										Download Report
 									</Button>
 								</div>
@@ -445,22 +421,16 @@ export default function PersonalNumberLookup({ onMemberFound }: PersonalNumberLo
 											<div className="flex items-center space-x-3">
 												<Heart className="h-4 w-4 text-red-600" />
 												<div>
-													<p className="font-semibold text-gray-900">
-														{formatNOK(donation.amount)}
-													</p>
+													<p className="font-semibold text-gray-900">{formatNOK(donation.amount)}</p>
 												</div>
 											</div>
-											<Badge className={getStatusColor(donation.paymentStatus)}>
-												{donation.paymentStatus.charAt(0).toUpperCase() + donation.paymentStatus.slice(1)}
-											</Badge>
+											<Badge className={getStatusColor(donation.paymentStatus)}>{donation.paymentStatus.charAt(0).toUpperCase() + donation.paymentStatus.slice(1)}</Badge>
 										</div>
 										<div className="flex items-center justify-between text-sm text-gray-600">
 											<p>{formatDate(donation.createdAt)}</p>
 											{donation.isAnonymous && <Badge variant="outline">Anonymous</Badge>}
 										</div>
-										{donation.message && (
-											<p className="mt-2 text-sm text-gray-700 italic">{donation.message}</p>
-										)}
+										{donation.message && <p className="mt-2 text-sm text-gray-700 italic">{donation.message}</p>}
 									</div>
 								))
 							)}
