@@ -43,9 +43,14 @@ const isBirthdayToday = (birthDate: Date): boolean => {
 export async function POST(request: Request) {
 	try {
 		const cronSecret = request.headers.get("x-cron-secret");
-		const isValidCron = cronSecret && cronSecret === process.env.CRON_SECRET;
+		const envCronSecret = process.env.CRON_SECRET;
+		const isValidCron = cronSecret && envCronSecret && cronSecret === envCronSecret;
 
 		if (!isValidCron) {
+			console.warn("Cron secret mismatch or missing. Falling back to admin auth.", {
+				hasCronHeader: !!cronSecret,
+				hasEnvSecret: !!envCronSecret,
+			});
 			const auth = await requireAdmin();
 			if (auth.response) return auth.response;
 		}
@@ -70,7 +75,8 @@ export async function POST(request: Request) {
 		for (const member of members) {
 			const birthDate = extractBirthDateFromPersonalNumber(member.personalNumber);
 			if (!birthDate) {
-				console.log(`Skipping ${member.fullName} - invalid personal number`);
+				const fullName = `${member.firstName} ${member.middleName ? member.middleName + " " : ""}${member.lastName}`;
+				console.log(`Skipping ${fullName} - invalid personal number`);
 				continue;
 			}
 
