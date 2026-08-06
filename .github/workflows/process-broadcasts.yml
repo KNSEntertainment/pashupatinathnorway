@@ -7,21 +7,32 @@ on:
   workflow_dispatch:
     # Allow manual triggering for testing
 
+concurrency:
+  group: process-scheduled-broadcasts
+  cancel-in-progress: false
+
 jobs:
   process-scheduled-broadcasts:
     runs-on: ubuntu-latest
-    
+    timeout-minutes: 4
+
     steps:
       - name: Process Scheduled Broadcasts
         run: |
           echo "Processing scheduled broadcasts..."
           echo "Time: $(date)"
-          
+
           # Call the API endpoint to process scheduled broadcasts
-          response=$(curl -s -w "\n%{http_code}" -X GET \
+          response=$(curl -s -w "\n%{http_code}" -X GET --max-time 180 \
             "https://nepalihindu.no/api/broadcast/process-scheduled" \
             -H "Content-Type: application/json")
-          
+          curl_exit=$?
+
+          if [ $curl_exit -ne 0 ]; then
+            echo "❌ curl failed (exit code $curl_exit) — request timed out or server unreachable"
+            exit 1
+          fi
+
           # Extract status code and response body
           http_code=$(echo "$response" | tail -n1)
           response_body=$(echo "$response" | sed '$d')

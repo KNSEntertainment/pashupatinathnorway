@@ -18,33 +18,29 @@ export async function GET() {
     // }
 
     console.log("Processing scheduled broadcasts...");
-    
-    // Find broadcasts that are scheduled to be sent now or earlier
+
     const now = new Date();
-    const scheduledBroadcasts = await Broadcast.find({
-      status: "pending",
-      scheduledFor: { $lte: now }
-    }).populate("sender", "fullName email");
 
-    if (scheduledBroadcasts.length === 0) {
-      console.log("No scheduled broadcasts to process");
-      return NextResponse.json({ 
-        message: "No scheduled broadcasts to process",
-        processed: 0
-      });
-    }
-
-    console.log(`Found ${scheduledBroadcasts.length} scheduled broadcasts to process`);
+    // Atomically claim one pending broadcast at a time so overlapping
+    // invocations (e.g. a slow run still in flight when the next cron
+    // fires) can never grab and send the same broadcast twice.
+    const claimNextBroadcast = () =>
+      Broadcast.findOneAndUpdate(
+        { status: "pending", scheduledFor: { $lte: now } },
+        { $set: { status: "sending" } },
+        { new: true }
+      ).populate("sender", "fullName email");
 
     let totalProcessed = 0;
+    let anyFound = false;
 
-    for (const broadcast of scheduledBroadcasts) {
+    while (true) {
+      const broadcast = await claimNextBroadcast();
+      if (!broadcast) break;
+      anyFound = true;
+
       try {
         console.log(`Processing broadcast: ${broadcast.subject}`);
-        
-        // Update status to sending
-        broadcast.status = "sending";
-        await broadcast.save();
 
         // Get recipients based on selection
         let recipients = [];
@@ -210,6 +206,14 @@ export async function GET() {
         broadcast.status = "failed";
         await broadcast.save();
       }
+    }
+
+    if (!anyFound) {
+      console.log("No scheduled broadcasts to process");
+      return NextResponse.json({
+        message: "No scheduled broadcasts to process",
+        processed: 0
+      });
     }
 
     console.log(`Completed processing. Total broadcasts processed: ${totalProcessed}`);
