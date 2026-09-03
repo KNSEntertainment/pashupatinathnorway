@@ -95,6 +95,11 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
 	
 	console.log('Update data being sent to MongoDB:', JSON.stringify(updateData, null, 2));
 
+	// When a member is assigned to the board, record when their term started (unless already set)
+	if (["Executive", "Advisor"].includes(updateData.membershipType) && !existingMembership.boardTermStart) {
+		updateData.boardTermStart = new Date().toISOString();
+	}
+
 	// If membership is being approved, check age and set membership type
 	if (data.membershipStatus === "approved" && existingMembership.membershipStatus !== "approved") {
 		const age = calculateAgeFromPersonalNumber(existingMembership.personalNumber);

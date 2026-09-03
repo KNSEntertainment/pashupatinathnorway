@@ -18,6 +18,7 @@ const MembershipSchema = new mongoose.Schema({
 	membershipType: { type: String, enum: ["General", "Active", "Executive", "Advisor"], default: "General" },
 	position: { type: String },
 	displayOrder: { type: Number, default: 0 }, // For executive member hierarchy ordering
+	boardTermStart: { type: Date }, // When the current Executive/Advisor term began
 	osloVerificationStatus: { type: String, enum: ["pending", "verified", "rejected", "follow_up_needed"], default: "pending" },
 	agreeTerms: { type: Boolean, required: false, default: true },
 	profilePhoto: { type: String },

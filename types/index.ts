@@ -62,6 +62,8 @@ export interface Membership {
 	agreeTerms: boolean;
 	profilePhoto?: string;
 	position?: string;
+	displayOrder?: number;
+	boardTermStart?: string;
 	password?: string;
 	passwordSetupToken?: string;
 	passwordSetupTokenExpiry?: Date;

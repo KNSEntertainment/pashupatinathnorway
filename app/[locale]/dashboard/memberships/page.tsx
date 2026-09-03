@@ -5,7 +5,7 @@ import useFetchData from "@/hooks/useFetchData";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Eye, CheckCircle, XCircle, Clock, User, Mail, Phone, X, Edit, Download, Upload, ChevronLeft, ChevronRight, AlertTriangle, Plus, Crown, Users, Key } from "lucide-react";
+import { Trash2, Eye, CheckCircle, XCircle, Clock, User, Mail, Phone, X, Edit, Download, Upload, ChevronLeft, ChevronRight, AlertTriangle, Plus, Crown, Users, Key, Archive, UserMinus } from "lucide-react";
 import DashboardPageLayout from "@/components/layout/DashboardPageLayout";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -84,6 +84,13 @@ export default function MembershipsPage() {
 		membershipStatus: "pending",
 	});
 	const [passwordResetLoading, setPasswordResetLoading] = useState<string[]>([]);
+	const [archiveTermEnd, setArchiveTermEnd] = useState(() => new Date().toISOString().slice(0, 10));
+	const [archiveTermStartFallback, setArchiveTermStartFallback] = useState("");
+	const [archivingBoard, setArchivingBoard] = useState(false);
+	const [resigningMember, setResigningMember] = useState<Membership | null>(null);
+	const [resignDate, setResignDate] = useState(() => new Date().toISOString().slice(0, 10));
+	const [resignTermStartFallback, setResignTermStartFallback] = useState("");
+	const [resigningLoading, setResigningLoading] = useState(false);
 	const MEMBERS_PER_PAGE = 500;
 	const { data: memberships, error, loading, mutate } = useFetchData("/api/membership", "memberships");
 	const { toast } = useToast();
@@ -370,6 +377,9 @@ export default function MembershipsPage() {
 	const totalPages = Math.ceil(filteredMemberships.length / MEMBERS_PER_PAGE) || 1;
 	const paginatedMemberships = filteredMemberships.slice((currentPage - 1) * MEMBERS_PER_PAGE, currentPage * MEMBERS_PER_PAGE);
 
+	const currentBoardMembers = (memberships || []).filter((member: Membership) => member.membershipType === "Executive" || member.membershipType === "Advisor");
+	const currentBoardMissingTermStart = currentBoardMembers.filter((member: Membership) => !member.boardTermStart);
+
 	const allIdsOnPage = paginatedMemberships.map((m: Membership) => m._id);
 	const allSelectedOnPage = allIdsOnPage.every((id: string) => selectedMemberIds.includes(id));
 
@@ -487,6 +497,82 @@ export default function MembershipsPage() {
 		});
 
 		mutate();
+	};
+
+	const handleArchiveCurrentBoard = async () => {
+		if (currentBoardMissingTermStart.length > 0 && !archiveTermStartFallback) return;
+
+		setArchivingBoard(true);
+		try {
+			const response = await fetch("/api/management-history/archive-current-term", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					termEnd: archiveTermEnd,
+					termStart: archiveTermStartFallback || undefined,
+				}),
+			});
+
+			const result = await response.json();
+			if (!response.ok) {
+				throw new Error(result.error || "Failed to archive current board");
+			}
+
+			toast({
+				title: "Board Archived",
+				description: `${result.archivedCount} member${result.archivedCount === 1 ? "" : "s"} moved to past board members.`,
+			});
+
+			setArchiveTermStartFallback("");
+			mutate();
+		} catch (error) {
+			toast({
+				title: "Error",
+				description: error instanceof Error ? error.message : "Failed to archive current board",
+				variant: "destructive",
+			});
+		} finally {
+			setArchivingBoard(false);
+		}
+	};
+
+	const handleResignMember = async () => {
+		if (!resigningMember) return;
+		if (!resigningMember.boardTermStart && !resignTermStartFallback) return;
+
+		setResigningLoading(true);
+		try {
+			const response = await fetch(`/api/membership/${resigningMember._id}/resign`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					resignedOn: resignDate,
+					termStart: resignTermStartFallback || undefined,
+				}),
+			});
+
+			const result = await response.json();
+			if (!response.ok) {
+				throw new Error(result.error || "Failed to record resignation");
+			}
+
+			toast({
+				title: "Member Resigned",
+				description: `${resigningMember.firstName} ${resigningMember.lastName} moved to past board members.`,
+			});
+
+			setResigningMember(null);
+			setResignTermStartFallback("");
+			mutate();
+		} catch (error) {
+			toast({
+				title: "Error",
+				description: error instanceof Error ? error.message : "Failed to record resignation",
+				variant: "destructive",
+			});
+		} finally {
+			setResigningLoading(false);
+		}
 	};
 
 	const downloadExcel = async () => {
@@ -802,6 +888,54 @@ export default function MembershipsPage() {
 										Bulk Upload
 									</Button>
 								</Link>
+								<AlertDialog>
+									<AlertDialogTrigger asChild>
+										<Button size="sm" variant="outline" disabled={currentBoardMembers.length === 0} className="flex items-center gap-2">
+											<Archive className="w-4 h-4" />
+											Archive Current Board
+										</Button>
+									</AlertDialogTrigger>
+									<AlertDialogContent>
+										<AlertDialogHeader>
+											<AlertDialogTitle className="flex items-center gap-2">
+												<AlertTriangle className="w-5 h-5 text-orange-600" />
+												Archive Current Board / Start New Term
+											</AlertDialogTitle>
+											<AlertDialogDescription asChild>
+												<div className="space-y-3 text-left">
+													<p>
+														This moves all {currentBoardMembers.length} current Executive/Advisor member{currentBoardMembers.length === 1 ? "" : "s"} to past board members and resets them to Active. Use this right after an election or annual meeting once the new board is decided.
+													</p>
+													<ul className="max-h-32 overflow-y-auto text-sm text-gray-600 list-disc pl-5">
+														{currentBoardMembers.map((member: Membership) => (
+															<li key={member._id}>
+																{member.firstName} {member.lastName} — {member.position || member.membershipType}
+															</li>
+														))}
+													</ul>
+													<div>
+														<label className="block text-sm font-medium text-gray-700 mb-1">Term end date</label>
+														<input type="date" value={archiveTermEnd} onChange={(e) => setArchiveTermEnd(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+													</div>
+													{currentBoardMissingTermStart.length > 0 && (
+														<div>
+															<label className="block text-sm font-medium text-gray-700 mb-1">
+																Term start date <span className="text-gray-400">(required — {currentBoardMissingTermStart.length} member{currentBoardMissingTermStart.length === 1 ? "" : "s"} has no recorded start date)</span>
+															</label>
+															<input type="date" value={archiveTermStartFallback} onChange={(e) => setArchiveTermStartFallback(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" required />
+														</div>
+													)}
+												</div>
+											</AlertDialogDescription>
+										</AlertDialogHeader>
+										<AlertDialogFooter>
+											<AlertDialogCancel>Cancel</AlertDialogCancel>
+											<AlertDialogAction onClick={handleArchiveCurrentBoard} disabled={archivingBoard || (currentBoardMissingTermStart.length > 0 && !archiveTermStartFallback)}>
+												{archivingBoard ? "Archiving..." : "Archive Board"}
+											</AlertDialogAction>
+										</AlertDialogFooter>
+									</AlertDialogContent>
+								</AlertDialog>
 							</div>
 						</div>
 					</div>
@@ -966,6 +1100,58 @@ export default function MembershipsPage() {
 													<Button variant="ghost" size="sm" onClick={() => handleEdit(member)} className="h-8 px-3 text-gray-600 hover:text-gray-900">
 														<Edit className="w-4 h-4" />
 													</Button>
+													{["Executive", "Advisor"].includes(member.membershipType) && (
+														<AlertDialog open={resigningMember?._id === member._id} onOpenChange={(open) => !open && setResigningMember(null)}>
+															<AlertDialogTrigger asChild>
+																<Button
+																	variant="ghost"
+																	size="sm"
+																	onClick={() => {
+																		setResigningMember(member);
+																		setResignDate(new Date().toISOString().slice(0, 10));
+																		setResignTermStartFallback("");
+																	}}
+																	className="h-8 px-3 text-orange-600 hover:text-orange-700"
+																	title="Mark as resigned"
+																>
+																	<UserMinus className="w-4 h-4" />
+																</Button>
+															</AlertDialogTrigger>
+															<AlertDialogContent onClick={(e) => e.stopPropagation()}>
+																<AlertDialogHeader>
+																	<AlertDialogTitle className="flex items-center gap-2">
+																		<AlertTriangle className="w-5 h-5 text-orange-600" />
+																		Mark as Resigned
+																	</AlertDialogTitle>
+																	<AlertDialogDescription asChild>
+																		<div className="space-y-3 text-left">
+																			<p>
+																				{member.firstName} {member.lastName} will be moved to past board members (with just their own term) and reset to Active, without affecting the rest of the current board.
+																			</p>
+																			<div>
+																				<label className="block text-sm font-medium text-gray-700 mb-1">Resignation date</label>
+																				<input type="date" value={resignDate} onChange={(e) => setResignDate(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+																			</div>
+																			{!member.boardTermStart && (
+																				<div>
+																					<label className="block text-sm font-medium text-gray-700 mb-1">
+																						Term start date <span className="text-gray-400">(required — no recorded start date)</span>
+																					</label>
+																					<input type="date" value={resignTermStartFallback} onChange={(e) => setResignTermStartFallback(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" required />
+																				</div>
+																			)}
+																		</div>
+																	</AlertDialogDescription>
+																</AlertDialogHeader>
+																<AlertDialogFooter>
+																	<AlertDialogCancel>Cancel</AlertDialogCancel>
+																	<AlertDialogAction onClick={handleResignMember} disabled={resigningLoading || (!member.boardTermStart && !resignTermStartFallback)}>
+																		{resigningLoading ? "Saving..." : "Confirm Resignation"}
+																	</AlertDialogAction>
+																</AlertDialogFooter>
+															</AlertDialogContent>
+														</AlertDialog>
+													)}
 													{member.membershipStatus === "approved" && (
 														<Button variant="ghost" size="sm" onClick={() => handleIndividualPasswordReset(member)} className="h-8 px-3 text-blue-600 hover:text-blue-700" title="Reset password" disabled={passwordResetLoading.includes(member._id)}>
 															{passwordResetLoading.includes(member._id) ? <div className="w-4 h-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div> : <Key className="w-4 h-4" />}
