@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
   try {
     const { phoneNumber, code } = await request.json();
 
-    const result = verifyOTP(phoneNumber, code);
+    const result = await verifyOTP(phoneNumber, code);
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 400 });

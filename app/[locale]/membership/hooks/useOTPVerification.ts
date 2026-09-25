@@ -52,16 +52,19 @@ export function useOTPVerification({ phone, onVerified }: UseOTPVerificationProp
 			clearTimeout(timeoutId);
 
 			const data = await response.json();
-			if (!response.ok) throw new Error(data.error || "Failed to send OTP");
+			if (!response.ok) {
+				throw new Error(data.error || "Failed to send OTP");
+			}
 
 			setOtpSent(true);
+			setOtpError("");
 		} catch (error) {
-			if (error instanceof Error && error.name === 'AbortError') {
+			setOtpSent(false);
+			if (error instanceof Error && error.name === "AbortError") {
 				setOtpError("Request timed out. Please try again.");
 			} else {
 				setOtpError(error instanceof Error ? error.message : "Failed to send verification code");
 			}
-			setShowOTPModal(false);
 		} finally {
 			setOtpSending(false);
 		}
@@ -70,7 +73,7 @@ export function useOTPVerification({ phone, onVerified }: UseOTPVerificationProp
 	const verifyOTPCode = async () => {
 		if (verifying || phoneVerified) return;
 		if (!otpCode || otpCode.length !== 4) {
-			setOtpError("Please enter a 4-digit verification code");
+			setOtpError("Please enter the 4-digit verification code");
 			return;
 		}
 
@@ -85,7 +88,9 @@ export function useOTPVerification({ phone, onVerified }: UseOTPVerificationProp
 			});
 
 			const data = await response.json();
-			if (!response.ok) throw new Error(data.error || "Failed to verify OTP");
+			if (!response.ok) {
+				throw new Error(data.error || "Failed to verify OTP");
+			}
 
 			setOtpError("");
 			setPhoneVerified(true);
@@ -99,17 +104,17 @@ export function useOTPVerification({ phone, onVerified }: UseOTPVerificationProp
 		}
 	};
 
-	const resendOTP = () => {
+	const resendOTP = async () => {
 		setOtpSent(false);
 		setOtpCode("");
 		setOtpError("");
 		setCountdown(0);
-		sendOTPCode();
+		await sendOTPCode();
 	};
 
 	const openModal = async () => {
-		await sendOTPCode();
 		setShowOTPModal(true);
+		await sendOTPCode();
 	};
 
 	const closeModal = () => {

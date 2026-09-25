@@ -82,7 +82,7 @@ export default function MembershipPageClient({ translations: t, locale }: Props)
 
 	return (
 		<>
-			<OTPModal show={otp.showOTPModal} phone={form.formData.phone} otpCode={otp.otpCode} otpSent={otp.otpSent} otpError={otp.otpError} verifying={otp.verifying} countdown={otp.countdown} onOtpChange={otp.setOtpCode} onVerify={otp.verifyOTPCode} onResend={otp.resendOTP} onClose={otp.closeModal} />
+			<OTPModal show={otp.showOTPModal} phone={form.formData.phone} otpCode={otp.otpCode} otpSent={otp.otpSent} otpSending={otp.otpSending} otpError={otp.otpError} verifying={otp.verifying} countdown={otp.countdown} onOtpChange={otp.setOtpCode} onVerify={otp.verifyOTPCode} onResend={otp.resendOTP} onClose={otp.closeModal} />
 
 			<SuccessModal
 				show={form.showSuccessModal}
