@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useActiveMenu } from "@/context/ActiveMenuContext";
-import { ArrowLeft, Send, Mail, MessageSquare, CheckCircle, Clock, AlertCircle, XCircle, Eye } from "lucide-react";
+import { ArrowLeft, Send, Mail, MessageSquare, CheckCircle, Clock, AlertCircle, XCircle, Eye, ShieldCheck, Sparkles, RefreshCw, Play } from "lucide-react";
 
 export default function BroadcastDetailPage() {
 	const { id } = useParams();
@@ -11,6 +11,9 @@ export default function BroadcastDetailPage() {
 	const [broadcast, setBroadcast] = useState(null);
 	const [tracking, setTracking] = useState([]);
 	const [stats, setStats] = useState(null);
+	const [dailyQuota, setDailyQuota] = useState(null);
+	const [processingBatch, setProcessingBatch] = useState(false);
+	const [batchMessage, setBatchMessage] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [filter, setFilter] = useState("all");
 
@@ -27,6 +30,9 @@ export default function BroadcastDetailPage() {
 				setBroadcast(data.broadcast);
 				setTracking(data.tracking);
 				setStats(data.stats);
+				if (data.dailyQuota) {
+					setDailyQuota(data.dailyQuota);
+				}
 			} else {
 				console.error("Failed to fetch broadcast details");
 			}
@@ -36,6 +42,28 @@ export default function BroadcastDetailPage() {
 			setLoading(false);
 		}
 	}, [id]);
+
+	const handleSendNextBatch = async () => {
+		try {
+			setProcessingBatch(true);
+			setBatchMessage(null);
+			const response = await fetch(`/api/broadcast/${id}`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ action: "send-chunk", maxEmails: 20 }),
+			});
+			const data = await response.json();
+			if (data.message) {
+				setBatchMessage(data.message);
+			}
+			await fetchBroadcastDetails();
+		} catch (err) {
+			console.error("Failed to process batch:", err);
+			setBatchMessage("Failed to process batch. Please try again.");
+		} finally {
+			setProcessingBatch(false);
+		}
+	};
 
 	const getMethodIcon = (method) => {
 		switch (method) {
@@ -177,6 +205,79 @@ export default function BroadcastDetailPage() {
 					</div>
 				</div>
 			</div>
+
+			{/* Automated Daily Drip Queue Progress Card */}
+			{(broadcast.sendingMethod === "email" || broadcast.sendingMethod === "all") && (
+				<div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-600">
+					<div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-gray-100">
+						<div className="flex items-center gap-3">
+							<div className="p-3 bg-blue-100 text-blue-700 rounded-lg">
+								<ShieldCheck className="w-6 h-6" />
+							</div>
+							<div>
+								<h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+									Automated Daily Drip Queue
+									<span className="text-xs px-2.5 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-full font-medium">80 Emails / Day Cap</span>
+								</h3>
+								<p className="text-xs text-gray-500 mt-0.5">Protects your Resend free tier (100 emails/day) while reserving 20 daily emails for website OTPs, registrations, and password resets.</p>
+							</div>
+						</div>
+
+						{stats?.pending > 0 && (
+							<button onClick={handleSendNextBatch} disabled={processingBatch || dailyQuota?.remainingToday === 0} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg shadow-xs transition-colors">
+								{processingBatch ? (
+									<>
+										<RefreshCw className="w-4 h-4 animate-spin" />
+										Processing Chunk...
+									</>
+								) : (
+									<>
+										<Play className="w-4 h-4" />
+										Dispatch Next Chunk Now
+									</>
+								)}
+							</button>
+						)}
+					</div>
+
+					{batchMessage && (
+						<div className="mt-4 p-3 bg-blue-50 border border-blue-200 text-blue-800 text-sm rounded-lg flex items-center gap-2">
+							<Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
+							<span>{batchMessage}</span>
+						</div>
+					)}
+
+					{/* Quota & Progress grid */}
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+						<div className="p-3.5 bg-gray-50 rounded-lg">
+							<span className="text-xs text-gray-500 block mb-1">Emails Sent Today</span>
+							<span className="text-xl font-bold text-gray-900">{dailyQuota ? `${dailyQuota.sentToday} / ${dailyQuota.dailyLimit}` : "--"}</span>
+							<span className="text-xs text-gray-500 block mt-1">Resets at 00:00 UTC daily</span>
+						</div>
+
+						<div className="p-3.5 bg-gray-50 rounded-lg">
+							<span className="text-xs text-gray-500 block mb-1">Remaining Daily Allowance</span>
+							<span className={`text-xl font-bold ${dailyQuota?.remainingToday === 0 ? "text-amber-600" : "text-green-600"}`}>{dailyQuota ? `${dailyQuota.remainingToday} emails` : "--"}</span>
+							<span className="text-xs text-gray-500 block mt-1">{dailyQuota?.remainingToday === 0 ? "Daily quota reached for today" : "Ready for next batch"}</span>
+						</div>
+
+						<div className="p-3.5 bg-gray-50 rounded-lg">
+							<span className="text-xs text-gray-500 block mb-1">Broadcast Delivery Progress</span>
+							<span className="text-xl font-bold text-gray-900">
+								{(stats?.sent || 0) + (stats?.delivered || 0) + (stats?.read || 0)} / {stats?.total || 0} ({stats?.total > 0 ? Math.min(100, Math.round((((stats?.sent || 0) + (stats?.delivered || 0) + (stats?.read || 0)) / stats.total) * 100)) : 0}%)
+							</span>
+							<div className="w-full bg-gray-200 rounded-full h-2 mt-2 overflow-hidden">
+								<div
+									className="bg-blue-600 h-2 rounded-full transition-all duration-500"
+									style={{
+										width: `${stats?.total > 0 ? Math.min(100, Math.round((((stats?.sent || 0) + (stats?.delivered || 0) + (stats?.read || 0)) / stats.total) * 100)) : 0}%`,
+									}}
+								/>
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
 
 			{/* Statistics */}
 			{stats && (

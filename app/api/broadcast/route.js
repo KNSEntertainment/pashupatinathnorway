@@ -3,283 +3,230 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { Broadcast, BroadcastTracking } from "@/models/Broadcast.Model";
 import Membership from "@/models/Membership.Model";
-import { sendEmail } from "@/lib/email";
 import { sendSMS } from "@/lib/sms";
 import { sendInternalMessage } from "@/lib/internalMessages";
 import connectDB from "@/lib/mongodb";
+import { processBroadcastEmailChunk, getBroadcastEmailsSentToday, syncBroadcastProgress, DAILY_BROADCAST_EMAIL_LIMIT } from "@/lib/broadcastQueue";
 
-// GET all broadcasts
+export const maxDuration = 60;
+
+// GET all broadcasts with daily quota info
 export async function GET(request) {
-  try {
-    await connectDB();
-    const session = await getServerSession(authOptions);
-    
-    if (!session || session.user.role !== "admin") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+	try {
+		await connectDB();
+		const session = await getServerSession(authOptions);
 
-    const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get("page")) || 1;
-    const limit = parseInt(searchParams.get("limit")) || 10;
-    const status = searchParams.get("status");
+		if (!session || session.user.role !== "admin") {
+			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+		}
 
-    const query = {};
-    if (status) query.status = status;
+		const { searchParams } = new URL(request.url);
+		const page = parseInt(searchParams.get("page")) || 1;
+		const limit = parseInt(searchParams.get("limit")) || 10;
+		const status = searchParams.get("status");
 
-    const broadcasts = await Broadcast.find(query)
-      .populate("sender", "fullName email")
-      .populate("individualRecipients", "firstName lastName email")
-      .sort({ createdAt: -1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
+		const query = {};
+		if (status) query.status = status;
 
-    const total = await Broadcast.countDocuments(query);
+		const broadcasts = await Broadcast.find(query)
+			.populate("sender", "fullName email")
+			.populate("individualRecipients", "firstName lastName email")
+			.sort({ createdAt: -1 })
+			.limit(limit * 1)
+			.skip((page - 1) * limit);
 
-    return NextResponse.json({
-      broadcasts,
-      pagination: { page, limit, total, pages: Math.ceil(total / limit) }
-    });
-  } catch (error) {
-    console.error("Error fetching broadcasts:", error);
-    return NextResponse.json({ error: "Failed to fetch broadcasts" }, { status: 500 });
-  }
+		const total = await Broadcast.countDocuments(query);
+		const sentToday = await getBroadcastEmailsSentToday();
+
+		return NextResponse.json({
+			broadcasts,
+			pagination: { page, limit, total, pages: Math.ceil(total / limit) },
+			dailyQuota: {
+				sentToday,
+				dailyLimit: DAILY_BROADCAST_EMAIL_LIMIT,
+				remainingToday: Math.max(0, DAILY_BROADCAST_EMAIL_LIMIT - sentToday),
+			},
+		});
+	} catch (error) {
+		console.error("Error fetching broadcasts:", error);
+		return NextResponse.json({ error: "Failed to fetch broadcasts" }, { status: 500 });
+	}
 }
 
 // POST create new broadcast
 export async function POST(request) {
-  try {
-    await connectDB();
-    const session = await getServerSession(authOptions);
-    
-    if (!session || session.user.role !== "admin") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+	try {
+		await connectDB();
+		const session = await getServerSession(authOptions);
 
-    const body = await request.json();
-    const { subject, content, sendingMethod, recipientType, recipientGroups, individualRecipients, scheduledFor, attachment, attachmentName } = body;
+		if (!session || session.user.role !== "admin") {
+			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+		}
 
-    // Validate required fields
-    if (!subject || !content || !sendingMethod || !recipientType) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
-    }
+		const body = await request.json();
+		const { subject, content, sendingMethod, recipientType, recipientGroups, individualRecipients, scheduledFor, attachment, attachmentName } = body;
 
-    // Validate recipient selection
-    if (recipientType === "group" && (!recipientGroups || recipientGroups.length === 0)) {
-      return NextResponse.json({ error: "Please select at least one recipient group" }, { status: 400 });
-    }
+		// Validate required fields
+		if (!subject || !content || !sendingMethod || !recipientType) {
+			return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+		}
 
-    if (recipientType === "individual" && (!individualRecipients || individualRecipients.length === 0)) {
-      return NextResponse.json({ error: "Please select at least one recipient" }, { status: 400 });
-    }
+		// Validate recipient selection
+		if (recipientType === "group" && (!recipientGroups || recipientGroups.length === 0)) {
+			return NextResponse.json({ error: "Please select at least one recipient group" }, { status: 400 });
+		}
 
-    // Get recipients based on selection
-    let recipients = [];
-    console.log("Broadcast Debug - recipientType:", recipientType);
-    console.log("Broadcast Debug - recipientGroups:", recipientGroups);
-    console.log("Broadcast Debug - individualRecipients:", individualRecipients);
-    
-    if (recipientType === "all") {
-      recipients = await Membership.find({ membershipStatus: "approved" });
-      console.log("Broadcast Debug - Found recipients for 'all':", recipients.length);
-    } else if (recipientType === "group") {
-      recipients = await Membership.find({ 
-        membershipStatus: "approved",
-        membershipType: { $in: recipientGroups }
-      });
-      console.log("Broadcast Debug - Found recipients for groups:", recipients.length);
-      console.log("Broadcast Debug - Recipient groups queried:", recipientGroups);
-    } else if (recipientType === "individual") {
-      recipients = await Membership.find({ 
-        _id: { $in: individualRecipients },
-        membershipStatus: "approved"
-      });
-      console.log("Broadcast Debug - Found recipients for individual:", recipients.length);
-    }
+		if (recipientType === "individual" && (!individualRecipients || individualRecipients.length === 0)) {
+			return NextResponse.json({ error: "Please select at least one recipient" }, { status: 400 });
+		}
 
-    console.log("Broadcast Debug - Total recipients found:", recipients.length);
-    console.log("Broadcast Debug - Sample recipient data:", recipients.slice(0, 2).map(r => ({ id: r._id, email: r.email, membershipType: r.membershipType })));
+		// Get recipients based on selection
+		let recipients = [];
+		if (recipientType === "all") {
+			recipients = await Membership.find({ membershipStatus: "approved" });
+		} else if (recipientType === "group") {
+			recipients = await Membership.find({
+				membershipStatus: "approved",
+				membershipType: { $in: recipientGroups },
+			});
+		} else if (recipientType === "individual") {
+			recipients = await Membership.find({
+				_id: { $in: individualRecipients },
+				membershipStatus: "approved",
+			});
+		}
 
-    if (recipients.length === 0) {
-      console.log("Broadcast Debug - ERROR: No valid recipients found");
-      return NextResponse.json({ error: "No valid recipients found" }, { status: 400 });
-    }
+		if (recipients.length === 0) {
+			return NextResponse.json({ error: "No valid recipients found" }, { status: 400 });
+		}
 
-    // Create broadcast
-    const broadcast = new Broadcast({
-      subject,
-      content,
-      sender: session.user.id,
-      sendingMethod,
-      recipientType,
-      recipientGroups: recipientGroups || [],
-      individualRecipients: individualRecipients || [],
-      scheduledFor: scheduledFor ? new Date(scheduledFor) : null,
-      status: scheduledFor ? "pending" : "sending",
-      attachment: attachment || null,
-      attachmentName: attachmentName || null
-    });
+		// Create broadcast document with initial batchProgress
+		const isScheduled = !!scheduledFor && new Date(scheduledFor) > new Date();
+		const broadcast = new Broadcast({
+			subject,
+			content,
+			sender: session.user.id,
+			sendingMethod,
+			recipientType,
+			recipientGroups: recipientGroups || [],
+			individualRecipients: individualRecipients || [],
+			scheduledFor: isScheduled ? new Date(scheduledFor) : null,
+			status: isScheduled ? "pending" : "sending",
+			attachment: attachment || null,
+			attachmentName: attachmentName || null,
+			batchProgress: {
+				totalRecipients: recipients.length,
+				sentCount: 0,
+				failedCount: 0,
+				pendingCount: recipients.length,
+				dailyLimit: DAILY_BROADCAST_EMAIL_LIMIT,
+				lastBatchSentAt: null,
+			},
+		});
 
-    await broadcast.save();
+		await broadcast.save();
 
-    // Create tracking records for each recipient
-    const trackingRecords = [];
-    for (const recipient of recipients) {
-      if (sendingMethod === "all") {
-        // Create tracking for each method
-        ["email", "sms", "message"].forEach(method => {
-          trackingRecords.push({
-            broadcast: broadcast._id,
-            recipient: recipient._id,
-            sendingMethod: method,
-            status: scheduledFor ? "pending" : "pending"
-          });
-        });
-      } else {
-        trackingRecords.push({
-          broadcast: broadcast._id,
-          recipient: recipient._id,
-          sendingMethod,
-          status: scheduledFor ? "pending" : "pending"
-        });
-      }
-    }
+		// Create tracking records for each recipient
+		const trackingRecords = [];
+		for (const recipient of recipients) {
+			if (sendingMethod === "all") {
+				["email", "sms", "message"].forEach((method) => {
+					trackingRecords.push({
+						broadcast: broadcast._id,
+						recipient: recipient._id,
+						sendingMethod: method,
+						status: "pending",
+					});
+				});
+			} else {
+				trackingRecords.push({
+					broadcast: broadcast._id,
+					recipient: recipient._id,
+					sendingMethod,
+					status: "pending",
+				});
+			}
+		}
 
-    await BroadcastTracking.insertMany(trackingRecords);
+		await BroadcastTracking.insertMany(trackingRecords);
 
-    // Helper function to process items in batches with delay
-    const processInBatches = async (items, batchSize, delayMs, processFn) => {
-      for (let i = 0; i < items.length; i += batchSize) {
-        const batch = items.slice(i, i + batchSize);
-        await Promise.allSettled(batch.map(processFn));
-        
-        // Add delay between batches (except for the last batch)
-        if (i + batchSize < items.length) {
-          await new Promise(resolve => setTimeout(resolve, delayMs));
-        }
-      }
-    };
+		// If not scheduled, dispatch initial batch
+		let initialMessage = "Broadcast scheduled successfully";
+		if (!isScheduled) {
+			// 1. Process SMS if selected (up to 20 immediately)
+			if (sendingMethod === "sms" || sendingMethod === "all") {
+				const smsRecipients = recipients.filter((r) => r.phone).slice(0, 20);
+				for (const r of smsRecipients) {
+					try {
+						await sendSMS({
+							to: r.phone,
+							body: `${subject}\n\n${content}\n\n- Pashupatinath Norway Temple`,
+						});
+						await BroadcastTracking.updateOne({ broadcast: broadcast._id, recipient: r._id, sendingMethod: "sms" }, { status: "sent", sentAt: new Date() });
+					} catch (err) {
+						console.error(`SMS send error to ${r.phone}:`, err);
+						await BroadcastTracking.updateOne({ broadcast: broadcast._id, recipient: r._id, sendingMethod: "sms" }, { status: "failed", errorMessage: err.message });
+					}
+				}
+			}
 
-    // If not scheduled, start sending immediately
-    if (!scheduledFor) {
-      console.log("Broadcast Debug - Starting immediate send process");
-      console.log("Broadcast Debug - Sending method:", sendingMethod);
-      console.log("Broadcast Debug - Number of recipients to send to:", recipients.length);
-      
-      // Process emails in batches to respect rate limit (5 requests per second)
-      if (sendingMethod === "email" || sendingMethod === "all") {
-        console.log("Broadcast Debug - Sending emails in batches to respect rate limit");
-        await processInBatches(recipients, 5, 1000, async (recipient) => {
-          console.log("Broadcast Debug - Processing recipient:", recipient.email, "Type:", recipient.membershipType);
-          console.log("Broadcast Debug - Attempting to send email to:", recipient.email);
-          
-          try {
-            await sendEmail({
-              to: recipient.email,
-              subject: subject,
-              text: content,
-              html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <h2 style="color: #333;">${subject}</h2>
-                <div style="color: #666; line-height: 1.6;">${content.replace(/\n/g, '<br>')}</div>
-                <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
-                <p style="color: #999; font-size: 12px;">
-                  This message was sent to ${recipient.firstName} ${recipient.lastName} 
-                  (${recipient.email}) by the Pashupatinath Norway administration.
-                </p>
-              </div>`
-            });
-            console.log("Broadcast Debug - Email sent successfully to:", recipient.email);
-            // Update tracking record to sent
-            await BroadcastTracking.updateOne(
-              { broadcast: broadcast._id, recipient: recipient._id, sendingMethod: "email" },
-              { status: "sent", sentAt: new Date() }
-            );
-          } catch (error) {
-            console.error(`Broadcast Debug - Failed to send email to ${recipient.email}:`, error);
-            // Update tracking record to failed
-            await BroadcastTracking.updateOne(
-              { broadcast: broadcast._id, recipient: recipient._id, sendingMethod: "email" },
-              { status: "failed", errorMessage: error.message }
-            );
-          }
-        });
-      }
-      
-      // Process SMS in batches
-      if (sendingMethod === "sms" || sendingMethod === "all") {
-        console.log("Broadcast Debug - Sending SMS messages");
-        await processInBatches(recipients, 5, 1000, async (recipient) => {
-          if (recipient.phone) {
-            try {
-              await sendSMS({
-                to: recipient.phone,
-                body: `${subject}\n\n${content}\n\n- Pashupatinath Norway Temple`
-              });
-              // Update tracking record to sent
-              await BroadcastTracking.updateOne(
-                { broadcast: broadcast._id, recipient: recipient._id, sendingMethod: "sms" },
-                { status: "sent", sentAt: new Date() }
-              );
-            } catch (error) {
-              console.error(`Failed to send SMS to ${recipient.phone}:`, error);
-              // Update tracking record to failed
-              await BroadcastTracking.updateOne(
-                { broadcast: broadcast._id, recipient: recipient._id, sendingMethod: "sms" },
-                { status: "failed", errorMessage: error.message }
-              );
-            }
-          } else {
-            // No phone number, mark as failed
-            await BroadcastTracking.updateOne(
-              { broadcast: broadcast._id, recipient: recipient._id, sendingMethod: "sms" },
-              { status: "failed", errorMessage: "No phone number available" }
-            );
-          }
-        });
-      }
-      
-      // Process internal messages in batches
-      if (sendingMethod === "message" || sendingMethod === "all") {
-        console.log("Broadcast Debug - Sending internal messages");
-        await processInBatches(recipients, 10, 500, async (recipient) => {
-          try {
-            await sendInternalMessage({
-              recipient: recipient._id,
-              senderEmail: session.user.email,
-              subject: subject,
-              content: content,
-              relatedBroadcast: broadcast._id,
-              attachment: attachment || null,
-              attachmentName: attachmentName || null
-            });
-            // Update tracking record to sent
-            await BroadcastTracking.updateOne(
-              { broadcast: broadcast._id, recipient: recipient._id, sendingMethod: "message" },
-              { status: "sent", sentAt: new Date() }
-            );
-          } catch (error) {
-            console.error(`Failed to send internal message to ${recipient._id}:`, error);
-            // Update tracking record to failed
-            await BroadcastTracking.updateOne(
-              { broadcast: broadcast._id, recipient: recipient._id, sendingMethod: "message" },
-              { status: "failed", errorMessage: error.message }
-            );
-          }
-        });
-      }
-      
-      broadcast.status = "sent";
-      broadcast.sentAt = new Date();
-      await broadcast.save();
-    }
+			// 2. Process internal messages if selected (up to 30 immediately)
+			if (sendingMethod === "message" || sendingMethod === "all") {
+				const msgRecipients = recipients.slice(0, 30);
+				for (const r of msgRecipients) {
+					try {
+						await sendInternalMessage({
+							recipient: r._id,
+							senderEmail: session.user.email || "admin@pashupatinath.no",
+							subject,
+							content,
+							relatedBroadcast: broadcast._id,
+							attachment: attachment || null,
+							attachmentName: attachmentName || null,
+						});
+						await BroadcastTracking.updateOne({ broadcast: broadcast._id, recipient: r._id, sendingMethod: "message" }, { status: "sent", sentAt: new Date() });
+					} catch (err) {
+						console.error(`Internal message error to ${r._id}:`, err);
+						await BroadcastTracking.updateOne({ broadcast: broadcast._id, recipient: r._id, sendingMethod: "message" }, { status: "failed", errorMessage: err.message });
+					}
+				}
+			}
 
-    return NextResponse.json({ 
-      message: "Broadcast created successfully", 
-      broadcast,
-      recipientCount: recipients.length 
-    }, { status: 201 });
+			// 3. Process email initial batch (up to 10 immediately to keep response responsive)
+			if (sendingMethod === "email" || sendingMethod === "all") {
+				const chunkResult = await processBroadcastEmailChunk({
+					maxEmails: 10,
+					broadcastId: broadcast._id,
+				});
 
-  } catch (error) {
-    console.error("Error creating broadcast:", error);
-    return NextResponse.json({ error: "Failed to create broadcast" }, { status: 500 });
-  }
+				await syncBroadcastProgress(broadcast._id);
+				const updatedBroadcast = await Broadcast.findById(broadcast._id);
+
+				if (updatedBroadcast.status === "sent") {
+					initialMessage = `All ${recipients.length} emails sent successfully!`;
+				} else if (chunkResult.quotaExceeded) {
+					initialMessage = `Broadcast created! Today's 80-email quota has been reached. Remaining emails will be delivered automatically tomorrow after 00:00 UTC.`;
+				} else {
+					initialMessage = `Broadcast created! Sent initial ${chunkResult.successful} emails. The remaining emails will continue automatically via the daily queue (up to 80/day to reserve quota for website OTP & transactional emails).`;
+				}
+			} else {
+				await syncBroadcastProgress(broadcast._id);
+				initialMessage = "Broadcast created and dispatched successfully!";
+			}
+		}
+
+		const latestBroadcast = await Broadcast.findById(broadcast._id);
+
+		return NextResponse.json(
+			{
+				message: initialMessage,
+				broadcast: latestBroadcast,
+				recipientCount: recipients.length,
+			},
+			{ status: 201 },
+		);
+	} catch (error) {
+		console.error("Error creating broadcast:", error);
+		return NextResponse.json({ error: "Failed to create broadcast" }, { status: 500 });
+	}
 }

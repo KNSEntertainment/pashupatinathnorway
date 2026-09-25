@@ -1,13 +1,18 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
+import Link from "next/link";
 import { useActiveMenu } from "@/context/ActiveMenuContext";
-import { Send, Users, Mail, MessageSquare, Search, CheckCircle, Clock, AlertCircle, XCircle, Upload, FileText, X } from "lucide-react";
+import { Send, Users, Mail, MessageSquare, Search, CheckCircle, Clock, AlertCircle, XCircle, Upload, FileText, X, Eye, ShieldCheck, Sparkles } from "lucide-react";
 
 export default function BroadcastPage() {
 	const { setActiveMenu } = useActiveMenu();
+	const params = useParams();
+	const locale = params?.locale || "en";
 	// const { data: session } = useSession();
 	const [activeTab, setActiveTab] = useState("create");
 	const [broadcasts, setBroadcasts] = useState([]);
+	const [dailyQuota, setDailyQuota] = useState(null);
 	const [loading, setLoading] = useState(false);
 	const [searchResults, setSearchResults] = useState([]);
 	const [selectedRecipients, setSelectedRecipients] = useState([]);
@@ -37,7 +42,10 @@ export default function BroadcastPage() {
 			const response = await fetch("/api/broadcast");
 			if (response.ok) {
 				const data = await response.json();
-				setBroadcasts(data.broadcasts);
+				setBroadcasts(data.broadcasts || []);
+				if (data.dailyQuota) {
+					setDailyQuota(data.dailyQuota);
+				}
 			}
 		} catch (error) {
 			console.error("Error fetching broadcasts:", error);
@@ -208,6 +216,33 @@ export default function BroadcastPage() {
 					<button onClick={() => setActiveTab("history")} className={`px-4 py-2 rounded-lg font-medium transition-colors ${activeTab === "history" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}>
 						Broadcast History
 					</button>
+				</div>
+			</div>
+
+			{/* Daily Batch Quota Status Card */}
+			<div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+				<div className="flex items-center gap-3">
+					<div className="p-2.5 bg-blue-600 text-white rounded-lg shadow-sm">
+						<ShieldCheck className="w-5 h-5" />
+					</div>
+					<div>
+						<h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+							Resend Free Tier Safe Drip Queue
+							<span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 font-medium rounded-full">80 Emails / Day Cap</span>
+						</h2>
+						<p className="text-xs text-gray-600 mt-0.5">Broadcasts are automatically delivered in batches of up to 80/day, safely reserving 20 daily emails for website OTPs, registrations, and password resets.</p>
+					</div>
+				</div>
+				<div className="flex items-center gap-6 bg-white px-4 py-2 rounded-lg border border-blue-100 shadow-xs text-sm">
+					<div>
+						<span className="text-xs text-gray-500 block">Sent Today</span>
+						<span className="font-bold text-gray-900">{dailyQuota ? `${dailyQuota.sentToday} / ${dailyQuota.dailyLimit}` : "Loading..."}</span>
+					</div>
+					<div className="h-7 w-px bg-gray-200" />
+					<div>
+						<span className="text-xs text-gray-500 block">Remaining Today</span>
+						<span className={`font-bold ${dailyQuota?.remainingToday === 0 ? "text-amber-600" : "text-green-600"}`}>{dailyQuota ? `${dailyQuota.remainingToday} emails` : "--"}</span>
+					</div>
 				</div>
 			</div>
 
@@ -383,8 +418,14 @@ export default function BroadcastPage() {
 						</div>
 
 						{/* Submit Button */}
-						<div className="flex justify-end">
-							<button type="submit" disabled={loading} className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors">
+						<div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-100">
+							<p className="text-xs text-gray-500 flex items-center gap-1.5">
+								<Sparkles className="w-4 h-4 text-blue-500 shrink-0" />
+								<span>
+									<strong>Resend Free Tier Safe:</strong> Dispatched in daily batches of up to 80/day (20 reserved for website OTP & transactional emails).
+								</span>
+							</p>
+							<button type="submit" disabled={loading} className="w-full sm:w-auto px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium shadow-sm">
 								{loading ? "Creating..." : "Create Broadcast"}
 							</button>
 						</div>
@@ -401,47 +442,77 @@ export default function BroadcastPage() {
 									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
 									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
 									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recipients</th>
-									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status & Progress</th>
 									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attachment</th>
 									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+									<th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
 								</tr>
 							</thead>
 							<tbody className="bg-white divide-y divide-gray-200">
-								{broadcasts.map((broadcast) => (
-									<tr key={broadcast._id} className="hover:bg-gray-50">
-										<td className="px-6 py-4 whitespace-nowrap">
-											<div className="text-sm font-medium text-gray-900">{broadcast.subject}</div>
-										</td>
-										<td className="px-6 py-4 whitespace-nowrap">
-											<div className="text-sm text-gray-500 capitalize">{broadcast.sendingMethod}</div>
-										</td>
-										<td className="px-6 py-4 whitespace-nowrap">
-											<div className="text-sm text-gray-500">
-												{broadcast.recipientType === "all" && "All Members"}
-												{broadcast.recipientType === "group" && broadcast.recipientGroups.join(", ")}
-												{broadcast.recipientType === "individual" && `${broadcast.individualRecipients.length} selected`}
-												{broadcast.recipientType === "subscribers" && "Newsletter Subscribers"}
-											</div>
-										</td>
-										<td className="px-6 py-4 whitespace-nowrap">
-											<div className="flex items-center space-x-2">
-												{getStatusIcon(broadcast.status)}
-												<span className="text-sm text-gray-500 capitalize">{broadcast.status}</span>
-											</div>
-										</td>
-										<td className="px-6 py-4 whitespace-nowrap">
-											{broadcast.attachment ? (
-												<a href={broadcast.attachment} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 text-sm flex items-center">
-													<FileText className="w-4 h-4 mr-1" />
-													{broadcast.attachmentName || "View Attachment"}
-												</a>
-											) : (
-												<span className="text-sm text-gray-400">-</span>
-											)}
-										</td>
-										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(broadcast.createdAt).toLocaleDateString()}</td>
-									</tr>
-								))}
+								{broadcasts.map((broadcast) => {
+									const sentCount = broadcast.batchProgress?.sentCount ?? 0;
+									const totalRecipients = broadcast.batchProgress?.totalRecipients || (broadcast.recipientType === "individual" ? broadcast.individualRecipients?.length : 0);
+									const percent = totalRecipients > 0 ? Math.min(100, Math.round((sentCount / totalRecipients) * 100)) : 0;
+
+									return (
+										<tr key={broadcast._id} className="hover:bg-gray-50 transition-colors">
+											<td className="px-6 py-4 whitespace-nowrap">
+												<Link href={`/${locale}/dashboard/broadcast/${broadcast._id}`} className="text-sm font-medium text-gray-900 hover:text-blue-600 block">
+													{broadcast.subject}
+												</Link>
+											</td>
+											<td className="px-6 py-4 whitespace-nowrap">
+												<div className="text-sm text-gray-500 capitalize">{broadcast.sendingMethod}</div>
+											</td>
+											<td className="px-6 py-4 whitespace-nowrap">
+												<div className="text-sm text-gray-500">
+													{broadcast.recipientType === "all" && "All Members"}
+													{broadcast.recipientType === "group" && broadcast.recipientGroups.join(", ")}
+													{broadcast.recipientType === "individual" && `${broadcast.individualRecipients?.length || 0} selected`}
+													{broadcast.recipientType === "subscribers" && "Newsletter Subscribers"}
+												</div>
+											</td>
+											<td className="px-6 py-4 whitespace-nowrap">
+												<div className="flex flex-col gap-1.5">
+													<div className="flex items-center space-x-2">
+														{getStatusIcon(broadcast.status)}
+														<span className="text-sm font-medium capitalize text-gray-700">{broadcast.status === "sending" ? "Sending (Drip Active)" : broadcast.status}</span>
+													</div>
+													{broadcast.status === "sending" && totalRecipients > 0 && (
+														<div className="w-36">
+															<div className="flex justify-between text-xs text-gray-500 mb-0.5">
+																<span>
+																	{sentCount}/{totalRecipients}
+																</span>
+																<span>{percent}%</span>
+															</div>
+															<div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
+																<div className="bg-blue-600 h-1.5 rounded-full transition-all duration-300" style={{ width: `${percent}%` }} />
+															</div>
+														</div>
+													)}
+												</div>
+											</td>
+											<td className="px-6 py-4 whitespace-nowrap">
+												{broadcast.attachment ? (
+													<a href={broadcast.attachment} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 text-sm flex items-center">
+														<FileText className="w-4 h-4 mr-1" />
+														{broadcast.attachmentName || "View Attachment"}
+													</a>
+												) : (
+													<span className="text-sm text-gray-400">-</span>
+												)}
+											</td>
+											<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(broadcast.createdAt).toLocaleDateString()}</td>
+											<td className="px-6 py-4 whitespace-nowrap text-right">
+												<Link href={`/${locale}/dashboard/broadcast/${broadcast._id}`} className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+													<Eye className="w-3.5 h-3.5" />
+													Details
+												</Link>
+											</td>
+										</tr>
+									);
+								})}
 							</tbody>
 						</table>
 						{broadcasts.length === 0 && <div className="text-center py-12 text-gray-500">No broadcasts found</div>}

@@ -1,234 +1,134 @@
 import { NextResponse } from "next/server";
 import { Broadcast, BroadcastTracking } from "@/models/Broadcast.Model";
-import Membership from "@/models/Membership.Model";
-import { sendEmail } from "@/lib/email";
 import { sendSMS } from "@/lib/sms";
 import { sendInternalMessage } from "@/lib/internalMessages";
 import connectDB from "@/lib/mongodb";
+import { processBroadcastEmailChunk, getBroadcastEmailsSentToday, DAILY_BROADCAST_EMAIL_LIMIT, CHUNK_SIZE_PER_INVOCATION, syncBroadcastProgress } from "@/lib/broadcastQueue";
 
-// GET process scheduled broadcasts
-export async function GET() {
-  try {
-    await connectDB();
-    
-    // For security, you might want to add a secret key check
-    // Optional: Add a secret key for security
-    // if (secret !== process.env.BROADCAST_CRON_SECRET) {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    // }
+export const maxDuration = 60; // Allow up to 60s for serverless execution
 
-    console.log("Processing scheduled broadcasts...");
+export async function GET(request) {
+	try {
+		await connectDB();
 
-    const now = new Date();
+		const url = new URL(request.url);
+		const customLimit = parseInt(url.searchParams.get("limit")) || CHUNK_SIZE_PER_INVOCATION;
+		const targetBroadcastId = url.searchParams.get("broadcastId") || null;
 
-    // Atomically claim one pending broadcast at a time so overlapping
-    // invocations (e.g. a slow run still in flight when the next cron
-    // fires) can never grab and send the same broadcast twice.
-    const claimNextBroadcast = () =>
-      Broadcast.findOneAndUpdate(
-        { status: "pending", scheduledFor: { $lte: now } },
-        { $set: { status: "sending" } },
-        { new: true }
-      ).populate("sender", "fullName email");
+		console.log("Cron: Processing scheduled/in-progress broadcasts...");
 
-    let totalProcessed = 0;
-    let anyFound = false;
+		const now = new Date();
 
-    while (true) {
-      const broadcast = await claimNextBroadcast();
-      if (!broadcast) break;
-      anyFound = true;
+		// 1. Activate any scheduled broadcasts that are due
+		const scheduledDue = await Broadcast.find({
+			status: "pending",
+			$or: [{ scheduledFor: { $lte: now } }, { scheduledFor: null }],
+		});
 
-      try {
-        console.log(`Processing broadcast: ${broadcast.subject}`);
+		for (const b of scheduledDue) {
+			b.status = "sending";
+			await b.save();
+			console.log(`Activated scheduled broadcast: "${b.subject}" (_id: ${b._id})`);
+		}
 
-        // Get recipients based on selection
-        let recipients = [];
-        console.log("Scheduled Broadcast Debug - recipientType:", broadcast.recipientType);
-        console.log("Scheduled Broadcast Debug - recipientGroups:", broadcast.recipientGroups);
-        console.log("Scheduled Broadcast Debug - individualRecipients:", broadcast.individualRecipients);
-        
-        if (broadcast.recipientType === "all") {
-          recipients = await Membership.find({ membershipStatus: "approved" });
-          console.log("Scheduled Broadcast Debug - Found recipients for 'all':", recipients.length);
-        } else if (broadcast.recipientType === "group") {
-          recipients = await Membership.find({ 
-            membershipStatus: "approved",
-            membershipType: { $in: broadcast.recipientGroups }
-          });
-          console.log("Scheduled Broadcast Debug - Found recipients for groups:", recipients.length);
-          console.log("Scheduled Broadcast Debug - Recipient groups queried:", broadcast.recipientGroups);
-        } else if (broadcast.recipientType === "individual") {
-          recipients = await Membership.find({ 
-            _id: { $in: broadcast.individualRecipients },
-            membershipStatus: "approved"
-          });
-          console.log("Scheduled Broadcast Debug - Found recipients for individual:", recipients.length);
-        }
+		// 2. Process any pending SMS messages for active broadcasts (limit 20 per run)
+		const pendingSMS = await BroadcastTracking.find({
+			status: "pending",
+			sendingMethod: "sms",
+		})
+			.populate("recipient", "phone firstName")
+			.populate("broadcast", "subject content")
+			.limit(20);
 
-        console.log("Scheduled Broadcast Debug - Total recipients found:", recipients.length);
-        console.log("Scheduled Broadcast Debug - Sample recipient data:", recipients.slice(0, 2).map(r => ({ id: r._id, email: r.email, membershipType: r.membershipType })));
+		let smsProcessed = 0;
+		for (const smsTrack of pendingSMS) {
+			if (smsTrack.recipient?.phone) {
+				try {
+					await sendSMS({
+						to: smsTrack.recipient.phone,
+						body: `${smsTrack.broadcast.subject}\n\n${smsTrack.broadcast.content}\n\n- Pashupatinath Norway Temple`,
+					});
+					smsTrack.status = "sent";
+					smsTrack.sentAt = new Date();
+				} catch (err) {
+					console.error(`Failed to send SMS to ${smsTrack.recipient.phone}:`, err);
+					smsTrack.status = "failed";
+					smsTrack.errorMessage = err.message;
+				}
+			} else {
+				smsTrack.status = "failed";
+				smsTrack.errorMessage = "No valid phone number";
+			}
+			await smsTrack.save();
+			smsProcessed++;
+		}
 
-        if (recipients.length === 0) {
-          console.log(`Scheduled Broadcast Debug - ERROR: No valid recipients found for broadcast: ${broadcast.subject}`);
-          broadcast.status = "failed";
-          await broadcast.save();
-          continue;
-        }
+		// 3. Process any pending internal messages for active broadcasts (limit 30 per run)
+		const pendingMessages = await BroadcastTracking.find({
+			status: "pending",
+			sendingMethod: "message",
+		})
+			.populate("broadcast", "subject content sender attachment attachmentName")
+			.limit(30);
 
-        // Helper function to process items in batches with delay
-        const processInBatches = async (items, batchSize, delayMs, processFn) => {
-          for (let i = 0; i < items.length; i += batchSize) {
-            const batch = items.slice(i, i + batchSize);
-            await Promise.allSettled(batch.map(processFn));
-            
-            // Add delay between batches (except for the last batch)
-            if (i + batchSize < items.length) {
-              await new Promise(resolve => setTimeout(resolve, delayMs));
-            }
-          }
-        };
+		let messagesProcessed = 0;
+		for (const msgTrack of pendingMessages) {
+			try {
+				await sendInternalMessage({
+					recipient: msgTrack.recipient,
+					senderEmail: "admin@pashupatinath.no",
+					subject: msgTrack.broadcast.subject,
+					content: msgTrack.broadcast.content,
+					relatedBroadcast: msgTrack.broadcast._id,
+					attachment: msgTrack.broadcast.attachment || null,
+					attachmentName: msgTrack.broadcast.attachmentName || null,
+				});
+				msgTrack.status = "sent";
+				msgTrack.sentAt = new Date();
+			} catch (err) {
+				console.error(`Failed to send internal message to ${msgTrack.recipient}:`, err);
+				msgTrack.status = "failed";
+				msgTrack.errorMessage = err.message;
+			}
+			await msgTrack.save();
+			messagesProcessed++;
+		}
 
-        // Send messages to recipients
-        console.log("Scheduled Broadcast Debug - Starting send process for", recipients.length, "recipients");
-        console.log("Scheduled Broadcast Debug - Sending method:", broadcast.sendingMethod);
-        
-        // Process emails in batches to respect rate limit (5 requests per second)
-        if (broadcast.sendingMethod === "email" || broadcast.sendingMethod === "all") {
-          console.log("Scheduled Broadcast Debug - Sending emails in batches to respect rate limit");
-          await processInBatches(recipients, 5, 1000, async (recipient) => {
-            console.log("Scheduled Broadcast Debug - Processing recipient:", recipient.email, "Type:", recipient.membershipType);
-            console.log("Scheduled Broadcast Debug - Attempting to send email to:", recipient.email);
-            
-            try {
-              await sendEmail({
-                to: recipient.email,
-                subject: broadcast.subject,
-                text: broadcast.content,
-                html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                  <h2 style="color: #333;">${broadcast.subject}</h2>
-                  <div style="color: #666; line-height: 1.6;">${broadcast.content.replace(/\n/g, '<br>')}</div>
-                  <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
-                  <p style="color: #999; font-size: 12px;">
-                    This message was sent to ${recipient.firstName} ${recipient.lastName} 
-                    (${recipient.email}) by the Pashupatinath Norway administration.
-                  </p>
-                </div>`
-              });
-              console.log("Scheduled Broadcast Debug - Email sent successfully to:", recipient.email);
-              // Update tracking record to sent
-              await BroadcastTracking.updateOne(
-                { broadcast: broadcast._id, recipient: recipient._id, sendingMethod: "email" },
-                { status: "sent", sentAt: new Date() }
-              );
-            } catch (error) {
-              console.error(`Scheduled Broadcast Debug - Failed to send email to ${recipient.email}:`, error);
-              // Update tracking record to failed
-              await BroadcastTracking.updateOne(
-                { broadcast: broadcast._id, recipient: recipient._id, sendingMethod: "email" },
-                { status: "failed", errorMessage: error.message }
-              );
-            }
-          });
-        }
-        
-        // Process SMS in batches
-        if (broadcast.sendingMethod === "sms" || broadcast.sendingMethod === "all") {
-          console.log("Scheduled Broadcast Debug - Sending SMS messages");
-          await processInBatches(recipients, 5, 1000, async (recipient) => {
-            if (recipient.phone) {
-              try {
-                await sendSMS({
-                  to: recipient.phone,
-                  body: `${broadcast.subject}\n\n${broadcast.content}\n\n- Pashupatinath Norway Temple`
-                });
-                // Update tracking record to sent
-                await BroadcastTracking.updateOne(
-                  { broadcast: broadcast._id, recipient: recipient._id, sendingMethod: "sms" },
-                  { status: "sent", sentAt: new Date() }
-                );
-              } catch (error) {
-                console.error(`Failed to send SMS to ${recipient.phone}:`, error);
-                // Update tracking record to failed
-                await BroadcastTracking.updateOne(
-                  { broadcast: broadcast._id, recipient: recipient._id, sendingMethod: "sms" },
-                  { status: "failed", errorMessage: error.message }
-                );
-              }
-            } else {
-              // No phone number, mark as failed
-              await BroadcastTracking.updateOne(
-                { broadcast: broadcast._id, recipient: recipient._id, sendingMethod: "sms" },
-                { status: "failed", errorMessage: "No phone number available" }
-              );
-            }
-          });
-        }
-        
-        // Process internal messages in batches
-        if (broadcast.sendingMethod === "message" || broadcast.sendingMethod === "all") {
-          console.log("Scheduled Broadcast Debug - Sending internal messages");
-          await processInBatches(recipients, 10, 500, async (recipient) => {
-            try {
-              await sendInternalMessage({
-                recipient: recipient._id,
-                senderEmail: broadcast.sender.email,
-                subject: broadcast.subject,
-                content: broadcast.content,
-                relatedBroadcast: broadcast._id
-              });
-              // Update tracking record to sent
-              await BroadcastTracking.updateOne(
-                { broadcast: broadcast._id, recipient: recipient._id, sendingMethod: "message" },
-                { status: "sent", sentAt: new Date() }
-              );
-            } catch (error) {
-              console.error(`Failed to send internal message to ${recipient._id}:`, error);
-              // Update tracking record to failed
-              await BroadcastTracking.updateOne(
-                { broadcast: broadcast._id, recipient: recipient._id, sendingMethod: "message" },
-                { status: "failed", errorMessage: error.message }
-              );
-            }
-          });
-        }
-        
-        // Update broadcast status
-        broadcast.status = "sent";
-        broadcast.sentAt = new Date();
-        await broadcast.save();
-        
-        totalProcessed++;
-        console.log(`Successfully processed broadcast: ${broadcast.subject}`);
-        
-      } catch (error) {
-        console.error(`Error processing broadcast ${broadcast._id}:`, error);
-        broadcast.status = "failed";
-        await broadcast.save();
-      }
-    }
+		// 4. Process email chunk strictly abiding by the 80/day limit
+		const emailResult = await processBroadcastEmailChunk({
+			maxEmails: customLimit,
+			broadcastId: targetBroadcastId,
+		});
 
-    if (!anyFound) {
-      console.log("No scheduled broadcasts to process");
-      return NextResponse.json({
-        message: "No scheduled broadcasts to process",
-        processed: 0
-      });
-    }
+		// 5. Check if any active broadcasts can now be marked complete
+		const activeBroadcasts = await Broadcast.find({ status: "sending" });
+		for (const b of activeBroadcasts) {
+			await syncBroadcastProgress(b._id);
+		}
 
-    console.log(`Completed processing. Total broadcasts processed: ${totalProcessed}`);
+		const sentToday = await getBroadcastEmailsSentToday();
 
-    return NextResponse.json({ 
-      message: "Scheduled broadcasts processed successfully",
-      processed: totalProcessed,
-      timestamp: new Date().toISOString()
-    });
-
-  } catch (error) {
-    console.error("Error processing scheduled broadcasts:", error);
-    return NextResponse.json({ 
-      error: "Failed to process scheduled broadcasts",
-      details: error.message 
-    }, { status: 500 });
-  }
+		return NextResponse.json({
+			success: true,
+			timestamp: new Date().toISOString(),
+			dailyQuota: {
+				sentToday,
+				dailyLimit: DAILY_BROADCAST_EMAIL_LIMIT,
+				remainingToday: Math.max(0, DAILY_BROADCAST_EMAIL_LIMIT - sentToday),
+			},
+			emailResult,
+			smsProcessed,
+			messagesProcessed,
+		});
+	} catch (error) {
+		console.error("Error in process-scheduled route:", error);
+		return NextResponse.json(
+			{
+				success: false,
+				error: "Failed to process broadcasts",
+				details: error.message,
+			},
+			{ status: 500 },
+		);
+	}
 }
