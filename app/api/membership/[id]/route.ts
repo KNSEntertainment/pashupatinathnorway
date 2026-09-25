@@ -75,8 +75,8 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
 	const data = await req.json();
 
 	// Debug logging
-	console.log('PUT /api/membership/[id] - Received data:', JSON.stringify(data, null, 2));
-	console.log('Position field in request:', data.position);
+	console.log("PUT /api/membership/[id] - Received data:", JSON.stringify(data, null, 2));
+	console.log("Position field in request:", data.position);
 
 	// Find the membership before update to check status change
 	const existingMembership = await Membership.findById(id);
@@ -86,14 +86,31 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
 
 	// Handle membership approval logic
 	const updateData = { ...data };
-	
+
 	// If personal number contains asterisks (masked), remove it from update data
 	// Personal number should not be changed during edit
-	if (updateData.personalNumber && updateData.personalNumber.includes('*')) {
+	if (updateData.personalNumber && updateData.personalNumber.includes("*")) {
 		delete updateData.personalNumber;
 	}
-	
-	console.log('Update data being sent to MongoDB:', JSON.stringify(updateData, null, 2));
+
+	// Handle createdAt / joined date update if supplied
+	if (updateData.createdAt !== undefined) {
+		if (updateData.createdAt) {
+			const parsedCreatedAt = new Date(updateData.createdAt);
+			if (isNaN(parsedCreatedAt.getTime())) {
+				return NextResponse.json({ error: "Invalid joined date format" }, { status: 400 });
+			}
+			// Allow up to 24 hours in the future to account for time zones
+			if (parsedCreatedAt.getTime() > Date.now() + 24 * 60 * 60 * 1000) {
+				return NextResponse.json({ error: "Joined date cannot be in the future" }, { status: 400 });
+			}
+			updateData.createdAt = parsedCreatedAt;
+		} else {
+			delete updateData.createdAt;
+		}
+	}
+
+	console.log("Update data being sent to MongoDB:", JSON.stringify(updateData, null, 2));
 
 	// When a member is assigned to the board, record when their term started (unless already set)
 	if (["Executive", "Advisor"].includes(updateData.membershipType) && !existingMembership.boardTermStart) {
@@ -103,14 +120,11 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
 	// If membership is being approved, check age and set membership type
 	if (data.membershipStatus === "approved" && existingMembership.membershipStatus !== "approved") {
 		const age = calculateAgeFromPersonalNumber(existingMembership.personalNumber);
-		
+
 		if (age !== null && age < 15) {
-			return NextResponse.json(
-				{ error: "Cannot approve membership for members under 15 years old. They must wait until they turn 15 to become an Active member." },
-				{ status: 400 }
-			);
+			return NextResponse.json({ error: "Cannot approve membership for members under 15 years old. They must wait until they turn 15 to become an Active member." }, { status: 400 });
 		}
-		
+
 		// Set membership type to Active for approved members 15+
 		updateData.membershipType = "Active";
 		// Set activeMemberSince when approving a member
@@ -120,12 +134,19 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
 	const membership = await Membership.findByIdAndUpdate(id, updateData, { new: true });
 
 	// Debug logging after update
-	console.log('Updated membership data:', JSON.stringify({
-		_id: membership._id,
-		name: `${membership.firstName} ${membership.lastName}`,
-		position: membership.position,
-		membershipType: membership.membershipType
-	}, null, 2));
+	console.log(
+		"Updated membership data:",
+		JSON.stringify(
+			{
+				_id: membership._id,
+				name: `${membership.firstName} ${membership.lastName}`,
+				position: membership.position,
+				membershipType: membership.membershipType,
+			},
+			null,
+			2,
+		),
+	);
 
 	// If membership is being approved for the first time
 	if (data.membershipStatus === "approved" && existingMembership.membershipStatus !== "approved") {
@@ -141,16 +162,13 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
 			});
 
 			// Send Active Member approval email with password setup link
-			const fullName = [membership.firstName, membership.middleName, membership.lastName]
-				.filter(Boolean)
-				.join(' ');
-			
+			const fullName = [membership.firstName, membership.middleName, membership.lastName].filter(Boolean).join(" ");
+
 			// Detect locale from URL path and referer for more accurate language detection
-			const referer = req.headers.get('referer') || '';
-			const url = req.url || '';
-			const isEnglishLocale = referer.includes('/en/') || url.includes('/en/') || 
-								  (!referer.includes('/ne/') && !url.includes('/ne/'));
-			
+			const referer = req.headers.get("referer") || "";
+			const url = req.url || "";
+			const isEnglishLocale = referer.includes("/en/") || url.includes("/en/") || (!referer.includes("/ne/") && !url.includes("/ne/"));
+
 			// Use appropriate email function based on locale
 			if (isEnglishLocale) {
 				await sendActiveMemberApprovalEmailEnglish({

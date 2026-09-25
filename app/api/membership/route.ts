@@ -156,11 +156,18 @@ export async function POST(req: NextRequest) {
 		const mainMembershipId = await generateMembershipId();
 
 		// Create membership for main applicant with generalMemberSince
-		const mainMembershipData = {
+		const mainMembershipData: Record<string, unknown> = {
 			...mainApplicantData,
 			membershipId: mainMembershipId,
 			generalMemberSince: new Date().toISOString(),
 		};
+
+		if (mainApplicantData.createdAt) {
+			const parsedCreatedAt = new Date(mainApplicantData.createdAt);
+			if (!isNaN(parsedCreatedAt.getTime())) {
+				mainMembershipData.createdAt = parsedCreatedAt;
+			}
+		}
 		const mainMembership = await Membership.create(mainMembershipData);
 
 		// Add main applicant as subscriber

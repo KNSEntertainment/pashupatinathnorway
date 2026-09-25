@@ -82,6 +82,7 @@ export default function MembershipsPage() {
 	const [addFormData, setAddFormData] = useState<Partial<Membership>>({
 		membershipType: "General",
 		membershipStatus: "pending",
+		createdAt: new Date().toISOString().slice(0, 10),
 	});
 	const [passwordResetLoading, setPasswordResetLoading] = useState<string[]>([]);
 	const [archiveTermEnd, setArchiveTermEnd] = useState(() => new Date().toISOString().slice(0, 10));
@@ -152,6 +153,13 @@ export default function MembershipsPage() {
 
 	const handleEdit = (member: Membership) => {
 		setEditingMember(member);
+		let formattedJoinedDate = "";
+		if (member.createdAt) {
+			const d = new Date(member.createdAt);
+			if (!isNaN(d.getTime())) {
+				formattedJoinedDate = d.toISOString().split("T")[0];
+			}
+		}
 		setEditFormData({
 			firstName: member.firstName,
 			middleName: member.middleName || "",
@@ -168,6 +176,7 @@ export default function MembershipsPage() {
 			membershipType: member.membershipType,
 			membershipStatus: member.membershipStatus,
 			position: member.position || "",
+			createdAt: formattedJoinedDate,
 		});
 	};
 
@@ -183,7 +192,8 @@ export default function MembershipsPage() {
 			});
 
 			if (!response.ok) {
-				throw new Error("Failed to update membership");
+				const errorData = await response.json().catch(() => ({}));
+				throw new Error(errorData.error || "Failed to update membership");
 			}
 
 			toast({
@@ -197,7 +207,7 @@ export default function MembershipsPage() {
 			console.error("Error updating membership:", error);
 			toast({
 				title: "Error",
-				description: "Failed to update membership. Please try again.",
+				description: error instanceof Error ? error.message : "Failed to update membership. Please try again.",
 				variant: "destructive",
 			});
 		}
@@ -236,6 +246,7 @@ export default function MembershipsPage() {
 			setAddFormData({
 				membershipType: "General",
 				membershipStatus: "pending",
+				createdAt: new Date().toISOString().slice(0, 10),
 			});
 			mutate();
 		} catch (error) {
@@ -755,7 +766,10 @@ export default function MembershipsPage() {
 	};
 
 	const formatDate = (date: string) => {
-		return new Date(date).toLocaleDateString("en-US", {
+		if (!date) return "Not available";
+		const dateObj = new Date(date);
+		if (isNaN(dateObj.getTime())) return "Invalid date";
+		return dateObj.toLocaleDateString("en-US", {
 			year: "numeric",
 			month: "short",
 			day: "numeric",
@@ -920,7 +934,10 @@ export default function MembershipsPage() {
 													{currentBoardMissingTermStart.length > 0 && (
 														<div>
 															<label className="block text-sm font-medium text-gray-700 mb-1">
-																Term start date <span className="text-gray-400">(required — {currentBoardMissingTermStart.length} member{currentBoardMissingTermStart.length === 1 ? "" : "s"} has no recorded start date)</span>
+																Term start date{" "}
+																<span className="text-gray-400">
+																	(required — {currentBoardMissingTermStart.length} member{currentBoardMissingTermStart.length === 1 ? "" : "s"} has no recorded start date)
+																</span>
 															</label>
 															<input type="date" value={archiveTermStartFallback} onChange={(e) => setArchiveTermStartFallback(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" required />
 														</div>
@@ -1439,6 +1456,12 @@ export default function MembershipsPage() {
 													<option value="blocked">Blocked</option>
 												</select>
 											</div>
+
+											<div>
+												<label className="block text-sm font-medium text-gray-900 mb-2">Joined Date</label>
+												<input type="date" value={editFormData.createdAt ? editFormData.createdAt.slice(0, 10) : ""} max={new Date().toISOString().split("T")[0]} onChange={(e) => handleEditChange("createdAt", e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+												<p className="text-xs text-gray-500 mt-1">Date when the member joined the organization</p>
+											</div>
 										</div>
 									</div>
 
@@ -1574,6 +1597,12 @@ export default function MembershipsPage() {
 													<option value="approved">Approved</option>
 													<option value="blocked">Blocked</option>
 												</select>
+											</div>
+
+											<div>
+												<label className="block text-sm font-medium text-gray-900 mb-2">Joined Date</label>
+												<input type="date" value={addFormData.createdAt ? addFormData.createdAt.slice(0, 10) : ""} max={new Date().toISOString().split("T")[0]} onChange={(e) => handleAddChange("createdAt", e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" />
+												<p className="text-xs text-gray-500 mt-1">Defaults to today if left empty</p>
 											</div>
 										</div>
 									</div>
