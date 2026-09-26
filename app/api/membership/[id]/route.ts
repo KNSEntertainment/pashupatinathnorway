@@ -10,30 +10,30 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 		return null;
 	}
 
-	const day = parseInt(personalNumber.substring(0, 2));
-	const month = parseInt(personalNumber.substring(2, 4)) - 1;
-	const yearShort = parseInt(personalNumber.substring(4, 6));
-	const individualNumber = parseInt(personalNumber.substring(6, 9));
-	const currentYear = new Date().getFullYear();
+	const rawDay = parseInt(personalNumber.substring(0, 2), 10);
+	const day = rawDay > 40 && rawDay <= 71 ? rawDay - 40 : rawDay;
+	const month = parseInt(personalNumber.substring(2, 4), 10) - 1;
+	const yearShort = parseInt(personalNumber.substring(4, 6), 10);
+	const individualNumber = parseInt(personalNumber.substring(6, 9), 10);
+	const today = new Date();
+	const currentYear = today.getFullYear();
+	const currentYearShort = currentYear % 100;
 
 	let fullYear: number;
-
-	// Individual number 750–999 with year 00–39 → born 2000–2039
-	if (individualNumber >= 750 && individualNumber <= 999 && yearShort <= 39) {
+	if (individualNumber >= 500 && individualNumber <= 999 && yearShort <= 39) {
+		fullYear = 2000 + yearShort;
+	} else if (yearShort <= currentYearShort && currentYear - (1900 + yearShort) > 100) {
 		fullYear = 2000 + yearShort;
 	} else {
-		// Everyone else in 0-99 age range → born 1900–1999
 		fullYear = 1900 + yearShort;
 	}
 
-	// Safety check: if resolved year is somehow in the future, step back
 	if (fullYear > currentYear) {
 		fullYear -= 100;
 	}
 
-	// Calculate exact age
 	const birthDate = new Date(fullYear, month, day);
-	const today = new Date();
+	if (isNaN(birthDate.getTime())) return null;
 
 	let age = today.getFullYear() - birthDate.getFullYear();
 	const monthDiff = today.getMonth() - birthDate.getMonth();
@@ -41,8 +41,7 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 		age--;
 	}
 
-	// Reject if outside supported range
-	if (age < 0 || age > 99) {
+	if (age < 0 || age > 115) {
 		return null;
 	}
 

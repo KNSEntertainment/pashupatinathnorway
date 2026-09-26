@@ -3,14 +3,7 @@
 import { useState } from "react";
 import { FormData, FormErrors, FamilyMember } from "@/components/membership/types/membership";
 import { INITIAL_FORM_DATA } from "@/components/membership/types/membership";
-import {
-	validateNorwegianPersonalNumber,
-	validatePartialPersonalNumber,
-	validateFamilyMemberPersonalNumber,
-	calculateAgeFromPersonalNumber,
-	validatePhoneNumber,
-	validateEmail,
-} from "@/components/membership/lib/validation";
+import { validateNorwegianPersonalNumber, validatePartialPersonalNumber, validateFamilyMemberPersonalNumber, calculateAgeFromPersonalNumber, validatePhoneNumber, validateEmail } from "@/components/membership/lib/validation";
 import { getPostalCodeInfo } from "@/lib/postalCodeLookup";
 
 export type PersonalNumberStatus = "" | "checking" | "available" | "exists";
@@ -25,10 +18,13 @@ export function useMembershipForm() {
 
 	// --- Field error helpers ---
 	const clearError = (field: keyof FormErrors) =>
-		setErrors((prev) => { const e = { ...prev }; delete e[field]; return e; });
+		setErrors((prev) => {
+			const e = { ...prev };
+			delete e[field];
+			return e;
+		});
 
-	const setError = (field: keyof FormErrors, message: string) =>
-		setErrors((prev) => ({ ...prev, [field]: message }));
+	const setError = (field: keyof FormErrors, message: string) => setErrors((prev) => ({ ...prev, [field]: message }));
 
 	// --- handleChange ---
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -38,9 +34,14 @@ export function useMembershipForm() {
 
 		// Clear associated error
 		const fieldMap: Record<string, keyof FormErrors> = {
-			email: "email", firstName: "firstName", lastName: "lastName",
-			address: "address", city: "city", postalCode: "postalCode",
-			phone: "phone", agreeTerms: "terms",
+			email: "email",
+			firstName: "firstName",
+			lastName: "lastName",
+			address: "address",
+			city: "city",
+			postalCode: "postalCode",
+			phone: "phone",
+			agreeTerms: "terms",
 		};
 		if (fieldMap[name]) clearError(fieldMap[name]);
 		if (name === "personalNumber") {
@@ -57,6 +58,8 @@ export function useMembershipForm() {
 				if (!partialError.includes("only digits") && value.length > formData.personalNumber.length) {
 					return; // Block the invalid addition
 				}
+			} else {
+				clearError("personalNumber");
 			}
 		}
 
@@ -67,21 +70,21 @@ export function useMembershipForm() {
 		if (name === "postalCode") {
 			const currentValue = formData.postalCode;
 			value = value.replace(/\D/g, "").slice(0, 4);
-			
+
 			// Check if user deleted digits (going from 4 digits to fewer)
 			if (currentValue.length === 4 && value.length < 4) {
 				// Clear auto-populated fields when user deletes from a 4-digit postal code
 				setFormData((prev) => ({
 					...prev,
 					[name]: value,
-					city: '',
-					bydel: '',
-					kommune: '',
-					fylke: ''
+					city: "",
+					bydel: "",
+					kommune: "",
+					fylke: "",
 				}));
 				return; // Exit early since we already updated the form data
 			}
-			
+
 			// Auto-populate city, bydel, kommune, and fylke when postal code is 4 digits
 			if (value.length === 4) {
 				const postalInfo = getPostalCodeInfo(value);
@@ -92,7 +95,7 @@ export function useMembershipForm() {
 						city: postalInfo.poststed,
 						bydel: postalInfo.bydel,
 						kommune: postalInfo.kommune,
-						fylke: postalInfo.fylke
+						fylke: postalInfo.fylke,
 					}));
 					return; // Exit early since we already updated the form data
 				} else {
@@ -100,10 +103,10 @@ export function useMembershipForm() {
 					setFormData((prev) => ({
 						...prev,
 						[name]: value,
-						city: '',
-						bydel: '',
-						kommune: '',
-						fylke: ''
+						city: "",
+						bydel: "",
+						kommune: "",
+						fylke: "",
 					}));
 					return; // Exit early since we already updated the form data
 				}
@@ -140,12 +143,16 @@ export function useMembershipForm() {
 			return;
 		}
 		if (!validateNorwegianPersonalNumber(formData.personalNumber)) {
-			setError("personalNumber", "Invalid Norwegian personal number. Please check date, month, and year (must be 1901+).");
+			setError("personalNumber", "Invalid Norwegian personal number. Please check date, month, and year.");
 			return;
 		}
 		const age = calculateAgeFromPersonalNumber(formData.personalNumber);
-		if (age !== null && age <= 15) {
-			setError("personalNumber", "You must be over 15 years old to fill this form. Please ask your parents to fill it for you.");
+		if (age === null) {
+			setError("personalNumber", "Unable to determine age from personal number. Please check the digits.");
+			return;
+		}
+		if (age <= 15) {
+			setError("personalNumber", "You must be over 15 years old to fill this form. Children under 15 can be added as family members below.");
 			return;
 		}
 
@@ -176,14 +183,9 @@ export function useMembershipForm() {
 	};
 
 	// --- Address helpers ---
-	const setAddress = (address: string) =>
-		setFormData((prev) => ({ ...prev, address }));
+	const setAddress = (address: string) => setFormData((prev) => ({ ...prev, address }));
 
-	const applyAddressSuggestion = (item: {
-		id: string; label: string;
-		addressLine: string;
-		city: string; postalCode: string; kommune: string; fylke: string;
-	}) => {
+	const applyAddressSuggestion = (item: { id: string; label: string; addressLine: string; city: string; postalCode: string; kommune: string; fylke: string }) => {
 		setFormData((prev) => ({
 			...prev,
 			address: item.addressLine,
@@ -245,7 +247,9 @@ export function useMembershipForm() {
 				if (!partialError.includes("only digits") && value.length > currentValue.length) return;
 			} else {
 				setFamilyMemberErrors((prev) => {
-					const e = { ...prev }; delete e[`${id}-personalNumber`]; return e;
+					const e = { ...prev };
+					delete e[`${id}-personalNumber`];
+					return e;
 				});
 				if (value.length === 11 && validateNorwegianPersonalNumber(value)) {
 					const err = validateFamilyMemberPersonalNumber(value);
@@ -258,9 +262,7 @@ export function useMembershipForm() {
 
 		setFormData((prev) => ({
 			...prev,
-			familyMembers: prev.familyMembers.map((m) =>
-				m.id === id ? { ...m, [field]: value } : m
-			),
+			familyMembers: prev.familyMembers.map((m) => (m.id === id ? { ...m, [field]: value } : m)),
 		}));
 	};
 
@@ -285,8 +287,7 @@ export function useMembershipForm() {
 
 		for (const member of formData.familyMembers) {
 			if (!member.firstName || !member.lastName || !member.personalNumber || !member.email) return false;
-			if (familyMemberErrors[`${member.id}-personalNumber`] || familyMemberErrors[`${member.id}-required`] ||
-				familyMemberErrors[`${member.id}-email`] || familyMemberErrors[`${member.id}-phone`]) return false;
+			if (familyMemberErrors[`${member.id}-personalNumber`] || familyMemberErrors[`${member.id}-required`] || familyMemberErrors[`${member.id}-email`] || familyMemberErrors[`${member.id}-phone`]) return false;
 			if (!validateNorwegianPersonalNumber(member.personalNumber)) return false;
 			const age = calculateAgeFromPersonalNumber(member.personalNumber);
 			if (age === null || age >= 15) return false;
@@ -302,28 +303,57 @@ export function useMembershipForm() {
 		const newErrors: FormErrors = {};
 		let hasError = false;
 
-		if (!formData.firstName) { newErrors.firstName = "First name is required."; hasError = true; }
-		if (!formData.lastName) { newErrors.lastName = "Last name is required."; hasError = true; }
-		if (!formData.address) { newErrors.address = "Address is required."; hasError = true; }
-		if (!formData.city) { newErrors.city = "City is required."; hasError = true; }
-		if (!formData.postalCode) { newErrors.postalCode = "Postal code is required."; hasError = true; }
+		if (!formData.firstName) {
+			newErrors.firstName = "First name is required.";
+			hasError = true;
+		}
+		if (!formData.lastName) {
+			newErrors.lastName = "Last name is required.";
+			hasError = true;
+		}
+		if (!formData.address) {
+			newErrors.address = "Address is required.";
+			hasError = true;
+		}
+		if (!formData.city) {
+			newErrors.city = "City is required.";
+			hasError = true;
+		}
+		if (!formData.postalCode) {
+			newErrors.postalCode = "Postal code is required.";
+			hasError = true;
+		}
 		if (!formData.phone) {
-			newErrors.phone = "Phone number is required."; hasError = true;
+			newErrors.phone = "Phone number is required.";
+			hasError = true;
 		} else if (!validatePhoneNumber(formData.phone)) {
-			newErrors.phone = "Phone number must be exactly 8 digits."; hasError = true;
+			newErrors.phone = "Phone number must be exactly 8 digits.";
+			hasError = true;
 		}
 		if (!formData.personalNumber) {
-			newErrors.personalNumber = "Personal number is required."; hasError = true;
+			newErrors.personalNumber = "Personal number is required.";
+			hasError = true;
 		} else if (!validateNorwegianPersonalNumber(formData.personalNumber)) {
-			newErrors.personalNumber = "Invalid Norwegian personal number."; hasError = true;
+			newErrors.personalNumber = "Invalid Norwegian personal number.";
+			hasError = true;
 		} else {
 			const age = calculateAgeFromPersonalNumber(formData.personalNumber);
-			if (age !== null && age <= 15) {
-				newErrors.personalNumber = "You must be over 15 years old to fill this form."; hasError = true;
+			if (age === null) {
+				newErrors.personalNumber = "Unable to determine age from personal number. Please check the digits.";
+				hasError = true;
+			} else if (age <= 15) {
+				newErrors.personalNumber = "You must be over 15 years old to fill this form.";
+				hasError = true;
 			}
 		}
-		if (!formData.agreeTerms) { newErrors.terms = "You must agree to the terms and conditions."; hasError = true; }
-		if (errors.email) { newErrors.email = errors.email; hasError = true; }
+		if (!formData.agreeTerms) {
+			newErrors.terms = "You must agree to the terms and conditions.";
+			hasError = true;
+		}
+		if (errors.email) {
+			newErrors.email = errors.email;
+			hasError = true;
+		}
 
 		setErrors(newErrors);
 		return !hasError;
@@ -342,13 +372,18 @@ export function useMembershipForm() {
 			}
 			if (member.personalNumber) {
 				const err = validateFamilyMemberPersonalNumber(member.personalNumber);
-				if (err) { newFamilyErrors[`${member.id}-personalNumber`] = err; hasFamilyError = true; }
+				if (err) {
+					newFamilyErrors[`${member.id}-personalNumber`] = err;
+					hasFamilyError = true;
+				}
 			}
 			if (member.phone && !validatePhoneNumber(member.phone)) {
-				newFamilyErrors[`${member.id}-phone`] = "Phone number must be exactly 8 digits."; hasFamilyError = true;
+				newFamilyErrors[`${member.id}-phone`] = "Phone number must be exactly 8 digits.";
+				hasFamilyError = true;
 			}
 			if (member.email && !validateEmail(member.email)) {
-				newFamilyErrors[`${member.id}-email`] = "Email address is not valid."; hasFamilyError = true;
+				newFamilyErrors[`${member.id}-email`] = "Email address is not valid.";
+				hasFamilyError = true;
 			}
 		}
 
@@ -370,11 +405,7 @@ export function useMembershipForm() {
 			}
 			const responseData = await res.json();
 			const totalMembers = responseData.totalMembers || 1;
-			setSuccessMessage(
-				totalMembers > 1
-					? `Successfully registered ${totalMembers} family members!`
-					: "Successfully registered!"
-			);
+			setSuccessMessage(totalMembers > 1 ? `Successfully registered ${totalMembers} family members!` : "Successfully registered!");
 			setShowSuccessModal(true);
 			return true;
 		} catch (error) {

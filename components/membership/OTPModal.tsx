@@ -16,20 +16,7 @@ interface OTPModalProps {
 	onClose: () => void;
 }
 
-export function OTPModal({
-	show,
-	phone,
-	otpCode,
-	otpSent,
-	otpSending = false,
-	otpError,
-	verifying,
-	countdown,
-	onOtpChange,
-	onVerify,
-	onResend,
-	onClose,
-}: OTPModalProps) {
+export function OTPModal({ show, phone, otpCode, otpSent, otpSending = false, otpError, verifying, countdown, onOtpChange, onVerify, onResend, onClose }: OTPModalProps) {
 	if (!show) return null;
 
 	return (
@@ -43,9 +30,7 @@ export function OTPModal({
 						</svg>
 					</div>
 					<div className="text-center">
-						<p className="text-xs font-semibold tracking-widest uppercase text-blue-600 mb-1.5">
-							Phone Verification
-						</p>
+						<p className="text-xs font-semibold tracking-widest uppercase text-blue-600 mb-1.5">Phone Verification</p>
 						<h3 className="text-xl font-bold text-gray-900">Verify your mobile number</h3>
 					</div>
 				</div>
@@ -72,26 +57,16 @@ export function OTPModal({
 									</svg>
 									<div>
 										<h4 className="text-sm font-semibold text-red-800">Failed to send SMS code</h4>
-										<p className="text-xs text-red-700 mt-1 leading-relaxed">
-											{otpError || "Unable to send verification code. Please check your phone number and try again."}
-										</p>
+										<p className="text-xs text-red-700 mt-1 leading-relaxed">{otpError || "Unable to send verification code. Please check your phone number and try again."}</p>
 									</div>
 								</div>
 							</div>
 
 							<div className="flex flex-col gap-2 pt-2">
-								<button
-									type="button"
-									onClick={onResend}
-									className="w-full py-2.5 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm"
-								>
+								<button type="button" onClick={onResend} className="w-full py-2.5 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm">
 									Retry sending code
 								</button>
-								<button
-									type="button"
-									onClick={onClose}
-									className="w-full py-2.5 px-4 text-sm font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-								>
+								<button type="button" onClick={onClose} className="w-full py-2.5 px-4 text-sm font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
 									Back to form
 								</button>
 							</div>
@@ -102,8 +77,7 @@ export function OTPModal({
 					{!otpSending && otpSent && (
 						<div className="space-y-5">
 							<p className="text-sm text-gray-600 text-center leading-relaxed">
-								Enter the 4-digit verification code sent to{" "}
-								<span className="font-semibold text-gray-900">+47 {phone}</span>:
+								Enter the 4-digit verification code sent to <span className="font-semibold text-gray-900">+47 {phone}</span>:
 							</p>
 
 							<div className="space-y-3">
@@ -122,51 +96,25 @@ export function OTPModal({
 										placeholder="0000"
 										autoFocus
 									/>
-									<button
-										type="button"
-										onClick={onVerify}
-										disabled={otpCode.length !== 4 || verifying}
-										className="px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
-									>
+									<button type="button" onClick={onVerify} disabled={otpCode.length !== 4 || verifying} className="px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm">
 										{verifying ? "Verifying..." : "Verify"}
 									</button>
 								</div>
 
-								{otpError && (
-									<p className="text-red-600 text-xs text-center font-medium bg-red-50 py-2 px-3 rounded-lg border border-red-100">
-										{otpError}
-									</p>
-								)}
+								{otpError && <p className="text-red-600 text-xs text-center font-medium bg-red-50 py-2 px-3 rounded-lg border border-red-100">{otpError}</p>}
 							</div>
 
 							<div className="flex justify-between items-center pt-2 text-sm">
-								<button
-									type="button"
-									onClick={onResend}
-									disabled={countdown > 0}
-									className={`font-medium transition-colors ${
-										countdown > 0
-											? "text-gray-400 cursor-not-allowed"
-											: "text-blue-600 hover:text-blue-800"
-									}`}
-								>
+								<button type="button" onClick={onResend} disabled={countdown > 0} className={`font-medium transition-colors ${countdown > 0 ? "text-gray-400 cursor-not-allowed" : "text-blue-600 hover:text-blue-800"}`}>
 									{countdown > 0 ? `Resend code (${countdown}s)` : "Resend code"}
 								</button>
-								<button
-									type="button"
-									onClick={onClose}
-									className="text-gray-500 hover:text-gray-700 transition-colors"
-								>
+								<button type="button" onClick={onClose} className="text-gray-500 hover:text-gray-700 transition-colors">
 									Cancel
 								</button>
 							</div>
 
 							<div className="pt-2">
-								<button
-									type="button"
-									onClick={onClose}
-									className="w-full py-2.5 px-4 text-sm font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-								>
+								<button type="button" onClick={onClose} className="w-full py-2.5 px-4 text-sm font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
 									Back to form
 								</button>
 							</div>

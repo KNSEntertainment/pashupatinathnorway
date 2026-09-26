@@ -70,9 +70,15 @@ export function useOTPVerification({ phone, onVerified }: UseOTPVerificationProp
 		}
 	};
 
-	const verifyOTPCode = async () => {
+	const handleOtpChange = (value: string) => {
+		setOtpCode(value);
+		if (otpError) setOtpError("");
+	};
+
+	const verifyOTPCode = async (codeToVerify?: string) => {
+		const code = (typeof codeToVerify === "string" ? codeToVerify : otpCode).trim();
 		if (verifying || phoneVerified) return;
-		if (!otpCode || otpCode.length !== 4) {
+		if (!code || code.length !== 4) {
 			setOtpError("Please enter the 4-digit verification code");
 			return;
 		}
@@ -84,12 +90,12 @@ export function useOTPVerification({ phone, onVerified }: UseOTPVerificationProp
 			const response = await fetch("/api/verify-otp", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ phoneNumber: phone, code: otpCode }),
+				body: JSON.stringify({ phoneNumber: phone, code }),
 			});
 
 			const data = await response.json();
 			if (!response.ok) {
-				throw new Error(data.error || "Failed to verify OTP");
+				throw new Error(data.error || "Invalid verification code. Please try again.");
 			}
 
 			setOtpError("");
@@ -138,7 +144,7 @@ export function useOTPVerification({ phone, onVerified }: UseOTPVerificationProp
 	return {
 		showOTPModal,
 		otpCode,
-		setOtpCode,
+		setOtpCode: handleOtpChange,
 		otpSent,
 		phoneVerified,
 		otpError,
