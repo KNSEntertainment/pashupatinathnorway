@@ -135,10 +135,27 @@ export default function MembershipsPage() {
 				throw new Error("Failed to update status");
 			}
 
-			toast({
-				title: "Success",
-				description: newStatus === "approved" ? "Membership approved and welcome email sent successfully" : `Membership ${newStatus} successfully`,
-			});
+			const data = await response.json();
+
+			if (newStatus === "approved") {
+				if (data.emailSent) {
+					toast({
+						title: "Success",
+						description: "Membership approved and welcome email sent successfully",
+					});
+				} else {
+					toast({
+						title: "Approved (Email Failed)",
+						description: data.emailError ? `Membership approved, but welcome email failed: ${data.emailError}` : "Membership approved, but welcome email could not be sent. Check email provider quota.",
+						variant: "destructive",
+					});
+				}
+			} else {
+				toast({
+					title: "Success",
+					description: `Membership ${newStatus} successfully`,
+				});
+			}
 
 			mutate();
 		} catch (error) {
@@ -227,10 +244,27 @@ export default function MembershipsPage() {
 				throw new Error(errorData.error || "Failed to update membership");
 			}
 
-			toast({
-				title: "Success",
-				description: isActivating ? "Membership updated, approved, and welcome email sent successfully" : "Membership updated successfully",
-			});
+			const data = await response.json();
+
+			if (isActivating) {
+				if (data.emailSent) {
+					toast({
+						title: "Success",
+						description: "Membership updated, approved, and welcome email sent successfully",
+					});
+				} else {
+					toast({
+						title: "Updated (Email Failed)",
+						description: data.emailError ? `Membership updated and approved, but welcome email failed: ${data.emailError}` : "Membership updated and approved, but welcome email could not be sent. Check email provider quota.",
+						variant: "destructive",
+					});
+				}
+			} else {
+				toast({
+					title: "Success",
+					description: "Membership updated successfully",
+				});
+			}
 			setEditingMember(null);
 			setEditFormData({});
 			mutate();

@@ -391,13 +391,13 @@ export async function sendActiveMemberApprovalEmailEnglish({ name, email, setupT
 
 		if (error) {
 			console.error("Error sending Active Member approval email:", error);
-			throw new Error("Failed to send Active Member approval email");
+			throw new Error(error.message || "Failed to send Active Member approval email");
 		}
 
 		console.log("Active Member approval email sent to:", email);
 	} catch (error) {
 		console.error("Error sending Active Member approval email:", error);
-		throw new Error("Failed to send Active Member approval email");
+		throw error;
 	}
 }
 
@@ -525,13 +525,13 @@ export async function sendActiveMemberApprovalEmail({ name, email, setupToken, f
 
 		if (error) {
 			console.error("Error sending Nepali Active Member approval email:", error);
-			throw new Error("Failed to send Nepali Active Member approval email");
+			throw new Error(error.message || "Failed to send Nepali Active Member approval email");
 		}
 
 		console.log("Nepali Active Member approval email sent to:", email);
 	} catch (error) {
 		console.error("Error sending Nepali Active Member approval email:", error);
-		throw new Error("Failed to send Nepali Active Member approval email");
+		throw error;
 	}
 }
 
@@ -1060,13 +1060,13 @@ export async function sendWelcomeEmail({ name, email, setupToken, familyMembers 
 
 		if (error) {
 			console.error("Error sending welcome email:", error);
-			throw new Error("Failed to send welcome email");
+			throw new Error(error.message || "Failed to send welcome email");
 		}
 
 		console.log("Welcome email sent to:", email);
 	} catch (error) {
 		console.error("Error sending welcome email:", error);
-		throw new Error("Failed to send welcome email");
+		throw error;
 	}
 }
 

@@ -175,6 +175,9 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
 		),
 	);
 
+	let emailSent = false;
+	let emailError: string | null = null;
+
 	// If membership is being approved or upgraded to Active
 	if (isActivatingMember && updateData.passwordSetupToken) {
 		try {
@@ -206,14 +209,20 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
 				});
 			}
 
+			emailSent = true;
 			console.log(`Welcome approval email successfully sent to ${membership.email}`);
 		} catch (error: unknown) {
 			console.error("Error sending welcome email:", error);
-			// Don't fail the membership approval if email fails
+			emailSent = false;
+			emailError = error instanceof Error ? error.message : "Failed to send welcome email";
 		}
 	}
 
-	return NextResponse.json(membership);
+	return NextResponse.json({
+		...membership.toObject(),
+		emailSent,
+		emailError,
+	});
 }
 
 export async function DELETE(req: NextRequest, context: { params: Promise<{ id: string }> }) {
