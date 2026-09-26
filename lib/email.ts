@@ -173,7 +173,7 @@ export async function sendGeneralMemberWelcomeEmailNepali({ name, email, members
 	const familyMembersText = familyMembers && familyMembers.length > 0 ? `\n\nपरिवारका सदस्यहरू दर्ता: ${familyMembers.join(", ")}` : "";
 
 	const mailOptions = {
-		from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER}>`,
+		from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER || "post@nepalihindu.no"}>`,
 		to: email,
 		subject: "पशुपतिनाथ नर्वे मन्दिरमा स्वागत - सदस्यता दर्ता सफल",
 		text: `नमस्ते ${name} जी,\n\nपशुपतिनाथ नर्वे मन्दिरमा तपाईंलाई स्वागत छ। तपाईं हाम्रो साधारण सदस्य बन्नुभएको छ।${familyMembersText}\n\nतपाईंको सदस्यता आईडी: ${membershipId}\nकृपया यो आईडी आफ्नो रेकर्डका लागि सुरक्षित राख्नुहोस्।\n\nतपाईंको खाता प्रमाणीकरण भएपछि, मन्दिरसँग सम्बन्धित धेरै कुराहरू आफ्नो सदस्यता पोर्टलमा हेर्न पाउनुहुनेछ।\n\nआउने चरणहरू:\n• तपाईंको आवेदन हालै हाम्रो प्रशासन टोलीद्वारा समीक्षा गरिँदै छ\n• प्रमाणीकरण गरेपछि तपाईंले नयाँ इमेल पाउनुहुनेछ जसमा तपाईंको सदस्य पोर्टलमा कसरी पहुँच गर्ने भन्ने जानकारी हुनेछ\n• एकचोटि स्वीकृत भएपछि तपाईं सक्रिय सदस्य बन्नुहुनेछ र सदस्य सुविधाहरूको पूर्ण पहुँच पाउनुहुनेछ\n\nसाधारण सदस्यको रूपमा, तपाईं पहिल्यै हाम्रो समुदायको भाग हुनुहुन्छ र मन्दिर कार्यक्रमहरू र गतिविधिहरूको बारेमा अपडेटहरू पाउनुहुनेछ।\n\nधन्यवाद,\nपशुपतिनाथ नर्वे मन्दिर टोली`,
@@ -248,7 +248,7 @@ export async function sendGeneralMemberWelcomeEmailNepali({ name, email, members
 		mailOptions.html = htmlContentWithFooter;
 
 		const { error } = await resend.emails.send({
-			from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER!}>`,
+			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER || "post@nepalihindu.no"}>`,
 			to: [email],
 			subject: mailOptions.subject,
 			text: mailOptions.text,
@@ -415,7 +415,7 @@ export async function sendActiveMemberApprovalEmail({ name, email, setupToken, f
 	const familyMembersText = familyMembers && familyMembers.length > 0 ? `\n\nपरिवारका सदस्यहरू दर्ता: ${familyMembers.join(", ")}` : "";
 
 	const mailOptions = {
-		from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER}>`,
+		from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER || "post@nepalihindu.no"}>`,
 		to: email,
 		subject: "बधाई छ! तपाईं अब सक्रिय सदस्य हुनुहुन्छ - पशुपतिनाथ नर्वे मन्दिर",
 		text: `नमस्ते ${name},\n\nबधाई छ! तपाईंको सदस्यता स्वीकृत भएको छ र तपाईं अब पशुपतिनाथ नर्वे मन्दिरको <strong>सक्रिय सदस्य</strong> हुनुहुन्छ!${familyMembersText}\n\nतपाईंको आवेदन हाम्रो प्रशासन टोलीले समीक्षा गरी स्वीकृत गरेको छ। अब तपाईंसँग सबै सदस्य सुविधाहरू पूर्ण पहुँच छ र तपाईं हाम्रो मन्दिर गतिविधिहरूमा सक्रिय रूपमा सहभागी हुन सक्नुहुन्छ।\n\nकृपया तल दिइएको लिंकमा क्लिक गरेर आफ्नो पासवर्ड सेट गर्नुहोस् र आफ्नो सदस्य ड्यासबोर्ड पहुँच गर्नुहोस्:\n${setupUrl}\n\nयो लिंक १ वर्षको लागि मान्य छ।\n\nसक्रिय सदस्यको रूपमा, तपाईंले गर्न सक्नुहुन्छ:\n• आफ्नो सदस्य ड्यासबोर्ड पहुँच गर्नुहोस्\n• आफ्नो प्रोफाइल जानकारी अपडेट गर्नुहोस्\n• मन्दिर कार्यक्रमहरू र सांस्कृतिक कार्यक्रमहरूमा सहभागी हुनुहोस्\n• हाम्रो मन्दिर निर्माण मिशनमा योगदान पुर्याउनुहोस्\n• अन्य नेपाली समुदायका सदस्यहरूसँग जोडिनुहोस्\n• हाम्रो सांस्कृतिक र धार्मिक विरासतलाई सुरक्षित राख्न मद्दत गर्नुहोस्\n• समुदाय निर्णयहरूमा मतदान गर्नुहोस्\n• विशेष सदस्य स्रोतहरू पहुँच गर्नुहोस्\n\nहामी नर्वेमा पहिलो नेपाली हिन्दू मन्दिर बनाउने र हाम्रो समुदायलाई एकजुट गर्ने पवित्र मिशनको सक्रिय सदस्यको रूपमा तपाईंलाई पाएर धेरै खुशी छौं।\n\nशुभकामना,\nपशुपतिनाथ नर्वे मन्दिर टोली`,
@@ -516,7 +516,7 @@ export async function sendActiveMemberApprovalEmail({ name, email, setupToken, f
 		mailOptions.html = htmlContentWithFooter;
 
 		const { error } = await resend.emails.send({
-			from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER!}>`,
+			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER || "post@nepalihindu.no"}>`,
 			to: [email],
 			subject: mailOptions.subject,
 			text: mailOptions.text,
@@ -789,7 +789,7 @@ export async function sendDonationThankYouEmail({ name, email, amount, currency 
 
 export async function sendVerificationFollowupEmail({ name, email, personalNumber }: sendVerificationFollowupEmail) {
 	const mailOptions = {
-		from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER}>`,
+		from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER || "post@nepalihindu.no"}>`,
 		to: email,
 		subject: "पशुपतिनाथ नर्वे मन्दिर - ओस्लो कम्युन द्वारा प्रमाणीकरण आवश्यक",
 		text: `नमस्ते ${name},\n\nपशुपतिनाथ नर्वे मन्दिरमा तपाईंको सदस्यताको लागि धन्यवाद।\n\nहामीले हालै ओस्लो कम्युनसँग तपाईंको व्यक्तिगत नम्बर (${personalNumber}) को प्रमाणीकरण गरेका छौं, तर अहिले सम्पर्कमा आएको छैन।\n\nकृपया निम्न कुराहरू गर्नुहोस्:\n१. आफ्नो व्यक्तिगत नम्बर सही छ भनेर पुष्टि गर्नुहोस्\n२. यदि कुनै त्रुटि छ भने, हामीलाई तुरुन्त सूचित गर्नुहोस्\n३. आफ्नो प्रमाणीकरण पूरा गर्न आवश्यक कागजातहरू प्रदान गर्नुहोस्\n\nयदि तपाईंसँग कुनै प्रश्नहरू छन् भने, कृपया हाम्रो समर्थन टोलीलाई सम्पर्क गर्नुहोस्।\n\nशुभकामना,\nपशुपतिनाथ नर्वे मन्दिर टोली`,
@@ -852,7 +852,7 @@ export async function sendVerificationFollowupEmail({ name, email, personalNumbe
 		mailOptions.html = htmlContentWithFooter;
 
 		const { error } = await resend.emails.send({
-			from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER!}>`,
+			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER || "post@nepalihindu.no"}>`,
 			to: [email],
 			subject: mailOptions.subject,
 			text: mailOptions.text,
@@ -882,7 +882,7 @@ export async function sendBRREGVerificationApprovalEmail({ name, email, setupTok
 	const setupUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/ne/set-password?token=${setupToken}`;
 
 	const mailOptions = {
-		from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER}>`,
+		from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER || "post@nepalihindu.no"}>`,
 		to: email,
 		subject: "बधाई छ! ओस्लो कम्युन द्वारा प्रमाणीकरण पूर्ण - पशुपतिनाथ नर्वे मन्दिर",
 		text: `नमस्ते ${name},\n\nबधाई छ! ओस्लो कम्युन द्वारा तपाईंको सदस्यता प्रमाणीकरण पूर्ण भएको छ र तपाईंको सदस्यता स्वीकृत भएको छ।\n\nतपाईं अब आधिकारिक रूपमा पशुपतिनाथ नर्वे मन्दिरको सदस्य हुनुहुन्छ! हामी तपाईंलाई हाम्रो समुदायमा स्वागत गर्दछौं।\n\nकृपया तल दिइएको लिंकमा क्लिक गरेर आफ्नो पासवर्ड सेट गर्नुहोस् र आफ्नो सदस्य ड्यासबोर्ड पहुँच गर्नुहोस्:\n${setupUrl}\n\nयो लिंक १ वर्षको लागि मान्य छ।\n\nसदस्यको रूपमा, तपाईंले गर्न सक्नुहुन्छ:\n• आफ्नो सदस्य ड्यासबोर्ड पहुँच गर्नुहोस्\n• आफ्नो प्रोफाइल जानकारी अपडेट गर्नुहोस्\n• मन्दिर कार्यक्रमहरूमा सहभागी हुनुहोस्\n• हाम्रो मन्दिर निर्माण मिशनमा योगदान पुर्याउनुहोस्\n• अन्य समुदाय सदस्यहरूसँग जोडिनुहोस्\n\nतपाईंको प्रमाणीकरण पूरा भएकोमा हामी धेरै खुशी छौं।\n\nशुभकामना,\nपशुपतिनाथ नर्वे मन्दिर टोली`,
@@ -951,7 +951,7 @@ export async function sendBRREGVerificationApprovalEmail({ name, email, setupTok
 		mailOptions.html = htmlContentWithFooter;
 
 		const { error } = await resend.emails.send({
-			from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER!}>`,
+			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER || "post@nepalihindu.no"}>`,
 			to: [email],
 			subject: mailOptions.subject,
 			text: mailOptions.text,
@@ -983,7 +983,7 @@ export async function sendWelcomeEmail({ name, email, setupToken, familyMembers 
 	const familyMembersText = familyMembers && familyMembers.length > 0 ? `\n\nपरिवारका सदस्यहरू दर्ता: ${familyMembers.join(", ")}` : "";
 
 	const mailOptions = {
-		from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER}>`,
+		from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER || "post@nepalihindu.no"}>`,
 		to: email,
 		subject: "पशुपतिनाथ नर्वे मन्दिरमा स्वागत - आफ्नो पासवर्ड सेट गर्नुहोस्",
 		text: `नमस्ते ${name},\n\nपशुपतिनाथ नर्वे मन्दिरमा स्वागत छ! तपाईंको सदस्यता स्वीकृत भएको छ।${familyMembersText}\n\nतपाईं अब नर्वेमा पहिलो नेपाली हिन्दू मन्दिर बनाउने र हाम्रो समुदायलाई एकजुट गर्ने हाम्रो पवित्र मिशनको भाग हुनुहुन्छ। सँगै, हामी एक आध्यात्मिक घर बनाउँदैछौं जहाँ हाम्रो सांस्कृतिक विरासा र धार्मिक परम्पराहरू आउँदा पुस्ताहरूका लागि फल्न सक्छन्।\n\nकृपया तल दिइएको लिंकमा क्लिक गरेर आफ्नो पासवर्ड सेट गर्नुहोस्:\n${setupUrl}\n\nयो लिंक १ वर्षको लागि मान्य छ।\n\nतपाईंको सदस्यतासँग, तपाईं हाम्रो दृष्टिकोणमा हामीसँग मिल्नुहुन्छ जहाँ नर्वेमा हाम्रो समृद्ध, जोडिएको नेपाली समुदाय छ जहाँ हरेक सदस्यलाई समर्थन, मूल्यवान र आफ्नो विरासतमा गर्व महसुस हुन्छ।\n\nशुभकामना,\nपशुपतिनाथ नर्वे मन्दिर टोली`,
@@ -1051,7 +1051,7 @@ export async function sendWelcomeEmail({ name, email, setupToken, familyMembers 
 
 	try {
 		const { error } = await resend.emails.send({
-			from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER!}>`,
+			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER || "post@nepalihindu.no"}>`,
 			to: [email],
 			subject: mailOptions.subject,
 			text: mailOptions.text,
@@ -1073,7 +1073,7 @@ export async function sendWelcomeEmail({ name, email, setupToken, familyMembers 
 // Newsletter subscription thank you email
 export async function sendSubscriptionThankYouEmail(email: string) {
 	const mailOptions = {
-		from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER}>`,
+		from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER || "post@nepalihindu.no"}>`,
 		to: email,
 		subject: "Thank You for Subscribing to Pashupatinath Norway Temple Newsletter!",
 		text: `Thank you for subscribing to the Pashupatinath Norway Temple newsletter!\n\nWe're excited to keep you updated with our latest news, events, and community activities.\n\nWhat you can expect:\n- Latest news and updates from Pashupatinath Norway Temple\n- Information about upcoming events\n- Community initiatives and opportunities\n- Ways to get involved and make a difference\n\nYou can unsubscribe at any time by clicking the unsubscribe link in our emails.\n\nBest regards,\nPashupatinath Temple Norway Team`,
@@ -1371,7 +1371,7 @@ type sendBirthdayWishEmail = {
 
 export async function sendBirthdayWishEmail({ name, email, age }: sendBirthdayWishEmail) {
 	const mailOptions = {
-		from: `"पशुपतिनाथ नर्वे मन्दिर"<${process.env.EMAIL_USER}>`,
+		from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER || "post@nepalihindu.no"}>`,
 		to: email,
 		subject: `जन्मदिनको शुभकामना ${name}! - Pashupatinath Norway Temple`,
 		text: `आदरणीय ${name},\n\nपशुपतिनाथ मन्दिर नर्वे परिवारको तर्फबाट तपाईंलाई जन्मदिनको हार्दिक मंगलमय शुभकामना व्यक्त गर्दछौं।\n\nपशुपतिनाथले तपाईंलाई सुस्वास्थ्य, दीर्घायु र समृद्धि प्रदान गरून्।\n\n"जीवेत् शरदः शतम्"\n(तपाईं सय वर्षसम्म जीवित रहनुहोस्)\n\nसादर,\nपशुपतिनाथ मन्दिर नर्वे परिवार`,
@@ -1430,7 +1430,7 @@ export async function sendBirthdayWishEmail({ name, email, age }: sendBirthdayWi
 
 	try {
 		const { error } = await resend.emails.send({
-			from: `"पशुपतिनाथ नर्वे मन्दिर" <${process.env.EMAIL_USER!}>`,
+			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER || "post@nepalihindu.no"}>`,
 			to: [email],
 			subject: mailOptions.subject,
 			text: mailOptions.text,

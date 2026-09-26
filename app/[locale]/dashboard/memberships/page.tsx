@@ -18,30 +18,30 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 		return null;
 	}
 
-	const day = parseInt(personalNumber.substring(0, 2));
-	const month = parseInt(personalNumber.substring(2, 4)) - 1;
-	const yearShort = parseInt(personalNumber.substring(4, 6));
-	const individualNumber = parseInt(personalNumber.substring(6, 9));
-	const currentYear = new Date().getFullYear();
+	const rawDay = parseInt(personalNumber.substring(0, 2), 10);
+	const day = rawDay > 40 && rawDay <= 71 ? rawDay - 40 : rawDay;
+	const month = parseInt(personalNumber.substring(2, 4), 10) - 1;
+	const yearShort = parseInt(personalNumber.substring(4, 6), 10);
+	const individualNumber = parseInt(personalNumber.substring(6, 9), 10);
+	const today = new Date();
+	const currentYear = today.getFullYear();
+	const currentYearShort = currentYear % 100;
 
 	let fullYear: number;
-
-	// Individual number 750–999 with year 00–39 → born 2000–2039
-	if (individualNumber >= 750 && individualNumber <= 999 && yearShort <= 39) {
+	if (individualNumber >= 500 && individualNumber <= 999 && yearShort <= 39) {
+		fullYear = 2000 + yearShort;
+	} else if (yearShort <= currentYearShort && currentYear - (1900 + yearShort) > 100) {
 		fullYear = 2000 + yearShort;
 	} else {
-		// Everyone else in 0-99 age range → born 1900–1999
 		fullYear = 1900 + yearShort;
 	}
 
-	// Safety check: if resolved year is somehow in the future, step back
 	if (fullYear > currentYear) {
 		fullYear -= 100;
 	}
 
-	// Calculate exact age
 	const birthDate = new Date(fullYear, month, day);
-	const today = new Date();
+	if (isNaN(birthDate.getTime())) return null;
 
 	let age = today.getFullYear() - birthDate.getFullYear();
 	const monthDiff = today.getMonth() - birthDate.getMonth();
@@ -49,8 +49,7 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 		age--;
 	}
 
-	// Reject if outside supported range
-	if (age < 0 || age > 99) {
+	if (age < 0 || age > 115) {
 		return null;
 	}
 
@@ -92,6 +91,7 @@ export default function MembershipsPage() {
 	const [resignDate, setResignDate] = useState(() => new Date().toISOString().slice(0, 10));
 	const [resignTermStartFallback, setResignTermStartFallback] = useState("");
 	const [resigningLoading, setResigningLoading] = useState(false);
+	const [resendWelcomeLoading, setResendWelcomeLoading] = useState(false);
 	const MEMBERS_PER_PAGE = 500;
 	const { data: memberships, error, loading, mutate } = useFetchData("/api/membership", "memberships");
 	const { toast } = useToast();
@@ -148,6 +148,33 @@ export default function MembershipsPage() {
 				description: "Failed to update status. Please try again.",
 				variant: "destructive",
 			});
+		}
+	};
+
+	const handleResendWelcomeEmail = async (memberId: string) => {
+		setResendWelcomeLoading(true);
+		try {
+			const response = await fetch("/api/membership/send-welcome-email", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ membershipId: memberId }),
+			});
+			const data = await response.json();
+			if (!response.ok) {
+				throw new Error(data.error || "Failed to send welcome email");
+			}
+			toast({
+				title: "Success",
+				description: "Welcome email sent successfully",
+			});
+		} catch (error) {
+			toast({
+				title: "Error",
+				description: error instanceof Error ? error.message : "Failed to send welcome email",
+				variant: "destructive",
+			});
+		} finally {
+			setResendWelcomeLoading(false);
 		}
 	};
 
@@ -423,17 +450,20 @@ export default function MembershipsPage() {
 	const handleBulkStatusChange = async () => {
 		if (!selectedMemberIds.length || !bulkStatus) return;
 
-		// Check if trying to approve General members
+		// Check age for members being approved
 		if (bulkStatus === "approved") {
 			for (const id of selectedMemberIds) {
 				const member = paginatedMemberships.find((m: Membership) => m._id === id) as Membership | undefined;
-				if (member?.membershipType === "General") {
-					toast({
-						title: "Cannot Approve",
-						description: "General members cannot be approved. Please change their membership type to Active first.",
-						variant: "destructive",
-					});
-					return; // Stop execution
+				if (member) {
+					const age = calculateAgeFromPersonalNumber(member.personalNumber || "");
+					if (age !== null && age < 15) {
+						toast({
+							title: "Cannot Approve",
+							description: `${member.firstName} ${member.lastName} is under 15 years old. Members must be at least 15 to become Active members.`,
+							variant: "destructive",
+						});
+						return; // Stop execution
+					}
 				}
 			}
 		}
@@ -1318,18 +1348,38 @@ export default function MembershipsPage() {
 												<Edit className="w-4 h-4 mr-2" />
 												Edit Member
 											</Button>
-											{viewingMember.membershipStatus === "pending" && (
-												<>
-													<Button onClick={() => handleStatusUpdate(viewingMember._id, "approved")} className="bg-green-600 hover:bg-green-700">
-														<CheckCircle className="w-4 h-4 mr-2" />
-														Approve
-													</Button>
-													<Button onClick={() => handleStatusUpdate(viewingMember._id, "blocked")} variant="destructive">
-														<XCircle className="w-4 h-4 mr-2" />
-														Block
-													</Button>
-												</>
+											{viewingMember.membershipStatus === "approved" && (
+												<Button
+													onClick={() => handleResendWelcomeEmail(viewingMember._id)}
+													disabled={resendWelcomeLoading}
+													variant="outline"
+													className="text-blue-600 border-blue-600 hover:bg-blue-50"
+												>
+													<Mail className="w-4 h-4 mr-2" />
+													{resendWelcomeLoading ? "Sending..." : "Resend Welcome Email"}
+												</Button>
 											)}
+											{viewingMember.membershipStatus === "pending" && (() => {
+												const age = calculateAgeFromPersonalNumber(viewingMember.personalNumber || "");
+												const canApprove = age !== null && age >= 15;
+												return (
+													<>
+														<Button
+															onClick={() => handleStatusUpdate(viewingMember._id, "approved")}
+															disabled={!canApprove}
+															className="bg-green-600 hover:bg-green-700 disabled:opacity-50"
+															title={!canApprove ? "Member must be at least 15 years old" : "Approve membership"}
+														>
+															<CheckCircle className="w-4 h-4 mr-2" />
+															Approve
+														</Button>
+														<Button onClick={() => handleStatusUpdate(viewingMember._id, "blocked")} variant="destructive">
+															<XCircle className="w-4 h-4 mr-2" />
+															Block
+														</Button>
+													</>
+												);
+											})()}
 										</div>
 									</div>
 								</div>
