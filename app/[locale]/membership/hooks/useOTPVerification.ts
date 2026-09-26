@@ -72,7 +72,7 @@ export function useOTPVerification({ phone, onVerified }: UseOTPVerificationProp
 
 	const handleOtpChange = (value: string) => {
 		setOtpCode(value);
-		if (otpError) setOtpError("");
+		setOtpError("");
 	};
 
 	const verifyOTPCode = async (codeToVerify?: string) => {
