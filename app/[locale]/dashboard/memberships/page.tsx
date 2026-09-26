@@ -212,6 +212,10 @@ export default function MembershipsPage() {
 		if (!editingMember) return;
 
 		try {
+			const wasPending = editingMember.membershipStatus !== "approved" || editingMember.membershipType === "General";
+			const isNowApproved = editFormData.membershipStatus === "approved" || ["Active", "Executive", "Advisor"].includes(editFormData.membershipType || "");
+			const isActivating = wasPending && isNowApproved && editFormData.membershipStatus !== "blocked";
+
 			const response = await fetch(`/api/membership/${editingMember._id}`, {
 				method: "PUT",
 				headers: { "Content-Type": "application/json" },
@@ -225,7 +229,7 @@ export default function MembershipsPage() {
 
 			toast({
 				title: "Success",
-				description: "Membership updated successfully",
+				description: isActivating ? "Membership updated, approved, and welcome email sent successfully" : "Membership updated successfully",
 			});
 			setEditingMember(null);
 			setEditFormData({});
@@ -241,7 +245,22 @@ export default function MembershipsPage() {
 	};
 
 	const handleEditChange = (field: string, value: string | boolean) => {
-		setEditFormData((prev) => ({ ...prev, [field]: value }));
+		setEditFormData((prev) => {
+			const updated = { ...prev, [field]: value };
+			// If admin selects an active type (Active, Executive, Advisor) and status is pending, automatically set status to approved
+			if (field === "membershipType" && ["Active", "Executive", "Advisor"].includes(value as string)) {
+				if (prev.membershipStatus === "pending") {
+					updated.membershipStatus = "approved";
+				}
+			}
+			// If admin approves status and type was General, automatically set type to Active
+			if (field === "membershipStatus" && value === "approved") {
+				if (prev.membershipType === "General") {
+					updated.membershipType = "Active";
+				}
+			}
+			return updated;
+		});
 	};
 
 	const handleAddChange = (field: string, value: string | boolean) => {
@@ -1349,37 +1368,28 @@ export default function MembershipsPage() {
 												Edit Member
 											</Button>
 											{viewingMember.membershipStatus === "approved" && (
-												<Button
-													onClick={() => handleResendWelcomeEmail(viewingMember._id)}
-													disabled={resendWelcomeLoading}
-													variant="outline"
-													className="text-blue-600 border-blue-600 hover:bg-blue-50"
-												>
+												<Button onClick={() => handleResendWelcomeEmail(viewingMember._id)} disabled={resendWelcomeLoading} variant="outline" className="text-blue-600 border-blue-600 hover:bg-blue-50">
 													<Mail className="w-4 h-4 mr-2" />
 													{resendWelcomeLoading ? "Sending..." : "Resend Welcome Email"}
 												</Button>
 											)}
-											{viewingMember.membershipStatus === "pending" && (() => {
-												const age = calculateAgeFromPersonalNumber(viewingMember.personalNumber || "");
-												const canApprove = age !== null && age >= 15;
-												return (
-													<>
-														<Button
-															onClick={() => handleStatusUpdate(viewingMember._id, "approved")}
-															disabled={!canApprove}
-															className="bg-green-600 hover:bg-green-700 disabled:opacity-50"
-															title={!canApprove ? "Member must be at least 15 years old" : "Approve membership"}
-														>
-															<CheckCircle className="w-4 h-4 mr-2" />
-															Approve
-														</Button>
-														<Button onClick={() => handleStatusUpdate(viewingMember._id, "blocked")} variant="destructive">
-															<XCircle className="w-4 h-4 mr-2" />
-															Block
-														</Button>
-													</>
-												);
-											})()}
+											{viewingMember.membershipStatus === "pending" &&
+												(() => {
+													const age = calculateAgeFromPersonalNumber(viewingMember.personalNumber || "");
+													const canApprove = age !== null && age >= 15;
+													return (
+														<>
+															<Button onClick={() => handleStatusUpdate(viewingMember._id, "approved")} disabled={!canApprove} className="bg-green-600 hover:bg-green-700 disabled:opacity-50" title={!canApprove ? "Member must be at least 15 years old" : "Approve membership"}>
+																<CheckCircle className="w-4 h-4 mr-2" />
+																Approve
+															</Button>
+															<Button onClick={() => handleStatusUpdate(viewingMember._id, "blocked")} variant="destructive">
+																<XCircle className="w-4 h-4 mr-2" />
+																Block
+															</Button>
+														</>
+													);
+												})()}
 										</div>
 									</div>
 								</div>
@@ -1474,7 +1484,7 @@ export default function MembershipsPage() {
 											<div>
 												<label className="block text-sm font-medium text-gray-900 mb-2">Membership Type *</label>
 												{(() => {
-													const age = calculateAgeFromPersonalNumber(editFormData.personalNumber || "");
+													const age = calculateAgeFromPersonalNumber(editingMember?.personalNumber || "");
 													const isUnder15 = age !== null && age < 15;
 													return (
 														<>

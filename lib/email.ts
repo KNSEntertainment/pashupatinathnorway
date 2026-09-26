@@ -280,7 +280,7 @@ export async function sendActiveMemberApprovalEmailEnglish({ name, email, setupT
 	const familyMembersText = familyMembers && familyMembers.length > 0 ? `\n\nFamily Members Registered: ${familyMembers.join(", ")}` : "";
 
 	const mailOptions = {
-		from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER}>`,
+		from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER || "post@nepalihindu.no"}>`,
 		to: email,
 		subject: "Congratulations! You are now an Active Member - Pashupatinath Norway Temple",
 		text: `Hello ${name},\n\nCongratulations! Your membership has been approved and you are now an <strong>Active Member</strong> of Pashupatinath Norway Temple!${familyMembersText}\n\nYour application has been reviewed and approved by our admin team. You now have full access to all member benefits and can participate actively in our temple activities.\n\nPlease set your password by clicking the link below to access your member dashboard:\n${setupUrl}\n\nThis link is valid for 24 hours.\n\nAs an Active Member, you can:\n• Access your member dashboard\n• Update your profile information\n• Participate in temple events and cultural programs\n• Contribute to our temple construction mission\n• Connect with fellow Nepalese community members\n• Help preserve our cultural and religious heritage\n• Vote in community decisions\n• Access exclusive member resources\n\nWe are thrilled to have you as an Active Member of our sacred mission to build the first Nepali Hindu temple in Norway.\n\nBest regards,\nPashupatinath Temple Norway Team`,
@@ -382,7 +382,7 @@ export async function sendActiveMemberApprovalEmailEnglish({ name, email, setupT
 		mailOptions.html = htmlContentWithFooter;
 
 		const { error } = await resend.emails.send({
-			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER!}>`,
+			from: `"Pashupatinath Norway Temple" <${process.env.EMAIL_USER || "post@nepalihindu.no"}>`,
 			to: [email],
 			subject: mailOptions.subject,
 			text: mailOptions.text,

@@ -116,18 +116,45 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
 		updateData.boardTermStart = new Date().toISOString();
 	}
 
-	// If membership is being approved, check age and set membership type
-	if (data.membershipStatus === "approved" && existingMembership.membershipStatus !== "approved") {
+	// Determine if member is being activated / approved:
+	// 1. Status is changing to approved/active (from non-approved)
+	// 2. OR Type is being upgraded to Active/Executive/Advisor (from General or non-active)
+	// Note: We don't activate if the status is explicitly being set to blocked
+	const isStatusApproved = data.membershipStatus === "approved" || data.membershipStatus === "active";
+	const wasStatusApproved = existingMembership.membershipStatus === "approved";
+	const isTypeActive = ["Active", "Executive", "Advisor"].includes(data.membershipType);
+	const wasTypeActive = ["Active", "Executive", "Advisor"].includes(existingMembership.membershipType);
+
+	const isStatusBeingApproved = isStatusApproved && !wasStatusApproved;
+	const isTypeBeingUpgradedToActive = isTypeActive && !wasTypeActive;
+
+	const isActivatingMember = (isStatusBeingApproved || isTypeBeingUpgradedToActive) && data.membershipStatus !== "blocked";
+
+	if (isActivatingMember) {
 		const age = calculateAgeFromPersonalNumber(existingMembership.personalNumber);
 
 		if (age !== null && age < 15) {
 			return NextResponse.json({ error: "Cannot approve membership for members under 15 years old. They must wait until they turn 15 to become an Active member." }, { status: 400 });
 		}
 
-		// Set membership type to Active for approved members 15+
-		updateData.membershipType = "Active";
-		// Set activeMemberSince when approving a member
-		updateData.activeMemberSince = new Date().toISOString();
+		// Ensure membershipStatus is set to approved
+		updateData.membershipStatus = "approved";
+
+		// Set membership type to Active for approved members 15+ if not already set to Executive/Advisor
+		if (!["Executive", "Advisor"].includes(updateData.membershipType)) {
+			updateData.membershipType = "Active";
+		}
+
+		// Set activeMemberSince when activating a member
+		if (!existingMembership.activeMemberSince) {
+			updateData.activeMemberSince = new Date().toISOString();
+		}
+
+		// Generate setup token for membership password setup (valid for 24 hours)
+		const setupToken = crypto.randomBytes(32).toString("hex");
+		const setupTokenExpiry = new Date(Date.now() + 1000 * 60 * 60 * 24); // 24 hours
+		updateData.passwordSetupToken = setupToken;
+		updateData.passwordSetupTokenExpiry = setupTokenExpiry;
 	}
 
 	const membership = await Membership.findByIdAndUpdate(id, updateData, { new: true });
@@ -141,25 +168,16 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
 				name: `${membership.firstName} ${membership.lastName}`,
 				position: membership.position,
 				membershipType: membership.membershipType,
+				membershipStatus: membership.membershipStatus,
 			},
 			null,
 			2,
 		),
 	);
 
-	// If membership is being approved for the first time
-	if (data.membershipStatus === "approved" && existingMembership.membershipStatus !== "approved") {
+	// If membership is being approved or upgraded to Active
+	if (isActivatingMember && updateData.passwordSetupToken) {
 		try {
-			// Generate setup token for membership password setup
-			const setupToken = crypto.randomBytes(32).toString("hex");
-			const setupTokenExpiry = new Date(Date.now() + 1000 * 60 * 60 * 24); // 24 hours
-
-			// Update membership with setup token
-			await Membership.findByIdAndUpdate(id, {
-				passwordSetupToken: setupToken,
-				passwordSetupTokenExpiry: setupTokenExpiry,
-			});
-
 			// Send Active Member approval email with password setup link
 			const fullName = [membership.firstName, membership.middleName, membership.lastName].filter(Boolean).join(" ");
 
@@ -168,20 +186,27 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
 			const url = req.url || "";
 			const isEnglishLocale = referer.includes("/en/") || url.includes("/en/") || (!referer.includes("/ne/") && !url.includes("/ne/"));
 
+			// Extract family member names if they exist
+			const familyMemberNames = existingMembership.familyMembers && existingMembership.familyMembers.length > 0 ? existingMembership.familyMembers.map((fm: { firstName?: string; lastName?: string }) => [fm.firstName, fm.lastName].filter(Boolean).join(" ")) : [];
+
 			// Use appropriate email function based on locale
 			if (isEnglishLocale) {
 				await sendActiveMemberApprovalEmailEnglish({
 					name: fullName,
 					email: membership.email,
-					setupToken: setupToken,
+					setupToken: updateData.passwordSetupToken as string,
+					familyMembers: familyMemberNames,
 				});
 			} else {
 				await sendActiveMemberApprovalEmail({
 					name: fullName,
 					email: membership.email,
-					setupToken: setupToken,
+					setupToken: updateData.passwordSetupToken as string,
+					familyMembers: familyMemberNames,
 				});
 			}
+
+			console.log(`Welcome approval email successfully sent to ${membership.email}`);
 		} catch (error: unknown) {
 			console.error("Error sending welcome email:", error);
 			// Don't fail the membership approval if email fails
