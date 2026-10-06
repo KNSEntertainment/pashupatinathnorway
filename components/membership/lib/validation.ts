@@ -13,7 +13,7 @@ export const validateNorwegianPersonalNumber = (personalNumber: string): boolean
 
 	if (day < 1 || day > 31) return false;
 	if (month < 1 || month > 12) return false;
-	if (yearShort < 1) return false;
+	if (isNaN(yearShort) || yearShort < 0 || yearShort > 99) return false;
 
 	const monthsWith30Days = [4, 6, 9, 11];
 
@@ -33,7 +33,9 @@ export const calculateAgeFromPersonalNumber = (personalNumber: string): number |
 	const currentYear = new Date().getFullYear();
 
 	let fullYear: number;
-	if (individualNumber >= 750 && individualNumber <= 999 && yearShort <= 39) {
+	if (yearShort === 0) {
+		fullYear = 2000;
+	} else if (individualNumber >= 500 && individualNumber <= 999 && yearShort <= 39) {
 		fullYear = 2000 + yearShort;
 	} else {
 		fullYear = 1900 + yearShort;
@@ -50,7 +52,7 @@ export const calculateAgeFromPersonalNumber = (personalNumber: string): number |
 		age--;
 	}
 
-	if (age < 0 || age > 99) return null;
+	if (age < 0 || age > 125) return null;
 	return age;
 };
 
@@ -76,7 +78,7 @@ export const validatePartialPersonalNumber = (personalNumber: string): string =>
 
 	if (personalNumber.length >= 6) {
 		const yearShort = parseInt(personalNumber.substring(4, 6));
-		if (yearShort < 1) return "Invalid year. Must be 01 or later (1901+).";
+		if (isNaN(yearShort) || yearShort < 0 || yearShort > 99) return "Invalid year. Must be between 00 and 99.";
 	}
 
 	if (personalNumber.length === 11) {
@@ -90,7 +92,7 @@ export const validatePartialPersonalNumber = (personalNumber: string): string =>
 
 export const validateFamilyMemberPersonalNumber = (personalNumber: string): string => {
 	if (!validateNorwegianPersonalNumber(personalNumber)) {
-		return "Invalid Norwegian personal number. Please check date, month, and year (must be 1901+).";
+		return "Invalid Norwegian personal number. Please check date, month, and year.";
 	}
 	const age = calculateAgeFromPersonalNumber(personalNumber);
 	if (age !== null && age >= 15) {

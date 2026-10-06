@@ -20,7 +20,9 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 	const currentYearShort = currentYear % 100;
 
 	let fullYear: number;
-	if (individualNumber >= 500 && individualNumber <= 999 && yearShort <= 39) {
+	if (yearShort === 0) {
+		fullYear = 2000;
+	} else if (individualNumber >= 500 && individualNumber <= 999 && yearShort <= 39) {
 		fullYear = 2000 + yearShort;
 	} else if (yearShort <= currentYearShort && currentYear - (1900 + yearShort) > 100) {
 		fullYear = 2000 + yearShort;

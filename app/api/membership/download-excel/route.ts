@@ -29,8 +29,9 @@ const calculateAgeFromPersonalNumber = (personalNumber: string): number | null =
 
 	let fullYear: number;
 
-	// Individual number 750–999 with year 00–39 → born 2000–2039
-	if (individualNumber >= 750 && individualNumber <= 999 && yearShort <= 39) {
+	if (yearShort === 0) {
+		fullYear = 2000;
+	} else if (individualNumber >= 500 && individualNumber <= 999 && yearShort <= 39) {
 		fullYear = 2000 + yearShort;
 	} else {
 		// Everyone else in 0-99 age range → born 1900–1999
